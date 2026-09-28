@@ -1,75 +1,93 @@
 :root {
   /* =====================================================================
-     KREAZYAI DESIGN SYSTEM - OLIVE / MUTED GREEN PALETTE
+     KREAZYAI LUXURY DESIGN SYSTEM — DEEP OLIVE OBSIDIAN & NATURAL SAGE
+     Executive, high-converting Linear/Vercel/Supabase standard
      ===================================================================== */
 
-  /* Primary Olive Shades */
-  --olive-950: #141c15; /* Deepest Charcoal-Olive */
-  --olive-900: #1c271e; /* Deep Forest Olive */
-  --olive-850: #223124; /* Brand Primary Deep Olive */
-  --olive-800: #293b2c; /* Card Dark Accent */
-  --olive-700: #354b39; /* Dark Olive */
-  --olive-600: #445e49; /* Medium Dark Olive */
-  --olive-500: #55745b; /* Muted Olive Primary Interactive */
-  --olive-400: #718f77; /* Soft Olive */
-  --olive-300: #93ac98; /* Muted Sage */
-  --olive-200: #b8c9bc; /* Light Sage */
-  --olive-100: #dce5df; /* Very Light Sage Tint */
-  --olive-50:  #f0f4f1; /* Ultra Light Sage Wash */
+  /* Deep Canvas & Backgrounds (Mood-infused dark olive obsidian, never flat pitch black) */
+  --bg-surface: #0B100D;         /* Deep canvas obsidian with dark forest undertone */
+  --bg-canvas-alt: #0D1310;      /* Slightly alternate dark olive tone */
+  --bg-subtle: #111A14;         /* Container & recessed surface bg */
+  --bg-card: rgba(18, 28, 22, 0.65); /* Glassmorphic card surface */
+  --bg-card-hover: rgba(24, 38, 30, 0.82);
+  --bg-card-solid: #131E17;     /* Solid fallback card surface */
+  --bg-elevated: rgba(22, 34, 27, 0.88); /* Popovers, menus & modals */
+  --bg-elevated-solid: #17241C;
 
-  /* Neutral Warm Palette */
+  /* Glassmorphism Hairline Micro-Borders & Dividers */
+  --border-subtle: rgba(140, 175, 150, 0.12); /* Hairline micro-divider */
+  --border-medium: rgba(80, 120, 95, 0.18);   /* Standard glass card border */
+  --border-strong: rgba(110, 160, 130, 0.32); /* Emphasized component border */
+  --border-glow: rgba(16, 185, 129, 0.35);    /* Subtle emerald highlight border */
+  --border-shine: inset 0 1px 0 rgba(255, 255, 255, 0.08); /* Inner micro-bevel shine */
+
+  /* Radiant Sage & Botanical Emerald Accents */
+  --emerald-500: #10B981;       /* Radiant Sage / Emerald Core CTA */
+  --emerald-400: #34D399;       /* Bright Botanical Sage */
+  --emerald-300: #5EEAD4;       /* High-energy Mint Highlight */
+  --emerald-600: #059669;       /* Deep Emerald Gradient Base */
+  --emerald-700: #047857;       /* Dark Emerald */
+  --emerald-glow: rgba(16, 185, 129, 0.28);
+  --emerald-soft: rgba(16, 185, 129, 0.12);
+
+  /* Deep Olive Palette Scale */
+  --olive-950: #070B08;         /* Deepest abyss */
+  --olive-900: #0B100D;         /* Base canvas */
+  --olive-850: #0F1713;         /* Deep charcoal olive */
+  --olive-800: #142019;         /* Surface container */
+  --olive-700: #1B2B22;         /* Elevated surface */
+  --olive-600: #253A2E;         /* Card highlight */
+  --olive-500: #10B981;         /* Primary brand accent */
+  --olive-400: #34D399;         /* Vibrant accent hover */
+  --olive-300: #6EE7B7;         /* Sage text accent */
+  --olive-200: #A7F3D0;         /* Moonlight mint */
+  --olive-100: #D1FAE5;         /* Soft sage highlight */
+  --olive-50:  rgba(16, 185, 129, 0.08); /* Ambient tint wash */
+
+  /* Typography Color Hierarchy */
+  --text-primary: #F1F5F3;      /* Crisp off-white / moonlight for effortless readability */
+  --text-secondary: #8B9E94;    /* Soft olive sage gray for secondary text */
+  --text-muted: #5D7065;        /* Subdued labels, timestamps, and placeholders */
+  --text-inverse: #051A10;      /* Contrast obsidian on bright emerald buttons */
+  --text-accent: #34D399;       /* Radiant sage highlights */
+
+  /* Dark Canvas Compatibility Aliases */
+  --dark-bg: #0B100D;
+  --dark-surface: #111A14;
+  --dark-card: rgba(18, 28, 22, 0.65);
+  --dark-border: rgba(80, 120, 95, 0.18);
+  --dark-text: #F1F5F3;
+  --dark-muted: #8B9E94;
   --warm-white: #ffffff;
-  --bg-surface: #fbfbf9;        /* Warm off-white canvas */
-  --bg-subtle: #f5f5f0;         /* Slightly tinted container bg */
-  --bg-card: #ffffff;           /* Clean solid card surface */
-  --bg-elevated: #ffffff;       /* Popover & modal background */
-  --border-subtle: #eaece7;     /* Hairline subtle border */
-  --border-medium: #d6dbd1;     /* Standard component border */
-  --border-strong: #b8c0b2;     /* High contrast border */
 
-  /* Dark Canvas (for hero contrast / dark accents) */
-  --dark-bg: #18221a;
-  --dark-surface: #202d23;
-  --dark-card: #27372b;
-  --dark-border: #354739;
-  --dark-text: #f0f4f1;
-  --dark-muted: #93ac98;
+  /* Semantic Status Colors (Rich, balanced dark mode indicators) */
+  --status-success-bg: rgba(16, 185, 129, 0.14);
+  --status-success-border: rgba(52, 211, 153, 0.3);
+  --status-success-text: #34D399;
 
-  /* Typography Colors */
-  --text-primary: #18201a;      /* Dark charcoal-olive for high readability */
-  --text-secondary: #4a544b;    /* Subdued body text */
-  --text-muted: #737f74;        /* Supporting captions and labels */
-  --text-inverse: #ffffff;      /* Contrast white */
-  --text-accent: #2c4230;       /* Emphasized brand text */
+  --status-warning-bg: rgba(245, 158, 11, 0.14);
+  --status-warning-border: rgba(251, 191, 36, 0.3);
+  --status-warning-text: #FBBF24;
 
-  /* Semantic Status Colors (Sophisticated, muted, never neon) */
-  --status-success-bg: #edf5ee;
-  --status-success-border: #c4dec7;
-  --status-success-text: #22592b;
+  --status-error-bg: rgba(239, 68, 68, 0.14);
+  --status-error-border: rgba(248, 113, 113, 0.3);
+  --status-error-text: #F87171;
 
-  --status-warning-bg: #fdf7ec;
-  --status-warning-border: #fae4b8;
-  --status-warning-text: #8c5b16;
+  --status-info-bg: rgba(14, 165, 233, 0.14);
+  --status-info-border: rgba(56, 189, 248, 0.3);
+  --status-info-text: #38BDF8;
 
-  --status-error-bg: #fdf0f0;
-  --status-error-border: #fad1d1;
-  --status-error-text: #962828;
-
-  --status-info-bg: #eef4f7;
-  --status-info-border: #cee1ea;
-  --status-info-text: #225670;
-
-  --status-purple-bg: #f4f0f8;
-  --status-purple-border: #dcd0ea;
-  --status-purple-text: #59317c;
+  --status-purple-bg: rgba(168, 85, 247, 0.14);
+  --status-purple-border: rgba(192, 132, 252, 0.3);
+  --status-purple-text: #C084FC;
 
   /* Platform Channel Accents */
   --channel-whatsapp: #25D366;
-  --channel-whatsapp-soft: #eaf8ee;
+  --channel-whatsapp-soft: rgba(37, 211, 102, 0.15);
   --channel-instagram: #E1306C;
-  --channel-instagram-soft: #fdf0f5;
+  --channel-instagram-soft: rgba(225, 48, 108, 0.15);
   --channel-facebook: #1877F2;
-  --channel-facebook-soft: #edf3fd;
+  --channel-facebook-soft: rgba(24, 119, 242, 0.15);
 
   /* Typography */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -98,17 +116,24 @@
   --radius-2xl: 28px;
   --radius-full: 9999px;
 
-  /* Elevation Shadows (Realistic, soft, no neon halos) */
-  --shadow-xs: 0 1px 2px rgba(20, 28, 21, 0.04);
-  --shadow-sm: 0 2px 4px rgba(20, 28, 21, 0.05), 0 1px 2px rgba(20, 28, 21, 0.03);
-  --shadow-md: 0 4px 12px rgba(20, 28, 21, 0.07), 0 1px 3px rgba(20, 28, 21, 0.04);
-  --shadow-lg: 0 12px 28px rgba(20, 28, 21, 0.09), 0 2px 6px rgba(20, 28, 21, 0.04);
-  --shadow-xl: 0 20px 40px rgba(20, 28, 21, 0.12), 0 4px 12px rgba(20, 28, 21, 0.06);
+  /* Ambient Glass & Depth Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 24px 50px rgba(0, 0, 0, 0.65), 0 8px 18px rgba(0, 0, 0, 0.4);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.42);
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-base: 220ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Radiant Emerald & Sage Ambient Lighting */
+  --glow-emerald-sm: 0 0 14px rgba(16, 185, 129, 0.28);
+  --glow-emerald: 0 0 26px rgba(16, 185, 129, 0.35);
+  --glow-emerald-lg: 0 0 55px rgba(16, 185, 129, 0.22);
+  --glow-card: 0 0 35px rgba(16, 185, 129, 0.08);
+
+  /* Fluid & Snappy Transitions */
+  --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 360ms cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Layout Max Widths */
   --container-sm: 768px;

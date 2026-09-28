@@ -137,15 +137,6 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => window.open('http://localhost:5173/?preview=true', '_blank')} 
-            style={{ color: 'var(--olive-200)', gap: '0.35rem' }}
-            title="Open responsive device preview system"
-          >
-            <span>📱 Device Preview</span>
-          </Button>
           <Button variant="ghost" size="sm" onClick={() => onNavigate('dashboard')} style={{ color: 'var(--olive-200)' }}>
             Merchant View
           </Button>

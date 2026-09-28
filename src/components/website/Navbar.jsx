@@ -31,23 +31,30 @@ export function Navbar({ currentPage, onNavigate }) {
     { id: 'about', label: 'About' },
     { id: 'faq', label: 'FAQ' },
     { id: 'contact', label: 'Contact' },
-    { id: 'preview', label: '📱 Device Preview' }
   ];
 
   return (
     <>
       <header className="site-nav">
         <div className="container site-nav-inner">
-          {/* Brand Logo */}
-          <div 
-            className="brand-logo" 
-            onClick={() => handleLinkClick('home')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="brand-icon">
-              <span>K</span>
+          {/* Brand Logo & Live Status Indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div 
+              className="brand-logo" 
+              onClick={() => handleLinkClick('home')}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="brand-icon">
+                <span>K</span>
+              </div>
+              <span>Kreazy<span className="ai">AI</span></span>
             </div>
-            <span>Kreazy<span className="ai">AI</span></span>
+
+            {/* Glowing Live System Status Pill */}
+            <div className="nav-system-status">
+              <span className="live-status-pulse"></span>
+              <span className="status-label">All Systems Operational</span>
+            </div>
           </div>
 
           {/* Desktop Navigation Links */}

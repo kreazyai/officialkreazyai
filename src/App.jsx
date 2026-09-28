@@ -33,27 +33,15 @@ import { SettingsPage } from './pages/dashboard/SettingsPage';
 // Dedicated Platform Admin Portal (Protected Gateway)
 import { AdminPortal } from './pages/admin/AdminPortal';
 
-// Responsive Device Preview System (Clean Architecture)
-import { DevicePreview } from './components/DevicePreview/DevicePreview';
-import { FloatingPreviewLauncher } from './components/DevicePreview/FloatingPreviewLauncher';
-
 import { authService } from './services/api';
 
 export default function App() {
   // Check if running on dedicated admin port 5174 or /admin pathname
   const isDedicatedAdminPort = window.location.port === '5174' || window.location.pathname.startsWith('/admin');
 
-  // Check URL parameters for embedded preview or preview route
-  const urlParams = new URLSearchParams(window.location.search);
-  const isEmbedded = urlParams.get('embedded') === 'true';
-  const previewRoute = urlParams.get('preview_route');
-  const isPreviewParam = urlParams.get('preview') === 'true' || window.location.pathname.startsWith('/preview');
-
   // Navigation State
   const [currentPage, setCurrentPage] = useState(() => {
     if (isDedicatedAdminPort) return 'admin';
-    if (isEmbedded && previewRoute) return previewRoute;
-    if (isPreviewParam) return 'preview';
     return 'home';
   });
 
@@ -75,8 +63,6 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       if (window.location.pathname.startsWith('/admin') || window.location.port === '5174') {
         setCurrentPage('admin');
-      } else if (window.location.pathname.startsWith('/preview') || params.get('preview') === 'true') {
-        setCurrentPage('preview');
       }
     };
     window.addEventListener('popstate', handleLocationChange);
@@ -88,8 +74,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (page === 'admin') {
       window.history.pushState({}, '', '/admin');
-    } else if (page === 'preview') {
-      window.history.pushState({}, '', '/preview');
     } else if (page === 'home') {
       window.history.pushState({}, '', '/');
     }
@@ -104,16 +88,6 @@ export default function App() {
     setUser(null);
     setCurrentPage('home');
   };
-
-  // If in Device Preview Mode, render the full-screen interactive device preview workspace
-  if (currentPage === 'preview') {
-    return (
-      <DevicePreview 
-        onClose={() => handleNavigate('home')} 
-        initialRoute="home"
-      />
-    );
-  }
 
   // If on Admin Port (5174) or /admin route, serve the isolated Admin Portal
   if (currentPage === 'admin' || isDedicatedAdminPort) {
@@ -265,11 +239,6 @@ export default function App() {
 
           <Footer onNavigate={handleNavigate} />
         </div>
-      )}
-
-      {/* Floating Device Preview Launcher (accessible across all pages unless embedded in iframe) */}
-      {!isEmbedded && !isDedicatedAdminPort && (
-        <FloatingPreviewLauncher onClick={() => handleNavigate('preview')} />
       )}
     </div>
   );
