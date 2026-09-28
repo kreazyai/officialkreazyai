@@ -56,10 +56,8 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsit
         {/* Sidebar Brand Header */}
         <div className="sidebar-brand">
           <div className="brand-logo" onClick={() => handleItemClick('overview')} style={{ cursor: 'pointer' }}>
-            <div className="brand-icon">
-              <span>K</span>
-            </div>
-            <span>Kreazy<span className="ai">AI</span></span>
+            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
+            <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
           </div>
 
           {onCloseMobile && (

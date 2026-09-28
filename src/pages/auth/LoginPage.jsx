@@ -46,10 +46,8 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             style={{ justifyContent: 'center', marginBottom: '1.25rem', cursor: 'pointer' }}
             onClick={() => onNavigate('home')}
           >
-            <div className="brand-icon">
-              <span>K</span>
-            </div>
-            <span>Kreazy<span className="ai">AI</span></span>
+            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
+            <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
           </div>
           <h1>Welcome back</h1>
           <p>Sign in to your merchant workspace to manage conversations, sales, and AI agents.</p>

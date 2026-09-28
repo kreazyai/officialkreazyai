@@ -61,10 +61,8 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
             style={{ justifyContent: 'center', marginBottom: '1.25rem', cursor: 'pointer' }}
             onClick={() => onNavigate('home')}
           >
-            <div className="brand-icon">
-              <span>K</span>
-            </div>
-            <span>Kreazy<span className="ai">AI</span></span>
+            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
+            <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
           </div>
           <h1>Create your merchant account</h1>
           <p>Start your 14-day free trial. Automate your sales across WhatsApp and Meta.</p>

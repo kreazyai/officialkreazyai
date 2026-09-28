@@ -44,16 +44,20 @@ export function Navbar({ currentPage, onNavigate }) {
     <>
       <header className={`site-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="container site-nav-inner">
-          {/* Left: KreazyAI Logo */}
+          {/* Left: Kreazy AI Logo */}
           <div 
             className="brand-logo" 
             onClick={() => handleLinkClick('home')}
             style={{ cursor: 'pointer' }}
           >
-            <div className="brand-icon">
-              <span>K</span>
-            </div>
-            <span>Kreazy<span className="ai">AI</span></span>
+            <img 
+              src="/logo.png" 
+              alt="Kreazy AI Logo" 
+              className="brand-logo-img" 
+            />
+            <span className="brand-text">
+              Kreazy <span className="brand-ai">AI</span>
+            </span>
           </div>
 
           {/* Center: Navigation Links */}

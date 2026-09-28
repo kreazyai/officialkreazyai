@@ -126,10 +126,8 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
       <header style={{ minHeight: '64px', backgroundColor: 'var(--olive-950)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem var(--space-5)', borderBottom: '1px solid rgba(255,255,255,0.1)', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <div className="brand-logo" style={{ color: '#ffffff' }}>
-            <div className="brand-icon" style={{ backgroundColor: 'var(--olive-700)' }}>
-              <span>K</span>
-            </div>
-            <span>Kreazy<span style={{ color: 'var(--olive-300)' }}>Admin</span></span>
+            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
+            <span className="brand-text" style={{ color: '#ffffff' }}>Kreazy <span className="brand-ai">Admin</span></span>
           </div>
           <span className="badge badge-olive" style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: 'var(--olive-200)' }}>
             <ShieldCheck size={12} /> Super Admin

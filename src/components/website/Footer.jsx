@@ -21,10 +21,8 @@ export function Footer({ onNavigate }) {
           {/* Brand Col */}
           <div style={{ paddingRight: '1.5rem' }}>
             <div className="brand-logo" style={{ marginBottom: '0.85rem', cursor: 'pointer' }} onClick={() => handleNav('home')}>
-              <div className="brand-icon">
-                <span>K</span>
-              </div>
-              <span>Kreazy<span className="ai">AI</span></span>
+              <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
+              <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
             </div>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', maxWidth: '320px', lineHeight: 1.6 }}>
               Enterprise-grade AI automation platform designed for modern retailers, high-volume merchants, and multichannel business operations.
