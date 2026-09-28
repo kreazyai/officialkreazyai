@@ -166,15 +166,26 @@ export default function App() {
             )}
 
             {currentDashboardModule === 'orders' && (
-              <OrdersPage onOpenConversation={() => setCurrentDashboardModule('messages')} />
+              <OrdersPage 
+                user={user} 
+                onOpenConversation={() => setCurrentDashboardModule('messages')} 
+                onNavigateModule={(mod) => setCurrentDashboardModule(mod)} 
+              />
             )}
 
             {currentDashboardModule === 'products' && (
-              <ProductsPage />
+              <ProductsPage 
+                user={user} 
+                onNavigateModule={(mod) => setCurrentDashboardModule(mod)} 
+              />
             )}
 
             {currentDashboardModule === 'customers' && (
-              <CustomersPage onOpenMessages={() => setCurrentDashboardModule('messages')} />
+              <CustomersPage 
+                user={user} 
+                onOpenMessages={() => setCurrentDashboardModule('messages')} 
+                onNavigateModule={(mod) => setCurrentDashboardModule(mod)} 
+              />
             )}
 
             {currentDashboardModule === 'integrations' && (
@@ -186,7 +197,7 @@ export default function App() {
             )}
 
             {(currentDashboardModule === 'analytics' || currentDashboardModule === 'revenue') && (
-              <AnalyticsPage />
+              <AnalyticsPage user={user} />
             )}
 
             {currentDashboardModule === 'settings' && (

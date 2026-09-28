@@ -9,20 +9,26 @@ import {
   ShoppingBag, 
   Bot, 
   Users,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 
-export function AnalyticsPage() {
+export function AnalyticsPage({ user }) {
+  const isDemo = Boolean(user?.isDemo);
   const [timeframe, setTimeframe] = useState('30d'); // 7d | 30d | 90d
   const [channelFilter, setChannelFilter] = useState('all');
 
   // Channel revenue breakdown
-  const channelData = [
+  const channelData = isDemo ? [
     { channel: 'WhatsApp Cloud API', revenue: '$26,410.00', orders: 670, share: '54%', badge: 'whatsapp' },
     { channel: 'Instagram Direct', revenue: '$16,130.00', orders: 412, share: '33%', badge: 'instagram' },
     { channel: 'Facebook Messenger', revenue: '$6,380.00', orders: 158, share: '13%', badge: 'facebook' }
+  ] : [
+    { channel: 'WhatsApp Cloud API', revenue: '$0.00', orders: 0, share: '0%', badge: 'whatsapp' },
+    { channel: 'Instagram Direct', revenue: '$0.00', orders: 0, share: '0%', badge: 'instagram' },
+    { channel: 'Facebook Messenger', revenue: '$0.00', orders: 0, share: '0%', badge: 'facebook' }
   ];
 
   const handleExportCSV = () => {
@@ -34,7 +40,11 @@ export function AnalyticsPage() {
       <div className="page-title-row">
         <div>
           <h2>Analytics & Commercial Performance</h2>
-          <p style={{ fontSize: '0.9rem' }}>Comprehensive metrics on automated revenue, conversational conversion, and team time saved.</p>
+          <p style={{ fontSize: '0.9rem' }}>
+            {isDemo 
+              ? 'Comprehensive metrics on automated revenue, conversational conversion, and team time saved.'
+              : 'Real-time telemetry and revenue performance across your connected social channels.'}
+          </p>
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -62,26 +72,34 @@ export function AnalyticsPage() {
       <div className="metrics-grid">
         <div className="metric-card">
           <span className="metric-header">Automated Revenue</span>
-          <span className="metric-val">$48,920.00</span>
-          <span className="metric-sub metric-growth-pos"><TrendingUp size={14} /> +18.4% this period</span>
+          <span className="metric-val">{isDemo ? '$48,920.00' : '$0.00'}</span>
+          <span className="metric-sub" style={{ color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)' }}>
+            {isDemo ? '+18.4% this period' : 'Awaiting initial transactions'}
+          </span>
         </div>
 
         <div className="metric-card">
           <span className="metric-header">Autonomous Resolution</span>
-          <span className="metric-val">92.4%</span>
-          <span className="metric-sub" style={{ color: 'var(--olive-700)', fontWeight: 600 }}>4,518 resolved with zero human touch</span>
+          <span className="metric-val">{isDemo ? '92.4%' : '100%'}</span>
+          <span className="metric-sub" style={{ color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)' }}>
+            {isDemo ? '4,518 resolved with zero human touch' : 'AI Copilot standby active'}
+          </span>
         </div>
 
         <div className="metric-card">
           <span className="metric-header">Human Handoff Escalations</span>
-          <span className="metric-val">7.6%</span>
-          <span className="metric-sub" style={{ color: 'var(--text-muted)' }}>372 conversations escalated</span>
+          <span className="metric-val">{isDemo ? '7.6%' : '0%'}</span>
+          <span className="metric-sub" style={{ color: 'var(--text-muted)' }}>
+            {isDemo ? '372 conversations escalated' : '0 handoffs requested'}
+          </span>
         </div>
 
         <div className="metric-card">
           <span className="metric-header">Hours of Staff Time Saved</span>
-          <span className="metric-val">284 hrs</span>
-          <span className="metric-sub metric-growth-pos">Equivalent to 1.8 full-time reps</span>
+          <span className="metric-val">{isDemo ? '284 hrs' : '0 hrs'}</span>
+          <span className="metric-sub" style={{ color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)' }}>
+            {isDemo ? 'Equivalent to 1.8 full-time reps' : 'Ready to automate support'}
+          </span>
         </div>
       </div>
 
@@ -102,7 +120,7 @@ export function AnalyticsPage() {
                     <span style={{ fontWeight: 600 }}>{ch.orders} orders</span>
                   </div>
                   <div>
-                    <strong style={{ fontSize: '0.95rem', color: 'var(--olive-950)' }}>{ch.revenue}</strong>
+                    <strong style={{ fontSize: '0.95rem', color: 'var(--bright-olive)' }}>{ch.revenue}</strong>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginLeft: '6px' }}>({ch.share})</span>
                   </div>
                 </div>
@@ -111,9 +129,9 @@ export function AnalyticsPage() {
                 <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div 
                     style={{ 
-                      width: ch.share, 
+                      width: isDemo ? ch.share : '0%', 
                       height: '100%', 
-                      backgroundColor: ch.badge === 'whatsapp' ? 'var(--olive-700)' : ch.badge === 'instagram' ? 'var(--olive-500)' : 'var(--olive-400)',
+                      backgroundColor: ch.badge === 'whatsapp' ? 'var(--bright-olive)' : ch.badge === 'instagram' ? '#10B981' : '#3B82F6',
                       borderRadius: '4px'
                     }} 
                   />
@@ -131,22 +149,22 @@ export function AnalyticsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem' }}>
             <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between' }}>
               <span>1. Total Inquiries Initiated</span>
-              <strong>4,890 threads (100%)</strong>
+              <strong>{isDemo ? '4,890 threads (100%)' : '0 threads (0%)'}</strong>
             </div>
 
             <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between' }}>
               <span>2. Product Sizing / Catalog Views</span>
-              <strong>3,410 interactions (69.7%)</strong>
+              <strong>{isDemo ? '3,410 interactions (69.7%)' : '0 interactions (0%)'}</strong>
             </div>
 
             <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between' }}>
               <span>3. Checkout Links Generated</span>
-              <strong>1,580 links (32.3%)</strong>
+              <strong>{isDemo ? '1,580 links (32.3%)' : '0 links (0%)'}</strong>
             </div>
 
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--olive-50)', border: '1px solid var(--olive-100)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', color: 'var(--olive-950)' }}>
+            <div style={{ padding: '0.75rem', backgroundColor: isDemo ? 'rgba(163, 230, 53, 0.1)' : 'var(--bg-subtle)', border: isDemo ? '1px solid rgba(163, 230, 53, 0.25)' : '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', color: isDemo ? 'var(--bright-olive)' : 'var(--text-primary)' }}>
               <strong>4. Confirmed & Paid Orders</strong>
-              <strong>1,240 orders (25.3% final conv.)</strong>
+              <strong>{isDemo ? '1,240 orders (25.3% final conv.)' : '0 orders (0%)'}</strong>
             </div>
           </div>
         </div>

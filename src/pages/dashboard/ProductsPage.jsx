@@ -17,12 +17,14 @@ import { Input, Select, Textarea } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
 import { productService } from '../../services/api';
 
-export function ProductsPage() {
+export function ProductsPage({ user, onNavigateModule }) {
+  const isDemo = Boolean(user?.isDemo);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [previewingDemo, setPreviewingDemo] = useState(isDemo);
 
   // New product form
   const [formData, setFormData] = useState({
@@ -36,14 +38,18 @@ export function ProductsPage() {
     image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&auto=format&fit=crop&q=80'
   });
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (forceDemo = false) => {
+    if (!isDemo && !forceDemo && !previewingDemo) {
+      setProducts([]);
+      return;
+    }
     const list = await productService.getAll();
     setProducts(list);
   };
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [isDemo]);
 
   const handleSaveProduct = async (e) => {
     e.preventDefault();
@@ -160,75 +166,118 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {/* Product Table */}
-      <div className="table-container">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>SKU</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Status</th>
-              <th>AI Knowledge Index</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(p => (
-              <tr key={p.id}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img 
-                      src={p.image} 
-                      alt={p.name} 
-                      style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-medium)' }} 
-                    />
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{p.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        Variants: {Array.isArray(p.variants) ? p.variants.slice(0, 2).join(', ') : p.variants}
+      {products.length > 0 ? (
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>AI Knowledge Index</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(p => (
+                <tr key={p.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <img 
+                        src={p.image} 
+                        alt={p.name} 
+                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-medium)' }} 
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{p.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          Variants: {Array.isArray(p.variants) ? p.variants.slice(0, 2).join(', ') : p.variants}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="mono" style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.sku}</td>
-                <td><Badge variant="olive">{p.category}</Badge></td>
-                <td style={{ fontWeight: 700, color: 'var(--olive-950)' }}>${p.price.toFixed(2)}</td>
-                <td>
-                  <span style={{ fontWeight: 600, color: p.stock === 0 ? 'var(--status-error-text)' : p.stock < 5 ? '#d97706' : 'var(--olive-900)' }}>
-                    {p.stock} units
-                  </span>
-                </td>
-                <td>
-                  {p.stock > 0 ? (
-                    <span className="badge badge-success">In Stock</span>
-                  ) : (
-                    <span className="badge badge-error">Out of Stock</span>
-                  )}
-                </td>
-                <td style={{ maxWidth: '240px' }}>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.aiKnowledge}>
-                    <Sparkles size={12} style={{ display: 'inline', marginRight: '4px', color: 'var(--olive-700)' }} />
-                    {p.aiKnowledge || 'Auto-generated specs'}
-                  </div>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: '0.35rem' }}>
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(p)} title="Edit Product">
-                      <Edit size={14} />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)} title="Delete Product" style={{ color: 'var(--status-error-text)' }}>
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </td>
+                  <td className="mono" style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.sku}</td>
+                  <td><Badge variant="olive">{p.category}</Badge></td>
+                  <td style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>${p.price.toFixed(2)}</td>
+                  <td>
+                    <span style={{ fontWeight: 600, color: p.stock === 0 ? 'var(--status-error-text)' : p.stock < 5 ? '#d97706' : 'var(--bright-olive)' }}>
+                      {p.stock} units
+                    </span>
+                  </td>
+                  <td>
+                    {p.stock > 0 ? (
+                      <span className="badge badge-success">In Stock</span>
+                    ) : (
+                      <span className="badge badge-error">Out of Stock</span>
+                    )}
+                  </td>
+                  <td style={{ maxWidth: '240px' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.aiKnowledge}>
+                      <Sparkles size={12} style={{ display: 'inline', marginRight: '4px', color: 'var(--bright-olive)' }} />
+                      {p.aiKnowledge || 'Auto-generated specs'}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(p)} title="Edit Product">
+                        <Edit size={14} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)} title="Delete Product" style={{ color: 'var(--status-error-text)' }}>
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        /* Clean Empty State for New Users */
+        <div style={{
+          padding: '3.5rem 2rem',
+          border: '1px dashed var(--border-medium)',
+          borderRadius: 'var(--radius-lg)',
+          backgroundColor: 'rgba(255, 255, 255, 0.02)',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: '1.5rem'
+        }}>
+          <div style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(163, 230, 53, 0.1)',
+            color: 'var(--bright-olive)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1rem'
+          }}>
+            <Boxes size={28} />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+            No products in your catalog yet
+          </h3>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '440px', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+            Add your merchandise, prices, and sizing information. Kreazy AI indexes every SKU to automatically answer customer questions and process orders across your social channels.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Button variant="primary" size="md" onClick={() => { setEditingProduct(null); setIsAddModalOpen(true); }} icon={Plus}>
+              Add First Product
+            </Button>
+            <Button variant="subtle" size="md" onClick={() => { setPreviewingDemo(true); fetchProducts(true); }} icon={Sparkles}>
+              ⚡ Preview Demo Catalog
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ADD / EDIT PRODUCT MODAL */}
       <Modal

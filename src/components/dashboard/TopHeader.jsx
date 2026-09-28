@@ -145,10 +145,10 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
             style={{ cursor: 'pointer', padding: '0.35rem' }}
           >
             <div className="user-avatar">
-              {user?.name ? user.name.slice(0, 2).toUpperCase() : 'MA'}
+              {user?.name ? user.name.slice(0, 2).toUpperCase() : (isDemo ? 'MA' : 'ME')}
             </div>
             <div style={{ display: 'none', lineHeight: 1.2 }} className="desktop-user-info">
-              <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{user?.name || 'Marcus A.'}</div>
+              <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{user?.name || (isDemo ? 'Marcus Aurelius' : 'Store Owner')}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Store Admin</div>
             </div>
           </div>
@@ -166,7 +166,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   right: 0,
                   top: '46px',
                   width: 'min(220px, calc(100vw - 2rem))',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-medium)',
                   borderRadius: 'var(--radius-lg)',
                   boxShadow: 'var(--shadow-lg)',
@@ -175,8 +175,8 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                 }}
               >
                 <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{user?.name || 'Marcus A.'}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden' }}>{user?.email || 'admin@kreazy.ai'}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-primary)' }}>{user?.name || (isDemo ? 'Marcus Aurelius' : 'Store Owner')}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden' }}>{user?.email || (isDemo ? 'founder@kreazybrand.com' : 'owner@yourbrand.com')}</div>
                 </div>
                 <div 
                   style={{ padding: '0.65rem 1rem', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
