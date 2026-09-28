@@ -32,14 +32,14 @@ export function OnboardingPage({ onNavigate, user }) {
 
   // Form State across the 7 steps
   const [data, setData] = useState({
-    businessName: user?.storeName || 'Kreazy Lifestyle Studio',
-    website: 'https://kreazystudio.example.com',
-    location: 'United States (EST)',
+    businessName: user?.storeName || '',
+    website: '',
+    location: 'United States (EST / PST)',
     vertical: 'Apparel & Lifestyle',
     avgPriceRange: '$50 - $150',
-    sampleProduct: 'Handcrafted Wool Knit Sweater',
-    samplePrice: '120.00',
-    sampleSku: 'KNIT-001',
+    sampleProduct: '',
+    samplePrice: '',
+    sampleSku: '',
     connectedChannels: { whatsapp: true, instagram: true, facebook: false },
     aiAssistantName: 'Kreazy Copilot',
     aiTone: 'Professional, warm, and concise',
@@ -51,16 +51,16 @@ export function OnboardingPage({ onNavigate, user }) {
 
   const handleCompleteOnboarding = async () => {
     try {
-      if (data.sampleProduct) {
+      if (data.sampleProduct && data.sampleProduct.trim()) {
         await productService.create({
-          name: data.sampleProduct,
-          price: parseFloat(data.samplePrice) || 89.00,
+          name: data.sampleProduct.trim(),
+          price: parseFloat(data.samplePrice) || 0,
           stock: 25,
-          sku: data.sampleSku || 'SKU-001',
+          sku: data.sampleSku?.trim() || `SKU-${Math.floor(100 + Math.random() * 900)}`,
           category: data.vertical || 'Apparel',
-          variants: ['S', 'M', 'L'],
-          aiKnowledge: `Grounding notes for ${data.businessName}. Sizing is standard.`,
-          image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&auto=format&fit=crop&q=80',
+          variants: ['Standard'],
+          aiKnowledge: `Grounding notes for ${data.businessName || 'our store'}. Sizing is standard.`,
+          image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=80',
           channels: ['whatsapp', 'instagram']
         });
       }
@@ -220,14 +220,15 @@ export function OnboardingPage({ onNavigate, user }) {
           {currentStep === 3 && (
             <div>
               <span className="eyebrow" style={{ marginBottom: '0.75rem' }}>Step 3 of 7</span>
-              <h2 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Seed your catalog</h2>
+              <h2 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Seed your catalog (Optional)</h2>
               <p style={{ marginBottom: '1.5rem', fontSize: '0.925rem' }}>
-                Enter your flagship item or let KreazyAI pull products from Shopify later.
+                Enter your flagship item or leave empty to import your catalog from Shopify or CSV in your workspace.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
                 <Input
-                  label="Sample Product Name"
+                  label="Sample Product Name (Optional)"
+                  placeholder="e.g. Handcrafted Wool Knit Sweater (or leave empty)"
                   value={data.sampleProduct}
                   onChange={(e) => setData({ ...data, sampleProduct: e.target.value })}
                 />
@@ -235,17 +236,19 @@ export function OnboardingPage({ onNavigate, user }) {
                   <Input
                     label="Price ($ USD)"
                     type="number"
+                    placeholder="e.g. 120.00"
                     value={data.samplePrice}
                     onChange={(e) => setData({ ...data, samplePrice: e.target.value })}
                   />
                   <Input
                     label="SKU Identifier"
+                    placeholder="e.g. KNIT-001"
                     value={data.sampleSku}
                     onChange={(e) => setData({ ...data, sampleSku: e.target.value })}
                   />
                 </div>
                 <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem' }}>
-                  💡 You can bulk sync your entire 500+ SKU catalog automatically from Shopify or CSV in your dashboard.
+                  💡 You can bulk sync your entire 500+ SKU catalog automatically from Shopify or CSV in your dashboard anytime.
                 </div>
               </div>
             </div>

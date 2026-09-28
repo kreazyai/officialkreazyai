@@ -245,13 +245,24 @@ const initialBusinesses = [
 // CUSTOMER 360 CRM SERVICE
 // =====================================================================
 export const customerCrmService = {
-  async getAll() {
-    const list = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
-    return successResponse(list);
+  async getAll(forceDemo = false) {
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo) || forceDemo;
+    if (isDemo) {
+      const list = getStored('kreazy_demo_customers', initialCustomersDetailed);
+      return successResponse(list);
+    }
+    const list = getStored(STORAGE_KEYS.CUSTOMERS, []);
+    const filtered = list.filter(c => !['c1', 'c2', 'c3', 'c4', 'c5'].includes(c.id));
+    return successResponse(filtered);
   },
 
   async getById(id) {
-    const list = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_customers' : STORAGE_KEYS.CUSTOMERS;
+    const defaultList = isDemo ? initialCustomersDetailed : [];
+    const list = getStored(key, defaultList);
     const found = list.find(c => c.id === id);
     if (!found) {
       return errorResponse(API_ERROR_CODES.NOT_FOUND, `Customer with id ${id} not found.`);
@@ -260,7 +271,11 @@ export const customerCrmService = {
   },
 
   async addNote(customerId, content, author = "Store Staff") {
-    const list = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_customers' : STORAGE_KEYS.CUSTOMERS;
+    const defaultList = isDemo ? initialCustomersDetailed : [];
+    const list = getStored(key, defaultList);
     const updated = list.map(c => {
       if (c.id === customerId) {
         const newNote = {
@@ -276,12 +291,16 @@ export const customerCrmService = {
       }
       return c;
     });
-    setStored(STORAGE_KEYS.CUSTOMERS, updated);
+    setStored(key, updated);
     return successResponse(updated.find(c => c.id === customerId));
   },
 
   async addTag(customerId, tag) {
-    const list = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_customers' : STORAGE_KEYS.CUSTOMERS;
+    const defaultList = isDemo ? initialCustomersDetailed : [];
+    const list = getStored(key, defaultList);
     const updated = list.map(c => {
       if (c.id === customerId) {
         if (!c.tags.includes(tag)) {
@@ -290,7 +309,7 @@ export const customerCrmService = {
       }
       return c;
     });
-    setStored(STORAGE_KEYS.CUSTOMERS, updated);
+    setStored(key, updated);
     return successResponse(updated.find(c => c.id === customerId));
   }
 };
@@ -429,11 +448,21 @@ export const adminService = {
 // STANDARD MERCHANDISING & COMMERCE SERVICES
 // =====================================================================
 export const productService = {
-  async getAll() {
-    return getStored(STORAGE_KEYS.PRODUCTS, initialProducts);
+  async getAll(forceDemo = false) {
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo) || forceDemo;
+    if (isDemo) {
+      return getStored('kreazy_demo_products', initialProducts);
+    }
+    const products = getStored(STORAGE_KEYS.PRODUCTS, []);
+    return products.filter(p => !['prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5'].includes(p.id) && !p.id?.startsWith('mock-'));
   },
   async create(product) {
-    const products = getStored(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_products' : STORAGE_KEYS.PRODUCTS;
+    const defaultList = isDemo ? initialProducts : [];
+    const products = getStored(key, defaultList);
     const newProduct = {
       ...product,
       id: `prod-${Date.now()}`,
@@ -441,29 +470,47 @@ export const productService = {
       status: Number(product.stock) > 0 ? "in_stock" : "out_of_stock"
     };
     const updated = [newProduct, ...products];
-    setStored(STORAGE_KEYS.PRODUCTS, updated);
+    setStored(key, updated);
     return newProduct;
   },
   async update(id, updates) {
-    const products = getStored(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_products' : STORAGE_KEYS.PRODUCTS;
+    const defaultList = isDemo ? initialProducts : [];
+    const products = getStored(key, defaultList);
     const updated = products.map(p => p.id === id ? { ...p, ...updates } : p);
-    setStored(STORAGE_KEYS.PRODUCTS, updated);
+    setStored(key, updated);
     return updated.find(p => p.id === id);
   },
   async delete(id) {
-    const products = getStored(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_products' : STORAGE_KEYS.PRODUCTS;
+    const defaultList = isDemo ? initialProducts : [];
+    const products = getStored(key, defaultList);
     const updated = products.filter(p => p.id !== id);
-    setStored(STORAGE_KEYS.PRODUCTS, updated);
+    setStored(key, updated);
     return true;
   }
 };
 
 export const orderService = {
-  async getAll() {
-    return getStored(STORAGE_KEYS.ORDERS, initialOrders);
+  async getAll(forceDemo = false) {
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo) || forceDemo;
+    if (isDemo) {
+      return getStored('kreazy_demo_orders', initialOrders);
+    }
+    const orders = getStored(STORAGE_KEYS.ORDERS, []);
+    return orders.filter(o => !['ord-1', 'ord-2', 'ord-3', 'ord-4'].includes(o.id) && !o.id?.startsWith('ORD-104'));
   },
   async create(orderData) {
-    const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_orders' : STORAGE_KEYS.ORDERS;
+    const defaultList = isDemo ? initialOrders : [];
+    const orders = getStored(key, defaultList);
     const newOrder = {
       id: orderData.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
       customer: orderData.customer || {
@@ -480,7 +527,7 @@ export const orderService = {
       createdAt: new Date().toISOString()
     };
     const updated = [newOrder, ...orders];
-    setStored(STORAGE_KEYS.ORDERS, updated);
+    setStored(key, updated);
     
     // Log platform audit
     adminService.logAuditAction('ORDER_CAPTURED_AUTONOMOUS', newOrder.id, {
@@ -491,19 +538,33 @@ export const orderService = {
     return newOrder;
   },
   async updateStatus(orderId, newStatus) {
-    const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_orders' : STORAGE_KEYS.ORDERS;
+    const defaultList = isDemo ? initialOrders : [];
+    const orders = getStored(key, defaultList);
     const updated = orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
-    setStored(STORAGE_KEYS.ORDERS, updated);
+    setStored(key, updated);
     return updated.find(o => o.id === orderId);
   }
 };
 
 export const conversationService = {
-  async getAll() {
-    return getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
+  async getAll(forceDemo = false) {
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo) || forceDemo;
+    if (isDemo) {
+      return getStored('kreazy_demo_conversations', initialConversations);
+    }
+    const convs = getStored(STORAGE_KEYS.CONVERSATIONS, []);
+    return convs.filter(c => !['conv-1', 'conv-2', 'conv-3', 'conv-4', 'conv-5'].includes(c.id));
   },
   async sendMessage(convId, text, sender = "agent") {
-    const convos = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_conversations' : STORAGE_KEYS.CONVERSATIONS;
+    const defaultList = isDemo ? initialConversations : [];
+    const convos = getStored(key, defaultList);
     const updated = convos.map(c => {
       if (c.id === convId) {
         const newMsg = {
@@ -520,11 +581,15 @@ export const conversationService = {
       }
       return c;
     });
-    setStored(STORAGE_KEYS.CONVERSATIONS, updated);
+    setStored(key, updated);
     return updated.find(c => c.id === convId);
   },
   async toggleHandoff(convId) {
-    const convos = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_conversations' : STORAGE_KEYS.CONVERSATIONS;
+    const defaultList = isDemo ? initialConversations : [];
+    const convos = getStored(key, defaultList);
     const updated = convos.map(c => {
       if (c.id === convId) {
         const nextState = !c.needsHuman;
@@ -536,7 +601,7 @@ export const conversationService = {
       }
       return c;
     });
-    setStored(STORAGE_KEYS.CONVERSATIONS, updated);
+    setStored(key, updated);
     return updated.find(c => c.id === convId);
   }
 };
@@ -716,6 +781,22 @@ export const authService = {
       isLoggedIn: true
     };
     setStored(STORAGE_KEYS.AUTH_USER, user);
+
+    // If logging into a real merchant account, purge any mock demo records from real store collections
+    if (!isDemo && !isSuper) {
+      const currentProducts = getStored(STORAGE_KEYS.PRODUCTS, []);
+      const cleanProducts = currentProducts.filter(p => !['prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5'].includes(p.id) && !p.id?.startsWith('mock-'));
+      setStored(STORAGE_KEYS.PRODUCTS, cleanProducts);
+
+      const currentOrders = getStored(STORAGE_KEYS.ORDERS, []);
+      const cleanOrders = currentOrders.filter(o => !['ord-1', 'ord-2', 'ord-3', 'ord-4'].includes(o.id) && !o.id?.startsWith('ORD-104'));
+      setStored(STORAGE_KEYS.ORDERS, cleanOrders);
+
+      const currentConvs = getStored(STORAGE_KEYS.CONVERSATIONS, []);
+      const cleanConvs = currentConvs.filter(c => !['conv-1', 'conv-2', 'conv-3', 'conv-4', 'conv-5'].includes(c.id));
+      setStored(STORAGE_KEYS.CONVERSATIONS, cleanConvs);
+    }
+
     return user;
   },
   registerWorkspace({ storeName, ownerName, email, password, plan = 'Growth ($119/mo)' }) {
@@ -749,6 +830,23 @@ export const authService = {
       isLoggedIn: true
     };
     setStored(STORAGE_KEYS.AUTH_USER, user);
+
+    // Reset all store operational collections so the newly registered merchant starts 100% clean and empty
+    setStored(STORAGE_KEYS.PRODUCTS, []);
+    setStored(STORAGE_KEYS.ORDERS, []);
+    setStored(STORAGE_KEYS.CONVERSATIONS, []);
+    setStored(STORAGE_KEYS.CUSTOMERS, []);
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.removeItem) {
+        localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+        localStorage.removeItem(STORAGE_KEYS.ORDERS);
+        localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS);
+        localStorage.removeItem(STORAGE_KEYS.CUSTOMERS);
+      }
+    } catch {
+      // safe fallback
+    }
+
     adminService.logAuditAction('MERCHANT_REGISTERED', newWs.id, { store: storeName, email });
     return user;
   },

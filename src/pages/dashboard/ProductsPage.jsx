@@ -39,17 +39,13 @@ export function ProductsPage({ user, onNavigateModule }) {
   });
 
   const fetchProducts = async (forceDemo = false) => {
-    if (!isDemo && !forceDemo && !previewingDemo) {
-      setProducts([]);
-      return;
-    }
-    const list = await productService.getAll();
+    const list = await productService.getAll(forceDemo || previewingDemo);
     setProducts(list);
   };
 
   useEffect(() => {
     fetchProducts();
-  }, [isDemo]);
+  }, [isDemo, previewingDemo]);
 
   const handleSaveProduct = async (e) => {
     e.preventDefault();
@@ -123,7 +119,17 @@ export function ProductsPage({ user, onNavigateModule }) {
           <p style={{ fontSize: '0.9rem' }}>Real-time catalog indexed by your AI assistant for sizing guidance and instant checkouts.</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {previewingDemo && !isDemo && (
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => setPreviewingDemo(false)}
+              style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+            >
+              Exit Demo Preview
+            </button>
+          )}
           <Button 
             variant="primary" 
             size="sm" 

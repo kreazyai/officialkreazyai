@@ -14,11 +14,7 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
   const [previewingDemo, setPreviewingDemo] = useState(isDemo);
 
   const fetchCustomers = async (forceDemo = false) => {
-    if (!isDemo && !forceDemo && !previewingDemo) {
-      setCustomers([]);
-      return;
-    }
-    const res = await customerCrmService.getAll();
+    const res = await customerCrmService.getAll(forceDemo || previewingDemo);
     if (res.success) {
       setCustomers(res.data);
     }
@@ -26,7 +22,7 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
 
   useEffect(() => {
     fetchCustomers();
-  }, [isDemo]);
+  }, [isDemo, previewingDemo]);
 
   const handleOpenCustomer = (customer) => {
     setSelectedCustomer(customer);
@@ -51,19 +47,31 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
           </p>
         </div>
 
-        {customers.length > 0 && (
-          <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
-            <Search size={14} style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-muted)' }} />
-            <input
-              type="text"
-              className="form-input"
-              style={{ paddingLeft: '2rem', height: '34px', fontSize: '0.825rem' }}
-              placeholder="Search customer by name, email, or phone..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {previewingDemo && !isDemo && (
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => setPreviewingDemo(false)}
+              style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+            >
+              Exit Demo Preview
+            </button>
+          )}
+          {customers.length > 0 && (
+            <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                className="form-input"
+                style={{ paddingLeft: '2rem', height: '34px', fontSize: '0.825rem' }}
+                placeholder="Search customer by name, email, or phone..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {customers.length > 0 ? (

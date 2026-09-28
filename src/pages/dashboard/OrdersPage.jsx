@@ -29,17 +29,13 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
   const [previewingDemo, setPreviewingDemo] = useState(isDemo);
 
   const fetchOrders = async (forceDemo = false) => {
-    if (!isDemo && !forceDemo && !previewingDemo) {
-      setOrders([]);
-      return;
-    }
-    const data = await orderService.getAll();
+    const data = await orderService.getAll(forceDemo || previewingDemo);
     setOrders(data);
   };
 
   useEffect(() => {
     fetchOrders();
-  }, [isDemo]);
+  }, [isDemo, previewingDemo]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     await orderService.updateStatus(orderId, newStatus);
@@ -82,11 +78,21 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {previewingDemo && !isDemo && (
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => setPreviewingDemo(false)}
+              style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+            >
+              Exit Demo Preview
+            </button>
+          )}
           <Badge variant={orders.length > 0 ? 'olive' : 'subtle'}>
             <Bot size={14} /> {orders.length > 0 ? 'AI Order Capture: Active' : 'AI Order Capture: Standby'}
           </Badge>
-          {orders.length === 0 && (
-            <Button variant="secondary" size="sm" onClick={() => { setPreviewingDemo(true); fetchOrders(true); }} icon={Sparkles}>
+          {orders.length === 0 && !previewingDemo && (
+            <Button variant="secondary" size="sm" onClick={() => { setPreviewingDemo(true); }} icon={Sparkles}>
               Preview Demo Orders
             </Button>
           )}
