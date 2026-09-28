@@ -1,87 +1,86 @@
 :root {
   /* =====================================================================
-     KREAZYAI LUXURY DESIGN SYSTEM — DEEP OLIVE OBSIDIAN & NATURAL SAGE
-     Executive, high-converting Linear/Vercel/Supabase standard
+     KREAZYAI CORE VISUAL SYSTEM — SOPHISTICATED DEEP OLIVE DARK THEME
+     Exact specification standard for modern AI automation enterprise SaaS
      ===================================================================== */
 
-  /* Deep Canvas & Backgrounds (Mood-infused dark olive obsidian, never flat pitch black) */
-  --bg-surface: #0B100D;         /* Deep canvas obsidian with dark forest undertone */
-  --bg-canvas-alt: #0D1310;      /* Slightly alternate dark olive tone */
-  --bg-subtle: #111A14;         /* Container & recessed surface bg */
-  --bg-card: rgba(18, 28, 22, 0.65); /* Glassmorphic card surface */
-  --bg-card-hover: rgba(24, 38, 30, 0.82);
-  --bg-card-solid: #131E17;     /* Solid fallback card surface */
-  --bg-elevated: rgba(22, 34, 27, 0.88); /* Popovers, menus & modals */
-  --bg-elevated-solid: #17241C;
+  /* Primary Background & Surface Hierarchy */
+  --bg-surface: #182018;         /* Primary deep olive background */
+  --bg-canvas-alt: #202A20;      /* Secondary background */
+  --bg-elevated: #263226;        /* Elevated surface (modals, popovers, dropdowns) */
+  --bg-card: #2B382A;            /* Card surface */
+  --bg-card-hover: #314030;      /* Card hover state */
+  --bg-subtle: #202A20;          /* Secondary container background */
 
-  /* Glassmorphism Hairline Micro-Borders & Dividers */
-  --border-subtle: rgba(140, 175, 150, 0.12); /* Hairline micro-divider */
-  --border-medium: rgba(80, 120, 95, 0.18);   /* Standard glass card border */
-  --border-strong: rgba(110, 160, 130, 0.32); /* Emphasized component border */
-  --border-glow: rgba(16, 185, 129, 0.35);    /* Subtle emerald highlight border */
-  --border-shine: inset 0 1px 0 rgba(255, 255, 255, 0.08); /* Inner micro-bevel shine */
+  /* Borders & Dividers */
+  --border-subtle: rgba(70, 83, 64, 0.45); /* Subtle hairline border */
+  --border-medium: #465340;               /* Primary structural border */
+  --border-strong: #667A3E;               /* Highlight / active border */
+  --border-bright: #8FA653;               /* Bright olive accent border */
 
-  /* Radiant Sage & Botanical Emerald Accents */
-  --emerald-500: #10B981;       /* Radiant Sage / Emerald Core CTA */
-  --emerald-400: #34D399;       /* Bright Botanical Sage */
-  --emerald-300: #5EEAD4;       /* High-energy Mint Highlight */
-  --emerald-600: #059669;       /* Deep Emerald Gradient Base */
-  --emerald-700: #047857;       /* Dark Emerald */
-  --emerald-glow: rgba(16, 185, 129, 0.28);
-  --emerald-soft: rgba(16, 185, 129, 0.12);
+  /* Olive Brand System */
+  --primary-olive: #667A3E;      /* Primary brand olive */
+  --bright-olive: #8FA653;       /* Bright olive accent / Primary CTA background */
+  --soft-olive: #B8C58A;         /* Soft olive accent highlight */
+  --olive-button-bg: #8FA653;    /* Tactile CTA button background */
+  --olive-button-hover: #9db55f; /* Hover state for primary button */
 
-  /* Deep Olive Palette Scale */
-  --olive-950: #070B08;         /* Deepest abyss */
-  --olive-900: #0B100D;         /* Base canvas */
-  --olive-850: #0F1713;         /* Deep charcoal olive */
-  --olive-800: #142019;         /* Surface container */
-  --olive-700: #1B2B22;         /* Elevated surface */
-  --olive-600: #253A2E;         /* Card highlight */
-  --olive-500: #10B981;         /* Primary brand accent */
-  --olive-400: #34D399;         /* Vibrant accent hover */
-  --olive-300: #6EE7B7;         /* Sage text accent */
-  --olive-200: #A7F3D0;         /* Moonlight mint */
-  --olive-100: #D1FAE5;         /* Soft sage highlight */
-  --olive-50:  rgba(16, 185, 129, 0.08); /* Ambient tint wash */
+  /* Warm Cream & Neutral Palette */
+  --warm-cream: #F3F0E4;         /* Warm cream accent */
+  --text-primary: #F5F4EC;       /* Primary text (crisp warm moonlight) */
+  --text-secondary: #C7C9BA;     /* Secondary text (medium contrast body) */
+  --text-muted: #969B8A;         /* Muted text (supporting captions, labels) */
+  --text-inverse: #172017;       /* Dark text on bright olive buttons */
+  --text-accent: #8FA653;        /* Bright olive highlight */
 
-  /* Typography Color Hierarchy */
-  --text-primary: #F1F5F3;      /* Crisp off-white / moonlight for effortless readability */
-  --text-secondary: #8B9E94;    /* Soft olive sage gray for secondary text */
-  --text-muted: #5D7065;        /* Subdued labels, timestamps, and placeholders */
-  --text-inverse: #051A10;      /* Contrast obsidian on bright emerald buttons */
-  --text-accent: #34D399;       /* Radiant sage highlights */
+  /* Sparingly Used Attention & Semantic Accents */
+  --accent-amber: #D6A85C;       /* Accent amber (VIP badges, alerts, highlights) */
+  --status-success: #9DBB68;     /* Success olive-green */
+  --status-error: #D97870;       /* Semantic error soft red */
 
-  /* Dark Canvas Compatibility Aliases */
-  --dark-bg: #0B100D;
-  --dark-surface: #111A14;
-  --dark-card: rgba(18, 28, 22, 0.65);
-  --dark-border: rgba(80, 120, 95, 0.18);
-  --dark-text: #F1F5F3;
-  --dark-muted: #8B9E94;
-  --warm-white: #ffffff;
+  /* Legacy Compatibility Variables mapped to the new palette */
+  --olive-950: #121812;
+  --olive-900: #182018;
+  --olive-850: #202A20;
+  --olive-800: #263226;
+  --olive-700: #2B382A;
+  --olive-600: #465340;
+  --olive-500: #667A3E;
+  --olive-400: #8FA653;
+  --olive-300: #B8C58A;
+  --olive-200: #D8E2B5;
+  --olive-100: #EBF0DC;
+  --olive-50:  rgba(143, 166, 83, 0.12);
 
-  /* Semantic Status Colors (Rich, balanced dark mode indicators) */
-  --status-success-bg: rgba(16, 185, 129, 0.14);
-  --status-success-border: rgba(52, 211, 153, 0.3);
-  --status-success-text: #34D399;
+  --emerald-500: #8FA653;
+  --emerald-400: #B8C58A;
+  --emerald-300: #F3F0E4;
+  --emerald-glow: rgba(143, 166, 83, 0.25);
 
-  --status-warning-bg: rgba(245, 158, 11, 0.14);
-  --status-warning-border: rgba(251, 191, 36, 0.3);
-  --status-warning-text: #FBBF24;
+  --dark-bg: #182018;
+  --dark-surface: #202A20;
+  --dark-card: #2B382A;
+  --dark-border: #465340;
+  --dark-text: #F5F4EC;
+  --dark-muted: #969B8A;
 
-  --status-error-bg: rgba(239, 68, 68, 0.14);
-  --status-error-border: rgba(248, 113, 113, 0.3);
-  --status-error-text: #F87171;
+  --status-success-bg: rgba(157, 187, 104, 0.15);
+  --status-success-border: rgba(157, 187, 104, 0.35);
+  --status-success-text: #9DBB68;
 
-  --status-info-bg: rgba(14, 165, 233, 0.14);
-  --status-info-border: rgba(56, 189, 248, 0.3);
-  --status-info-text: #38BDF8;
+  --status-warning-bg: rgba(214, 168, 92, 0.15);
+  --status-warning-border: rgba(214, 168, 92, 0.35);
+  --status-warning-text: #D6A85C;
 
-  --status-purple-bg: rgba(168, 85, 247, 0.14);
-  --status-purple-border: rgba(192, 132, 252, 0.3);
-  --status-purple-text: #C084FC;
+  --status-error-bg: rgba(217, 120, 112, 0.15);
+  --status-error-border: rgba(217, 120, 112, 0.35);
+  --status-error-text: #D97870;
 
-  /* Platform Channel Accents */
+  --status-info-bg: rgba(184, 197, 138, 0.15);
+  --status-info-border: rgba(184, 197, 138, 0.35);
+  --status-info-text: #B8C58A;
+
+  /* Channel Specific Soft Badges */
   --channel-whatsapp: #25D366;
   --channel-whatsapp-soft: rgba(37, 211, 102, 0.15);
   --channel-instagram: #E1306C;
@@ -90,7 +89,7 @@
   --channel-facebook-soft: rgba(24, 119, 242, 0.15);
 
   /* Typography */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Spacing Scale */
@@ -107,37 +106,30 @@
   --space-20: 5rem;    /* 80px */
   --space-24: 6rem;    /* 96px */
 
-  /* Border Radii */
+  /* Border Radii (Refined, architectural, never overly bubbly) */
   --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-2xl: 28px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
   --radius-full: 9999px;
 
-  /* Ambient Glass & Depth Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
-  --shadow-xl: 0 24px 50px rgba(0, 0, 0, 0.65), 0 8px 18px rgba(0, 0, 0, 0.4);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.42);
-
-  /* Radiant Emerald & Sage Ambient Lighting */
-  --glow-emerald-sm: 0 0 14px rgba(16, 185, 129, 0.28);
-  --glow-emerald: 0 0 26px rgba(16, 185, 129, 0.35);
-  --glow-emerald-lg: 0 0 55px rgba(16, 185, 129, 0.22);
-  --glow-card: 0 0 35px rgba(16, 185, 129, 0.08);
+  /* Sophisticated Soft Shadows (Subtle, calm, never neon halos) */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.55), 0 3px 8px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 18px 45px rgba(0, 0, 0, 0.65), 0 6px 14px rgba(0, 0, 0, 0.4);
 
   /* Fluid & Snappy Transitions */
   --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-base: 240ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 360ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Layout Max Widths */
+  /* Max Widths */
   --container-sm: 768px;
   --container-md: 1024px;
-  --container-lg: 1240px;
-  --container-xl: 1400px;
+  --container-lg: 1200px;
+  --container-xl: 1360px;
 }

@@ -54,7 +54,7 @@ export function HowItWorksPage({ onNavigate }) {
                 </li>
               </ul>
             </div>
-            <div className="card" style={{ backgroundColor: '#ffffff', padding: 'var(--space-8)' }}>
+            <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-8)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)' }}>
                   <span style={{ fontWeight: 600 }}>WhatsApp Business Cloud</span>
@@ -74,7 +74,7 @@ export function HowItWorksPage({ onNavigate }) {
 
           {/* STEP 2 */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-12)', alignItems: 'center' }}>
-            <div className="card" style={{ backgroundColor: '#ffffff', padding: 'var(--space-8)', order: 2 }}>
+            <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-8)', order: 2 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <span className="step-number" style={{ width: '36px', height: '36px', fontSize: '1rem' }}>02</span>
                 <span className="badge badge-olive">Catalog Grounding</span>
@@ -86,30 +86,30 @@ export function HowItWorksPage({ onNavigate }) {
               </p>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                  <Check size={16} color="var(--olive-700)" /> Real-time out-of-stock prevention
+                  <Check size={16} color="var(--bright-olive)" /> Real-time out-of-stock prevention
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                  <Check size={16} color="var(--olive-700)" /> Support for complex size/color variant combinations
+                  <Check size={16} color="var(--bright-olive)" /> Support for complex size/color variant combinations
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                  <Check size={16} color="var(--olive-700)" /> Automatic image & specification previews
+                  <Check size={16} color="var(--bright-olive)" /> Automatic image & specification previews
                 </li>
               </ul>
             </div>
             <div style={{ order: 1 }}>
-              <div style={{ backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+              <div style={{ backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Synchronized Store Knowledge</span>
+                  <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Synchronized Store Knowledge</span>
                   <Badge variant="success">Auto-Sync On</Badge>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ padding: '0.5rem', background: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-medium)' }}>
                     📦 48 Products active in AI Knowledge Base
                   </div>
-                  <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ padding: '0.5rem', background: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-medium)' }}>
                     📐 Sizing charts & materials indexed
                   </div>
-                  <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ padding: '0.5rem', background: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-medium)' }}>
                     🚚 Shipping & return policies loaded
                   </div>
                 </div>

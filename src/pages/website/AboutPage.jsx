@@ -53,7 +53,7 @@ export function AboutPage({ onNavigate }) {
         </div>
 
         {/* Why KreazyAI Deep Dive */}
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-10)', marginTop: 'var(--space-8)' }}>
+        <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-10)', marginTop: 'var(--space-8)' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <span className="eyebrow" style={{ marginBottom: '1rem' }}>Why KreazyAI</span>
             <h2 style={{ marginBottom: '1.25rem' }}>Engineered for real commercial operations</h2>

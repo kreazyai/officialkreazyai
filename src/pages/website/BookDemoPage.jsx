@@ -100,9 +100,9 @@ export function BookDemoPage({ onNavigate }) {
                   </div>
                 </div>
 
-                <div style={{ padding: '1rem', backgroundColor: '#ffffff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-medium)', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: 'var(--olive-900)', marginBottom: '0.35rem' }}>
-                    <ShieldCheck size={16} /> Enterprise Privacy Guaranteed
+                <div style={{ padding: '1rem', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-medium)', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                    <ShieldCheck size={16} color="var(--bright-olive)" /> Enterprise Privacy Guaranteed
                   </div>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     Your store volume and customer details remain strictly confidential and never used for generic model training.
@@ -251,12 +251,12 @@ export function BookDemoPage({ onNavigate }) {
           </div>
         ) : (
           /* Confirmation Success State */
-          <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', backgroundColor: '#ffffff', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-12) var(--space-8)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--status-success-bg)', color: 'var(--status-success-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--space-6) auto' }}>
+          <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-12) var(--space-8)', boxShadow: 'var(--shadow-lg)' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--bg-canvas-alt)', color: 'var(--bright-olive)', border: '1px solid var(--bright-olive)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--space-6) auto' }}>
               <CheckCircle2 size={36} />
             </div>
 
-            <h2 style={{ fontSize: '2rem', marginBottom: '0.75rem', color: 'var(--olive-950)' }}>
+            <h2 style={{ fontSize: '2rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
               Your demo request has been received
             </h2>
 
@@ -264,19 +264,19 @@ export function BookDemoPage({ onNavigate }) {
               Thank you, <strong>{leadDetails?.fullName}</strong>. A dedicated KreazyAI retail automation specialist has received your inquiry for <strong>{leadDetails?.businessName}</strong>.
             </p>
 
-            <div style={{ backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', textAlign: 'left', marginBottom: '2rem', fontSize: '0.9rem' }}>
-              <h4 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>What happens next:</h4>
+            <div style={{ backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', textAlign: 'left', marginBottom: '2rem', fontSize: '0.9rem' }}>
+              <h4 style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--text-primary)' }}>What happens next:</h4>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Calendar size={16} color="var(--olive-700)" />
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                  <Calendar size={16} color="var(--bright-olive)" />
                   Calendar invite dispatched to <strong>{leadDetails?.email}</strong>
                 </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Clock size={16} color="var(--olive-700)" />
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                  <Clock size={16} color="var(--bright-olive)" />
                   Expected confirmation window: <strong>Within 2 business hours</strong>
                 </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <MessageSquare size={16} color="var(--olive-700)" />
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                  <MessageSquare size={16} color="var(--bright-olive)" />
                   Direct support contact: <strong>concierge@kreazy.ai</strong>
                 </li>
               </ul>

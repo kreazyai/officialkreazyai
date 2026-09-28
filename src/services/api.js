@@ -530,12 +530,29 @@ export const leadService = {
     const newLead = { 
       ...demoData, 
       id: `demo-${Date.now()}`, 
+      request_type: 'DEMO',
       status: 'NEW',
       notes: 'Submitted via public website demo booking flow.',
       created_at: 'Just now'
     };
     setStored(STORAGE_KEYS.DEMO_REQUESTS, [newLead, ...existing]);
     return { success: true, lead: newLead };
+  },
+
+  async submitFounderMeeting(meetingData) {
+    const existing = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
+    const newMeeting = {
+      ...meetingData,
+      id: `founder-${Date.now()}`,
+      request_type: 'FOUNDER_MEETING',
+      full_name: meetingData.name || meetingData.full_name,
+      business_name: meetingData.company || meetingData.business_name,
+      status: 'NEW',
+      notes: `Founder 1-on-1 strategy meeting request: ${meetingData.message || 'No additional note'}`,
+      created_at: 'Just now'
+    };
+    setStored(STORAGE_KEYS.DEMO_REQUESTS, [newMeeting, ...existing]);
+    return { success: true, lead: newMeeting };
   }
 };
 

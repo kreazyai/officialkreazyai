@@ -1,5 +1,4 @@
 import React from 'react';
-import { ArrowUpRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export function Footer({ onNavigate }) {
   const handleNav = (page) => {
@@ -7,70 +6,68 @@ export function Footer({ onNavigate }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleFounderMeetingScroll = () => {
+    onNavigate('home');
+    setTimeout(() => {
+      const el = document.getElementById('founder-meeting');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
   return (
     <footer className="site-footer">
       <div className="container">
         <div className="footer-grid">
           {/* Brand Col */}
-          <div className="footer-col" style={{ paddingRight: '2rem' }}>
-            <div className="brand-logo" style={{ marginBottom: '1rem', cursor: 'pointer' }} onClick={() => handleNav('home')}>
+          <div style={{ paddingRight: '1.5rem' }}>
+            <div className="brand-logo" style={{ marginBottom: '0.85rem', cursor: 'pointer' }} onClick={() => handleNav('home')}>
               <div className="brand-icon">
                 <span>K</span>
               </div>
               <span>Kreazy<span className="ai">AI</span></span>
             </div>
-            <p style={{ fontSize: '0.9rem', marginBottom: '1.25rem', maxWidth: '320px' }}>
-              AI-powered business automation platform for modern online retailers and multi-channel commerce brands.
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', maxWidth: '320px', lineHeight: 1.6 }}>
+              Enterprise-grade AI automation platform designed for modern retailers, high-volume merchants, and multichannel business operations.
             </p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.75rem', background: 'var(--status-success-bg)', border: '1px solid var(--status-success-border)', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', color: 'var(--status-success-text)', fontWeight: 600 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.3rem 0.75rem', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', color: 'var(--soft-olive)', fontWeight: 600 }}>
               <span className="status-dot active"></span>
-              Meta Cloud APIs & Systems Operational
+              Meta Cloud APIs Operational
             </div>
           </div>
 
-          {/* Product Col */}
-          <div className="footer-col">
-            <h5>Product</h5>
-            <ul className="footer-links">
-              <li><a href="#features" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>AI Sales Agent</a></li>
-              <li><a href="#features" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>AI Support Concierge</a></li>
-              <li><a href="#features" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>Omnichannel Inbox</a></li>
-              <li><a href="#how-it-works" onClick={(e) => { e.preventDefault(); handleNav('how-it-works'); }}>Workflow Engine</a></li>
-              <li><a href="#pricing" onClick={(e) => { e.preventDefault(); handleNav('pricing'); }}>Pricing Plans</a></li>
+          {/* Product & Solutions */}
+          <div>
+            <h5 className="footer-col-title">Platform</h5>
+            <ul className="footer-links-list">
+              <li><span onClick={() => handleNav('home')}>Product</span></li>
+              <li><span onClick={() => handleNav('features')}>Solutions</span></li>
+              <li><span onClick={() => handleNav('how-it-works')}>How It Works</span></li>
+              <li><span onClick={() => handleNav('pricing')}>Pricing</span></li>
             </ul>
           </div>
 
-          {/* Channels Col */}
-          <div className="footer-col">
-            <h5>Channels</h5>
-            <ul className="footer-links">
-              <li><a href="#channels" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>WhatsApp Business</a></li>
-              <li><a href="#channels" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>Instagram Direct</a></li>
-              <li><a href="#channels" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>Facebook Messenger</a></li>
-              <li><a href="#channels" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>Shopify Catalog Sync</a></li>
-              <li><a href="#channels" onClick={(e) => { e.preventDefault(); handleNav('features'); }}>WooCommerce Connector</a></li>
+          {/* Engage & Meetings */}
+          <div>
+            <h5 className="footer-col-title">Engage</h5>
+            <ul className="footer-links-list">
+              <li><span onClick={() => handleNav('book-demo')}>Book a Demo</span></li>
+              <li><span onClick={handleFounderMeetingScroll}>Founder Meeting</span></li>
+              <li><span onClick={() => handleNav('about')}>About</span></li>
+              <li><span onClick={() => handleNav('contact')}>Contact</span></li>
             </ul>
           </div>
 
-          {/* Company Col */}
-          <div className="footer-col">
-            <h5>Company</h5>
-            <ul className="footer-links">
-              <li><a href="#about" onClick={(e) => { e.preventDefault(); handleNav('about'); }}>About KreazyAI</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); handleNav('contact'); }}>Contact Sales</a></li>
-              <li><a href="#demo" onClick={(e) => { e.preventDefault(); handleNav('book-demo'); }}>Book a Demo</a></li>
-              <li><a href="#faq" onClick={(e) => { e.preventDefault(); handleNav('faq'); }}>Knowledge & FAQ</a></li>
-            </ul>
-          </div>
-
-          {/* Legal Col */}
-          <div className="footer-col">
-            <h5>Governance</h5>
-            <ul className="footer-links">
-              <li><a href="#privacy" onClick={(e) => { e.preventDefault(); handleNav('legal-privacy'); }}>Privacy Policy</a></li>
-              <li><a href="#terms" onClick={(e) => { e.preventDefault(); handleNav('legal-terms'); }}>Terms of Service</a></li>
-              <li><a href="#security" onClick={(e) => { e.preventDefault(); handleNav('faq'); }}>Data Security & Meta Compliance</a></li>
-              <li><a href="#gdpr" onClick={(e) => { e.preventDefault(); handleNav('legal-privacy'); }}>GDPR Alignment</a></li>
+          {/* Governance & Social */}
+          <div>
+            <h5 className="footer-col-title">Legal & Social</h5>
+            <ul className="footer-links-list">
+              <li><span onClick={() => handleNav('legal-privacy')}>Privacy Policy</span></li>
+              <li><span onClick={() => handleNav('legal-terms')}>Terms of Service</span></li>
+              <li style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>Facebook</a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>Instagram</a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>LinkedIn</a>
+              </li>
             </ul>
           </div>
         </div>
@@ -83,7 +80,7 @@ export function Footer({ onNavigate }) {
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <span style={{ cursor: 'pointer' }} onClick={() => handleNav('legal-privacy')}>Privacy</span>
             <span style={{ cursor: 'pointer' }} onClick={() => handleNav('legal-terms')}>Terms</span>
-            <span style={{ cursor: 'pointer' }} onClick={() => handleNav('contact')}>Support</span>
+            <span style={{ cursor: 'pointer' }} onClick={() => handleNav('contact')}>Contact</span>
           </div>
         </div>
       </div>

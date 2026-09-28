@@ -74,7 +74,7 @@ export function ContactPage({ onNavigate }) {
           </div>
 
           {/* Right Contact Form */}
-          <div className="card" style={{ backgroundColor: '#ffffff', padding: 'var(--space-8)' }}>
+          <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-8)' }}>
             {!submitted ? (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <h3 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Send Us a Message</h3>

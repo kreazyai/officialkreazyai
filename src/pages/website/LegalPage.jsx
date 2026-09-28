@@ -26,7 +26,7 @@ export function LegalPage({ initialTab = 'privacy' }) {
           </button>
         </div>
 
-        <div className="card" style={{ backgroundColor: '#ffffff', padding: 'var(--space-10)', lineHeight: 1.7 }}>
+        <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-10)', lineHeight: 1.7 }}>
           {activeTab === 'privacy' ? (
             <div>
               <span className="eyebrow" style={{ marginBottom: '1rem' }}>Last updated: September 2026</span>

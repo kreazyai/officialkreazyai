@@ -1,5 +1,5 @@
 /* =====================================================================
-   GLOBAL BASE STYLES & RESET — DEEP OLIVE LUXURY OBSIDIAN
+   GLOBAL BASE STYLES — DEEP OLIVE DARK THEME (#182018)
    ===================================================================== */
 @import './variables.css';
 
@@ -21,20 +21,14 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-surface);
   color: var(--text-primary);
-  line-height: 1.55;
+  line-height: 1.6;
   font-weight: 400;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
-  /* Top-center ambient aurora lighting mesh */
-  background-image: 
-    radial-gradient(circle at 50% -12%, rgba(16, 185, 129, 0.16) 0%, rgba(11, 16, 13, 0) 65%),
-    radial-gradient(circle at 15% 45%, rgba(16, 185, 129, 0.05) 0%, rgba(11, 16, 13, 0) 45%),
-    radial-gradient(circle at 85% 65%, rgba(52, 211, 153, 0.04) 0%, rgba(11, 16, 13, 0) 50%);
-  background-attachment: fixed;
 }
 
-/* Subtle organic grain overlay texture */
+/* Subtle, calm atmospheric texture (extremely subtle, not noisy) */
 body::before {
   content: "";
   position: fixed;
@@ -43,16 +37,16 @@ body::before {
   height: 100%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.025;
+  opacity: 0.018;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Typography Hierarchy with Executive Tracking */
+/* Typography Hierarchy with Intentional Contrast */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
   color: var(--text-primary);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
   letter-spacing: -0.025em;
 }
 
@@ -63,26 +57,26 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-size: clamp(1.85rem, 3vw, 2.5rem);
   letter-spacing: -0.03em;
   font-weight: 700;
 }
 
 h3 {
-  font-size: clamp(1.3rem, 2.2vw, 1.75rem);
-  letter-spacing: -0.025em;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  letter-spacing: -0.02em;
 }
 
 h4 {
   font-size: 1.15rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
 }
 
 p {
   color: var(--text-secondary);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 small {
@@ -91,19 +85,19 @@ small {
 }
 
 a {
-  color: var(--emerald-400);
+  color: var(--soft-olive);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--emerald-300);
+  color: var(--warm-cream);
 }
 
-/* Text Selection in Botanical Emerald */
+/* Text Selection in Soft Olive */
 ::selection {
-  background-color: rgba(16, 185, 129, 0.3);
-  color: #F1F5F3;
+  background-color: var(--primary-olive);
+  color: var(--warm-cream);
 }
 
 button, input, select, textarea {
@@ -118,7 +112,7 @@ button {
 }
 
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid var(--emerald-500);
+  outline: 2px solid var(--bright-olive);
   outline-offset: 2px;
 }
 
@@ -127,26 +121,26 @@ img, svg {
   max-width: 100%;
 }
 
-/* Translucent Dark Olive Scrollbars */
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(11, 16, 13, 0.8);
+  background: var(--bg-surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(80, 120, 95, 0.35);
+  background: var(--border-medium);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.5);
+  background: var(--primary-olive);
 }
 
-/* Utility Containers */
+/* Containers */
 .container {
   width: 100%;
   max-width: var(--container-lg);
@@ -192,33 +186,25 @@ img, svg {
 .text-center { text-align: center; }
 .mono { font-family: var(--font-mono); }
 
-/* Section Badges / Eyebrows */
+/* Small Editorial Eyebrows */
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0.35rem 0.9rem;
-  background-color: rgba(18, 30, 23, 0.75);
-  border: 1px solid rgba(80, 120, 95, 0.28);
+  padding: 0.35rem 0.85rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-full);
-  color: var(--emerald-400);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  color: var(--soft-olive);
+  font-size: 0.775rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-.eyebrow-dark {
-  background-color: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--emerald-300);
 }
 
 /* Touch & Mobile Optimizations */
 button, a, input, select, textarea, [role="button"] {
-  -webkit-tap-highlight-color: rgba(16, 185, 129, 0.1);
+  -webkit-tap-highlight-color: rgba(143, 166, 83, 0.12);
   touch-action: manipulation;
 }
 
@@ -238,7 +224,6 @@ button, a, input, select, textarea, [role="button"] {
   display: none;
 }
 
-/* Prevent viewport-level horizontal overflow on mobile screens */
 html, body, #root, .app-root {
   max-width: 100vw;
   overflow-x: clip;

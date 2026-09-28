@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
 
 export function Navbar({ currentPage, onNavigate }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Lock body scroll when mobile drawer is open to prevent awkward background scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Lock body scroll when mobile drawer is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -25,39 +34,29 @@ export function Navbar({ currentPage, onNavigate }) {
 
   const navLinks = [
     { id: 'home', label: 'Product' },
+    { id: 'features', label: 'Solutions' },
     { id: 'how-it-works', label: 'How It Works' },
-    { id: 'features', label: 'Features' },
     { id: 'pricing', label: 'Pricing' },
     { id: 'about', label: 'About' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'contact', label: 'Contact' },
   ];
 
   return (
     <>
-      <header className="site-nav">
+      <header className={`site-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="container site-nav-inner">
-          {/* Brand Logo & Live Status Indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <div 
-              className="brand-logo" 
-              onClick={() => handleLinkClick('home')}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="brand-icon">
-                <span>K</span>
-              </div>
-              <span>Kreazy<span className="ai">AI</span></span>
+          {/* Left: KreazyAI Logo */}
+          <div 
+            className="brand-logo" 
+            onClick={() => handleLinkClick('home')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="brand-icon">
+              <span>K</span>
             </div>
-
-            {/* Glowing Live System Status Pill */}
-            <div className="nav-system-status">
-              <span className="live-status-pulse"></span>
-              <span className="status-label">All Systems Operational</span>
-            </div>
+            <span>Kreazy<span className="ai">AI</span></span>
           </div>
 
-          {/* Desktop Navigation Links */}
+          {/* Center: Navigation Links */}
           <nav className="nav-links">
             {navLinks.map((item) => (
               <span 
@@ -70,50 +69,41 @@ export function Navbar({ currentPage, onNavigate }) {
             ))}
           </nav>
 
-          {/* Header Right Action CTAs */}
+          {/* Right: Log In & Book a Demo */}
           <div className="nav-actions">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => handleLinkClick('login')}
             >
-              Login
+              Log In
             </Button>
 
             <Button 
-              variant="secondary" 
+              variant="primary" 
               size="sm"
               onClick={() => handleLinkClick('book-demo')}
             >
               Book a Demo
             </Button>
 
-            <Button 
-              variant="primary" 
-              size="sm"
-              onClick={() => handleLinkClick('signup')}
-              iconRight={ArrowRight}
-            >
-              Get Started
-            </Button>
-
-            {/* Mobile Hamburger Toggle with 44x44px touch area */}
+            {/* Mobile Hamburger Button */}
             <button 
               className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
               aria-expanded={mobileMenuOpen}
               style={{
-                width: '44px',
-                height: '44px',
+                width: '40px',
+                height: '40px',
                 display: 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 cursor: 'pointer'
               }}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={22} color="var(--text-primary)" /> : <Menu size={22} color="var(--text-primary)" />}
             </button>
           </div>
         </div>
@@ -132,8 +122,8 @@ export function Navbar({ currentPage, onNavigate }) {
                     padding: '0.85rem 1rem',
                     borderRadius: '8px',
                     fontWeight: isActive ? 700 : 500,
-                    backgroundColor: isActive ? 'var(--olive-50)' : 'transparent',
-                    color: isActive ? 'var(--olive-900)' : 'var(--text-primary)',
+                    backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
+                    color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -147,31 +137,22 @@ export function Navbar({ currentPage, onNavigate }) {
             })}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-medium)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-medium)' }}>
             <Button 
-              variant="ghost" 
+              variant="secondary" 
               size="lg" 
               onClick={() => handleLinkClick('login')}
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              Merchant Log In
-            </Button>
-            <Button 
-              variant="secondary" 
-              size="lg" 
-              onClick={() => handleLinkClick('book-demo')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              Book a Live Demo
+              Log In
             </Button>
             <Button 
               variant="primary" 
               size="lg" 
-              onClick={() => handleLinkClick('signup')}
-              iconRight={ArrowRight}
+              onClick={() => handleLinkClick('book-demo')}
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              Start 14-Day Free Trial
+              Book a Demo
             </Button>
           </div>
         </div>
@@ -184,8 +165,8 @@ export function Navbar({ currentPage, onNavigate }) {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(20, 28, 21, 0.4)',
-            backdropFilter: 'blur(2px)',
+            backgroundColor: 'rgba(24, 32, 24, 0.7)',
+            backdropFilter: 'blur(4px)',
             zIndex: 898
           }}
           aria-hidden="true"
