@@ -700,25 +700,19 @@ export const leadService = {
 
 export const authService = {
   getCurrentUser() {
-    return getStored(STORAGE_KEYS.AUTH_USER, {
-      id: "usr-admin-01",
-      name: "Marcus Aurelius",
-      email: "founder@kreazybrand.com",
-      storeName: "Kreazy Flagship Studio",
-      role: "OWNER",
-      is_super_admin: false,
-      isLoggedIn: true
-    });
+    return getStored(STORAGE_KEYS.AUTH_USER, null);
   },
-  login(email, password) {
+  login(email, password, isDemo = false) {
     const isSuper = email.includes('superadmin') || email.includes('admin@kreazy.ai') || email.includes('kreazyai@gmail.com');
     const user = {
       id: `usr-${Date.now()}`,
       name: email.split('@')[0] || "Store Owner",
       email: email,
-      storeName: isSuper ? "KreazyAI Global Admin" : "Kreazy Flagship Studio",
+      storeName: isSuper ? "KreazyAI Global Admin" : (isDemo ? "Kreazy Flagship Studio" : "My Retail Store"),
       role: isSuper ? "SUPER_ADMIN" : "OWNER",
       is_super_admin: isSuper,
+      isDemo: isDemo,
+      isNewUser: !isDemo,
       isLoggedIn: true
     };
     setStored(STORAGE_KEYS.AUTH_USER, user);
@@ -733,7 +727,7 @@ export const authService = {
       owner_email: email,
       plan: plan,
       status: "ACTIVE",
-      channels_connected: ["WhatsApp", "Instagram"],
+      channels_connected: [],
       total_customers: 0,
       total_orders: 0,
       total_revenue: "$0.00",
@@ -750,6 +744,8 @@ export const authService = {
       workspaceId: newWs.id,
       role: "OWNER",
       is_super_admin: false,
+      isDemo: false,
+      isNewUser: true,
       isLoggedIn: true
     };
     setStored(STORAGE_KEYS.AUTH_USER, user);

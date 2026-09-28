@@ -149,14 +149,24 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
           </Button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
-          <span 
-            style={{ color: 'var(--olive-800)', fontWeight: 600, cursor: 'pointer' }}
+          <button 
+            type="button"
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--bright-olive)', 
+              fontWeight: 700, 
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: 0,
+              fontSize: 'inherit'
+            }}
             onClick={() => onNavigate('login')}
           >
-            Sign in
-          </span>
+            Sign in here
+          </button>
         </div>
       </div>
     </div>

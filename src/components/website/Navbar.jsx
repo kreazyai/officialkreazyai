@@ -73,7 +73,7 @@ export function Navbar({ currentPage, onNavigate }) {
             ))}
           </nav>
 
-          {/* Right: Log In & Book a Demo */}
+          {/* Right: Log In, Sign Up & Book a Demo */}
           <div className="nav-actions">
             <Button 
               variant="ghost" 
@@ -81,6 +81,15 @@ export function Navbar({ currentPage, onNavigate }) {
               onClick={() => handleLinkClick('login')}
             >
               Log In
+            </Button>
+
+            <Button 
+              variant="secondary" 
+              size="sm"
+              onClick={() => handleLinkClick('signup')}
+              style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+            >
+              Sign Up
             </Button>
 
             <Button 
@@ -143,15 +152,23 @@ export function Navbar({ currentPage, onNavigate }) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-medium)' }}>
             <Button 
+              variant="primary" 
+              size="lg" 
+              onClick={() => handleLinkClick('signup')}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              Sign Up Free
+            </Button>
+            <Button 
               variant="secondary" 
               size="lg" 
               onClick={() => handleLinkClick('login')}
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              Log In
+              Log In to Workspace
             </Button>
             <Button 
-              variant="primary" 
+              variant="ghost" 
               size="lg" 
               onClick={() => handleLinkClick('book-demo')}
               style={{ width: '100%', justifyContent: 'center' }}

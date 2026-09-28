@@ -5,8 +5,8 @@ import { Button } from '../../components/common/Button';
 import { authService } from '../../services/api';
 
 export function LoginPage({ onNavigate, onLoginSuccess }) {
-  const [email, setEmail] = useState('demo@kreazybrand.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      const user = authService.login(email, password);
+      const user = authService.login(email, password, false);
       if (onLoginSuccess) {
         onLoginSuccess(user);
       }
@@ -32,7 +32,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
   };
 
   const handleDemoQuickLogin = () => {
-    const user = authService.login('founder@kreazybrand.com', 'demo');
+    const user = authService.login('founder@kreazybrand.com', 'demo', true);
     if (onLoginSuccess) onLoginSuccess(user);
     onNavigate('dashboard');
   };
@@ -69,6 +69,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             placeholder="merchant@yourbrand.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="off"
           />
 
           <Input
@@ -77,9 +78,10 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             type="password"
             required
             icon={Lock}
-            placeholder="••••••••••••"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
           />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem' }}>
@@ -105,25 +107,53 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
 
           <Button 
             type="button" 
+            variant="secondary" 
+            size="lg" 
+            onClick={() => onNavigate('signup')}
+            style={{ 
+              width: '100%', 
+              borderColor: 'var(--bright-olive)', 
+              color: 'var(--text-primary)', 
+              fontWeight: 600,
+              backgroundColor: 'rgba(255, 255, 255, 0.05)'
+            }}
+            iconRight={ArrowRight}
+          >
+            Create New Account / Sign Up
+          </Button>
+
+          <Button 
+            type="button" 
             variant="subtle" 
             size="md" 
             onClick={handleDemoQuickLogin}
-            style={{ width: '100%', border: '1px dashed var(--olive-400)' }}
+            style={{ width: '100%', border: '1px dashed var(--olive-400)', marginTop: '0.25rem' }}
           >
             ⚡ One-Click Instant Demo Login (Pre-Loaded Studio)
           </Button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Don't have an account yet?{' '}
-          <span 
-            style={{ color: 'var(--olive-800)', fontWeight: 600, cursor: 'pointer' }}
+          <button 
+            type="button"
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--bright-olive)', 
+              fontWeight: 700, 
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: 0,
+              fontSize: 'inherit'
+            }}
             onClick={() => onNavigate('signup')}
           >
-            Create free account
-          </span>
+            Sign up for free
+          </button>
         </div>
       </div>
     </div>
   );
 }
+

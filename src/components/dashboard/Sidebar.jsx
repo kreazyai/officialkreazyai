@@ -18,14 +18,16 @@ import {
   Smartphone
 } from 'lucide-react';
 
-export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsite, isMobileOpen, onCloseMobile }) {
+export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsite, isMobileOpen, onCloseMobile, user }) {
+  const isDemo = Boolean(user?.isDemo);
+
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: '3' },
-    { id: 'orders', label: 'Orders', icon: ShoppingBag, badge: '5' },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: isDemo ? '3' : null },
+    { id: 'orders', label: 'Orders', icon: ShoppingBag, badge: isDemo ? '5' : null },
     { id: 'products', label: 'Products', icon: Boxes },
     { id: 'customers', label: 'Customers', icon: Users },
-    { id: 'integrations', label: 'Integrations', icon: Network, badge: 'Meta' },
+    { id: 'integrations', label: 'Integrations', icon: Network, badge: isDemo ? 'Meta' : null },
     { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, highlight: true },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'revenue', label: 'Revenue', icon: DollarSign },
@@ -76,9 +78,9 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsit
       <div className="sidebar-workspace-selector">
         <div className="workspace-badge">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
-            <span className="status-dot active"></span>
+            <span className={`status-dot ${isDemo ? 'active' : ''}`}></span>
             <span style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-              Kreazy Flagship Studio
+              {user?.storeName || (isDemo ? 'Kreazy Flagship Studio' : 'My Store Workspace')}
             </span>
           </div>
           <ChevronDown size={14} color="var(--text-muted)" />
@@ -119,10 +121,10 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsit
       {/* Sidebar Footer */}
       <div className="sidebar-footer">
         <div className="ai-engine-status">
-          <Bot size={16} color="var(--olive-700)" />
+          <Bot size={16} color={isDemo ? 'var(--bright-olive)' : 'var(--olive-700)'} />
           <div>
-            <div style={{ lineHeight: 1.2 }}>AI Engine Active</div>
-            <small style={{ color: 'var(--text-muted)' }}>Listening on 3 Channels</small>
+            <div style={{ lineHeight: 1.2 }}>{isDemo ? 'AI Engine Active' : 'AI Engine Ready'}</div>
+            <small style={{ color: 'var(--text-muted)' }}>{isDemo ? 'Listening on 3 Channels' : 'Channels Standby'}</small>
           </div>
         </div>
 

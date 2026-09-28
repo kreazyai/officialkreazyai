@@ -40,6 +40,9 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
     }
   ];
 
+  const isDemo = Boolean(user?.isDemo);
+  const activeNotifications = isDemo ? notifications : [];
+
   return (
     <header className="app-topbar">
       {/* Mobile Toggle & Search */}
@@ -68,8 +71,8 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
       {/* Right Action Icons & Profile */}
       <div className="topbar-actions">
         {/* Meta Cloud Status Pill */}
-        <Badge variant="olive">
-          <Bot size={12} /> Meta Cloud Live
+        <Badge variant={isDemo ? 'olive' : 'subtle'}>
+          <Bot size={12} /> {isDemo ? 'Meta Cloud Live' : 'Channels Standby (0/3)'}
         </Badge>
 
         {/* Notifications Popover Toggle */}
@@ -82,7 +85,9 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
             aria-label="Notifications"
           >
             <Bell size={18} />
-            <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e11d48' }}></span>
+            {activeNotifications.some(n => n.unread) && (
+              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e11d48' }}></span>
+            )}
           </button>
 
           {notificationsOpen && (
@@ -98,7 +103,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   right: 0,
                   top: '46px',
                   width: 'min(320px, calc(100vw - 2rem))',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-medium)',
                   borderRadius: 'var(--radius-lg)',
                   boxShadow: 'var(--shadow-lg)',
@@ -106,18 +111,26 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   padding: '0.75rem 0'
                 }}
               >
-                <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between', color: 'var(--text-primary)' }}>
                   <span>Notifications</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--olive-700)', cursor: 'pointer' }}>Mark all read</span>
+                  {activeNotifications.length > 0 && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--bright-olive)', cursor: 'pointer' }}>Mark all read</span>
+                  )}
                 </div>
                 <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
-                  {notifications.map(n => (
-                    <div key={n.id} style={{ padding: '0.65rem 1rem', borderBottom: '1px solid var(--border-subtle)', backgroundColor: n.unread ? 'var(--olive-50)' : '#ffffff', cursor: 'pointer' }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.825rem', marginBottom: '2px' }}>{n.title}</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>{n.desc}</div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{n.time}</div>
+                  {activeNotifications.length > 0 ? (
+                    activeNotifications.map(n => (
+                      <div key={n.id} style={{ padding: '0.65rem 1rem', borderBottom: '1px solid var(--border-subtle)', backgroundColor: n.unread ? 'rgba(163, 230, 53, 0.05)' : 'transparent', cursor: 'pointer' }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.825rem', marginBottom: '2px', color: 'var(--text-primary)' }}>{n.title}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>{n.desc}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{n.time}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                      No new notifications. Everything is ready.
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </>

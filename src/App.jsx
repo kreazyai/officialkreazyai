@@ -146,6 +146,7 @@ export default function App() {
             onVisitWebsite={() => setCurrentPage('home')}
             isMobileOpen={mobileSidebarOpen}
             onCloseMobile={() => setMobileSidebarOpen(false)}
+            user={user}
           />
 
           <main className="app-main">
@@ -157,7 +158,7 @@ export default function App() {
             />
 
             {currentDashboardModule === 'overview' && (
-              <DashboardOverview onNavigateModule={(mod) => setCurrentDashboardModule(mod)} />
+              <DashboardOverview user={user} onNavigateModule={(mod) => setCurrentDashboardModule(mod)} />
             )}
 
             {currentDashboardModule === 'messages' && (
