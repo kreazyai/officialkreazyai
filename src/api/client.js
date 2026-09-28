@@ -43,18 +43,43 @@ export function errorResponse(code, message, details = {}) {
   };
 }
 
+function safeGet(key, def = null) {
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
+      return localStorage.getItem(key) || def;
+    }
+  } catch {}
+  return def;
+}
+
+function safeSet(key, val) {
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+      localStorage.setItem(key, val);
+    }
+  } catch {}
+}
+
+function safeRemove(key) {
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
+      localStorage.removeItem(key);
+    }
+  } catch {}
+}
+
 /**
  * API Client with Multi-Tenant Context and Fallback Persistence
  */
 class ApiClient {
   constructor() {
-    this.workspaceId = localStorage.getItem('kreazy_active_workspace') || 'ws-flagship-01';
-    this.token = localStorage.getItem('kreazy_auth_token') || null;
+    this.workspaceId = safeGet('kreazy_active_workspace', 'ws-flagship-01');
+    this.token = safeGet('kreazy_auth_token', null);
   }
 
   setWorkspace(id) {
     this.workspaceId = id;
-    localStorage.setItem('kreazy_active_workspace', id);
+    safeSet('kreazy_active_workspace', id);
   }
 
   getWorkspaceId() {
@@ -64,9 +89,9 @@ class ApiClient {
   setAuthToken(token) {
     this.token = token;
     if (token) {
-      localStorage.setItem('kreazy_auth_token', token);
+      safeSet('kreazy_auth_token', token);
     } else {
-      localStorage.removeItem('kreazy_auth_token');
+      safeRemove('kreazy_auth_token');
     }
   }
 

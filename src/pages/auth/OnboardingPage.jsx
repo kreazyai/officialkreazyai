@@ -15,6 +15,7 @@ import {
 import { Button } from '../../components/common/Button';
 import { Input, Select, Textarea } from '../../components/common/Input';
 import { Badge } from '../../components/common/Badge';
+import { productService, aiConfigService } from '../../services/api';
 
 const STEPS = [
   { id: 1, label: 'Business Info', icon: Building2 },
@@ -47,6 +48,36 @@ export function OnboardingPage({ onNavigate, user }) {
 
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 7));
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+
+  const handleCompleteOnboarding = async () => {
+    try {
+      if (data.sampleProduct) {
+        await productService.create({
+          name: data.sampleProduct,
+          price: parseFloat(data.samplePrice) || 89.00,
+          stock: 25,
+          sku: data.sampleSku || 'SKU-001',
+          category: data.vertical || 'Apparel',
+          variants: ['S', 'M', 'L'],
+          aiKnowledge: `Grounding notes for ${data.businessName}. Sizing is standard.`,
+          image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&auto=format&fit=crop&q=80',
+          channels: ['whatsapp', 'instagram']
+        });
+      }
+
+      await aiConfigService.updateConfig('general', {
+        assistantName: data.aiAssistantName || 'Kreazy Copilot',
+        brandTone: data.aiTone || 'Professional and warm'
+      });
+
+      await aiConfigService.updateConfig('safety', {
+        maxDiscount: data.maxDiscount || '10%'
+      });
+    } catch (e) {
+      console.error('Onboarding persistence error:', e);
+    }
+    onNavigate('dashboard');
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-surface)', padding: 'var(--space-8) 0' }}>
@@ -331,7 +362,7 @@ export function OnboardingPage({ onNavigate, user }) {
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => onNavigate('dashboard')}
+                onClick={handleCompleteOnboarding}
                 iconRight={ArrowRight}
               >
                 Launch Workspace Dashboard

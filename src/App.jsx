@@ -8,6 +8,7 @@ import { PricingPage } from './pages/website/PricingPage';
 import { AboutPage } from './pages/website/AboutPage';
 import { ContactPage } from './pages/website/ContactPage';
 import { BookDemoPage } from './pages/website/BookDemoPage';
+import { FounderMeetingPage } from './pages/website/FounderMeetingPage';
 import { FaqPage } from './pages/website/FaqPage';
 import { LegalPage } from './pages/website/LegalPage';
 
@@ -60,11 +61,30 @@ export default function App() {
 
     // Sync with browser history/popstate
     const handleLocationChange = () => {
-      const params = new URLSearchParams(window.location.search);
-      if (window.location.pathname.startsWith('/admin') || window.location.port === '5174') {
+      const path = window.location.pathname.replace(/^\//, '');
+      if (path.startsWith('admin') || window.location.port === '5174') {
         setCurrentPage('admin');
+      } else if (path === 'founder-meeting') {
+        setCurrentPage('founder-meeting');
+      } else if (path === 'book-demo') {
+        setCurrentPage('book-demo');
+      } else if (path === 'services' || path === 'features') {
+        setCurrentPage('features');
+      } else if (path === 'pricing') {
+        setCurrentPage('pricing');
+      } else if (path === 'about') {
+        setCurrentPage('about');
+      } else if (path === 'contact') {
+        setCurrentPage('contact');
+      } else if (path === 'login') {
+        setCurrentPage('login');
+      } else if (path === 'register' || path === 'signup') {
+        setCurrentPage('signup');
+      } else if (path === 'dashboard') {
+        setCurrentPage('dashboard');
       }
     };
+    handleLocationChange();
     window.addEventListener('popstate', handleLocationChange);
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
@@ -72,11 +92,26 @@ export default function App() {
   const handleNavigate = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (page === 'admin') {
-      window.history.pushState({}, '', '/admin');
-    } else if (page === 'home') {
-      window.history.pushState({}, '', '/');
-    }
+    const urlMap = {
+      home: '/',
+      admin: '/admin',
+      dashboard: '/dashboard',
+      pricing: '/pricing',
+      about: '/about',
+      contact: '/contact',
+      services: '/services',
+      features: '/services',
+      'book-demo': '/book-demo',
+      'founder-meeting': '/founder-meeting',
+      login: '/login',
+      signup: '/register',
+      register: '/register',
+      faq: '/faq',
+      'legal-privacy': '/legal-privacy',
+      'legal-terms': '/legal-terms'
+    };
+    const targetUrl = urlMap[page] || '/';
+    window.history.pushState({}, '', targetUrl);
   };
 
   const handleLoginSuccess = (loggedInUser) => {
@@ -95,7 +130,7 @@ export default function App() {
   }
 
   const isDashboardView = currentPage === 'dashboard';
-  const isAuthView = ['login', 'signup', 'forgot-password', 'onboarding'].includes(currentPage);
+  const isAuthView = ['login', 'signup', 'register', 'forgot-password', 'onboarding'].includes(currentPage);
 
   return (
     <div className="app-root">
@@ -170,7 +205,7 @@ export default function App() {
             />
           )}
 
-          {currentPage === 'signup' && (
+          {(currentPage === 'signup' || currentPage === 'register') && (
             <SignUpPage 
               onNavigate={handleNavigate} 
               onLoginSuccess={handleLoginSuccess} 
@@ -204,7 +239,7 @@ export default function App() {
               <HowItWorksPage onNavigate={handleNavigate} />
             )}
 
-            {currentPage === 'features' && (
+            {(currentPage === 'features' || currentPage === 'services') && (
               <FeaturesPage onNavigate={handleNavigate} />
             )}
 
@@ -222,6 +257,10 @@ export default function App() {
 
             {currentPage === 'book-demo' && (
               <BookDemoPage onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'founder-meeting' && (
+              <FounderMeetingPage onNavigate={handleNavigate} />
             )}
 
             {currentPage === 'faq' && (

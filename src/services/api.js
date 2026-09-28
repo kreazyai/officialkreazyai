@@ -9,8 +9,8 @@ import {
   initialAiConfig,
   initialIntegrations,
   initialAiActivityTimeline
-} from './mockData';
-import { successResponse, errorResponse, API_ERROR_CODES, apiClient } from '../api/client';
+} from './mockData.js';
+import { successResponse, errorResponse, API_ERROR_CODES, apiClient } from '../api/client.js';
 
 const STORAGE_KEYS = {
   WORKSPACES: 'kreazy_workspaces',
@@ -28,8 +28,17 @@ const STORAGE_KEYS = {
   AI_ACTIONS: 'kreazy_ai_actions'
 };
 
+const memoryStore = new Map();
+
 function getStored(key, defaultValue) {
   try {
+    if (typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function') {
+      if (!memoryStore.has(key)) {
+        memoryStore.set(key, JSON.stringify(defaultValue));
+        return defaultValue;
+      }
+      return JSON.parse(memoryStore.get(key));
+    }
     const raw = localStorage.getItem(key);
     if (!raw) {
       localStorage.setItem(key, JSON.stringify(defaultValue));
@@ -43,6 +52,10 @@ function getStored(key, defaultValue) {
 
 function setStored(key, value) {
   try {
+    if (typeof localStorage === 'undefined' || typeof localStorage.setItem !== 'function') {
+      memoryStore.set(key, JSON.stringify(value));
+      return;
+    }
     localStorage.setItem(key, JSON.stringify(value));
   } catch (err) {
     console.error('Storage error:', err);
@@ -353,6 +366,51 @@ export const adminService = {
     return successResponse(logs);
   },
 
+  async getLeads() {
+    return leadService.getAll();
+  },
+
+  async getCrossTenantCustomers() {
+    const customers = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
+    return successResponse(customers);
+  },
+
+  async getSystemHealth() {
+    return successResponse({
+      status: "ALL_SYSTEMS_OPERATIONAL",
+      uptime: "99.98%",
+      version: "2.4.0-prod",
+      activeConnections: 42,
+      metaWebhooks: "Connected (v20.0 Webhooks Active)",
+      webhookLatency: "14ms",
+      dbEngine: "LocalStorage ACID Synchronizer (Multi-Tenant)",
+      cacheHitRatio: "96.4%",
+      memoryUsage: "48.2 MB / 512 MB",
+      lastHealthCheck: new Date().toISOString()
+    });
+  },
+
+  async createBusiness(businessData) {
+    const businesses = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
+    const newBiz = {
+      id: `ws-${Date.now()}`,
+      name: businessData.name,
+      owner_name: businessData.owner_name,
+      owner_email: businessData.owner_email,
+      plan: businessData.plan || "Growth ($119/mo)",
+      status: "ACTIVE",
+      channels_connected: businessData.channels_connected || ["WhatsApp"],
+      total_customers: 0,
+      total_orders: 0,
+      total_revenue: "$0.00",
+      created_at: new Date().toISOString().split('T')[0],
+      last_activity: "Just now"
+    };
+    setStored(STORAGE_KEYS.WORKSPACES, [newBiz, ...businesses]);
+    await this.logAuditAction('BUSINESS_CREATED', newBiz.id, { name: newBiz.name, email: newBiz.owner_email });
+    return successResponse(newBiz);
+  },
+
   async logAuditAction(action, entityId, metadata = {}) {
     const logs = getStored(STORAGE_KEYS.AUDIT_LOGS, []);
     const newEntry = {
@@ -403,6 +461,34 @@ export const productService = {
 export const orderService = {
   async getAll() {
     return getStored(STORAGE_KEYS.ORDERS, initialOrders);
+  },
+  async create(orderData) {
+    const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
+    const newOrder = {
+      id: orderData.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+      customer: orderData.customer || {
+        name: "Anonymous Shopper",
+        channel: "whatsapp",
+        handle: "+1 (555) 234-5678"
+      },
+      items: orderData.items || [
+        { name: "Artisan Linen Overshirt", quantity: 1, price: 89.00 }
+      ],
+      total: orderData.total || (orderData.items ? orderData.items.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0) : 89.00),
+      status: orderData.status || "confirmed",
+      paymentMethod: orderData.paymentMethod || "COD / Direct Chat",
+      createdAt: new Date().toISOString()
+    };
+    const updated = [newOrder, ...orders];
+    setStored(STORAGE_KEYS.ORDERS, updated);
+    
+    // Log platform audit
+    adminService.logAuditAction('ORDER_CAPTURED_AUTONOMOUS', newOrder.id, {
+      total: newOrder.total,
+      customer: newOrder.customer.name
+    });
+
+    return newOrder;
   },
   async updateStatus(orderId, newStatus) {
     const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
@@ -468,41 +554,17 @@ export const aiConfigService = {
     setStored(STORAGE_KEYS.AI_CONFIG, updated);
     return updated;
   },
-  async simulateChat(userMessage) {
-    const msg = userMessage.toLowerCase();
-    if (msg.includes("return") || msg.includes("refund")) {
+  async simulateChat(userMessage, context = {}) {
+    try {
+      const { AiKnowledgeEngine } = await import('./aiKnowledgeEngine.js');
+      return await AiKnowledgeEngine.processMessage(userMessage, context);
+    } catch {
       return {
-        reply: "We offer hassle-free exchanges and returns within 14 days of receipt on unworn items with original tags intact. Would you like me to initiate a return shipping label for you?",
-        confidence: 94,
-        source: "Return & Refund Policy Knowledge"
+        reply: "Thank you for asking! I'm here to assist with products, orders, shipping, and sizing across WhatsApp, Instagram, and Facebook.",
+        confidence: 90,
+        source: "General Store Concierge"
       };
     }
-    if (msg.includes("shipping") || msg.includes("delivery") || msg.includes("courier")) {
-      return {
-        reply: "Standard delivery is complimentary on all orders over $75 (arriving in 2-4 business days). Express overnight delivery is also available for $18.",
-        confidence: 97,
-        source: "Shipping Knowledge Base"
-      };
-    }
-    if (msg.includes("discount") || msg.includes("coupon") || msg.includes("deal") || msg.includes("promo")) {
-      return {
-        reply: "I can offer you an exclusive 10% welcome discount on your order today! Use code KREAZY10 at checkout.",
-        confidence: 92,
-        source: "Sales Behavior Rules"
-      };
-    }
-    if (msg.includes("linen") || msg.includes("shirt") || msg.includes("carafe") || msg.includes("perfume")) {
-      return {
-        reply: "Our Artisan collection is crafted with organic European materials. We have sizes and stock ready for immediate dispatch! Would you like to review specs or place an order?",
-        confidence: 96,
-        source: "Product Catalog Index"
-      };
-    }
-    return {
-      reply: "Thank you for asking! I'm here to assist with products, orders, shipping, and sizing across WhatsApp, Instagram, and Facebook. How can I assist your order today?",
-      confidence: 89,
-      source: "General Concierge Persona"
-    };
   }
 };
 
@@ -525,6 +587,12 @@ export const integrationService = {
 };
 
 export const leadService = {
+  async getAll() {
+    const demos = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
+    const general = getStored(STORAGE_KEYS.LEADS, []);
+    return [...demos, ...general];
+  },
+
   async submitDemo(demoData) {
     const existing = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
     const newLead = { 
@@ -532,10 +600,11 @@ export const leadService = {
       id: `demo-${Date.now()}`, 
       request_type: 'DEMO',
       status: 'NEW',
-      notes: 'Submitted via public website demo booking flow.',
-      created_at: 'Just now'
+      notes: demoData.message || 'Submitted via public website demo booking flow.',
+      created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     };
     setStored(STORAGE_KEYS.DEMO_REQUESTS, [newLead, ...existing]);
+    adminService.logAuditAction('DEMO_BOOKING_SUBMITTED', newLead.id, { email: newLead.email, company: newLead.businessName });
     return { success: true, lead: newLead };
   },
 
@@ -547,12 +616,85 @@ export const leadService = {
       request_type: 'FOUNDER_MEETING',
       full_name: meetingData.name || meetingData.full_name,
       business_name: meetingData.company || meetingData.business_name,
+      email: meetingData.email,
+      phone: meetingData.phone,
       status: 'NEW',
-      notes: `Founder 1-on-1 strategy meeting request: ${meetingData.message || 'No additional note'}`,
-      created_at: 'Just now'
+      notes: `Founder 1-on-1 strategy meeting: ${meetingData.message || 'Direct executive consultation'}`,
+      created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     };
     setStored(STORAGE_KEYS.DEMO_REQUESTS, [newMeeting, ...existing]);
+    adminService.logAuditAction('FOUNDER_MEETING_REQUESTED', newMeeting.id, { email: newMeeting.email, company: newMeeting.business_name });
     return { success: true, lead: newMeeting };
+  },
+
+  async submitContactInquiry(inquiryData) {
+    const existing = getStored(STORAGE_KEYS.LEADS, []);
+    const newInquiry = {
+      id: `inq-${Date.now()}`,
+      request_type: 'CONTACT_INQUIRY',
+      full_name: inquiryData.name,
+      email: inquiryData.email,
+      business_name: inquiryData.company || inquiryData.inquiryType || 'General Merchant',
+      inquiry_type: inquiryData.inquiryType || 'Product Inquiry',
+      message: inquiryData.message,
+      status: 'NEW',
+      notes: `Inquiry message: ${inquiryData.message}`,
+      created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+    setStored(STORAGE_KEYS.LEADS, [newInquiry, ...existing]);
+    adminService.logAuditAction('CONTACT_INQUIRY_RECEIVED', newInquiry.id, { email: newInquiry.email, type: newInquiry.inquiry_type });
+    return { success: true, inquiry: newInquiry };
+  },
+
+  async updateStatus(id, newStatus, adminNote = null) {
+    const demos = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
+    const general = getStored(STORAGE_KEYS.LEADS, []);
+
+    let foundInDemos = demos.some(d => d.id === id);
+    if (foundInDemos) {
+      const updated = demos.map(d => d.id === id ? {
+        ...d,
+        status: newStatus,
+        notes: adminNote ? `${d.notes || ''} | ${adminNote}` : d.notes
+      } : d);
+      setStored(STORAGE_KEYS.DEMO_REQUESTS, updated);
+      adminService.logAuditAction('LEAD_STATUS_UPDATED', id, { newStatus, adminNote });
+      return updated.find(d => d.id === id);
+    } else {
+      const updated = general.map(g => g.id === id ? {
+        ...g,
+        status: newStatus,
+        notes: adminNote ? `${g.notes || ''} | ${adminNote}` : g.notes
+      } : g);
+      setStored(STORAGE_KEYS.LEADS, updated);
+      adminService.logAuditAction('INQUIRY_STATUS_UPDATED', id, { newStatus, adminNote });
+      return updated.find(g => g.id === id);
+    }
+  },
+
+  async delete(id) {
+    const demos = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
+    const general = getStored(STORAGE_KEYS.LEADS, []);
+    setStored(STORAGE_KEYS.DEMO_REQUESTS, demos.filter(d => d.id !== id));
+    setStored(STORAGE_KEYS.LEADS, general.filter(g => g.id !== id));
+    adminService.logAuditAction('LEAD_DELETED', id, {});
+    return true;
+  },
+
+  exportCSV(leads) {
+    const headers = ['ID', 'Type', 'Full Name', 'Business Name', 'Email', 'Phone', 'Status', 'Date', 'Notes'];
+    const rows = leads.map(l => [
+      l.id,
+      l.request_type || 'LEAD',
+      `"${(l.full_name || '').replace(/"/g, '""')}"`,
+      `"${(l.business_name || '').replace(/"/g, '""')}"`,
+      l.email || '',
+      l.phone || '',
+      l.status || 'NEW',
+      l.created_at || '',
+      `"${(l.notes || '').replace(/"/g, '""')}"`
+    ]);
+    return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   }
 };
 
@@ -569,7 +711,7 @@ export const authService = {
     });
   },
   login(email, password) {
-    const isSuper = email.includes('superadmin') || email.includes('admin@kreazy.ai');
+    const isSuper = email.includes('superadmin') || email.includes('admin@kreazy.ai') || email.includes('kreazyai@gmail.com');
     const user = {
       id: `usr-${Date.now()}`,
       name: email.split('@')[0] || "Store Owner",
@@ -582,8 +724,41 @@ export const authService = {
     setStored(STORAGE_KEYS.AUTH_USER, user);
     return user;
   },
+  registerWorkspace({ storeName, ownerName, email, password, plan = 'Growth ($119/mo)' }) {
+    const workspaces = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
+    const newWs = {
+      id: `ws-${Date.now()}`,
+      name: storeName || "My Retail Store",
+      owner_name: ownerName || email.split('@')[0],
+      owner_email: email,
+      plan: plan,
+      status: "ACTIVE",
+      channels_connected: ["WhatsApp", "Instagram"],
+      total_customers: 0,
+      total_orders: 0,
+      total_revenue: "$0.00",
+      created_at: new Date().toISOString().split('T')[0],
+      last_activity: "Just now"
+    };
+    setStored(STORAGE_KEYS.WORKSPACES, [newWs, ...workspaces]);
+
+    const user = {
+      id: `usr-${Date.now()}`,
+      name: ownerName || email.split('@')[0],
+      email: email,
+      storeName: storeName || "My Retail Store",
+      workspaceId: newWs.id,
+      role: "OWNER",
+      is_super_admin: false,
+      isLoggedIn: true
+    };
+    setStored(STORAGE_KEYS.AUTH_USER, user);
+    adminService.logAuditAction('MERCHANT_REGISTERED', newWs.id, { store: storeName, email });
+    return user;
+  },
   logout() {
     localStorage.removeItem(STORAGE_KEYS.AUTH_USER);
     return true;
   }
 };
+

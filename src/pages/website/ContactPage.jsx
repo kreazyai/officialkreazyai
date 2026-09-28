@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, MessageSquare, Clock, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Input, Textarea, Select } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
+import { leadService } from '../../services/api';
 
 export function ContactPage({ onNavigate }) {
   const [formData, setFormData] = useState({
@@ -12,14 +13,25 @@ export function ContactPage({ onNavigate }) {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.email || !formData.message) {
+      setError('Please fill in your name, email, and message.');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError('');
+    try {
+      await leadService.submitContactInquiry(formData);
       setSubmitted(true);
-    }, 600);
+    } catch {
+      setError('Unable to send inquiry. Please try again or email hello@kreazy.ai directly.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

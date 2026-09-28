@@ -44,12 +44,16 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      const user = authService.login(formData.email, formData.password);
-      user.storeName = formData.businessName || "My Retail Store";
-      user.name = formData.fullName || "Store Owner";
+      const user = authService.registerWorkspace({
+        storeName: formData.businessName || "My Retail Store",
+        ownerName: formData.fullName || "Store Owner",
+        email: formData.email,
+        password: formData.password,
+        plan: "Growth ($119/mo)"
+      });
       if (onLoginSuccess) onLoginSuccess(user);
       onNavigate('onboarding');
-    }, 600);
+    }, 500);
   };
 
   return (
