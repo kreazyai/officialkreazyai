@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, MessageSquare, ShoppingBag, Tag, ExternalLink, Eye, Plus, ShieldCheck, Network, Sparkles } from 'lucide-react';
+import { Users, Search, MessageSquare, ShoppingBag, Tag, ExternalLink, Eye, Plus, ShieldCheck, Network, Sparkles, Send, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
+import { Modal } from '../../components/common/Modal';
 import { CustomerProfileDrawer } from '../../components/customer/CustomerProfileDrawer';
-import { customerCrmService } from '../../services/api';
+import { customerCrmService, conversationService } from '../../services/api';
 
 export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
   const isDemo = Boolean(user?.isDemo);
@@ -11,7 +12,16 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
   const [search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [previewingDemo, setPreviewingDemo] = useState(isDemo);
+  const [previewingDemo, setPreviewingDemo] = useState(false);
+
+  // Inbound Simulation Modal
+  const [isSimulateModalOpen, setIsSimulateModalOpen] = useState(false);
+  const [simulateChannel, setSimulateChannel] = useState('whatsapp');
+  const [simulateName, setSimulateName] = useState('Sophia Chen');
+  const [simulatePhone, setSimulatePhone] = useState('+1 (555) 782-9912');
+  const [simulateText, setSimulateText] = useState('Hi there! Do you ship to New York? I want to place an order.');
+  const [isSubmittingSim, setIsSubmittingSim] = useState(false);
+  const [notification, setNotification] = useState('');
 
   const fetchCustomers = async (forceDemo = false) => {
     const res = await customerCrmService.getAll(forceDemo || previewingDemo);
@@ -29,6 +39,38 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
     setDrawerOpen(true);
   };
 
+  const handleSimulateInboundMessage = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!simulateName.trim() || !simulateText.trim()) return;
+
+    setIsSubmittingSim(true);
+    try {
+      await conversationService.receiveIncomingMessage({
+        customerName: simulateName.trim(),
+        channel: simulateChannel,
+        text: simulateText.trim(),
+        phone: simulatePhone.trim(),
+        email: `${simulateName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`
+      });
+
+      setIsSubmittingSim(false);
+      setIsSimulateModalOpen(false);
+      setNotification(`Inbound customer message received via ${simulateChannel.toUpperCase()}! Profile for "${simulateName}" automatically synthesized into your 360 CRM.`);
+      setTimeout(() => setNotification(''), 7000);
+      await fetchCustomers();
+    } catch (err) {
+      console.error(err);
+      setIsSubmittingSim(false);
+    }
+  };
+
+  const applyPreset = (name, phone, channel, text) => {
+    setSimulateName(name);
+    setSimulatePhone(phone);
+    setSimulateChannel(channel);
+    setSimulateText(text);
+  };
+
   const filtered = customers.filter(c => 
     c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
     c.email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,6 +79,24 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
 
   return (
     <div className="dashboard-content">
+      {notification && (
+        <div style={{
+          padding: '0.85rem 1.25rem',
+          backgroundColor: 'rgba(163, 230, 53, 0.12)',
+          border: '1px solid rgba(163, 230, 53, 0.3)',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          fontSize: '0.875rem',
+          color: 'var(--text-primary)'
+        }}>
+          <CheckCircle2 size={18} color="var(--bright-olive)" />
+          <span>{notification}</span>
+        </div>
+      )}
+
       <div className="page-title-row">
         <div>
           <h2>Customer Directory & Cross-Channel 360 CRM</h2>
@@ -47,7 +107,7 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {previewingDemo && !isDemo && (
             <button
               type="button"
@@ -58,6 +118,16 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
               Exit Demo Preview
             </button>
           )}
+
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={() => setIsSimulateModalOpen(true)} 
+            icon={Plus}
+          >
+            Simulate Inbound Customer
+          </Button>
+
           {customers.length > 0 && (
             <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
               <Search size={14} style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-muted)' }} />
@@ -107,7 +177,7 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
                     </div>
                   </td>
                   <td>
-                    <Badge variant={c.preferred_channel === 'WHATSAPP' ? 'whatsapp' : 'instagram'}>
+                    <Badge variant={c.preferred_channel === 'WHATSAPP' ? 'whatsapp' : c.preferred_channel === 'INSTAGRAM' ? 'instagram' : 'olive'}>
                       {c.preferred_channel}
                     </Badge>
                   </td>
@@ -190,7 +260,10 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
             Customer profiles, phone contacts, lifetime spend, and behavioral tags are automatically synthesized when shoppers message you on WhatsApp, Instagram, or Facebook.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Button variant="primary" size="md" onClick={() => onNavigateModule ? onNavigateModule('integrations') : null} icon={Network}>
+            <Button variant="primary" size="md" onClick={() => setIsSimulateModalOpen(true)} icon={MessageSquare}>
+              ⚡ Receive Inbound Customer Message
+            </Button>
+            <Button variant="secondary" size="md" onClick={() => onNavigateModule ? onNavigateModule('integrations') : null} icon={Network}>
               Connect Channels
             </Button>
             <Button variant="subtle" size="md" onClick={() => { setPreviewingDemo(true); fetchCustomers(true); }} icon={Sparkles}>
@@ -207,6 +280,127 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
         onClose={() => setDrawerOpen(false)}
         onRefresh={() => fetchCustomers(true)}
       />
+
+      {/* SIMULATE INBOUND CUSTOMER MESSAGE MODAL */}
+      <Modal
+        isOpen={isSimulateModalOpen}
+        onClose={() => setIsSimulateModalOpen(false)}
+        title="Simulate Inbound Customer Message"
+        maxWidth="520px"
+        footer={(
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+            <Button variant="secondary" size="sm" onClick={() => setIsSimulateModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="primary" 
+              size="sm" 
+              onClick={handleSimulateInboundMessage}
+              loading={isSubmittingSim}
+              icon={Send}
+            >
+              Receive Inbound Message
+            </Button>
+          </div>
+        )}
+      >
+        <form onSubmit={handleSimulateInboundMessage} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Simulate a shopper initiating a live conversation across your connected software. Kreazy AI will receive the message, process it, and automatically register the customer into this 360 CRM.
+          </p>
+
+          {/* Quick Presets */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>
+              Quick Presets:
+            </label>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                onClick={() => applyPreset('Sophia Chen', '+1 (555) 782-9912', 'whatsapp', 'Hi! Do you have the Linen Overshirt in size M in stock?')}
+              >
+                💬 Sophia (WhatsApp)
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                onClick={() => applyPreset('Julian Bennett', '+1 (555) 912-3841', 'instagram', 'Love your ceramic collection! What are the dimensions of the carafe?')}
+              >
+                📸 Julian (Instagram)
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                onClick={() => applyPreset('David Kim', '+1 (555) 234-8899', 'facebook', 'Hello! Can you provide shipping estimates to Chicago?')}
+              >
+                📘 David (Facebook)
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.35rem' }}>
+              Integrated Channel
+            </label>
+            <select 
+              className="form-select"
+              value={simulateChannel}
+              onChange={(e) => setSimulateChannel(e.target.value)}
+            >
+              <option value="whatsapp">WhatsApp Cloud API (+1 Direct Webhook)</option>
+              <option value="instagram">Instagram Graph API (DM Inbound)</option>
+              <option value="facebook">Facebook Messenger (Meta Webhook)</option>
+            </select>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.35rem' }}>
+                Customer Full Name
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                required
+                value={simulateName}
+                onChange={(e) => setSimulateName(e.target.value)}
+                placeholder="e.g. Sophia Chen"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.35rem' }}>
+                Phone / Handle
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                value={simulatePhone}
+                onChange={(e) => setSimulatePhone(e.target.value)}
+                placeholder="e.g. +1 (555) 000-0000"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.35rem' }}>
+              Inbound Customer Message
+            </label>
+            <textarea
+              className="form-input"
+              rows={3}
+              required
+              value={simulateText}
+              onChange={(e) => setSimulateText(e.target.value)}
+              placeholder="Type message text sent by customer..."
+              style={{ resize: 'vertical' }}
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

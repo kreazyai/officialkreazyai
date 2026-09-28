@@ -311,6 +311,117 @@ export const customerCrmService = {
     });
     setStored(key, updated);
     return successResponse(updated.find(c => c.id === customerId));
+  },
+
+  async syncCustomerFromConversation({ customerName, channel = "WHATSAPP", text = "", phone = "", email = "", avatar = null }) {
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_customers' : STORAGE_KEYS.CUSTOMERS;
+    const defaultList = isDemo ? initialCustomersDetailed : [];
+    const list = getStored(key, defaultList);
+
+    const normalizedChannel = (channel || 'WHATSAPP').toUpperCase();
+    const cleanName = (customerName || 'Shopper').trim();
+    const cleanPhone = phone || '+1 (555) ' + Math.floor(100 + Math.random() * 900) + '-' + Math.floor(1000 + Math.random() * 9000);
+    const cleanEmail = email || `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'shopper'}@customer.meta`;
+
+    // Check if customer already exists in directory
+    const existingIndex = list.findIndex(c => 
+      (email && c.email?.toLowerCase() === email.toLowerCase()) ||
+      (phone && c.phone === phone) ||
+      (c.full_name?.toLowerCase() === cleanName.toLowerCase())
+    );
+
+    if (existingIndex >= 0) {
+      const existing = list[existingIndex];
+      const updatedCustomer = {
+        ...existing,
+        last_activity_at: 'Just now',
+        activities: [
+          {
+            id: `act-${Date.now()}`,
+            activity_type: 'CONVERSATION_UPDATE',
+            description: `Received message on ${normalizedChannel}: "${text}"`,
+            source: normalizedChannel,
+            performed_by: 'CUSTOMER',
+            created_at: 'Just now'
+          },
+          ...(existing.activities || [])
+        ]
+      };
+      const updatedList = [...list];
+      updatedList[existingIndex] = updatedCustomer;
+      setStored(key, updatedList);
+      return successResponse(updatedCustomer);
+    }
+
+    // Create a brand new rich 360 Customer Profile
+    const newCustomer = {
+      id: `cust-${Date.now()}`,
+      workspace_id: user?.workspaceId || 'ws-store',
+      first_name: cleanName.split(' ')[0] || cleanName,
+      last_name: cleanName.split(' ').slice(1).join(' ') || '',
+      full_name: cleanName,
+      email: cleanEmail,
+      phone: cleanPhone,
+      profile_image: avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80`,
+      customer_status: 'ACTIVE',
+      customer_type: 'New Lead',
+      source: normalizedChannel,
+      preferred_language: 'en',
+      preferred_channel: normalizedChannel,
+      total_orders: 0,
+      total_spent: 0.00,
+      average_order_value: 0.00,
+      last_activity_at: 'Just now',
+      contacts: [
+        {
+          id: `cnt-${Date.now()}`,
+          email: cleanEmail,
+          phone: cleanPhone,
+          [normalizedChannel.toLowerCase() + '_id']: cleanPhone,
+          verification_status: 'VERIFIED'
+        }
+      ],
+      addresses: [],
+      social_accounts: [
+        {
+          id: `soc-${Date.now()}`,
+          platform: normalizedChannel,
+          display_name: cleanName,
+          connection_status: 'ACTIVE'
+        }
+      ],
+      tags: [normalizedChannel, 'Inbound Inquiry', 'New Lead'],
+      notes: [
+        {
+          id: `nt-${Date.now()}`,
+          author: 'Meta Webhook Integrator',
+          content: `Customer initiated contact via integrated ${normalizedChannel} channel. Initial query: "${text}"`,
+          created_at: 'Just now'
+        }
+      ],
+      activities: [
+        {
+          id: `act-${Date.now()}`,
+          activity_type: 'CONVERSATION_STARTED',
+          description: `Initiated inquiry on ${normalizedChannel}: "${text}"`,
+          source: normalizedChannel,
+          performed_by: 'CUSTOMER',
+          created_at: 'Just now'
+        }
+      ]
+    };
+
+    const updatedList = [newCustomer, ...list];
+    setStored(key, updatedList);
+
+    adminService.logAuditAction('CUSTOMER_INBOUND_CAPTURED', newCustomer.id, {
+      customer: newCustomer.full_name,
+      channel: normalizedChannel
+    });
+
+    return successResponse(newCustomer);
   }
 };
 
@@ -390,7 +501,7 @@ export const adminService = {
   },
 
   async getCrossTenantCustomers() {
-    const customers = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
+    const customers = getStored('kreazy_demo_customers', initialCustomersDetailed);
     return successResponse(customers);
   },
 
@@ -603,6 +714,79 @@ export const conversationService = {
     });
     setStored(key, updated);
     return updated.find(c => c.id === convId);
+  },
+  async receiveIncomingMessage({ customerName, channel = "whatsapp", text, phone = "", email = "", avatar = null }) {
+    const user = authService.getCurrentUser();
+    const isDemo = Boolean(user?.isDemo);
+    const key = isDemo ? 'kreazy_demo_conversations' : STORAGE_KEYS.CONVERSATIONS;
+    const convos = getStored(key, []);
+
+    const newMsg = {
+      id: `m-${Date.now()}`,
+      sender: "customer",
+      text: text || "Hello, I am interested in your products.",
+      timestamp: "Just now"
+    };
+
+    let existingConv = convos.find(c => 
+      c.customer?.name?.toLowerCase() === (customerName || '').toLowerCase() ||
+      (phone && c.customer?.handle?.includes(phone))
+    );
+
+    let updatedConvos;
+    let targetConv;
+
+    if (existingConv) {
+      updatedConvos = convos.map(c => {
+        if (c.id === existingConv.id) {
+          const updated = {
+            ...c,
+            messages: [...c.messages, newMsg],
+            lastActivity: "Just now",
+            status: "active"
+          };
+          targetConv = updated;
+          return updated;
+        }
+        return c;
+      });
+    } else {
+      const cleanName = (customerName || 'New Shopper').trim();
+      targetConv = {
+        id: `conv-${Date.now()}`,
+        customer: {
+          name: cleanName,
+          avatar: avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80`,
+          handle: phone || `@${cleanName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+          vip: false
+        },
+        channel: channel.toLowerCase(),
+        lastActivity: "Just now",
+        status: "active",
+        aiHandled: true,
+        needsHuman: false,
+        messages: [newMsg],
+        suggestedAction: `Reply to ${channel.toUpperCase()} customer regarding store catalog`
+      };
+      updatedConvos = [targetConv, ...convos];
+    }
+
+    setStored(key, updatedConvos);
+
+    // Auto-sync into Customer 360 CRM directory!
+    const customerRes = await customerCrmService.syncCustomerFromConversation({
+      customerName,
+      channel,
+      text,
+      phone,
+      email,
+      avatar
+    });
+
+    return {
+      conversation: targetConv,
+      customer: customerRes.data
+    };
   }
 };
 
@@ -795,6 +979,10 @@ export const authService = {
       const currentConvs = getStored(STORAGE_KEYS.CONVERSATIONS, []);
       const cleanConvs = currentConvs.filter(c => !['conv-1', 'conv-2', 'conv-3', 'conv-4', 'conv-5'].includes(c.id));
       setStored(STORAGE_KEYS.CONVERSATIONS, cleanConvs);
+
+      const currentCustomers = getStored(STORAGE_KEYS.CUSTOMERS, []);
+      const cleanCustomers = currentCustomers.filter(c => !['c1', 'c2', 'c3', 'c4', 'c5'].includes(c.id) && !c.id?.startsWith('mock-'));
+      setStored(STORAGE_KEYS.CUSTOMERS, cleanCustomers);
     }
 
     return user;

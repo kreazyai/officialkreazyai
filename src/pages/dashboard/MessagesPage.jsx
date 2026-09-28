@@ -44,17 +44,9 @@ export function MessagesPage({ user, onNavigateModule }) {
 
   // Load conversations from service
   const loadConversations = async (forceDemo = false) => {
-    // If not a demo user and demo preview has not been explicitly triggered, keep inbox empty
-    if (!isDemo && !forceDemo && !previewingDemo) {
-      setConversations([]);
-      setSelectedConvId(null);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     try {
-      const data = await conversationService.getAll();
+      const data = await conversationService.getAll(forceDemo || previewingDemo);
       setConversations(data);
       if (data.length > 0 && !selectedConvId) {
         setSelectedConvId(data[0].id);
@@ -68,11 +60,22 @@ export function MessagesPage({ user, onNavigateModule }) {
 
   useEffect(() => {
     loadConversations();
-  }, [isDemo]);
+  }, [isDemo, previewingDemo]);
 
   const handleLoadDemoPreview = () => {
     setPreviewingDemo(true);
     loadConversations(true);
+  };
+
+  const handleSimulateInbound = async () => {
+    await conversationService.receiveIncomingMessage({
+      customerName: "Sophia Chen",
+      channel: "whatsapp",
+      text: "Hi Kreazy! Do you have linen overshirts in stock? Looking to order size M.",
+      phone: "+1 (555) 782-9912",
+      email: "sophiachen@gmail.com"
+    });
+    await loadConversations(false);
   };
 
   const activeConversation = conversations.find(c => c.id === selectedConvId) || (conversations.length > 0 ? conversations[0] : null);
@@ -135,11 +138,27 @@ export function MessagesPage({ user, onNavigateModule }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {previewingDemo && !isDemo && (
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => setPreviewingDemo(false)}
+              style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+            >
+              Exit Demo Preview
+            </button>
+          )}
+
           <Badge variant={conversations.length > 0 ? 'olive' : 'subtle'}>
             <span className={`status-dot ${conversations.length > 0 ? 'active' : ''}`}></span>{' '}
-            {conversations.length > 0 ? '3 Channels Synchronized' : 'Channels Standby (0/3)'}
+            {conversations.length > 0 ? 'Channels Synchronized' : 'Channels Standby (0/3)'}
           </Badge>
+
+          <Button variant="primary" size="sm" onClick={handleSimulateInbound} icon={MessageSquare}>
+            ⚡ Receive Inbound Message
+          </Button>
+
           {conversations.length > 0 ? (
             <Button variant="secondary" size="sm" onClick={() => loadConversations(true)} icon={RefreshCw}>
               Refresh

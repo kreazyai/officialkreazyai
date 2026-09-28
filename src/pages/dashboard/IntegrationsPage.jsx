@@ -6,20 +6,22 @@ import {
   CheckCircle2, 
   AlertCircle, 
   RefreshCw, 
-  ExternalLink,
-  ShieldCheck,
-  Settings,
-  X
+  ExternalLink, 
+  ShieldCheck, 
+  Settings, 
+  X,
+  Sparkles
 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
-import { integrationService } from '../../services/api';
+import { integrationService, conversationService } from '../../services/api';
 
 export function IntegrationsPage() {
   const [integrations, setIntegrations] = useState([]);
   const [activeModalChannel, setActiveModalChannel] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [notification, setNotification] = useState('');
 
   const fetchIntegrations = async () => {
     const list = await integrationService.getAll();
@@ -40,8 +42,52 @@ export function IntegrationsPage() {
     }, 600);
   };
 
+  const handleTestInbound = async (item) => {
+    let customerName = "Sophia Chen";
+    let text = "Hi Kreazy! Do you have linen overshirts in stock for delivery?";
+    let phone = "+1 (555) 782-9912";
+
+    if (item.id === 'instagram') {
+      customerName = "Julian Bennett";
+      text = "Loving your new ceramics catalog! What are the dimensions of the carafe?";
+      phone = "+1 (555) 912-3841";
+    } else if (item.id === 'facebook') {
+      customerName = "David Kim";
+      text = "Hello! Do you offer expedited shipping for gift orders?";
+      phone = "+1 (555) 234-8899";
+    }
+
+    await conversationService.receiveIncomingMessage({
+      customerName,
+      channel: item.id,
+      text,
+      phone,
+      email: `${customerName.toLowerCase().replace(/[^a-z0-9]/g, '')}@meta.example`
+    });
+
+    setNotification(`⚡ Inbound webhook dispatched from ${item.name}! Customer profile for "${customerName}" has been automatically created in your Customer 360 CRM.`);
+    setTimeout(() => setNotification(''), 7000);
+  };
+
   return (
     <div className="dashboard-content">
+      {notification && (
+        <div style={{
+          padding: '0.85rem 1.25rem',
+          backgroundColor: 'rgba(163, 230, 53, 0.12)',
+          border: '1px solid rgba(163, 230, 53, 0.3)',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          fontSize: '0.875rem',
+          color: 'var(--text-primary)'
+        }}>
+          <CheckCircle2 size={18} color="var(--bright-olive)" />
+          <span>{notification}</span>
+        </div>
+      )}
       <div className="page-title-row">
         <div>
           <h2>Meta Channel Hub & Webhook Integrations</h2>
@@ -101,23 +147,35 @@ export function IntegrationsPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
-                <Button
-                  variant={isConn ? 'secondary' : 'primary'}
-                  size="sm"
-                  style={{ flexGrow: 1 }}
-                  onClick={() => setActiveModalChannel(item)}
-                >
-                  {isConn ? 'Settings & Webhook' : 'Connect Channel'}
-                </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: 'auto' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Button
+                    variant={isConn ? 'secondary' : 'primary'}
+                    size="sm"
+                    style={{ flexGrow: 1 }}
+                    onClick={() => setActiveModalChannel(item)}
+                  >
+                    {isConn ? 'Settings & Webhook' : 'Connect Channel'}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleToggle(item.id)}
+                    title={isConn ? 'Disconnect Channel' : 'Reconnect Channel'}
+                  >
+                    <RefreshCw size={14} />
+                  </Button>
+                </div>
 
                 <Button
-                  variant="ghost"
+                  variant="subtle"
                   size="sm"
-                  onClick={() => handleToggle(item.id)}
-                  title={isConn ? 'Disconnect Channel' : 'Reconnect Channel'}
+                  style={{ width: '100%', fontSize: '0.78rem' }}
+                  onClick={() => handleTestInbound(item)}
+                  icon={Sparkles}
                 >
-                  <RefreshCw size={14} />
+                  ⚡ Test Inbound Message Webhook
                 </Button>
               </div>
             </div>
