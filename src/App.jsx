@@ -162,7 +162,7 @@ export default function App() {
             )}
 
             {currentDashboardModule === 'messages' && (
-              <MessagesPage />
+              <MessagesPage user={user} onNavigateModule={(mod) => setCurrentDashboardModule(mod)} />
             )}
 
             {currentDashboardModule === 'orders' && (
