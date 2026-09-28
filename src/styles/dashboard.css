@@ -1,0 +1,777 @@
+/* =====================================================================
+   SAAS APPLICATION DASHBOARD STYLES
+   ===================================================================== */
+@import './variables.css';
+
+/* ---------------------------------------------------------------------
+   DASHBOARD SHELL & LAYOUT
+   --------------------------------------------------------------------- */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-surface);
+}
+
+/* Sidebar */
+.app-sidebar {
+  width: 260px;
+  background-color: #ffffff;
+  border-right: 1px solid var(--border-medium);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 800;
+  transition: width var(--transition-fast);
+}
+
+.sidebar-brand {
+  height: 64px;
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-workspace-selector {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.workspace-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.workspace-badge:hover {
+  background-color: var(--olive-50);
+}
+
+.sidebar-nav {
+  padding: var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.sidebar-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.sidebar-link:hover {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+.sidebar-link.active {
+  background-color: var(--olive-50);
+  color: var(--olive-900);
+  border-color: var(--olive-100);
+  font-weight: 600;
+}
+
+.sidebar-link .link-badge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-full);
+  background-color: var(--olive-100);
+  color: var(--olive-800);
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ai-engine-status {
+  padding: 0.65rem 0.75rem;
+  background-color: var(--olive-50);
+  border: 1px solid var(--olive-100);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.8rem;
+  color: var(--olive-900);
+  font-weight: 600;
+}
+
+/* Main Content Area */
+.app-main {
+  margin-left: 260px;
+  flex-grow: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 260px);
+}
+
+/* Topbar Header */
+.app-topbar {
+  height: 64px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  position: sticky;
+  top: 0;
+  z-index: 700;
+}
+
+.topbar-search-wrap {
+  position: relative;
+  width: 320px;
+}
+
+.topbar-search-wrap input {
+  padding-left: 2.25rem;
+  padding-right: 2rem;
+  height: 38px;
+  font-size: 0.875rem;
+}
+
+.search-shortcut-kbd {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.user-profile-menu:hover {
+  background-color: var(--bg-subtle);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--olive-700);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Page Body Container */
+.dashboard-content {
+  padding: var(--space-6);
+  flex-grow: 1;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ---------------------------------------------------------------------
+   METRICS & KPI CARDS
+   --------------------------------------------------------------------- */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.metric-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-xs);
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.metric-val {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--olive-950);
+  letter-spacing: -0.02em;
+}
+
+.metric-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.metric-growth-pos {
+  color: #1e7e34;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------
+   MESSAGES / OMNICHANNEL INBOX
+   --------------------------------------------------------------------- */
+.inbox-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr 300px;
+  height: calc(100vh - 128px);
+  background-color: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+.inbox-conversations-col {
+  border-right: 1px solid var(--border-medium);
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+.conversations-filter-bar {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.conversations-list {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.conversation-item {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  display: flex;
+  gap: 0.75rem;
+}
+
+.conversation-item:hover {
+  background-color: #fafbf9;
+}
+
+.conversation-item.active {
+  background-color: var(--olive-50);
+  border-left: 3px solid var(--olive-700);
+}
+
+.convo-avatar-wrap {
+  position: relative;
+}
+
+.convo-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.convo-channel-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffffff;
+}
+
+.convo-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.convo-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.convo-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convo-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.convo-snippet {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat Center Area */
+.inbox-chat-col {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+}
+
+.chat-header {
+  padding: 0.75rem 1.25rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chat-mode-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+}
+
+.chat-messages-container {
+  flex-grow: 1;
+  padding: var(--space-5);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.chat-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.chat-bubble-wrap.customer {
+  align-self: flex-start;
+}
+
+.chat-bubble-wrap.assistant, .chat-bubble-wrap.agent {
+  align-self: flex-end;
+}
+
+.chat-bubble {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+}
+
+.chat-bubble-wrap.customer .chat-bubble {
+  background-color: #ffffff;
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble-wrap.assistant .chat-bubble {
+  background-color: var(--olive-850);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-wrap.agent .chat-bubble {
+  background-color: #3b503e;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 4px;
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.chat-bubble-wrap.assistant .chat-bubble-meta {
+  align-self: flex-end;
+}
+
+.chat-input-area {
+  padding: var(--space-4);
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ai-copilot-suggestion-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background-color: var(--olive-50);
+  border: 1px solid var(--olive-100);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--olive-900);
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Chat Right Customer Info */
+.inbox-customer-col {
+  border-left: 1px solid var(--border-medium);
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--space-5);
+  gap: var(--space-5);
+}
+
+/* ---------------------------------------------------------------------
+   AI ASSISTANT CONFIGURATION STUDIO
+   --------------------------------------------------------------------- */
+.ai-studio-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.ai-playground-card {
+  position: sticky;
+  top: 80px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: 580px;
+}
+
+/* ---------------------------------------------------------------------
+   INTEGRATIONS HUB
+   --------------------------------------------------------------------- */
+.integrations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+.integration-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow: var(--shadow-xs);
+  position: relative;
+}
+
+.integration-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.integration-logo-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Dashboard */
+@media (max-width: 1200px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .inbox-layout {
+    grid-template-columns: 280px 1fr;
+  }
+  .inbox-customer-col {
+    display: none;
+  }
+  .integrations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ai-studio-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  #mobile-sidebar-toggle {
+    display: inline-flex !important;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-sidebar-close {
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+  }
+  .app-sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
+    z-index: 1100;
+    width: min(280px, 85vw);
+  }
+  .app-sidebar.open {
+    transform: translateX(0);
+  }
+  .app-main {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .app-topbar {
+    height: 60px;
+    padding: 0 var(--space-4);
+  }
+
+  .topbar-search-wrap {
+    width: 160px;
+  }
+  .search-shortcut-kbd {
+    display: none;
+  }
+  .desktop-user-info {
+    display: none !important;
+  }
+
+  /* Omnichannel Inbox Master-Detail Layout */
+  .inbox-layout {
+    grid-template-columns: 1fr !important;
+    height: calc(100vh - 100px);
+    border-radius: var(--radius-md);
+  }
+
+  .inbox-layout.mobile-show-list .inbox-conversations-col {
+    display: flex !important;
+    width: 100% !important;
+  }
+  .inbox-layout.mobile-show-list .inbox-chat-col {
+    display: none !important;
+  }
+
+  .inbox-layout.mobile-show-chat .inbox-conversations-col {
+    display: none !important;
+  }
+  .inbox-layout.mobile-show-chat .inbox-chat-col {
+    display: flex !important;
+    width: 100% !important;
+  }
+
+  .mobile-back-btn {
+    display: inline-flex !important;
+    min-width: 38px;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-info-btn {
+    display: inline-flex !important;
+    min-width: 38px;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+  }
+  .desktop-mode-label {
+    display: none !important;
+  }
+  .desktop-send-label {
+    display: none !important;
+  }
+
+  /* Customer info slide-over sheet */
+  .inbox-customer-col {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(340px, 85vw);
+    z-index: 1200;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.25);
+    transform: translateX(100%);
+    transition: transform var(--transition-base);
+    background-color: #ffffff;
+  }
+  .inbox-customer-col.mobile-open {
+    display: flex !important;
+    transform: translateX(0);
+  }
+  .mobile-customer-header {
+    display: flex !important;
+  }
+  .desktop-customer-title {
+    display: none;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-4);
+  }
+  .page-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .dashboard-content {
+    padding: var(--space-4);
+  }
+  .integrations-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .table-container {
+    border-radius: var(--radius-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* AI Studio stacking on mobile */
+  .ai-studio-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .ai-playground-card {
+    position: relative !important;
+    top: 0 !important;
+    height: 520px !important;
+    margin-top: var(--space-6);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: var(--space-3);
+  }
+  .topbar-search-wrap {
+    width: 130px;
+  }
+  .topbar-search-wrap input {
+    font-size: 0.75rem;
+    padding-left: 1.85rem;
+    height: 34px;
+  }
+  .topbar-actions {
+    gap: 0.35rem;
+  }
+  .inbox-layout {
+    height: calc(100dvh - 84px);
+    margin: 0 -0.25rem;
+    border-radius: 0;
+  }
+}

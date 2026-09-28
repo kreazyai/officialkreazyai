@@ -1,0 +1,118 @@
+:root {
+  /* =====================================================================
+     KREAZYAI DESIGN SYSTEM - OLIVE / MUTED GREEN PALETTE
+     ===================================================================== */
+
+  /* Primary Olive Shades */
+  --olive-950: #141c15; /* Deepest Charcoal-Olive */
+  --olive-900: #1c271e; /* Deep Forest Olive */
+  --olive-850: #223124; /* Brand Primary Deep Olive */
+  --olive-800: #293b2c; /* Card Dark Accent */
+  --olive-700: #354b39; /* Dark Olive */
+  --olive-600: #445e49; /* Medium Dark Olive */
+  --olive-500: #55745b; /* Muted Olive Primary Interactive */
+  --olive-400: #718f77; /* Soft Olive */
+  --olive-300: #93ac98; /* Muted Sage */
+  --olive-200: #b8c9bc; /* Light Sage */
+  --olive-100: #dce5df; /* Very Light Sage Tint */
+  --olive-50:  #f0f4f1; /* Ultra Light Sage Wash */
+
+  /* Neutral Warm Palette */
+  --warm-white: #ffffff;
+  --bg-surface: #fbfbf9;        /* Warm off-white canvas */
+  --bg-subtle: #f5f5f0;         /* Slightly tinted container bg */
+  --bg-card: #ffffff;           /* Clean solid card surface */
+  --bg-elevated: #ffffff;       /* Popover & modal background */
+  --border-subtle: #eaece7;     /* Hairline subtle border */
+  --border-medium: #d6dbd1;     /* Standard component border */
+  --border-strong: #b8c0b2;     /* High contrast border */
+
+  /* Dark Canvas (for hero contrast / dark accents) */
+  --dark-bg: #18221a;
+  --dark-surface: #202d23;
+  --dark-card: #27372b;
+  --dark-border: #354739;
+  --dark-text: #f0f4f1;
+  --dark-muted: #93ac98;
+
+  /* Typography Colors */
+  --text-primary: #18201a;      /* Dark charcoal-olive for high readability */
+  --text-secondary: #4a544b;    /* Subdued body text */
+  --text-muted: #737f74;        /* Supporting captions and labels */
+  --text-inverse: #ffffff;      /* Contrast white */
+  --text-accent: #2c4230;       /* Emphasized brand text */
+
+  /* Semantic Status Colors (Sophisticated, muted, never neon) */
+  --status-success-bg: #edf5ee;
+  --status-success-border: #c4dec7;
+  --status-success-text: #22592b;
+
+  --status-warning-bg: #fdf7ec;
+  --status-warning-border: #fae4b8;
+  --status-warning-text: #8c5b16;
+
+  --status-error-bg: #fdf0f0;
+  --status-error-border: #fad1d1;
+  --status-error-text: #962828;
+
+  --status-info-bg: #eef4f7;
+  --status-info-border: #cee1ea;
+  --status-info-text: #225670;
+
+  --status-purple-bg: #f4f0f8;
+  --status-purple-border: #dcd0ea;
+  --status-purple-text: #59317c;
+
+  /* Platform Channel Accents */
+  --channel-whatsapp: #25D366;
+  --channel-whatsapp-soft: #eaf8ee;
+  --channel-instagram: #E1306C;
+  --channel-instagram-soft: #fdf0f5;
+  --channel-facebook: #1877F2;
+  --channel-facebook-soft: #edf3fd;
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+  --space-24: 6rem;    /* 96px */
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* Elevation Shadows (Realistic, soft, no neon halos) */
+  --shadow-xs: 0 1px 2px rgba(20, 28, 21, 0.04);
+  --shadow-sm: 0 2px 4px rgba(20, 28, 21, 0.05), 0 1px 2px rgba(20, 28, 21, 0.03);
+  --shadow-md: 0 4px 12px rgba(20, 28, 21, 0.07), 0 1px 3px rgba(20, 28, 21, 0.04);
+  --shadow-lg: 0 12px 28px rgba(20, 28, 21, 0.09), 0 2px 6px rgba(20, 28, 21, 0.04);
+  --shadow-xl: 0 20px 40px rgba(20, 28, 21, 0.12), 0 4px 12px rgba(20, 28, 21, 0.06);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout Max Widths */
+  --container-sm: 768px;
+  --container-md: 1024px;
+  --container-lg: 1240px;
+  --container-xl: 1400px;
+}
