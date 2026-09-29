@@ -9,7 +9,9 @@ import {
   Sparkles, 
   ArrowUpRight, 
   Send,
-  Zap
+  Zap,
+  Lock,
+  Check
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
@@ -20,33 +22,32 @@ export function HeroDashboardPreview({ onExploreApp }) {
     <div className="hero-interface-wrapper">
       {/* Top Browser Bar */}
       <div className="mockup-topbar">
-        <div className="mockup-dots">
-          <span className="mockup-dot" style={{ backgroundColor: '#EF4444' }}></span>
-          <span className="mockup-dot" style={{ backgroundColor: '#F59E0B' }}></span>
-          <span className="mockup-dot" style={{ backgroundColor: '#10B981' }}></span>
+        <div className="mockup-topbar-header-row">
+          <div className="mockup-dots" aria-hidden="true">
+            <span className="mockup-dot mockup-dot-red" title="Close"></span>
+            <span className="mockup-dot mockup-dot-amber" title="Minimize"></span>
+            <span className="mockup-dot mockup-dot-green" title="Maximize"></span>
+          </div>
+
+          <div className="mockup-status-badge mockup-status-mobile-only">
+            <span className="mockup-status-dot-pulse"></span>
+            <span>AI Engine: Autonomous 24/7</span>
+          </div>
         </div>
 
         <div className="mockup-url-bar">
+          <Lock size={12} style={{ opacity: 0.65, flexShrink: 0 }} />
           <span>https://app.kreazy.ai/workspace/kreazy-flagship</span>
         </div>
 
-        <div className="mockup-status">
-          <span className="status-dot active"></span>
+        <div className="mockup-status-badge mockup-status-desktop-only">
+          <span className="mockup-status-dot-pulse"></span>
           <span>AI Engine: Autonomous 24/7</span>
         </div>
       </div>
 
       {/* Internal Navigation Sub-header */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        padding: '0.75rem 1.25rem', 
-        backgroundColor: 'rgba(14, 22, 17, 0.95)', 
-        borderBottom: '1px solid var(--border-medium)',
-        flexWrap: 'wrap',
-        gap: '0.75rem'
-      }}>
+      <div className="mockup-subnav">
         <div className="hero-mockup-tabs-bar" style={{ display: 'flex', gap: '0.5rem', width: 'auto' }}>
           <button 
             type="button"
@@ -95,16 +96,16 @@ export function HeroDashboardPreview({ onExploreApp }) {
       <div style={{ minHeight: '440px', backgroundColor: 'rgba(11, 16, 13, 0.92)', padding: '1.25rem' }}>
         {/* TAB 1: LIVE CHATS - SLEEK MESSENGER STYLE */}
         {activeTab === 'conversations' && (
-          <div className="mockup-chat-grid" style={{ display: 'grid', gridTemplateColumns: '270px 1fr', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-medium)', minHeight: '440px' }}>
+          <div className="mockup-chat-grid">
             {/* Conversation list */}
-            <div className="mockup-chat-list" style={{ borderRight: '1px solid var(--border-medium)', backgroundColor: 'rgba(14, 22, 17, 0.95)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-subtle)', fontWeight: 600, fontSize: '0.85rem', color: '#F1F5F3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="mockup-sidebar">
+              <div className="mockup-sidebar-header">
                 <span>Messages</span>
                 <span className="badge badge-olive" style={{ fontSize: '0.7rem' }}>3 Active</span>
               </div>
               
               {/* Thread 1 - Selected */}
-              <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-subtle)', backgroundColor: 'rgba(163, 230, 53, 0.08)', borderLeft: '3px solid var(--bright-olive)', cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div className="mockup-thread active">
                 <div style={{ position: 'relative', flexShrink: 0 }}>
                   <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem', border: '1px solid var(--border-medium)' }}>
                     MV
@@ -123,7 +124,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
               </div>
 
               {/* Thread 2 */}
-              <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-subtle)', cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div className="mockup-thread">
                 <div style={{ position: 'relative', flexShrink: 0 }}>
                   <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#202E23', color: '#A1B2A5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     ER
@@ -142,7 +143,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
               </div>
 
               {/* Thread 3 */}
-              <div style={{ padding: '0.85rem 1rem', cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div className="mockup-thread">
                 <div style={{ position: 'relative', flexShrink: 0 }}>
                   <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#202E23', color: '#A1B2A5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     JB
@@ -161,9 +162,9 @@ export function HeroDashboardPreview({ onExploreApp }) {
             </div>
 
             {/* Messenger Chat Box */}
-            <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(11, 16, 13, 0.98)' }}>
+            <div className="mockup-chat-main">
               {/* Header */}
-              <div style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(16, 25, 19, 0.9)' }}>
+              <div className="mockup-chat-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ position: 'relative' }}>
                     <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
@@ -180,22 +181,22 @@ export function HeroDashboardPreview({ onExploreApp }) {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '20px', backgroundColor: 'rgba(163, 230, 53, 0.12)', color: 'var(--bright-olive)', fontWeight: 600, border: '1px solid rgba(163, 230, 53, 0.25)' }}>
-                    <span className="status-dot active" style={{ width: '6px', height: '6px' }}></span> AI Copilot Live
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', padding: '0.3rem 0.75rem', borderRadius: '20px', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#86efac', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.28)' }}>
+                    <span className="mockup-status-dot-pulse" style={{ width: '6px', height: '6px' }}></span> AI Copilot Live
                   </span>
                 </div>
               </div>
 
               {/* Message Bubbles - Clean Messenger Flow */}
-              <div style={{ flexGrow: 1, padding: '1.25rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.875rem' }}>
+              <div className="mockup-chat-messages">
                 
                 {/* 1. Customer Incoming Bubble */}
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', maxWidth: '75%', alignSelf: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem', maxWidth: '78%', alignSelf: 'flex-start' }}>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
                     MV
                   </div>
                   <div>
-                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3', padding: '0.7rem 0.95rem', borderRadius: '18px 18px 18px 4px', border: '1px solid rgba(255, 255, 255, 0.08)', lineHeight: 1.4 }}>
+                    <div className="mockup-bubble-customer">
                       Hi! Does the Artisan Linen Overshirt fit true to size? I'm 6'1", 185 lbs.
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '3px', marginLeft: '6px' }}>10:14 AM</div>
@@ -203,8 +204,8 @@ export function HeroDashboardPreview({ onExploreApp }) {
                 </div>
 
                 {/* 2. AI Outgoing Bubble */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', maxWidth: '75%', alignSelf: 'flex-end' }}>
-                  <div style={{ background: 'linear-gradient(135deg, #15803D 0%, #166534 100%)', color: '#FFFFFF', padding: '0.7rem 1rem', borderRadius: '18px 18px 4px 18px', border: '1px solid rgba(74, 222, 128, 0.25)', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', lineHeight: 1.45 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', maxWidth: '78%', alignSelf: 'flex-end' }}>
+                  <div className="mockup-bubble-ai">
                     Hello Marcus! For 6'1" and 185 lbs, Size L offers the intended relaxed European drape. Would you like me to reserve the Olive in Size L for you?
                   </div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--bright-olive)', marginTop: '3px', marginRight: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -213,12 +214,12 @@ export function HeroDashboardPreview({ onExploreApp }) {
                 </div>
 
                 {/* 3. Customer Incoming Bubble */}
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', maxWidth: '75%', alignSelf: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem', maxWidth: '78%', alignSelf: 'flex-start' }}>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
                     MV
                   </div>
                   <div>
-                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3', padding: '0.7rem 0.95rem', borderRadius: '18px 18px 18px 4px', border: '1px solid rgba(255, 255, 255, 0.08)', lineHeight: 1.4 }}>
+                    <div className="mockup-bubble-customer">
                       Yes please! Can I pay directly here?
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '3px', marginLeft: '6px' }}>10:15 AM</div>
@@ -226,25 +227,25 @@ export function HeroDashboardPreview({ onExploreApp }) {
                 </div>
 
                 {/* 4. AI Outgoing Bubble with Messenger Checkout Card */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', maxWidth: '80%', alignSelf: 'flex-end' }}>
-                  <div style={{ background: 'linear-gradient(135deg, #15803D 0%, #166534 100%)', color: '#FFFFFF', padding: '0.75rem 1rem', borderRadius: '18px 18px 4px 18px', border: '1px solid rgba(74, 222, 128, 0.25)', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', maxWidth: '82%', alignSelf: 'flex-end' }}>
+                  <div className="mockup-bubble-ai" style={{ width: '100%' }}>
                     <div>Done! I've reserved your item and processed your checkout:</div>
                     
                     {/* Messenger Rich Order Card */}
-                    <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.65rem' }}>
+                    <div className="mockup-order-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#F1F5F3' }}>Artisan Linen Overshirt</span>
-                        <span style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>$89.00</span>
+                        <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#F1F5F3' }}>Artisan Linen Overshirt</span>
+                        <span style={{ fontWeight: 700, color: 'var(--bright-olive)', fontSize: '0.9rem' }}>$89.00</span>
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.8)', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px' }}>
                         Color: Olive • Size: L • Paid via Stripe
                       </div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#86efac', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>
-                        ✓ Order #KZ-1049 Confirmed
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#86efac', padding: '0.2rem 0.55rem', borderRadius: '6px', fontWeight: 600 }}>
+                        <Check size={12} /> Order #KZ-1049 Confirmed
                       </div>
                     </div>
 
-                    <div style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+                    <div style={{ fontSize: '0.8rem', marginTop: '0.6rem', color: 'rgba(255, 255, 255, 0.9)' }}>
                       Tracking details will update automatically!
                     </div>
                   </div>
@@ -256,8 +257,8 @@ export function HeroDashboardPreview({ onExploreApp }) {
               </div>
 
               {/* Chat Input Simulated - Modern Messenger Style */}
-              <div style={{ padding: '0.75rem 1.25rem', borderTop: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'rgba(16, 25, 19, 0.95)' }}>
-                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '24px', padding: '0.35rem 1rem', border: '1px solid var(--border-subtle)' }}>
+              <div className="mockup-chat-input-bar">
+                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '24px', padding: '0.45rem 1rem', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <input 
                     type="text" 
                     readOnly 
@@ -269,7 +270,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                   type="button" 
                   className="btn btn-sm btn-primary" 
                   onClick={onExploreApp}
-                  style={{ borderRadius: '20px', padding: '0.45rem 1rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                  style={{ borderRadius: '20px', padding: '0.45rem 1.15rem', fontSize: '0.825rem', whiteSpace: 'nowrap' }}
                 >
                   Take Over Chat
                 </button>

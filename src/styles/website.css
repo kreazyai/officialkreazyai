@@ -228,9 +228,264 @@
   color: var(--text-primary);
 }
 
-.flow-arrow-sep {
-  color: var(--border-strong);
-  font-size: 0.9rem;
+/* ---------------------------------------------------------------------
+   HERO INTERFACE PREVIEW MOCKUP
+   --------------------------------------------------------------------- */
+.hero-interface-wrapper {
+  background-color: #0d130d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85), 0 0 50px -10px rgba(34, 197, 94, 0.12);
+  margin: 0 auto;
+  max-width: 1140px;
+  width: 100%;
+  text-align: left;
+}
+
+.mockup-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: linear-gradient(180deg, #162017 0%, #111a12 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mockup-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 54px;
+}
+
+.mockup-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mockup-dot-red {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+.mockup-dot-amber {
+  background-color: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+.mockup-dot-green {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+.mockup-url-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.4rem 1.15rem;
+  color: #cbd5e1;
+  font-size: 0.825rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.01em;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.mockup-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background-color: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  color: #86efac;
+  font-size: 0.775rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.mockup-status-mobile-only {
+  display: none;
+}
+
+.mockup-status-dot-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: pulseGreenGlow 2s infinite;
+}
+
+@keyframes pulseGreenGlow {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.mockup-subnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background-color: #121913;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.mockup-chat-grid {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  background-color: #0d130d;
+  min-height: 520px;
+}
+
+.mockup-sidebar {
+  background-color: #111812;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.mockup-sidebar-header {
+  padding: 0.9rem 1.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #f1f5f3;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.mockup-thread {
+  padding: 0.85rem 1.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mockup-thread:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.mockup-thread.active {
+  background-color: rgba(34, 197, 94, 0.08);
+  border-left: 3px solid #22c55e;
+}
+
+.mockup-chat-main {
+  display: flex;
+  flex-direction: column;
+  background-color: #0d130d;
+  flex-grow: 1;
+}
+
+.mockup-chat-header {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #131b14;
+}
+
+.mockup-chat-messages {
+  flex-grow: 1;
+  padding: 1.35rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mockup-bubble-customer {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  line-height: 1.45;
+  font-size: 0.875rem;
+}
+
+.mockup-bubble-ai {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  color: #ffffff;
+  padding: 0.85rem 1.15rem;
+  border-radius: 18px 18px 4px 18px;
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  line-height: 1.45;
+  font-size: 0.875rem;
+}
+
+.mockup-order-card {
+  background-color: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.mockup-chat-input-bar {
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #121a13;
+}
+
+@media (max-width: 860px) {
+  .mockup-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+  }
+  .mockup-topbar-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  .mockup-status-desktop-only {
+    display: none !important;
+  }
+  .mockup-status-mobile-only {
+    display: inline-flex !important;
+  }
+  .mockup-url-bar {
+    max-width: 100%;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+  }
+  .mockup-chat-grid {
+    grid-template-columns: 1fr;
+  }
+  .mockup-sidebar {
+    display: none;
+  }
+  .mockup-sidebar.mobile-show {
+    display: flex;
+  }
 }
 
 /* ---------------------------------------------------------------------
