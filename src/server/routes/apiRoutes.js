@@ -77,8 +77,11 @@ conversationRouter.use(authenticate);
 conversationRouter.get('/', conversationController.getAll);
 conversationRouter.get('/:id', conversationController.getById);
 conversationRouter.post('/:id/messages', conversationController.sendMessage);
+conversationRouter.patch('/:id', conversationController.updateStatus);
+conversationRouter.post('/:id/ai-suggest', conversationController.aiSuggest);
 conversationRouter.post('/inbound', conversationController.receiveIncoming);
 apiRouter.use('/conversations', conversationRouter);
+
 
 // =====================================================================
 // 7. AI & KNOWLEDGE ROUTES (Tenant-Scoped)

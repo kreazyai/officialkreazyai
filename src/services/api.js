@@ -783,134 +783,146 @@ export const orderService = {
 };
 
 export const conversationService = {
-  async getAll(forceDemo = false) {
+  async getAll() {
     const user = authService.getCurrentUser();
-    const isDemo = Boolean(user?.isDemo) || forceDemo;
-    if (isDemo) {
+    // Demo accounts still use local mock data
+    if (user?.isDemo) {
       return getStored('kreazy_demo_conversations', initialConversations);
     }
-    const convs = getStored(STORAGE_KEYS.CONVERSATIONS, []);
-    return convs.filter(c => !['conv-1', 'conv-2', 'conv-3', 'conv-4', 'conv-5'].includes(c.id));
+    try {
+      return await apiClient.get('/conversations');
+    } catch {
+      return [];
+    }
   },
-  async sendMessage(convId, text, sender = "agent") {
+
+  async getById(id) {
     const user = authService.getCurrentUser();
-    const isDemo = Boolean(user?.isDemo);
-    const key = isDemo ? 'kreazy_demo_conversations' : STORAGE_KEYS.CONVERSATIONS;
-    const defaultList = isDemo ? initialConversations : [];
-    const convos = getStored(key, defaultList);
-    const updated = convos.map(c => {
-      if (c.id === convId) {
-        const newMsg = {
-          id: `m-${Date.now()}`,
-          sender,
-          text,
-          timestamp: "Just now"
-        };
+    if (user?.isDemo) {
+      const convs = getStored('kreazy_demo_conversations', initialConversations);
+      return convs.find(c => c.id === id) || null;
+    }
+    try {
+      return await apiClient.get(`/conversations/${id}`);
+    } catch {
+      return null;
+    }
+  },
+
+  async sendMessage(convId, text, sender = 'agent') {
+    const user = authService.getCurrentUser();
+    if (user?.isDemo) {
+      const key = 'kreazy_demo_conversations';
+      const convos = getStored(key, initialConversations);
+      const updated = convos.map(c => {
+        if (c.id !== convId) return c;
         return {
           ...c,
-          messages: [...c.messages, newMsg],
-          lastActivity: "Just now"
+          messages: [...c.messages, { id: `m-${Date.now()}`, sender, text, timestamp: 'Just now' }],
+          lastActivity: 'Just now'
         };
-      }
-      return c;
-    });
-    setStored(key, updated);
-    return updated.find(c => c.id === convId);
+      });
+      setStored(key, updated);
+      return updated.find(c => c.id === convId);
+    }
+    try {
+      return await apiClient.post(`/conversations/${convId}/messages`, { text, sender });
+    } catch (err) {
+      throw new Error(err.message || 'Failed to send message.');
+    }
   },
+
+  async updateStatus(convId, updates) {
+    const user = authService.getCurrentUser();
+    if (user?.isDemo) {
+      const key = 'kreazy_demo_conversations';
+      const convos = getStored(key, initialConversations);
+      const updated = convos.map(c => c.id === convId ? { ...c, ...updates } : c);
+      setStored(key, updated);
+      return updated.find(c => c.id === convId);
+    }
+    try {
+      return await apiClient.patch(`/conversations/${convId}`, updates);
+    } catch (err) {
+      throw new Error(err.message || 'Failed to update conversation.');
+    }
+  },
+
+  async aiSuggest(convId, userMessage) {
+    const user = authService.getCurrentUser();
+    if (user?.isDemo) {
+      // Use local AI engine for demo
+      try {
+        const { AiKnowledgeEngine } = await import('./aiKnowledgeEngine.js');
+        const result = await AiKnowledgeEngine.processMessage(userMessage || 'Help this customer', {});
+        return { suggestion: result?.reply || '', confidence: result?.confidence || 80 };
+      } catch {
+        return { suggestion: 'Thank you for reaching out! How can I help you today?', confidence: 75 };
+      }
+    }
+    try {
+      return await apiClient.post(`/conversations/${convId}/ai-suggest`, { userMessage });
+    } catch {
+      return { suggestion: '', confidence: 0 };
+    }
+  },
+
+  async receiveIncomingMessage({ customerName, channel = 'whatsapp', text, phone = '', email = '', avatar = null }) {
+    const user = authService.getCurrentUser();
+    if (user?.isDemo) {
+      const key = 'kreazy_demo_conversations';
+      const convos = getStored(key, []);
+      const newMsg = { id: `m-${Date.now()}`, sender: 'customer', text: text || 'Hello!', timestamp: 'Just now' };
+      const existing = convos.find(c => c.customer?.name?.toLowerCase() === (customerName || '').toLowerCase());
+      let updatedConvos;
+      let targetConv;
+      if (existing) {
+        updatedConvos = convos.map(c => {
+          if (c.id !== existing.id) return c;
+          targetConv = { ...c, messages: [...c.messages, newMsg], lastActivity: 'Just now' };
+          return targetConv;
+        });
+      } else {
+        const name = (customerName || 'New Shopper').trim();
+        targetConv = {
+          id: `conv-${Date.now()}`,
+          customer: { name, avatar: 'NS', phone, email, ordersCount: 0, totalSpent: 0, tags: [] },
+          channel: channel.toLowerCase(), lastActivity: 'Just now', status: 'active',
+          aiHandled: true, needsHuman: false, aiConfidence: 88, messages: [newMsg], unread: 1
+        };
+        updatedConvos = [targetConv, ...convos];
+      }
+      setStored(key, updatedConvos);
+      return { conversation: targetConv };
+    }
+    try {
+      return await apiClient.post('/conversations/inbound', { customerName, channel, text, phone, email });
+    } catch (err) {
+      throw new Error(err.message || 'Failed to receive message.');
+    }
+  },
+
+  // Legacy toggleHandoff kept for compatibility
   async toggleHandoff(convId) {
     const user = authService.getCurrentUser();
-    const isDemo = Boolean(user?.isDemo);
-    const key = isDemo ? 'kreazy_demo_conversations' : STORAGE_KEYS.CONVERSATIONS;
-    const defaultList = isDemo ? initialConversations : [];
-    const convos = getStored(key, defaultList);
-    const updated = convos.map(c => {
-      if (c.id === convId) {
-        const nextState = !c.needsHuman;
-        return {
-          ...c,
-          needsHuman: nextState,
-          aiHandled: !nextState
-        };
-      }
-      return c;
-    });
-    setStored(key, updated);
-    return updated.find(c => c.id === convId);
-  },
-  async receiveIncomingMessage({ customerName, channel = "whatsapp", text, phone = "", email = "", avatar = null }) {
-    const user = authService.getCurrentUser();
-    const isDemo = Boolean(user?.isDemo);
-    const key = isDemo ? 'kreazy_demo_conversations' : STORAGE_KEYS.CONVERSATIONS;
-    const convos = getStored(key, []);
-
-    const newMsg = {
-      id: `m-${Date.now()}`,
-      sender: "customer",
-      text: text || "Hello, I am interested in your products.",
-      timestamp: "Just now"
-    };
-
-    let existingConv = convos.find(c => 
-      c.customer?.name?.toLowerCase() === (customerName || '').toLowerCase() ||
-      (phone && c.customer?.handle?.includes(phone))
-    );
-
-    let updatedConvos;
-    let targetConv;
-
-    if (existingConv) {
-      updatedConvos = convos.map(c => {
-        if (c.id === existingConv.id) {
-          const updated = {
-            ...c,
-            messages: [...c.messages, newMsg],
-            lastActivity: "Just now",
-            status: "active"
-          };
-          targetConv = updated;
-          return updated;
-        }
-        return c;
+    if (user?.isDemo) {
+      const key = 'kreazy_demo_conversations';
+      const convos = getStored(key, initialConversations);
+      const updated = convos.map(c => {
+        if (c.id !== convId) return c;
+        return { ...c, needsHuman: !c.needsHuman, aiHandled: c.needsHuman };
       });
-    } else {
-      const cleanName = (customerName || 'New Shopper').trim();
-      targetConv = {
-        id: `conv-${Date.now()}`,
-        customer: {
-          name: cleanName,
-          avatar: avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80`,
-          handle: phone || `@${cleanName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
-          vip: false
-        },
-        channel: channel.toLowerCase(),
-        lastActivity: "Just now",
-        status: "active",
-        aiHandled: true,
-        needsHuman: false,
-        messages: [newMsg],
-        suggestedAction: `Reply to ${channel.toUpperCase()} customer regarding store catalog`
-      };
-      updatedConvos = [targetConv, ...convos];
+      setStored(key, updated);
+      return updated.find(c => c.id === convId);
     }
-
-    setStored(key, updatedConvos);
-
-    // Auto-sync into Customer 360 CRM directory!
-    const customerRes = await customerCrmService.syncCustomerFromConversation({
-      customerName,
-      channel,
-      text,
-      phone,
-      email,
-      avatar
-    });
-
-    return {
-      conversation: targetConv,
-      customer: customerRes.data
-    };
+    // For real accounts: toggle status between ACTIVE and NEEDS_HUMAN
+    const conv = await conversationService.getById(convId);
+    if (!conv) return null;
+    const newStatus = conv.status === 'NEEDS_HUMAN' ? 'ACTIVE' : 'NEEDS_HUMAN';
+    return conversationService.updateStatus(convId, { status: newStatus });
   }
 };
+
 
 export const aiConfigService = {
   async getConfig() {

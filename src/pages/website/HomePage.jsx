@@ -22,7 +22,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
-import { HeroDashboardPreview } from '../../components/website/HeroDashboardPreview';
+import { HeroProblemShowcase } from '../../components/website/HeroProblemShowcase';
+import { IphoneIntegrationShowcase } from '../../components/website/IphoneIntegrationShowcase';
 import { leadService } from '../../services/api';
 
 export function HomePage({ onNavigate }) {
@@ -218,15 +219,18 @@ export function HomePage({ onNavigate }) {
             </div>
           </div>
 
-          {/* Interactive Hero Product Interface Preview */}
+          {/* Interactive Hero Product Interface Preview - Problem vs Solution */}
           <div id="product-showcase">
-            <HeroDashboardPreview onExploreApp={() => onNavigate('dashboard')} />
+            <HeroProblemShowcase 
+              onExploreApp={() => onNavigate('dashboard')} 
+              onBookDemo={() => onNavigate('book-demo')}
+            />
           </div>
         </div>
       </section>
 
       {/* -------------------------------------------------------------
-          2. TRUST & CHANNELS STRIP
+          2. TRUST & CHANNELS STRIP + NATIVE IPHONE INTEGRATION SHOWCASE
           ------------------------------------------------------------- */}
       <section className="trust-section">
         <div className="container">
@@ -252,6 +256,9 @@ export function HomePage({ onNavigate }) {
               <span>Shopify & Catalog Sync</span>
             </div>
           </div>
+
+          {/* Ultra-Premium iPhone Omnichannel Integration Showcase */}
+          <IphoneIntegrationShowcase onNavigate={onNavigate} />
         </div>
       </section>
 
