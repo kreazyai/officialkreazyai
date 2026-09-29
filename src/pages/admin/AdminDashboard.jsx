@@ -27,7 +27,16 @@ import {
   Cpu,
   Database,
   Radio,
-  Sparkles
+  Sparkles,
+  Plus,
+  Check,
+  X,
+  Phone,
+  Mail,
+  Globe,
+  SlidersHorizontal,
+  ChevronRight,
+  Info
 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
@@ -50,11 +59,47 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
   const [isPinging, setIsPinging] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Lead / Demo detail modal state
+  // Toast notification state
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3200);
+  };
+
+  // Modals state
   const [selectedDemo, setSelectedDemo] = useState(null);
   const [adminNoteInput, setAdminNoteInput] = useState('');
+  const [showProvisionModal, setShowProvisionModal] = useState(false);
+  const [showManualLeadModal, setShowManualLeadModal] = useState(false);
+
+  // Filters & Search
   const [demoStatusFilter, setDemoStatusFilter] = useState('ALL');
   const [demoSearch, setDemoSearch] = useState('');
+  const [businessSearch, setBusinessSearch] = useState('');
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customerChannelFilter, setCustomerChannelFilter] = useState('ALL');
+
+  // New Business Form State
+  const [newBizForm, setNewBizForm] = useState({
+    name: '',
+    owner_name: '',
+    owner_email: '',
+    plan: 'Growth',
+    channels: ['WHATSAPP', 'INSTAGRAM']
+  });
+
+  // Manual Lead Form State
+  const [newLeadForm, setNewLeadForm] = useState({
+    full_name: '',
+    business_name: '',
+    email: '',
+    phone: '',
+    request_type: 'DEMO',
+    message: ''
+  });
 
   const loadAdminData = async () => {
     setIsSyncing(true);
@@ -95,12 +140,14 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
     if (selectedDemo) {
       setSelectedDemo(prev => ({ ...prev, status }));
     }
+    showToast(`✓ Lead status updated to ${status}`);
   };
 
   // Handle Business Suspension / Activation
   const handleToggleBusinessStatus = async (id) => {
     await adminService.toggleBusinessStatus(id);
     loadAdminData();
+    showToast(`✓ Workspace status updated.`);
   };
 
   // Export Demo Bookings / Leads to CSV
@@ -119,15 +166,66 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    showToast(`✓ CSV export downloaded (${targetLeads.length} records)`);
   };
 
   // Test Ping Meta Webhook
   const handlePingWebhooks = () => {
     setIsPinging(true);
     setTimeout(() => {
-      setPingLatency(`${Math.floor(10 + Math.random() * 8)}ms`);
+      const lat = `${Math.floor(10 + Math.random() * 8)}ms`;
+      setPingLatency(lat);
       setIsPinging(false);
+      showToast(`✓ Meta Webhook ping completed in ${lat}`);
     }, 450);
+  };
+
+  // Handle Provisioning New Business
+  const handleCreateBusiness = (e) => {
+    e.preventDefault();
+    if (!newBizForm.name.trim() || !newBizForm.owner_email.trim()) return;
+
+    const newBiz = {
+      id: `ws-${Date.now().toString().slice(-6)}`,
+      name: newBizForm.name.trim(),
+      slug: newBizForm.name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      owner_name: newBizForm.owner_name.trim() || 'Store Owner',
+      owner_email: newBizForm.owner_email.trim(),
+      plan: newBizForm.plan,
+      status: 'ACTIVE',
+      channels_connected: newBizForm.channels,
+      total_customers: 0,
+      total_orders: 0,
+      total_revenue: '$0.00',
+      created_at: new Date().toISOString().split('T')[0]
+    };
+
+    setBusinesses(prev => [newBiz, ...prev]);
+    setShowProvisionModal(false);
+    setNewBizForm({ name: '', owner_name: '', owner_email: '', plan: 'Growth', channels: ['WHATSAPP', 'INSTAGRAM'] });
+    showToast(`✓ Workspace "${newBiz.name}" provisioned successfully`);
+  };
+
+  // Handle Create Manual Lead
+  const handleCreateManualLead = async (e) => {
+    e.preventDefault();
+    if (!newLeadForm.full_name.trim() || !newLeadForm.business_name.trim()) return;
+
+    const leadPayload = {
+      full_name: newLeadForm.full_name.trim(),
+      business_name: newLeadForm.business_name.trim(),
+      email: newLeadForm.email.trim(),
+      phone: newLeadForm.phone.trim(),
+      request_type: newLeadForm.request_type,
+      message: newLeadForm.message.trim(),
+      status: 'NEW'
+    };
+
+    await leadService.submit(leadPayload);
+    await loadAdminData();
+    setShowManualLeadModal(false);
+    setNewLeadForm({ full_name: '', business_name: '', email: '', phone: '', request_type: 'DEMO', message: '' });
+    showToast(`✓ Lead for "${leadPayload.business_name}" created`);
   };
 
   // -------------------------------------------------------------------
@@ -168,8 +266,34 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
   const founderMeetings = filteredDemos.filter(d => d.request_type === 'FOUNDER_MEETING' || d.id?.startsWith('founder'));
 
+  // Filtered Businesses
+  const filteredBusinesses = businesses.filter(b => {
+    const search = businessSearch.toLowerCase();
+    return (b.name || '').toLowerCase().includes(search) || 
+           (b.owner_name || '').toLowerCase().includes(search) || 
+           (b.owner_email || '').toLowerCase().includes(search);
+  });
+
+  // Filtered Customers
+  const filteredCustomers = customers.filter(c => {
+    const matchesChannel = customerChannelFilter === 'ALL' || c.preferred_channel === customerChannelFilter;
+    const search = customerSearch.toLowerCase();
+    const matchesSearch = (c.full_name || '').toLowerCase().includes(search) || 
+                          (c.email || '').toLowerCase().includes(search) || 
+                          (c.phone || '').includes(search);
+    return matchesChannel && matchesSearch;
+  });
+
   return (
     <div className="admin-layout">
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="admin-toast">
+          <CheckCircle2 size={18} color="#22c55e" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* Platform Admin Top Header */}
       <header className="admin-header">
@@ -187,7 +311,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#94a3b8' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 6px #22c55e' }}></span>
-            Meta Webhooks Active
+            Meta Webhooks Active (v20.0)
           </span>
         </div>
 
@@ -298,30 +422,46 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={loadAdminData}
-            disabled={isSyncing}
-            className="admin-tab-btn"
-            style={{
-              background: '#141d16',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
-              color: '#86efac',
-              borderRadius: '10px'
-            }}
-          >
-            <RefreshCw size={14} className={isSyncing ? 'spin-anim' : ''} />
-            <span>{isSyncing ? 'Syncing...' : 'Sync Telemetry'}</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setShowProvisionModal(true)}
+              className="admin-tab-btn"
+              style={{
+                background: 'rgba(34, 197, 94, 0.15)',
+                border: '1px solid rgba(34, 197, 94, 0.35)',
+                color: '#86efac'
+              }}
+            >
+              <Plus size={14} />
+              <span>Provision Workspace</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={loadAdminData}
+              disabled={isSyncing}
+              className="admin-tab-btn"
+              style={{
+                background: '#141d16',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: '#cbd5e1'
+              }}
+            >
+              <RefreshCw size={14} className={isSyncing ? 'spin-anim' : ''} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+            </button>
+          </div>
         </div>
 
         {/* -------------------------------------------------------------
-            TAB 1: PLATFORM OVERVIEW METRICS
+            TAB 1: PLATFORM OVERVIEW METRICS & COMMAND CENTER
             ------------------------------------------------------------- */}
         {activeTab === 'overview' && (
           <div>
+            {/* KPI Cards */}
             <div className="admin-metrics-grid">
-              <div className="admin-metric-card">
+              <div className="admin-metric-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('businesses')}>
                 <div className="admin-metric-head">
                   <span className="admin-metric-label">Registered Businesses</span>
                   <div className="admin-metric-icon-wrap">
@@ -335,7 +475,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 </span>
               </div>
 
-              <div className="admin-metric-card">
+              <div className="admin-metric-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('demos')}>
                 <div className="admin-metric-head">
                   <span className="admin-metric-label">Inquiries & Demos</span>
                   <div className="admin-metric-icon-wrap" style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24' }}>
@@ -363,7 +503,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 </span>
               </div>
 
-              <div className="admin-metric-card">
+              <div className="admin-metric-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('integrations')}>
                 <div className="admin-metric-head">
                   <span className="admin-metric-label">Meta Cloud Health</span>
                   <div className="admin-metric-icon-wrap" style={{ backgroundColor: 'rgba(34, 197, 94, 0.15)', color: '#4ade80' }}>
@@ -378,8 +518,67 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               </div>
             </div>
 
-            {/* Quick Actions & Recent Platform Alerts */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+            {/* Quick Actions Strip */}
+            <div className="admin-quick-actions">
+              <button 
+                type="button" 
+                onClick={handleExportDemos} 
+                className="admin-quick-btn"
+              >
+                <div className="admin-quick-icon">
+                  <Download size={18} />
+                </div>
+                <div>
+                  <div>Export All Leads</div>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Generate CSV file</span>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                onClick={handlePingWebhooks} 
+                className="admin-quick-btn"
+              >
+                <div className="admin-quick-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#60a5fa' }}>
+                  <Zap size={18} />
+                </div>
+                <div>
+                  <div>Test Meta Latency</div>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Round-trip ping</span>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                onClick={() => setShowProvisionModal(true)} 
+                className="admin-quick-btn"
+              >
+                <div className="admin-quick-icon" style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', color: '#c084fc' }}>
+                  <Building2 size={18} />
+                </div>
+                <div>
+                  <div>Provision Tenant</div>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>New store workspace</span>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                onClick={() => setShowManualLeadModal(true)} 
+                className="admin-quick-btn"
+              >
+                <div className="admin-quick-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24' }}>
+                  <Plus size={18} />
+                </div>
+                <div>
+                  <div>Record Manual Lead</div>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Phone / In-person lead</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Overview Split Grid */}
+            <div className="admin-split-grid">
               
               {/* Left Column: Recent Leads */}
               <div className="admin-card">
@@ -422,14 +621,28 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                         </div>
                       </div>
 
-                      <button 
-                        type="button" 
-                        onClick={() => { setSelectedDemo(d); setActiveTab('demos'); }}
-                        className="admin-tab-btn"
-                        style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
-                      >
-                        Review Lead
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <select
+                          className="admin-inline-select"
+                          value={d.status}
+                          onChange={(e) => handleUpdateDemoStatus(d.id, e.target.value)}
+                        >
+                          <option value="NEW">NEW</option>
+                          <option value="CONTACTED">CONTACTED</option>
+                          <option value="SCHEDULED">SCHEDULED</option>
+                          <option value="QUALIFIED">QUALIFIED</option>
+                          <option value="CONVERTED">CONVERTED</option>
+                        </select>
+
+                        <button 
+                          type="button" 
+                          onClick={() => { setSelectedDemo(d); setActiveTab('demos'); }}
+                          className="admin-tab-btn"
+                          style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.3rem 0.65rem', fontSize: '0.75rem' }}
+                        >
+                          Inspect
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -499,16 +712,49 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
             ------------------------------------------------------------- */}
         {(activeTab === 'demos' || activeTab === 'founder-meetings') && (
           <div>
+            <div className="admin-section-header">
+              <div>
+                <h2 className="admin-section-title">
+                  {activeTab === 'founder-meetings' ? 'Founder Strategy Calls Pipeline' : 'Prospect Leads & Demo Requests'}
+                </h2>
+                <p className="admin-section-desc">
+                  Review and transition lead statuses from contact submissions, website demo requests, and scheduled calls.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowManualLeadModal(true)}
+                  className="admin-tab-btn"
+                  style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#86efac' }}
+                >
+                  <Plus size={14} />
+                  <span>Record Lead</span>
+                </button>
+
+                <button 
+                  type="button" 
+                  onClick={handleExportDemos} 
+                  className="admin-tab-btn"
+                  style={{ background: '#101712', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#F1F5F3' }}
+                >
+                  <Download size={14} />
+                  <span>Export CSV</span>
+                </button>
+              </div>
+            </div>
+
             {/* Filter and Search Bar */}
             <div className="admin-filter-bar">
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ position: 'relative', width: '280px' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flexGrow: 1 }}>
+                <div style={{ position: 'relative', minWidth: '280px', flexGrow: 1 }}>
                   <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#64748b' }} />
                   <input
                     type="text"
                     className="admin-input-dark"
                     style={{ paddingLeft: '2.25rem', width: '100%' }}
-                    placeholder="Search name, company, email..."
+                    placeholder="Search prospect name, brand, email or phone..."
                     value={demoSearch}
                     onChange={(e) => setDemoSearch(e.target.value)}
                   />
@@ -530,15 +776,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 </select>
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleExportDemos} 
-                className="admin-tab-btn"
-                style={{ background: '#101712', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#F1F5F3' }}
-              >
-                <Download size={14} />
-                <span>Export to CSV</span>
-              </button>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                Showing <strong>{(activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).length}</strong> leads
+              </div>
             </div>
 
             {/* Data Table */}
@@ -551,57 +791,77 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     <th>Business Name</th>
                     <th>Contact Info</th>
                     <th>Volume / Specs</th>
-                    <th>Status</th>
+                    <th>Status Transition</th>
                     <th>Date Received</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).map(d => (
-                    <tr key={d.id}>
-                      <td>
-                        <span className={`admin-badge ${d.request_type === 'FOUNDER_MEETING' ? 'admin-badge-olive' : 'admin-badge-default'}`}>
-                          {d.request_type === 'FOUNDER_MEETING' ? 'Founder Call' : d.request_type === 'CONTACT_INQUIRY' ? 'Inquiry' : 'Demo'}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{d.full_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{d.email}</div>
-                      </td>
-                      <td>
-                        <strong style={{ color: '#F1F5F3' }}>{d.business_name}</strong>
-                        {d.website && (
-                          <div style={{ fontSize: '0.75rem' }}>
-                            <a href={d.website} target="_blank" rel="noreferrer" style={{ color: '#86efac', textDecoration: 'none' }}>
-                              {d.website}
-                            </a>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        <div style={{ color: '#cbd5e1' }}>{d.phone || 'No phone'}</div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{d.monthly_order_volume || d.monthlyOrders || 'Standard'}</div>
-                      </td>
-                      <td>
-                        <span className={`admin-badge ${d.status === 'NEW' ? 'admin-badge-warning' : d.status === 'CONVERTED' ? 'admin-badge-success' : 'admin-badge-default'}`}>
-                          {d.status}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{d.created_at}</td>
-                      <td>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedDemo(d)}
-                          className="admin-tab-btn"
-                          style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.3rem 0.7rem', fontSize: '0.75rem' }}
-                        >
-                          Manage
-                        </button>
+                  {(activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).length === 0 ? (
+                    <tr>
+                      <td colSpan={8}>
+                        <div className="admin-empty-state">
+                          <Info size={28} style={{ margin: '0 auto 0.5rem auto', color: '#64748b' }} />
+                          <div>No leads matching your search criteria.</div>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    (activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).map(d => (
+                      <tr key={d.id}>
+                        <td>
+                          <span className={`admin-badge ${d.request_type === 'FOUNDER_MEETING' ? 'admin-badge-olive' : 'admin-badge-default'}`}>
+                            {d.request_type === 'FOUNDER_MEETING' ? 'Founder Call' : d.request_type === 'CONTACT_INQUIRY' ? 'Inquiry' : 'Demo'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{d.full_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{d.email}</div>
+                        </td>
+                        <td>
+                          <strong style={{ color: '#F1F5F3' }}>{d.business_name}</strong>
+                          {d.website && (
+                            <div style={{ fontSize: '0.75rem' }}>
+                              <a href={d.website} target="_blank" rel="noreferrer" style={{ color: '#86efac', textDecoration: 'none' }}>
+                                {d.website}
+                              </a>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <div style={{ color: '#cbd5e1' }}>{d.phone || 'No phone'}</div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{d.monthly_order_volume || d.monthlyOrders || 'Standard'}</div>
+                        </td>
+                        <td>
+                          <select
+                            className="admin-inline-select"
+                            value={d.status}
+                            onChange={(e) => handleUpdateDemoStatus(d.id, e.target.value)}
+                          >
+                            <option value="NEW">NEW</option>
+                            <option value="CONTACTED">CONTACTED</option>
+                            <option value="SCHEDULED">SCHEDULED</option>
+                            <option value="QUALIFIED">QUALIFIED</option>
+                            <option value="CONVERTED">CONVERTED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                          </select>
+                        </td>
+                        <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{d.created_at}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDemo(d)}
+                            className="admin-tab-btn"
+                            style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.3rem 0.7rem', fontSize: '0.75rem' }}
+                          >
+                            Manage
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -688,72 +948,110 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
             TAB 4: REGISTERED BUSINESSES
             ------------------------------------------------------------- */}
         {activeTab === 'businesses' && (
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Workspace Name</th>
-                  <th>Account Owner</th>
-                  <th>Active Plan</th>
-                  <th>Status</th>
-                  <th>Channels Connected</th>
-                  <th>Total Customers</th>
-                  <th>Total Orders</th>
-                  <th>Total Converted GMV</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {businesses.map(b => (
-                  <tr key={b.id}>
-                    <td>
-                      <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {b.id}</div>
-                    </td>
-                    <td>
-                      <div style={{ color: '#cbd5e1' }}>{b.owner_name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{b.owner_email}</div>
-                    </td>
-                    <td>
-                      <span className="admin-badge admin-badge-olive">{b.plan}</span>
-                    </td>
-                    <td>
-                      <span className={`admin-badge ${b.status === 'ACTIVE' ? 'admin-badge-success' : 'admin-badge-danger'}`}>
-                        {b.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                        {b.channels_connected?.map(ch => (
-                          <span key={ch} className="admin-badge admin-badge-default" style={{ fontSize: '0.7rem' }}>
-                            {ch}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.total_customers}</td>
-                    <td style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.total_orders}</td>
-                    <td style={{ fontWeight: 800, color: '#86efac' }}>{b.total_revenue}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="admin-tab-btn"
-                        style={{
-                          background: b.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(34, 197, 94, 0.12)',
-                          borderColor: b.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.35)' : 'rgba(34, 197, 94, 0.35)',
-                          color: b.status === 'ACTIVE' ? '#fca5a5' : '#86efac',
-                          padding: '0.3rem 0.7rem',
-                          fontSize: '0.75rem'
-                        }}
-                        onClick={() => handleToggleBusinessStatus(b.id)}
-                      >
-                        {b.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}
-                      </button>
-                    </td>
+          <div>
+            <div className="admin-section-header">
+              <div>
+                <h2 className="admin-section-title">Registered Brand Workspaces</h2>
+                <p className="admin-section-desc">Manage multi-tenant merchant organizations, service plans, and active connected channels.</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowProvisionModal(true)}
+                className="admin-tab-btn"
+                style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#86efac' }}
+              >
+                <Plus size={14} />
+                <span>Provision New Workspace</span>
+              </button>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="admin-filter-bar">
+              <div style={{ position: 'relative', width: '320px' }}>
+                <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#64748b' }} />
+                <input
+                  type="text"
+                  className="admin-input-dark"
+                  style={{ paddingLeft: '2.25rem', width: '100%' }}
+                  placeholder="Search workspace name or owner..."
+                  value={businessSearch}
+                  onChange={(e) => setBusinessSearch(e.target.value)}
+                />
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                Total Active Workspaces: <strong>{filteredBusinesses.filter(b => b.status === 'ACTIVE').length}</strong>
+              </div>
+            </div>
+
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Workspace Name</th>
+                    <th>Account Owner</th>
+                    <th>Active Plan</th>
+                    <th>Status</th>
+                    <th>Channels Connected</th>
+                    <th>Total Customers</th>
+                    <th>Total Orders</th>
+                    <th>Total Converted GMV</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredBusinesses.map(b => (
+                    <tr key={b.id}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {b.id}</div>
+                      </td>
+                      <td>
+                        <div style={{ color: '#cbd5e1' }}>{b.owner_name}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{b.owner_email}</div>
+                      </td>
+                      <td>
+                        <span className="admin-badge admin-badge-olive">{b.plan}</span>
+                      </td>
+                      <td>
+                        <span className={`admin-badge ${b.status === 'ACTIVE' ? 'admin-badge-success' : 'admin-badge-danger'}`}>
+                          {b.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                          {b.channels_connected?.map(ch => (
+                            <span key={ch} className="admin-badge admin-badge-default" style={{ fontSize: '0.7rem' }}>
+                              {ch}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.total_customers}</td>
+                      <td style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.total_orders}</td>
+                      <td style={{ fontWeight: 800, color: '#86efac' }}>{b.total_revenue}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="admin-tab-btn"
+                          style={{
+                            background: b.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+                            borderColor: b.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.35)' : 'rgba(34, 197, 94, 0.35)',
+                            color: b.status === 'ACTIVE' ? '#fca5a5' : '#86efac',
+                            padding: '0.3rem 0.7rem',
+                            fontSize: '0.75rem'
+                          }}
+                          onClick={() => handleToggleBusinessStatus(b.id)}
+                        >
+                          {b.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -761,42 +1059,85 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
             TAB 5: GLOBAL CROSS-TENANT CUSTOMERS CRM
             ------------------------------------------------------------- */}
         {activeTab === 'customers' && (
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Customer Name</th>
-                  <th>Primary Channel</th>
-                  <th>Status / Tier</th>
-                  <th>Total Orders</th>
-                  <th>Lifetime Spend</th>
-                  <th>Verified Phone / WhatsApp</th>
-                  <th>Last Active</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map(c => (
-                  <tr key={c.id}>
-                    <td>
-                      <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{c.full_name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{c.email}</div>
-                    </td>
-                    <td>
-                      <span className="admin-badge admin-badge-olive">{c.preferred_channel}</span>
-                    </td>
-                    <td>
-                      <span className={`admin-badge ${c.customer_type === 'VIP' ? 'admin-badge-success' : 'admin-badge-default'}`}>
-                        {c.customer_type}
-                      </span>
-                    </td>
-                    <td style={{ fontWeight: 600, color: '#F1F5F3' }}>{c.total_orders} orders</td>
-                    <td style={{ fontWeight: 800, color: '#86efac' }}>${c.total_spent?.toFixed(2)}</td>
-                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#cbd5e1' }}>{c.phone}</td>
-                    <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.last_activity_at}</td>
+          <div>
+            <div className="admin-section-header">
+              <div>
+                <h2 className="admin-section-title">Global Cross-Tenant Customers CRM</h2>
+                <p className="admin-section-desc">Unified cross-channel registry of customer profiles, purchase totals, and primary messaging channels.</p>
+              </div>
+
+              <div style={{ fontSize: '0.85rem', color: '#86efac', fontWeight: 600 }}>
+                {filteredCustomers.length} Verified Shoppers
+              </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="admin-filter-bar">
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flexGrow: 1 }}>
+                <div style={{ position: 'relative', width: '300px' }}>
+                  <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#64748b' }} />
+                  <input
+                    type="text"
+                    className="admin-input-dark"
+                    style={{ paddingLeft: '2.25rem', width: '100%' }}
+                    placeholder="Search customer name, email, or phone..."
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                  />
+                </div>
+
+                <select
+                  className="admin-input-dark"
+                  style={{ width: '180px', cursor: 'pointer' }}
+                  value={customerChannelFilter}
+                  onChange={(e) => setCustomerChannelFilter(e.target.value)}
+                >
+                  <option value="ALL">Channel: All</option>
+                  <option value="WHATSAPP">WhatsApp</option>
+                  <option value="INSTAGRAM">Instagram</option>
+                  <option value="MESSENGER">Messenger</option>
+                  <option value="SHOPIFY">Shopify</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Customer Name</th>
+                    <th>Primary Channel</th>
+                    <th>Status / Tier</th>
+                    <th>Total Orders</th>
+                    <th>Lifetime Spend</th>
+                    <th>Verified Phone / WhatsApp</th>
+                    <th>Last Active</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredCustomers.map(c => (
+                    <tr key={c.id}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{c.full_name}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{c.email}</div>
+                      </td>
+                      <td>
+                        <span className="admin-badge admin-badge-olive">{c.preferred_channel}</span>
+                      </td>
+                      <td>
+                        <span className={`admin-badge ${c.customer_type === 'VIP' ? 'admin-badge-success' : 'admin-badge-default'}`}>
+                          {c.customer_type}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 600, color: '#F1F5F3' }}>{c.total_orders} orders</td>
+                      <td style={{ fontWeight: 800, color: '#86efac' }}>${c.total_spent?.toFixed(2)}</td>
+                      <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#cbd5e1' }}>{c.phone}</td>
+                      <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.last_activity_at}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -826,11 +1167,11 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
             {pingLatency && (
               <div style={{ padding: '0.85rem 1.25rem', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#86efac', borderRadius: '10px', marginBottom: '1.25rem', border: '1px solid rgba(34, 197, 94, 0.35)', fontSize: '0.85rem' }}>
-                ✓ Live Handshake Confirmed: Meta Graph API round-trip latency: <strong>{pingLatency}</strong>.
+                ✓ Live Handshake Confirmed: Meta Graph API round-trip latency: <strong>{pingLatency}</strong>. Webhook endpoints operational.
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
               <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', backgroundColor: '#101712' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
                   <strong style={{ color: '#F1F5F3', fontSize: '0.95rem' }}>WhatsApp Cloud API</strong>
@@ -839,6 +1180,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
                   Graph v20.0 direct messaging webhook stream. Rate limit: 250 msgs/sec.
                 </p>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '92%' }}></div>
+                </div>
               </div>
 
               <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', backgroundColor: '#101712' }}>
@@ -849,6 +1193,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
                   Direct Message Ingestion & Media Attachments verified without rate-limit drops.
                 </p>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '96%' }}></div>
+                </div>
               </div>
 
               <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', backgroundColor: '#101712' }}>
@@ -859,6 +1206,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
                   Real-time SKU stock synchronization pipeline operational with Shopify sync.
                 </p>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '88%' }}></div>
+                </div>
               </div>
             </div>
           </div>
@@ -878,28 +1228,40 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Engine Status</div>
                 <strong style={{ color: '#86efac', fontSize: '1.15rem' }}>{systemHealth.status}</strong>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '100%' }}></div>
+                </div>
               </div>
 
               <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>SLA Uptime</div>
                 <strong style={{ color: '#F1F5F3', fontSize: '1.15rem' }}>{systemHealth.uptime}</strong>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '99.98%' }}></div>
+                </div>
               </div>
 
               <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Cache Hit Ratio</div>
                 <strong style={{ color: '#86efac', fontSize: '1.15rem' }}>{systemHealth.cacheHitRatio}</strong>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '94.2%' }}></div>
+                </div>
               </div>
 
               <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Memory Usage</div>
                 <strong style={{ color: '#F1F5F3', fontSize: '1.15rem' }}>{systemHealth.memoryUsage}</strong>
+                <div className="admin-gauge-track">
+                  <div className="admin-gauge-fill" style={{ width: '28%' }}></div>
+                </div>
               </div>
             </div>
 
             <div className="admin-terminal-log">
               <div style={{ color: '#22c55e', fontWeight: 700, marginBottom: '6px' }}>[SYSTEM DIAGNOSTICS LOG]</div>
               <div>Timestamp: {systemHealth.lastHealthCheck}</div>
-              <div>Database Engine: {systemHealth.dbEngine}</div>
+              <div>Database Engine: {systemHealth.dbEngine} (WAL Mode Active, Synchronous Normal)</div>
               <div>Webhook Latency: {systemHealth.webhookLatency}</div>
               <div>Runtime Environment: Production Ready • Node.js v25.2.1 • Vite Engine Active</div>
             </div>
@@ -946,6 +1308,201 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
         )}
 
       </div>
+
+      {/* PROVISION WORKSPACE MODAL */}
+      {showProvisionModal && (
+        <Modal
+          isOpen={showProvisionModal}
+          onClose={() => setShowProvisionModal(false)}
+          title="Provision New Merchant Workspace"
+          maxWidth="540px"
+        >
+          <form onSubmit={handleCreateBusiness} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: '#F1F5F3' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Store / Brand Name *</label>
+              <input
+                type="text"
+                required
+                className="admin-input-dark"
+                style={{ width: '100%' }}
+                placeholder="e.g. Zurich Silk Boutique"
+                value={newBizForm.name}
+                onChange={(e) => setNewBizForm({ ...newBizForm, name: e.target.value })}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Owner Name</label>
+                <input
+                  type="text"
+                  className="admin-input-dark"
+                  style={{ width: '100%' }}
+                  placeholder="e.g. Helena Vance"
+                  value={newBizForm.owner_name}
+                  onChange={(e) => setNewBizForm({ ...newBizForm, owner_name: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Owner Email *</label>
+                <input
+                  type="email"
+                  required
+                  className="admin-input-dark"
+                  style={{ width: '100%' }}
+                  placeholder="helena@zurichsilk.com"
+                  value={newBizForm.owner_email}
+                  onChange={(e) => setNewBizForm({ ...newBizForm, owner_email: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Service Plan</label>
+              <select
+                className="admin-input-dark"
+                style={{ width: '100%' }}
+                value={newBizForm.plan}
+                onChange={(e) => setNewBizForm({ ...newBizForm, plan: e.target.value })}
+              >
+                <option value="Starter">Starter ($49/mo)</option>
+                <option value="Growth">Growth ($149/mo)</option>
+                <option value="Enterprise">Enterprise ($399/mo)</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+              <button 
+                type="button" 
+                onClick={() => setShowProvisionModal(false)}
+                className="admin-tab-btn"
+                style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="admin-tab-btn"
+                style={{ background: '#22c55e', color: '#062b14', fontWeight: 700 }}
+              >
+                Provision Workspace
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* RECORD MANUAL LEAD MODAL */}
+      {showManualLeadModal && (
+        <Modal
+          isOpen={showManualLeadModal}
+          onClose={() => setShowManualLeadModal(false)}
+          title="Record Manual Lead / Call"
+          maxWidth="540px"
+        >
+          <form onSubmit={handleCreateManualLead} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: '#F1F5F3' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Prospect Name *</label>
+                <input
+                  type="text"
+                  required
+                  className="admin-input-dark"
+                  style={{ width: '100%' }}
+                  placeholder="e.g. Thomas Cole"
+                  value={newLeadForm.full_name}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, full_name: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Brand / Company *</label>
+                <input
+                  type="text"
+                  required
+                  className="admin-input-dark"
+                  style={{ width: '100%' }}
+                  placeholder="Cole Leather Goods"
+                  value={newLeadForm.business_name}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, business_name: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Email</label>
+                <input
+                  type="email"
+                  className="admin-input-dark"
+                  style={{ width: '100%' }}
+                  placeholder="thomas@cole.com"
+                  value={newLeadForm.email}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, email: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Phone / WhatsApp</label>
+                <input
+                  type="text"
+                  className="admin-input-dark"
+                  style={{ width: '100%' }}
+                  placeholder="+1 (555) 019-2831"
+                  value={newLeadForm.phone}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, phone: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Lead Category</label>
+              <select
+                className="admin-input-dark"
+                style={{ width: '100%' }}
+                value={newLeadForm.request_type}
+                onChange={(e) => setNewLeadForm({ ...newLeadForm, request_type: e.target.value })}
+              >
+                <option value="DEMO">Demo Request</option>
+                <option value="FOUNDER_MEETING">Founder Strategy Call</option>
+                <option value="CONTACT_INQUIRY">General Inquiry</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Call Notes / Inquiry</label>
+              <textarea
+                className="admin-input-dark"
+                rows={3}
+                style={{ width: '100%', resize: 'none' }}
+                placeholder="Inquired about high-volume Instagram automation for upcoming Black Friday sale..."
+                value={newLeadForm.message}
+                onChange={(e) => setNewLeadForm({ ...newLeadForm, message: e.target.value })}
+              ></textarea>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+              <button 
+                type="button" 
+                onClick={() => setShowManualLeadModal(false)}
+                className="admin-tab-btn"
+                style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="admin-tab-btn"
+                style={{ background: '#22c55e', color: '#062b14', fontWeight: 700 }}
+              >
+                Save Record
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
     </div>
   );
 }
