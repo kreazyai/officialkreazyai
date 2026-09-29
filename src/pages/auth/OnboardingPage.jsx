@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Building2, 
-  Tag, 
-  Package, 
-  Share2, 
-  Bot, 
-  CheckSquare, 
+import {
+  Building2,
+  Tag,
+  Package,
+  Share2,
+  Bot,
+  CheckSquare,
   PartyPopper,
   ArrowRight,
   ArrowLeft,
@@ -89,8 +89,8 @@ export function OnboardingPage({ onNavigate, user }) {
             <span className="brand-text">Kreazy <span className="brand-ai">AI</span> <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-secondary)', marginLeft: '0.35rem' }}>Onboarding</span></span>
           </div>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn btn-sm btn-ghost"
             onClick={() => onNavigate('dashboard')}
           >
@@ -104,8 +104,8 @@ export function OnboardingPage({ onNavigate, user }) {
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
             return (
-              <div 
-                key={step.id} 
+              <div
+                key={step.id}
                 className={`step-indicator ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
                 onClick={() => isCompleted && setCurrentStep(step.id)}
               >
@@ -119,34 +119,34 @@ export function OnboardingPage({ onNavigate, user }) {
         </div>
 
         {/* Mobile Compact Progress Bar */}
-        <div 
+        <div
           className="mobile-step-summary"
-          style={{ 
-            display: 'none', 
-            marginBottom: '1rem', 
-            padding: '0.75rem 1rem', 
-            backgroundColor: 'var(--bg-elevated)', 
-            borderRadius: 'var(--radius-md)', 
-            border: '1px solid var(--border-medium)', 
-            alignItems: 'center', 
-            justifyContent: 'space-between' 
+          style={{
+            display: 'none',
+            marginBottom: '1rem',
+            padding: '0.75rem 1rem',
+            backgroundColor: '#ffffff',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-medium)',
+            alignItems: 'center',
+            justifyContent: 'space-between'
           }}
         >
           <div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Step {currentStep} of 7
             </div>
-            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--olive-950)' }}>
               {STEPS[currentStep - 1]?.label}
             </div>
           </div>
           <div style={{ width: '90px', height: '6px', backgroundColor: 'var(--bg-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ width: `${(currentStep / 7) * 100}%`, height: '100%', backgroundColor: 'var(--bright-olive)', transition: 'width 0.3s ease' }}></div>
+            <div style={{ width: `${(currentStep / 7) * 100}%`, height: '100%', backgroundColor: 'var(--olive-700)', transition: 'width 0.3s ease' }}></div>
           </div>
         </div>
 
         {/* Step Content Box */}
-        <div className="card onboarding-card" style={{ backgroundColor: 'var(--bg-elevated)', padding: 'var(--space-8)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="card onboarding-card" style={{ backgroundColor: '#ffffff', padding: 'var(--space-8)', boxShadow: 'var(--shadow-md)' }}>
           {/* STEP 1: BUSINESS INFO */}
           {currentStep === 1 && (
             <div>
@@ -201,14 +201,12 @@ export function OnboardingPage({ onNavigate, user }) {
                     onClick={() => setData({ ...data, vertical: v })}
                     style={{
                       padding: '1rem',
-                      border: `2px solid ${data.vertical === v ? 'var(--brand-olive-bright)' : 'var(--border-medium)'}`,
+                      border: `2px solid ${data.vertical === v ? 'var(--olive-700)' : 'var(--border-medium)'}`,
                       borderRadius: 'var(--radius-md)',
                       cursor: 'pointer',
-                      backgroundColor: data.vertical === v ? 'rgba(143, 166, 83, 0.16)' : 'var(--bg-canvas-alt)',
+                      backgroundColor: data.vertical === v ? 'var(--olive-50)' : '#ffffff',
                       fontWeight: 600,
-                      fontSize: '0.95rem',
-                      color: data.vertical === v ? 'var(--brand-olive-soft)' : 'var(--text-primary)',
-                      transition: 'all var(--transition-fast)'
+                      fontSize: '0.95rem'
                     }}
                   >
                     {v}
@@ -360,7 +358,7 @@ export function OnboardingPage({ onNavigate, user }) {
               </h2>
 
               <p style={{ maxWidth: '520px', margin: '0 auto 2rem auto', fontSize: '1rem', color: 'var(--text-secondary)' }}>
-                KreazyAI has successfully initialized your commerce workspace for <strong>{data.businessName}</strong>. 
+                KreazyAI has successfully initialized your commerce workspace for <strong>{data.businessName}</strong>.
                 Your AI agent is prepped with your brand guidelines.
               </p>
 

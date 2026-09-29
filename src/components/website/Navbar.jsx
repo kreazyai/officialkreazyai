@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from '../common/Button';
 
 export function Navbar({ currentPage, onNavigate }) {
@@ -33,30 +33,30 @@ export function Navbar({ currentPage, onNavigate }) {
   };
 
   const navLinks = [
-    { id: 'home', label: 'Product' },
-    { id: 'features', label: 'Solutions' },
-    { id: 'how-it-works', label: 'How It Works' },
+    { id: 'home', label: 'Platform' },
+    { id: 'features', label: 'Solutions', hasDropdown: true },
+    { id: 'how-it-works', label: 'Resources' },
     { id: 'pricing', label: 'Pricing' },
-    { id: 'about', label: 'About' },
   ];
 
   return (
     <>
       <header className={`site-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="container site-nav-inner">
-          {/* Left: Kreazy AI Logo */}
+          {/* Left: KreazyAI Geometric Blue Logo (Matching Image 1 & 2) */}
           <div 
             className="brand-logo" 
             onClick={() => handleLinkClick('home')}
             style={{ cursor: 'pointer' }}
           >
-            <img 
-              src="/logo.png" 
-              alt="Kreazy AI Logo" 
-              className="brand-logo-img" 
-            />
+            {/* Custom Modern Geometric Blue Glyph */}
+            <div className="modern-brand-mark">
+              <div className="mark-slant m-1"></div>
+              <div className="mark-slant m-2"></div>
+              <div className="mark-slant m-3"></div>
+            </div>
             <span className="brand-text">
-              Kreazy <span className="brand-ai">AI</span>
+              moniveo <span className="brand-text-sub">KreazyAI</span>
             </span>
           </div>
 
@@ -69,47 +69,37 @@ export function Navbar({ currentPage, onNavigate }) {
                 onClick={() => handleLinkClick(item.id)}
               >
                 {item.label}
+                {item.hasDropdown && <ChevronDown size={14} style={{ opacity: 0.65, marginLeft: 2 }} />}
               </span>
             ))}
           </nav>
 
-          {/* Right: Log In, Sign Up & Book a Demo */}
+          {/* Right: Login & Blue Pill Sign Up Button */}
           <div className="nav-actions">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="nav-btn-signin"
+            <button 
+              type="button"
+              className="nav-link-btn"
               onClick={() => handleLinkClick('login')}
             >
-              Sign In
-            </Button>
+              Login
+            </button>
 
-            <Button 
-              variant="primary" 
-              size="sm"
-              className="nav-btn-signup"
+            <button 
+              type="button"
+              className="nav-signup-pill-btn"
               onClick={() => handleLinkClick('signup')}
             >
               Sign Up
-            </Button>
+            </button>
 
-            <Button 
-              variant="secondary" 
-              size="sm"
-              className="nav-btn-demo"
-              onClick={() => handleLinkClick('book-demo')}
-            >
-              Book a Demo
-            </Button>
-
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Circular Hamburger Button (Matching Image 1) */}
             <button 
-              className="mobile-menu-btn"
+              className="mobile-menu-circle-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X size={22} color="var(--text-primary)" /> : <Menu size={22} color="var(--text-primary)" />}
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
@@ -124,12 +114,12 @@ export function Navbar({ currentPage, onNavigate }) {
         />
       )}
 
-      {/* Mobile Slide-over Drawer (Outside header to avoid backdrop-filter fixed positioning bugs on mobile) */}
+      {/* Mobile Slide-over Drawer (Matching Image 1) */}
       <div 
         className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}
         aria-hidden={!mobileMenuOpen}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {navLinks.map((item) => {
             const isActive = currentPage === item.id;
             return (
@@ -137,50 +127,48 @@ export function Navbar({ currentPage, onNavigate }) {
                 key={item.id}
                 className={`mobile-nav-link ${isActive ? 'active' : ''}`} 
                 onClick={() => handleLinkClick(item.id)}
-                style={{
-                  padding: '0.85rem 1rem',
-                  borderRadius: '8px',
-                  fontWeight: isActive ? 700 : 500,
-                  backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
-                  color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer'
-                }}
               >
                 <span>{item.label}</span>
-                {isActive && <span className="status-dot active"></span>}
+                {isActive && <span className="mobile-active-dot"></span>}
               </div>
             );
           })}
+          <div 
+            className="mobile-nav-link" 
+            onClick={() => handleLinkClick('about')}
+          >
+            <span>About</span>
+          </div>
+          <div 
+            className="mobile-nav-link" 
+            onClick={() => handleLinkClick('contact')}
+          >
+            <span>Contact</span>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-medium)' }}>
-          <Button 
-            variant="primary" 
-            size="lg" 
+        <div className="mobile-drawer-bottom-actions">
+          <button 
+            type="button"
+            className="mobile-drawer-primary-btn"
             onClick={() => handleLinkClick('signup')}
-            style={{ width: '100%', justifyContent: 'center' }}
           >
             Sign Up Free
-          </Button>
-          <Button 
-            variant="secondary" 
-            size="lg" 
+          </button>
+          <button 
+            type="button"
+            className="mobile-drawer-secondary-btn"
             onClick={() => handleLinkClick('login')}
-            style={{ width: '100%', justifyContent: 'center' }}
           >
             Log In to Workspace
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="lg" 
+          </button>
+          <button 
+            type="button"
+            className="mobile-drawer-ghost-btn"
             onClick={() => handleLinkClick('book-demo')}
-            style={{ width: '100%', justifyContent: 'center' }}
           >
             Book a Demo
-          </Button>
+          </button>
         </div>
       </div>
     </>

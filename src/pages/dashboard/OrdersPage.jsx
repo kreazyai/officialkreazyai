@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ShoppingBag, 
-  Search, 
-  Filter, 
-  Eye, 
-  CheckCircle2, 
-  Clock, 
-  Truck, 
-  XCircle, 
-  MessageSquare, 
+import {
+  ShoppingBag,
+  Search,
+  Filter,
+  Eye,
+  CheckCircle2,
+  Clock,
+  Truck,
+  XCircle,
+  MessageSquare,
   ExternalLink,
   Bot,
   Boxes,
@@ -49,7 +49,7 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
     const custName = (typeof o.customer === 'object' ? o.customer?.name : o.customer) || o.customer_name || '';
     const itemFirst = (o.items && o.items[0]?.name) || (o.items && o.items[0]?.product_name) || '';
-    const matchesSearch = 
+    const matchesSearch =
       o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       custName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       itemFirst.toLowerCase().includes(searchQuery.toLowerCase());
@@ -73,7 +73,7 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
         <div>
           <h2>Social Commerce Orders</h2>
           <p style={{ fontSize: '0.9rem' }}>
-            {orders.length > 0 
+            {orders.length > 0
               ? 'Orders initiated and captured autonomously across WhatsApp, Instagram, and Facebook.'
               : 'Clean social commerce orders log. Incoming customer sales will automatically be recorded here.'}
           </p>
@@ -134,8 +134,8 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
             </div>
           </div>
 
-          {/* Order Table - Desktop */}
-          <div className="table-container table-desktop-only">
+          {/* Order Table */}
+          <div className="table-container">
             <table className="data-table">
               <thead>
                 <tr>
@@ -200,49 +200,6 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
               </tbody>
             </table>
           </div>
-
-          {/* Order Cards - Mobile (< 768px) */}
-          <div className="mobile-data-cards">
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map(order => (
-                <div key={order.id} className="mobile-data-card">
-                  <div className="mobile-data-card-header">
-                    <span className="mono" style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>{order.id}</span>
-                    {getStatusBadge(order.status)}
-                  </div>
-                  <div className="mobile-data-card-row">
-                    <span className="mobile-data-card-label">Customer</span>
-                    <span className="mobile-data-card-val">{order.customer?.name || order.customer_name || 'Customer'}</span>
-                  </div>
-                  <div className="mobile-data-card-row">
-                    <span className="mobile-data-card-label">Product</span>
-                    <span className="mobile-data-card-val">{(order.items && order.items[0]?.name) || (order.items && order.items[0]?.product_name) || 'Product'}</span>
-                  </div>
-                  <div className="mobile-data-card-row">
-                    <span className="mobile-data-card-label">Total</span>
-                    <span className="mobile-data-card-val" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                      ${(Number(order.totalAmount ?? order.total ?? 0)).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="mobile-data-card-actions">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      style={{ width: '100%', justifyContent: 'center' }}
-                      onClick={() => setSelectedOrder(order)}
-                      icon={Eye}
-                    >
-                      View Order Details
-                    </Button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                No orders found matching your filters.
-              </div>
-            )}
-          </div>
         </>
       ) : (
         /* Clean Empty State for New Users */
@@ -250,7 +207,7 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
           padding: '3.5rem 2rem',
           border: '1px dashed var(--border-medium)',
           borderRadius: 'var(--radius-lg)',
-          backgroundColor: 'var(--bg-canvas-alt)',
+          backgroundColor: 'rgba(255, 255, 255, 0.02)',
           textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
@@ -321,9 +278,9 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
                   Close
                 </Button>
                 {onOpenConversation && (
-                  <Button 
-                    variant="primary" 
-                    size="sm" 
+                  <Button
+                    variant="primary"
+                    size="sm"
                     icon={MessageSquare}
                     onClick={() => {
                       setSelectedOrder(null);

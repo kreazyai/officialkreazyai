@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Bot, 
-  Sparkles, 
-  Send, 
-  Sliders, 
-  BookOpen, 
-  ShieldCheck, 
-  Zap, 
-  Check, 
-  Save, 
+import {
+  Bot,
+  Sparkles,
+  Send,
+  Sliders,
+  BookOpen,
+  ShieldCheck,
+  Zap,
+  Check,
+  Save,
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
@@ -52,12 +52,12 @@ export function AiAssistantPage() {
     setTimeout(async () => {
       const res = await aiConfigService.simulateChat(userMsg);
       setSandboxMessages(prev => [
-        ...prev, 
-        { 
-          sender: 'assistant', 
-          text: res.reply, 
-          confidence: res.confidence, 
-          source: res.source 
+        ...prev,
+        {
+          sender: 'assistant',
+          text: res.reply,
+          confidence: res.confidence,
+          source: res.source
         }
       ]);
       setSimulating(false);
@@ -252,13 +252,13 @@ export function AiAssistantPage() {
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Generate secure payment links directly in chat when customer is ready</p>
                   </div>
                   <label className="switch">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={config.behavior.autoCreateOrders}
                       onChange={(e) => setConfig({
                         ...config,
                         behavior: { ...config.behavior, autoCreateOrders: e.target.checked }
-                      })} 
+                      })}
                     />
                     <span className="slider"></span>
                   </label>
@@ -292,12 +292,12 @@ export function AiAssistantPage() {
                   </small>
                 </div>
 
-                <div style={{ padding: '0.85rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)' }}>
-                  <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>Automated Human Handoff Conditions:</strong>
+                <div style={{ padding: '0.85rem', backgroundColor: '#fafbf9', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)' }}>
+                  <strong style={{ fontSize: '0.85rem' }}>Automated Human Handoff Conditions:</strong>
                   <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.5rem', fontSize: '0.825rem' }}>
                     {config.safety.humanHandoffConditions.map((cond, i) => (
-                      <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)' }}>
-                        <Check size={14} color="var(--bright-olive)" /> {cond}
+                      <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <Check size={14} color="var(--olive-700)" /> {cond}
                       </li>
                     ))}
                   </ul>
@@ -309,35 +309,34 @@ export function AiAssistantPage() {
 
         {/* Right Side: Interactive Live Testing Playground */}
         <div className="ai-playground-card">
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-medium)', backgroundColor: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-medium)', backgroundColor: '#fafbf9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.875rem' }}>
-              <Bot size={16} color="var(--bright-olive)" />
+              <Bot size={16} color="var(--olive-700)" />
               <span>Interactive AI Test Sandbox</span>
             </div>
             <Badge variant="olive">Live Grounding</Badge>
           </div>
 
           {/* Sandbox Messages */}
-          <div style={{ flexGrow: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem', backgroundColor: 'var(--bg-canvas-alt)' }}>
+          <div style={{ flexGrow: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
             {sandboxMessages.map((msg, i) => (
-              <div 
-                key={i} 
-                style={{ 
+              <div
+                key={i}
+                style={{
                   alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                   maxWidth: '85%',
-                  backgroundColor: msg.sender === 'user' ? 'var(--bg-card)' : 'linear-gradient(135deg, #15803d 0%, #166534 100%)',
-                  background: msg.sender === 'assistant' ? 'linear-gradient(135deg, #15803d 0%, #166534 100%)' : 'var(--bg-card)',
-                  color: '#ffffff',
+                  backgroundColor: msg.sender === 'user' ? 'var(--bg-subtle)' : 'var(--olive-850)',
+                  color: msg.sender === 'user' ? 'var(--text-primary)' : '#ffffff',
                   padding: '0.65rem 0.85rem',
                   borderRadius: '12px',
                   borderBottomRightRadius: msg.sender === 'user' ? '2px' : '12px',
                   borderBottomLeftRadius: msg.sender === 'assistant' ? '2px' : '12px',
-                  border: msg.sender === 'user' ? '1px solid var(--border-medium)' : '1px solid rgba(74, 222, 128, 0.25)'
+                  border: msg.sender === 'user' ? '1px solid var(--border-medium)' : 'none'
                 }}
               >
                 <div>{msg.text}</div>
                 {msg.source && (
-                  <div style={{ fontSize: '0.7rem', color: '#bbf7d0', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '2px' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--olive-200)', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '2px' }}>
                     Attribution: {msg.source} ({msg.confidence}% confidence)
                   </div>
                 )}
@@ -351,7 +350,7 @@ export function AiAssistantPage() {
           </div>
 
           {/* Sandbox Input */}
-          <form onSubmit={handleSendTest} style={{ padding: '0.75rem', borderTop: '1px solid var(--border-medium)', display: 'flex', gap: '0.5rem', backgroundColor: 'var(--bg-card)' }}>
+          <form onSubmit={handleSendTest} style={{ padding: '0.75rem', borderTop: '1px solid var(--border-medium)', display: 'flex', gap: '0.5rem', backgroundColor: '#fafbf9' }}>
             <input
               type="text"
               className="form-input"

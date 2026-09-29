@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-  ArrowLeft, 
-  Smartphone, 
-  Sliders, 
+import {
+  ArrowLeft,
+  Smartphone,
+  Sliders,
   ExternalLink,
   Sparkles,
   Layers
@@ -94,8 +94,8 @@ export function PreviewToolbar({
 
           {/* Zoom / Scale Selector */}
           <div className="scale-selector-wrap" title="Preview Zoom / Scale">
-            <select 
-              value={scale} 
+            <select
+              value={scale}
               onChange={(e) => onChangeScale(e.target.value)}
               aria-label="Viewport scale percentage"
             >
@@ -150,13 +150,13 @@ export function PreviewToolbar({
       </header>
 
       {/* Secondary Category Navigation Strip (Desktop and Mobile scrollable) */}
-      <div 
-        style={{ 
-          backgroundColor: 'var(--bg-canvas-alt)', 
-          borderBottom: '1px solid var(--border-medium)', 
-          padding: '0.4rem var(--space-5)', 
-          display: 'flex', 
-          alignItems: 'center', 
+      <div
+        style={{
+          backgroundColor: '#fafbf9',
+          borderBottom: '1px solid var(--border-medium)',
+          padding: '0.4rem var(--space-5)',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'space-between',
           gap: '0.5rem',
           overflowX: 'auto',

@@ -5,38 +5,62 @@
      ===================================================================== */
 
   /* Primary Background & Surface Hierarchy */
-  --bg-surface: #182018;         /* Primary deep olive background */
-  --bg-canvas-alt: #202A20;      /* Secondary background */
-  --bg-elevated: #263226;        /* Elevated surface (modals, popovers, dropdowns) */
-  --bg-card: #2B382A;            /* Card surface */
-  --bg-card-hover: #314030;      /* Card hover state */
-  --bg-subtle: #202A20;          /* Secondary container background */
+  --bg-surface: #182018;
+  /* Primary deep olive background */
+  --bg-canvas-alt: #202A20;
+  /* Secondary background */
+  --bg-elevated: #263226;
+  /* Elevated surface (modals, popovers, dropdowns) */
+  --bg-card: #2B382A;
+  /* Card surface */
+  --bg-card-hover: #314030;
+  /* Card hover state */
+  --bg-subtle: #202A20;
+  /* Secondary container background */
 
   /* Borders & Dividers */
-  --border-subtle: rgba(70, 83, 64, 0.45); /* Subtle hairline border */
-  --border-medium: #465340;               /* Primary structural border */
-  --border-strong: #667A3E;               /* Highlight / active border */
-  --border-bright: #8FA653;               /* Bright olive accent border */
+  --border-subtle: rgba(70, 83, 64, 0.45);
+  /* Subtle hairline border */
+  --border-medium: #465340;
+  /* Primary structural border */
+  --border-strong: #667A3E;
+  /* Highlight / active border */
+  --border-bright: #8FA653;
+  /* Bright olive accent border */
 
   /* Olive Brand System */
-  --primary-olive: #667A3E;      /* Primary brand olive */
-  --bright-olive: #8FA653;       /* Bright olive accent / Primary CTA background */
-  --soft-olive: #B8C58A;         /* Soft olive accent highlight */
-  --olive-button-bg: #8FA653;    /* Tactile CTA button background */
-  --olive-button-hover: #9db55f; /* Hover state for primary button */
+  --primary-olive: #667A3E;
+  /* Primary brand olive */
+  --bright-olive: #8FA653;
+  /* Bright olive accent / Primary CTA background */
+  --soft-olive: #B8C58A;
+  /* Soft olive accent highlight */
+  --olive-button-bg: #8FA653;
+  /* Tactile CTA button background */
+  --olive-button-hover: #9db55f;
+  /* Hover state for primary button */
 
   /* Warm Cream & Neutral Palette */
-  --warm-cream: #F3F0E4;         /* Warm cream accent */
-  --text-primary: #F5F4EC;       /* Primary text (crisp warm moonlight) */
-  --text-secondary: #C7C9BA;     /* Secondary text (medium contrast body) */
-  --text-muted: #969B8A;         /* Muted text (supporting captions, labels) */
-  --text-inverse: #172017;       /* Dark text on bright olive buttons */
-  --text-accent: #8FA653;        /* Bright olive highlight */
+  --warm-cream: #F3F0E4;
+  /* Warm cream accent */
+  --text-primary: #F5F4EC;
+  /* Primary text (crisp warm moonlight) */
+  --text-secondary: #C7C9BA;
+  /* Secondary text (medium contrast body) */
+  --text-muted: #969B8A;
+  /* Muted text (supporting captions, labels) */
+  --text-inverse: #172017;
+  /* Dark text on bright olive buttons */
+  --text-accent: #8FA653;
+  /* Bright olive highlight */
 
   /* Sparingly Used Attention & Semantic Accents */
-  --accent-amber: #D6A85C;       /* Accent amber (VIP badges, alerts, highlights) */
-  --status-success: #9DBB68;     /* Success olive-green */
-  --status-error: #D97870;       /* Semantic error soft red */
+  --accent-amber: #D6A85C;
+  /* Accent amber (VIP badges, alerts, highlights) */
+  --status-success: #9DBB68;
+  /* Success olive-green */
+  --status-error: #D97870;
+  /* Semantic error soft red */
 
   /* Legacy Compatibility Variables mapped to the new palette */
   --olive-950: #121812;
@@ -50,7 +74,7 @@
   --olive-300: #B8C58A;
   --olive-200: #D8E2B5;
   --olive-100: #EBF0DC;
-  --olive-50:  rgba(143, 166, 83, 0.12);
+  --olive-50: rgba(143, 166, 83, 0.12);
 
   --emerald-500: #8FA653;
   --emerald-400: #B8C58A;
@@ -93,18 +117,30 @@
   --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Spacing Scale */
-  --space-1: 0.25rem;  /* 4px */
-  --space-2: 0.5rem;   /* 8px */
-  --space-3: 0.75rem;  /* 12px */
-  --space-4: 1rem;     /* 16px */
-  --space-5: 1.25rem;  /* 20px */
-  --space-6: 1.5rem;   /* 24px */
-  --space-8: 2rem;     /* 32px */
-  --space-10: 2.5rem;  /* 40px */
-  --space-12: 3rem;    /* 48px */
-  --space-16: 4rem;    /* 64px */
-  --space-20: 5rem;    /* 80px */
-  --space-24: 6rem;    /* 96px */
+  --space-1: 0.25rem;
+  /* 4px */
+  --space-2: 0.5rem;
+  /* 8px */
+  --space-3: 0.75rem;
+  /* 12px */
+  --space-4: 1rem;
+  /* 16px */
+  --space-5: 1.25rem;
+  /* 20px */
+  --space-6: 1.5rem;
+  /* 24px */
+  --space-8: 2rem;
+  /* 32px */
+  --space-10: 2.5rem;
+  /* 40px */
+  --space-12: 3rem;
+  /* 48px */
+  --space-16: 4rem;
+  /* 64px */
+  --space-20: 5rem;
+  /* 80px */
+  --space-24: 6rem;
+  /* 96px */
 
   /* Border Radii (Refined, architectural, never overly bubbly) */
   --radius-xs: 4px;
@@ -122,50 +158,14 @@
   --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.55), 0 3px 8px rgba(0, 0, 0, 0.35);
   --shadow-xl: 0 18px 45px rgba(0, 0, 0, 0.65), 0 6px 14px rgba(0, 0, 0, 0.4);
 
-  /* Semantic Design System Mapping */
-  --color-bg-canvas: var(--bg-surface);
-  --color-bg-surface: var(--bg-surface);
-  --color-bg-secondary: var(--bg-canvas-alt);
-  --color-bg-elevated: var(--bg-elevated);
-  --color-bg-card: var(--bg-card);
-  --color-bg-card-hover: var(--bg-card-hover);
-  --color-bg-overlay: rgba(18, 24, 18, 0.75);
-
-  --color-border-subtle: var(--border-subtle);
-  --color-border-medium: var(--border-medium);
-  --color-border-strong: var(--border-strong);
-  --color-border-bright: var(--border-bright);
-
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-text-muted: var(--text-muted);
-  --color-text-inverse: var(--text-inverse);
-  --color-text-accent: var(--soft-olive);
-
-  --color-cta-primary-bg: var(--bright-olive);
-  --color-cta-primary-hover: var(--olive-button-hover);
-  --color-cta-primary-text: var(--text-inverse);
-
   /* Fluid & Snappy Transitions */
   --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-base: 240ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 360ms cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Max Widths */
-  --container-sm: 640px;
-  --container-md: 896px;
-  --container-lg: 1140px;
-  --container-xl: 1320px;
-
-  /* Z-Index Hierarchy */
-  --z-base: 0;
-  --z-card: 1;
-  --z-sticky: 100;
-  --z-navigation: 800;
-  --z-dropdown: 850;
-  --z-backdrop: 950;
-  --z-drawer: 1000;
-  --z-modal: 1050;
-  --z-toast: 1100;
-  --z-tooltip: 1200;
+  --container-sm: 768px;
+  --container-md: 1024px;
+  --container-lg: 1200px;
+  --container-xl: 1360px;
 }

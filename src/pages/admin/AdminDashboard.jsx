@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ShieldAlert, 
-  ShieldCheck, 
-  Building2, 
-  Calendar, 
-  Users, 
-  TrendingUp, 
-  FileText, 
-  CheckCircle2, 
-  Clock, 
-  Search, 
-  Filter, 
-  Download, 
-  ExternalLink, 
-  Edit, 
+import {
+  ShieldAlert,
+  ShieldCheck,
+  Building2,
+  Calendar,
+  Users,
+  TrendingUp,
+  FileText,
+  CheckCircle2,
+  Clock,
+  Search,
+  Filter,
+  Download,
+  ExternalLink,
+  Edit,
   AlertTriangle,
   ArrowUpRight,
   LogOut,
@@ -44,7 +44,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
   const [systemHealth, setSystemHealth] = useState(null);
   const [pingLatency, setPingLatency] = useState(null);
   const [isPinging, setIsPinging] = useState(false);
-  
+
   // Lead / Demo detail modal state
   const [selectedDemo, setSelectedDemo] = useState(null);
   const [adminNoteInput, setAdminNoteInput] = useState('');
@@ -160,7 +160,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f8faf7' }}>
-      
+
       {/* Platform Admin Top Header */}
       <header style={{ minHeight: '64px', backgroundColor: 'var(--olive-950)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem var(--space-5)', borderBottom: '1px solid rgba(255,255,255,0.1)', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -185,7 +185,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
       {/* Admin Content Area */}
       <div className="container-wide" style={{ padding: 'var(--space-6) var(--space-4)', flexGrow: 1 }}>
-        
+
         {/* Navigation Tabs */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div className="smooth-scroll-x" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', width: '100%', paddingBottom: '6px', whiteSpace: 'nowrap' }}>
@@ -319,21 +319,21 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Meta Platform API Diagnostics</h3>
                 <p style={{ fontSize: '0.85rem', marginBottom: '1.25rem' }}>Live health metrics of official Meta Graph endpoints.</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0.8rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#fafbf9', borderRadius: '4px' }}>
                     <span>WhatsApp Cloud API (v20.0):</span>
-                    <strong style={{ color: 'var(--brand-olive-soft)' }}>HEALTHY (12ms)</strong>
+                    <strong style={{ color: '#16a34a' }}>HEALTHY (12ms)</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0.8rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#fafbf9', borderRadius: '4px' }}>
                     <span>Instagram Graph Webhooks:</span>
-                    <strong style={{ color: 'var(--brand-olive-soft)' }}>CONNECTED (0 drops)</strong>
+                    <strong style={{ color: '#16a34a' }}>CONNECTED (0 drops)</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0.8rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#fafbf9', borderRadius: '4px' }}>
                     <span>Facebook Messenger Ingest:</span>
-                    <strong style={{ color: 'var(--brand-olive-soft)' }}>LISTENING</strong>
+                    <strong style={{ color: '#16a34a' }}>LISTENING</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0.8rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#fafbf9', borderRadius: '4px' }}>
                     <span>AI Knowledge Ingestion Pipeline:</span>
-                    <strong style={{ color: 'var(--brand-olive-soft)' }}>ONLINE (v2.4 Engine)</strong>
+                    <strong style={{ color: '#16a34a' }}>ONLINE (v2.4 Engine)</strong>
                   </div>
                 </div>
               </div>
@@ -485,7 +485,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
                   <div>
                     <label style={{ fontWeight: 600, display: 'block', marginBottom: '4px' }}>Prospect Inquiry / Notes:</label>
-                    <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-medium)', borderRadius: '6px', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
+                    <div style={{ padding: '0.75rem', backgroundColor: '#fafbf9', border: '1px solid var(--border-medium)', borderRadius: '6px', fontStyle: 'italic' }}>
                       "{selectedDemo.message || selectedDemo.notes || 'No message.'}"
                     </div>
                   </div>
@@ -638,13 +638,13 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
             </div>
 
             {pingLatency && (
-              <div style={{ padding: '0.75rem 1rem', backgroundColor: 'rgba(143, 166, 83, 0.12)', color: 'var(--brand-olive-soft)', borderRadius: 'var(--radius-sm)', marginBottom: '1rem', border: '1px solid rgba(143, 166, 83, 0.3)', fontSize: '0.85rem' }}>
+              <div style={{ padding: '0.75rem 1rem', backgroundColor: '#ecfdf5', color: '#065f46', borderRadius: '6px', marginBottom: '1rem', border: '1px solid #a7f3d0', fontSize: '0.85rem' }}>
                 ✓ Live Handshake Confirmed: Meta Graph API round-trip latency: <strong>{pingLatency}</strong>.
               </div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-              <div style={{ padding: '1.25rem', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-canvas-alt)' }}>
+              <div style={{ padding: '1rem', border: '1px solid var(--border-medium)', borderRadius: '8px', backgroundColor: '#fafbf9' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <strong>WhatsApp Cloud API</strong>
                   <span className="badge badge-success">OPERATIONAL</span>
@@ -654,7 +654,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 </p>
               </div>
 
-              <div style={{ padding: '1.25rem', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-canvas-alt)' }}>
+              <div style={{ padding: '1rem', border: '1px solid var(--border-medium)', borderRadius: '8px', backgroundColor: '#fafbf9' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <strong>Instagram Direct Webhook</strong>
                   <span className="badge badge-success">OPERATIONAL</span>
@@ -664,7 +664,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 </p>
               </div>
 
-              <div style={{ padding: '1.25rem', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-canvas-alt)' }}>
+              <div style={{ padding: '1rem', border: '1px solid var(--border-medium)', borderRadius: '8px', backgroundColor: '#fafbf9' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <strong>Meta Commerce Catalog Sync</strong>
                   <span className="badge badge-success">ACTIVE</span>
@@ -688,22 +688,22 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-medium)' }}>
+              <div style={{ padding: '1rem', backgroundColor: '#fafbf9', borderRadius: '8px', border: '1px solid var(--border-medium)' }}>
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Engine Status</div>
-                <strong style={{ color: 'var(--brand-olive-soft)', fontSize: '1.1rem' }}>{systemHealth.status}</strong>
+                <strong style={{ color: '#16a34a', fontSize: '1.1rem' }}>{systemHealth.status}</strong>
               </div>
 
-              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-medium)' }}>
+              <div style={{ padding: '1rem', backgroundColor: '#fafbf9', borderRadius: '8px', border: '1px solid var(--border-medium)' }}>
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>SLA Uptime</div>
                 <strong style={{ fontSize: '1.1rem' }}>{systemHealth.uptime}</strong>
               </div>
 
-              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-medium)' }}>
+              <div style={{ padding: '1rem', backgroundColor: '#fafbf9', borderRadius: '8px', border: '1px solid var(--border-medium)' }}>
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Cache Hit Ratio</div>
-                <strong style={{ color: 'var(--brand-olive-soft)', fontSize: '1.1rem' }}>{systemHealth.cacheHitRatio}</strong>
+                <strong style={{ color: '#16a34a', fontSize: '1.1rem' }}>{systemHealth.cacheHitRatio}</strong>
               </div>
 
-              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-medium)' }}>
+              <div style={{ padding: '1rem', backgroundColor: '#fafbf9', borderRadius: '8px', border: '1px solid var(--border-medium)' }}>
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Memory Usage</div>
                 <strong style={{ fontSize: '1.1rem' }}>{systemHealth.memoryUsage}</strong>
               </div>

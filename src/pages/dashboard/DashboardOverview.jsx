@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
-  TrendingUp, 
-  ShoppingBag, 
-  MessageSquare, 
-  Bot, 
-  ArrowUpRight, 
-  CheckCircle2, 
-  Clock, 
-  Boxes, 
+import {
+  TrendingUp,
+  ShoppingBag,
+  MessageSquare,
+  Bot,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  Boxes,
   Network,
   Zap,
   Sparkles,
@@ -53,7 +53,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
         <div>
           <h2>Store Overview & Automation</h2>
           <p style={{ fontSize: '0.9rem' }}>
-            {isDemo 
+            {isDemo
               ? 'Real-time telemetry across connected Meta channels, AI agents, and order volume.'
               : 'Real-time telemetry across your merchant workspace, connected channels, and AI agents.'}
           </p>
@@ -129,15 +129,15 @@ export function DashboardOverview({ user, onNavigateModule }) {
       </div>
 
       {/* Two Column Section: Live Activity Feed & Channel Breakdown */}
-      <div className="dashboard-split-grid">
-        
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
+
         {/* Left: AI Autonomous Activity Timeline */}
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
             <div>
               <h3 style={{ fontSize: '1.15rem' }}>Live AI Agent Activity Timeline</h3>
               <p style={{ fontSize: '0.825rem' }}>
-                {isDemo 
+                {isDemo
                   ? 'Real-time audit log of decisions made by KreazyAI across your channels.'
                   : 'Live audit log of autonomous decisions, inquiries, and customer orders.'}
               </p>
@@ -150,13 +150,13 @@ export function DashboardOverview({ user, onNavigateModule }) {
           {isDemo ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {initialAiActivityTimeline.map((act) => (
-                <div 
-                  key={act.id} 
+                <div
+                  key={act.id}
                   style={{
                     padding: '0.85rem 1rem',
                     border: '1px solid var(--border-subtle)',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'var(--bg-canvas-alt)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'space-between',
@@ -182,9 +182,9 @@ export function DashboardOverview({ user, onNavigateModule }) {
                 </div>
               ))}
 
-              <button 
-                type="button" 
-                className="btn btn-sm btn-ghost" 
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
                 onClick={() => onNavigateModule('messages')}
                 style={{ width: '100%', marginTop: '1rem', color: 'var(--bright-olive)' }}
               >
@@ -197,7 +197,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
               padding: '2.5rem 1.5rem',
               border: '1px dashed var(--border-medium)',
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: 'var(--bg-canvas-alt)',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
@@ -209,7 +209,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(143, 166, 83, 0.15)',
+                backgroundColor: 'rgba(163, 230, 53, 0.1)',
                 color: 'var(--bright-olive)',
                 display: 'flex',
                 alignItems: 'center',
@@ -243,8 +243,8 @@ export function DashboardOverview({ user, onNavigateModule }) {
         <div className="card">
           <h3 style={{ fontSize: '1.15rem', marginBottom: '0.35rem' }}>Channel Ingestion & Health</h3>
           <p style={{ fontSize: '0.825rem', marginBottom: '1.25rem' }}>
-            {isDemo 
-              ? 'Status of connected official Meta webhooks.' 
+            {isDemo
+              ? 'Status of connected official Meta webhooks.'
               : 'Status of your official WhatsApp, Instagram, and Facebook connections.'}
           </p>
 
@@ -345,10 +345,10 @@ export function DashboardOverview({ user, onNavigateModule }) {
               </div>
 
               <div style={{ marginTop: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  style={{ width: '100%', justifyContent: 'center' }} 
+                <Button
+                  variant="primary"
+                  size="sm"
+                  style={{ width: '100%', justifyContent: 'center' }}
                   onClick={() => onNavigateModule('integrations')}
                   icon={Network}
                 >

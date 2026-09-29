@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Boxes, 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2, 
-  Sparkles, 
-  Check, 
-  Upload, 
+import {
+  Boxes,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Sparkles,
+  Check,
+  Upload,
   Download,
   AlertTriangle
 } from 'lucide-react';
@@ -105,7 +105,7 @@ export function ProductsPage({ user, onNavigateModule }) {
 
   const filtered = products.filter(p => {
     const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
-    const matchesSearch = 
+    const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.sku.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
@@ -130,9 +130,9 @@ export function ProductsPage({ user, onNavigateModule }) {
               Exit Demo Preview
             </button>
           )}
-          <Button 
-            variant="primary" 
-            size="sm" 
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => { setEditingProduct(null); setIsAddModalOpen(true); }}
             icon={Plus}
           >
@@ -173,127 +173,81 @@ export function ProductsPage({ user, onNavigateModule }) {
       </div>
 
       {products.length > 0 ? (
-        <>
-          <div className="table-container table-desktop-only">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>SKU</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Status</th>
-                  <th>AI Knowledge Index</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(p => (
-                  <tr key={p.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <img 
-                          src={p.image} 
-                          alt={p.name} 
-                          style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-medium)' }} 
-                        />
-                        <div>
-                          <div style={{ fontWeight: 600 }}>{p.name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            Variants: {Array.isArray(p.variants) ? p.variants.slice(0, 2).join(', ') : p.variants}
-                          </div>
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>AI Knowledge Index</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(p => (
+                <tr key={p.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-medium)' }}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{p.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          Variants: {Array.isArray(p.variants) ? p.variants.slice(0, 2).join(', ') : p.variants}
                         </div>
                       </div>
-                    </td>
-                    <td className="mono" style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.sku}</td>
-                    <td><Badge variant="olive">{p.category}</Badge></td>
-                    <td style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>${p.price.toFixed(2)}</td>
-                    <td>
-                      <span style={{ fontWeight: 600, color: p.stock === 0 ? 'var(--status-error-text)' : p.stock < 5 ? '#d97706' : 'var(--bright-olive)' }}>
-                        {p.stock} units
-                      </span>
-                    </td>
-                    <td>
-                      {p.stock > 0 ? (
-                        <span className="badge badge-success">In Stock</span>
-                      ) : (
-                        <span className="badge badge-error">Out of Stock</span>
-                      )}
-                    </td>
-                    <td style={{ maxWidth: '240px' }}>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.aiKnowledge}>
-                        <Sparkles size={12} style={{ display: 'inline', marginRight: '4px', color: 'var(--bright-olive)' }} />
-                        {p.aiKnowledge || 'Auto-generated specs'}
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.35rem' }}>
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(p)} title="Edit Product">
-                          <Edit size={14} />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)} title="Delete Product" style={{ color: 'var(--status-error-text)' }}>
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Product Cards - Mobile (< 768px) */}
-          <div className="mobile-data-cards">
-            {filtered.map(p => (
-              <div key={p.id} className="mobile-data-card">
-                <div className="mobile-data-card-header">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <img 
-                      src={p.image} 
-                      alt={p.name} 
-                      style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-medium)' }} 
-                    />
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{p.name}</div>
-                      <div className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.sku}</div>
                     </div>
-                  </div>
-                  <Badge variant="olive">{p.category}</Badge>
-                </div>
-                <div className="mobile-data-card-row">
-                  <span className="mobile-data-card-label">Price</span>
-                  <span className="mobile-data-card-val" style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>${p.price.toFixed(2)}</span>
-                </div>
-                <div className="mobile-data-card-row">
-                  <span className="mobile-data-card-label">Stock Status</span>
-                  <span className="mobile-data-card-val">
+                  </td>
+                  <td className="mono" style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.sku}</td>
+                  <td><Badge variant="olive">{p.category}</Badge></td>
+                  <td style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>${p.price.toFixed(2)}</td>
+                  <td>
+                    <span style={{ fontWeight: 600, color: p.stock === 0 ? 'var(--status-error-text)' : p.stock < 5 ? '#d97706' : 'var(--bright-olive)' }}>
+                      {p.stock} units
+                    </span>
+                  </td>
+                  <td>
                     {p.stock > 0 ? (
-                      <span className="badge badge-success" style={{ fontSize: '0.72rem' }}>{p.stock} In Stock</span>
+                      <span className="badge badge-success">In Stock</span>
                     ) : (
-                      <span className="badge badge-error" style={{ fontSize: '0.72rem' }}>Out of Stock</span>
+                      <span className="badge badge-error">Out of Stock</span>
                     )}
-                  </span>
-                </div>
-                <div className="mobile-data-card-actions">
-                  <Button variant="secondary" size="sm" onClick={() => handleEdit(p)} icon={Edit} style={{ flexGrow: 1, justifyContent: 'center' }}>
-                    Edit SKU
-                  </Button>
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(p.id)} icon={Trash2}>
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
+                  </td>
+                  <td style={{ maxWidth: '240px' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.aiKnowledge}>
+                      <Sparkles size={12} style={{ display: 'inline', marginRight: '4px', color: 'var(--bright-olive)' }} />
+                      {p.aiKnowledge || 'Auto-generated specs'}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(p)} title="Edit Product">
+                        <Edit size={14} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)} title="Delete Product" style={{ color: 'var(--status-error-text)' }}>
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         /* Clean Empty State for New Users */
         <div style={{
           padding: '3.5rem 2rem',
           border: '1px dashed var(--border-medium)',
           borderRadius: 'var(--radius-lg)',
-          backgroundColor: 'var(--bg-canvas-alt)',
+          backgroundColor: 'rgba(255, 255, 255, 0.02)',
           textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
