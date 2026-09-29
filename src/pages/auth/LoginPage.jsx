@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { Input } from '../../components/common/Input';
-import { Button } from '../../components/common/Button';
+import { Lock, Mail, ArrowRight, CheckCircle2, ChevronRight } from 'lucide-react';
 import { authService } from '../../services/api';
 
 export function LoginPage({ onNavigate, onLoginSuccess }) {
@@ -28,7 +26,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
         onLoginSuccess(user);
       }
       onNavigate('dashboard');
-    }, 500);
+    }, 400);
   };
 
   const handleDemoQuickLogin = () => {
@@ -38,53 +36,70 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        <div className="auth-header">
+    <div className="home-page-root" style={{ minHeight: 'calc(100vh - 72px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', background: '#F8FAFC' }}>
+      <div style={{ width: '100%', maxWidth: '440px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '2.5rem', boxShadow: '0 16px 40px rgba(15, 23, 42, 0.08)' }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div 
             className="brand-logo" 
             style={{ justifyContent: 'center', marginBottom: '1.25rem', cursor: 'pointer' }}
             onClick={() => onNavigate('home')}
           >
-            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
-            <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
+            <div className="modern-brand-mark">
+              <div className="mark-slant m-1"></div>
+              <div className="mark-slant m-2"></div>
+              <div className="mark-slant m-3"></div>
+            </div>
+            <span className="brand-text">
+              moniveo <span className="brand-text-sub">KreazyAI</span>
+            </span>
           </div>
-          <h1>Welcome back</h1>
-          <p>Sign in to your merchant workspace to manage conversations, sales, and AI agents.</p>
+          <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: '0.35rem' }}>
+            Welcome back
+          </h1>
+          <p style={{ fontSize: '0.885rem', color: '#64748B' }}>
+            Sign in to your merchant workspace to manage conversations, sales, and AI agents.
+          </p>
         </div>
 
         {error && (
-          <div style={{ padding: '0.75rem', backgroundColor: 'var(--status-error-bg)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid var(--status-error-border)' }}>
+          <div style={{ padding: '0.75rem 1rem', backgroundColor: '#FEF2F2', color: '#DC2626', borderRadius: '10px', fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid #FECACA' }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-          <Input
-            label="Work Email"
-            name="email"
-            type="email"
-            required
-            icon={Mail}
-            placeholder="merchant@yourbrand.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="off"
-          />
+          <div className="form-field-group">
+            <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '0.35rem' }}>
+              Work Email
+            </label>
+            <input
+              type="email"
+              required
+              className="moniveo-input"
+              placeholder="merchant@yourbrand.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
 
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            required
-            icon={Lock}
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="form-field-group">
+            <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '0.35rem' }}>
+              Password
+            </label>
+            <input
+              type="password"
+              required
+              className="moniveo-input"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.825rem', color: '#64748B' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
               <input 
                 type="checkbox" 
@@ -94,66 +109,45 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
               <span>Remember this device</span>
             </label>
             <span 
-              style={{ color: 'var(--olive-700)', cursor: 'pointer', fontWeight: 600 }}
+              style={{ color: '#2563EB', cursor: 'pointer', fontWeight: 600 }}
               onClick={() => onNavigate('forgot-password')}
             >
               Forgot password?
             </span>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" loading={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
-            Sign In to Workspace
-          </Button>
-
-          <Button 
-            type="button" 
-            variant="secondary" 
-            size="lg" 
-            onClick={() => onNavigate('signup')}
-            style={{ 
-              width: '100%', 
-              borderColor: 'var(--bright-olive)', 
-              color: 'var(--text-primary)', 
-              fontWeight: 600,
-              backgroundColor: 'rgba(255, 255, 255, 0.05)'
-            }}
-            iconRight={ArrowRight}
+          <button
+            type="submit"
+            className="moniveo-submit-btn"
+            disabled={loading}
+            style={{ width: '100%', padding: '0.85rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
           >
-            Create New Account / Sign Up
-          </Button>
-
-          <Button 
-            type="button" 
-            variant="subtle" 
-            size="md" 
-            onClick={handleDemoQuickLogin}
-            style={{ width: '100%', border: '1px dashed var(--olive-400)', marginTop: '0.25rem' }}
-          >
-            ⚡ One-Click Instant Demo Login (Pre-Loaded Studio)
-          </Button>
+            <span>{loading ? 'Signing in...' : 'Sign In to Workspace'}</span>
+            <ChevronRight size={18} />
+          </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-          Don't have an account yet?{' '}
-          <button 
+        {/* Quick Demo Access */}
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #E2E8F0', textAlign: 'center' }}>
+          <button
             type="button"
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'var(--bright-olive)', 
-              fontWeight: 700, 
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              padding: 0,
-              fontSize: 'inherit'
-            }}
-            onClick={() => onNavigate('signup')}
+            onClick={handleDemoQuickLogin}
+            style={{ width: '100%', padding: '0.75rem', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}
           >
-            Sign up for free
+            ⚡ Quick Demo Sign-In (Marcus Vance Flagship)
           </button>
+
+          <p style={{ marginTop: '1.25rem', fontSize: '0.85rem', color: '#64748B' }}>
+            Don't have an account?{' '}
+            <span 
+              style={{ color: '#2563EB', fontWeight: 700, cursor: 'pointer' }} 
+              onClick={() => onNavigate('signup')}
+            >
+              Create free account
+            </span>
+          </p>
         </div>
       </div>
     </div>
   );
 }
-

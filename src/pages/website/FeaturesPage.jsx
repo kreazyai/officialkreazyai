@@ -13,10 +13,10 @@ import {
   Sliders, 
   Bell, 
   ArrowRight,
-  Check
+  Check,
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
 
 const FEATURE_CATEGORIES = [
   { id: 'all', label: 'All Capabilities' },
@@ -30,7 +30,7 @@ const FEATURES_LIST = [
   {
     id: 'f1',
     category: 'sales-ai',
-    title: 'AI Sales Agent',
+    title: 'AI Sales Concierge',
     icon: Bot,
     tag: 'Autonomous Revenue',
     desc: 'Understands customer taste, sizing, and preferences to recommend matching products and drive high-conversion checkouts.',
@@ -39,9 +39,9 @@ const FEATURES_LIST = [
   {
     id: 'f2',
     category: 'sales-ai',
-    title: 'AI Customer Support',
+    title: '24/7 Customer Care Agent',
     icon: Headphones,
-    tag: '24/7 Concierge',
+    tag: 'Instant Resolution',
     desc: 'Instantly answers questions regarding delivery times, fabric care, dimensions, store policies, and order statuses.',
     bullets: ['Sub-3-second responses', 'Multi-turn context memory', 'Multilingual auto-translation']
   },
@@ -75,9 +75,9 @@ const FEATURES_LIST = [
   {
     id: 'f6',
     category: 'operations',
-    title: 'Live Product Management',
+    title: 'Live Product Catalog Engine',
     icon: Boxes,
-    tag: 'Catalog Engine',
+    tag: 'Inventory Sync',
     desc: 'Centralized product index supporting SKUs, variants, prices, inventory levels, and AI product descriptions.',
     bullets: ['Real-time stock reservation', 'Variant selector', 'Shopify / WooCommerce sync']
   },
@@ -102,38 +102,11 @@ const FEATURES_LIST = [
   {
     id: 'f9',
     category: 'governance',
-    title: 'Human Handoff & Copilot',
-    icon: Users,
-    tag: 'Team Workflow',
-    desc: 'Seamlessly transfers complex inquiries to human agents with AI draft suggestions and full context summary.',
-    bullets: ['One-click takeover', 'Agent assignment', 'Sentiment escalation alerts']
-  },
-  {
-    id: 'f10',
-    category: 'governance',
-    title: 'AI Knowledge Base Studio',
-    icon: Sliders,
-    tag: 'Custom Grounding',
-    desc: 'Train your assistant on your exact store policies, shipping guidelines, FAQs, and brand tone without coding.',
-    bullets: ['Easy policy editor', 'Document & link indexing', 'Instant sandbox preview']
-  },
-  {
-    id: 'f11',
-    category: 'operations',
-    title: 'Revenue & Speed Analytics',
-    icon: DollarSign,
-    tag: 'ROI Tracking',
-    desc: 'Quantify automated revenue, time saved, resolution rates, and top-converting social channels in real time.',
-    bullets: ['Channel breakdown', 'Resolution percentage', 'CSV / Excel exports']
-  },
-  {
-    id: 'f12',
-    category: 'governance',
-    title: 'Safety Guardrails & Approvals',
+    title: 'Deterministic Guardrails',
     icon: ShieldCheck,
-    tag: 'Brand Protection',
-    desc: 'Enforce confidence thresholds, banned phrases, and mandatory supervisor approval for refunds or high discounts.',
-    bullets: ['Confidence score filters', 'Refund thresholds', 'Full audit trail']
+    tag: 'Zero Hallucinations',
+    desc: 'Strict policy constraints prevent the AI from quoting unapproved discounts, inventing fake policies, or damaging brand trust.',
+    bullets: ['Configurable discount caps', 'Banned phrase filters', 'Automatic sentiment escalations']
   }
 ];
 
@@ -145,55 +118,63 @@ export function FeaturesPage({ onNavigate }) {
     : FEATURES_LIST.filter(f => f.category === selectedCategory);
 
   return (
-    <div style={{ padding: 'var(--space-12) 0 var(--space-20) 0' }}>
+    <div className="home-page-root" style={{ padding: '3.5rem 0 6rem 0' }}>
       <div className="container">
         {/* Header */}
-        <div className="section-header">
-          <span className="eyebrow">Platform Capabilities</span>
-          <h1>Comprehensive tools for automated commerce</h1>
-          <p>
-            Explore every component engineered to automate conversations, drive retail sales, 
-            and streamline operations across your digital channels.
+        <div className="section-header-centered" style={{ marginBottom: '3.5rem' }}>
+          <div className="section-eyebrow-pill">
+            <span>PLATFORM CAPABILITIES</span>
+          </div>
+          <h1 className="section-title-large">
+            Every capability your business needs to automate
+          </h1>
+          <p className="section-subtitle-clean">
+            Explore the comprehensive suite of autonomous agents, official channel integrations, and commerce workflows.
           </p>
+
+          {/* Filter Pills */}
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
+            {FEATURE_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`prompt-suggestion-pill ${selectedCategory === cat.id ? 'active' : ''}`}
+                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: 'var(--space-10)' }}>
-          {FEATURE_CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`btn btn-sm ${selectedCategory === cat.id ? 'btn-primary' : 'btn-secondary'}`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Features Grid */}
-        <div className="features-grid">
-          {filteredFeatures.map(item => {
-            const Icon = item.icon;
+        {/* Feature Cards Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', marginBottom: '5rem' }}>
+          {filteredFeatures.map(feat => {
+            const Icon = feat.icon;
             return (
-              <div key={item.id} className="feature-card">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <div className="feature-icon-box">
-                    <Icon size={20} />
+              <div key={feat.id} className="winning-plan-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={20} color="#2563EB" />
                   </div>
-                  <Badge variant="olive">{item.tag}</Badge>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '9999px', background: '#F1F5F9', color: '#2563EB' }}>
+                    {feat.tag}
+                  </span>
                 </div>
-                
-                <h3 style={{ fontSize: '1.15rem' }}>{item.title}</h3>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  {item.desc}
+
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
+                  {feat.title}
+                </h3>
+                <p style={{ fontSize: '0.885rem', lineHeight: 1.6, color: '#475569', marginBottom: '1.25rem', minHeight: '42px' }}>
+                  {feat.desc}
                 </p>
 
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)' }}>
-                  {item.bullets.map((b, idx) => (
-                    <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      <Check size={14} color="var(--olive-700)" />
-                      {b}
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid #F1F5F9', paddingTop: '1rem', marginTop: 'auto' }}>
+                  {feat.bullets.map((b, i) => (
+                    <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.825rem', color: '#334155' }}>
+                      <Check size={14} color="#2563EB" />
+                      <span>{b}</span>
                     </li>
                   ))}
                 </ul>
@@ -202,19 +183,30 @@ export function FeaturesPage({ onNavigate }) {
           })}
         </div>
 
-        {/* CTA Bar */}
-        <div style={{ marginTop: 'var(--space-16)', textAlign: 'center', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-10)' }}>
-          <h3 style={{ marginBottom: '0.5rem' }}>Need custom enterprise channel orchestration?</h3>
-          <p style={{ maxWidth: '500px', margin: '0 auto 1.5rem auto', fontSize: '0.925rem' }}>
-            We support high-volume retailers with custom ERP connectors, dedicated WhatsApp numbers, and enterprise SLAs.
+        {/* CTA Banner */}
+        <div style={{ background: '#080D1A', color: '#FFFFFF', borderRadius: '24px', padding: '3.5rem', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '1rem' }}>
+            Experience the Full Platform in Action
+          </h2>
+          <p style={{ color: '#94A3B8', fontSize: '1.05rem', maxWidth: '600px', margin: '0 auto 2rem auto' }}>
+            Book a personalized walkthrough with our team or start with a 14-day risk-free trial.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <Button variant="primary" onClick={() => onNavigate('book-demo')}>
-              Request Custom Demo
-            </Button>
-            <Button variant="secondary" onClick={() => onNavigate('contact')}>
-              Contact Solutions Team
-            </Button>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button 
+              type="button" 
+              className="hero-get-started-btn"
+              onClick={() => onNavigate('signup')}
+            >
+              <span>Get started free</span>
+              <ChevronRight size={18} />
+            </button>
+            <button 
+              type="button" 
+              className="final-cta-secondary-btn"
+              onClick={() => onNavigate('book-demo')}
+            >
+              Book a Demo
+            </button>
           </div>
         </div>
       </div>
