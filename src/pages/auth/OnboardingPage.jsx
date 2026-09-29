@@ -125,7 +125,7 @@ export function OnboardingPage({ onNavigate, user }) {
             display: 'none', 
             marginBottom: '1rem', 
             padding: '0.75rem 1rem', 
-            backgroundColor: '#ffffff', 
+            backgroundColor: 'var(--bg-elevated)', 
             borderRadius: 'var(--radius-md)', 
             border: '1px solid var(--border-medium)', 
             alignItems: 'center', 
@@ -136,17 +136,17 @@ export function OnboardingPage({ onNavigate, user }) {
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Step {currentStep} of 7
             </div>
-            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--olive-950)' }}>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
               {STEPS[currentStep - 1]?.label}
             </div>
           </div>
           <div style={{ width: '90px', height: '6px', backgroundColor: 'var(--bg-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ width: `${(currentStep / 7) * 100}%`, height: '100%', backgroundColor: 'var(--olive-700)', transition: 'width 0.3s ease' }}></div>
+            <div style={{ width: `${(currentStep / 7) * 100}%`, height: '100%', backgroundColor: 'var(--bright-olive)', transition: 'width 0.3s ease' }}></div>
           </div>
         </div>
 
         {/* Step Content Box */}
-        <div className="card onboarding-card" style={{ backgroundColor: '#ffffff', padding: 'var(--space-8)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="card onboarding-card" style={{ backgroundColor: 'var(--bg-elevated)', padding: 'var(--space-8)', boxShadow: 'var(--shadow-md)' }}>
           {/* STEP 1: BUSINESS INFO */}
           {currentStep === 1 && (
             <div>
@@ -201,12 +201,14 @@ export function OnboardingPage({ onNavigate, user }) {
                     onClick={() => setData({ ...data, vertical: v })}
                     style={{
                       padding: '1rem',
-                      border: `2px solid ${data.vertical === v ? 'var(--olive-700)' : 'var(--border-medium)'}`,
+                      border: `2px solid ${data.vertical === v ? 'var(--brand-olive-bright)' : 'var(--border-medium)'}`,
                       borderRadius: 'var(--radius-md)',
                       cursor: 'pointer',
-                      backgroundColor: data.vertical === v ? 'var(--olive-50)' : '#ffffff',
+                      backgroundColor: data.vertical === v ? 'rgba(143, 166, 83, 0.16)' : 'var(--bg-canvas-alt)',
                       fontWeight: 600,
-                      fontSize: '0.95rem'
+                      fontSize: '0.95rem',
+                      color: data.vertical === v ? 'var(--brand-olive-soft)' : 'var(--text-primary)',
+                      transition: 'all var(--transition-fast)'
                     }}
                   >
                     {v}

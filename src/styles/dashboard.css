@@ -575,6 +575,13 @@
 /* ---------------------------------------------------------------------
    RESPONSIVE QUERIES FOR DASHBOARD
    --------------------------------------------------------------------- */
+.dashboard-split-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
 @media (max-width: 1200px) {
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -587,11 +594,18 @@
   }
 }
 
+@media (max-width: 960px) {
+  .dashboard-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 860px) {
   .app-sidebar {
     transform: translateX(-100%);
   }
-  .app-sidebar.mobile-open {
+  .app-sidebar.mobile-open,
+  .app-sidebar.open {
     transform: translateX(0);
   }
   .app-main {
@@ -603,5 +617,8 @@
   }
   .metrics-grid {
     grid-template-columns: 1fr;
+  }
+  .dashboard-content {
+    padding: var(--space-4);
   }
 }

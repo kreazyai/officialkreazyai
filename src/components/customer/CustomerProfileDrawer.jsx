@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
+import { Card } from '../common/Card';
 import { customerCrmService } from '../../services/api';
 
 export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) {
@@ -47,26 +48,13 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ justifyContent: 'flex-end', padding: 0 }}>
+    <div className="drawer-overlay" onClick={onClose} role="dialog" aria-modal="true">
       <div 
-        className="modal-content"
+        className="drawer-panel-right"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '100%',
-          maxWidth: '560px',
-          height: '100vh',
-          maxHeight: '100vh',
-          borderRadius: 0,
-          borderLeft: '1px solid var(--border-medium)',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#ffffff',
-          boxShadow: 'var(--shadow-xl)',
-          animation: 'slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}
       >
         {/* Drawer Header */}
-        <div style={{ padding: 'var(--space-5) var(--space-6)', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fafbf9' }}>
+        <div className="drawer-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <img
               src={customer.profile_image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"}
@@ -74,7 +62,7 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
               style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border-medium)' }}
             />
             <div>
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--olive-950)' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
                 {customer.full_name}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -94,11 +82,11 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
         </div>
 
         {/* Drawer Navigation Tabs */}
-        <div style={{ display: 'flex', gap: '4px', padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)', overflowX: 'auto', backgroundColor: '#ffffff' }}>
+        <div style={{ display: 'flex', gap: '4px', padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)', overflowX: 'auto', backgroundColor: 'var(--bg-card)' }}>
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'contacts', label: 'Contacts & Social' },
-            { id: 'orders', label: `Orders (${customer.total_orders})` },
+            { id: 'orders', label: `Orders (${customer.total_orders || 0})` },
             { id: 'notes', label: `Notes (${customer.notes?.length || 0})` },
             { id: 'activity', label: 'Timeline' }
           ].map(tab => (
@@ -115,50 +103,50 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
         </div>
 
         {/* Drawer Scrollable Body */}
-        <div style={{ flexGrow: 1, overflowY: 'auto', padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="drawer-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {/* Financial Metrics Strip */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>LIFETIME SPEND</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--olive-950)', marginTop: '2px' }}>
-                    ${customer.total_spent?.toFixed(2)}
+                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--bright-olive)', marginTop: '2px' }}>
+                    ${customer.total_spent?.toFixed(2) || '0.00'}
                   </div>
                 </div>
 
-                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ORDERS</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--olive-950)', marginTop: '2px' }}>
-                    {customer.total_orders}
+                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                    {customer.total_orders || 0}
                   </div>
                 </div>
 
-                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>AVG ORDER</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--olive-950)', marginTop: '2px' }}>
-                    ${customer.average_order_value?.toFixed(2)}
+                  <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                    ${customer.average_order_value?.toFixed(2) || '0.00'}
                   </div>
                 </div>
               </div>
 
               {/* Core Information Card */}
               <div className="card" style={{ padding: 'var(--space-4)', fontSize: '0.85rem' }}>
-                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--olive-950)' }}>Contact Summary</h4>
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>Contact Summary</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Mail size={14} color="var(--text-muted)" />
-                    <span>{customer.email}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{customer.email}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Phone size={14} color="var(--text-muted)" />
-                    <span>{customer.phone}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{customer.phone}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Clock size={14} color="var(--text-muted)" />
-                    <span style={{ color: 'var(--text-muted)' }}>Last active {customer.last_activity_at}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>Last active {customer.last_activity_at || 'Recently'}</span>
                   </div>
                 </div>
               </div>
@@ -166,7 +154,7 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
               {/* Segmentation Tags */}
               <div className="card" style={{ padding: 'var(--space-4)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <h4 style={{ fontSize: '0.9rem', color: 'var(--olive-950)' }}>Segments & Tags</h4>
+                  <h4 style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Segments & Tags</h4>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.75rem' }}>
                   {customer.tags?.map(t => (
@@ -178,7 +166,7 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
                     type="text"
                     className="form-input"
                     placeholder="Add custom tag (e.g. VIP Wholesale)..."
-                    style={{ height: '32px', fontSize: '0.8rem' }}
+                    style={{ height: '34px', fontSize: '0.825rem' }}
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                   />
@@ -191,9 +179,9 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
               {/* Default Address */}
               {customer.addresses && customer.addresses.length > 0 && (
                 <div className="card" style={{ padding: 'var(--space-4)', fontSize: '0.85rem' }}>
-                  <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--olive-950)' }}>Default Shipping Address</h4>
+                  <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Default Shipping Address</h4>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                    <MapPin size={16} color="var(--olive-700)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <MapPin size={16} color="var(--bright-olive)" style={{ flexShrink: 0, marginTop: '2px' }} />
                     <div>
                       {customer.addresses[0].address_line_1}<br />
                       {customer.addresses[0].city}, {customer.addresses[0].district} {customer.addresses[0].postal_code}<br />
@@ -209,12 +197,12 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
           {activeTab === 'contacts' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="card" style={{ padding: 'var(--space-4)' }}>
-                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem' }}>Verified Communication Endpoints</h4>
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>Verified Communication Endpoints</h4>
                 {customer.contacts?.map(cnt => (
-                  <div key={cnt.id} style={{ padding: '0.5rem', backgroundColor: 'var(--bg-subtle)', borderRadius: '6px', marginBottom: '0.5rem', fontSize: '0.825rem' }}>
-                    <div><strong>Email:</strong> {cnt.email}</div>
-                    <div><strong>WhatsApp Phone:</strong> {cnt.phone}</div>
-                    <div style={{ marginTop: '4px' }}>
+                  <div key={cnt.id} style={{ padding: '0.65rem', backgroundColor: 'var(--bg-canvas-alt)', border: '1px solid var(--border-subtle)', borderRadius: '6px', marginBottom: '0.5rem', fontSize: '0.825rem' }}>
+                    <div style={{ color: 'var(--text-primary)' }}><strong>Email:</strong> {cnt.email}</div>
+                    <div style={{ color: 'var(--text-primary)' }}><strong>WhatsApp Phone:</strong> {cnt.phone}</div>
+                    <div style={{ marginTop: '6px' }}>
                       <span className="badge badge-success">{cnt.verification_status}</span>
                     </div>
                   </div>
@@ -222,14 +210,14 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
               </div>
 
               <div className="card" style={{ padding: 'var(--space-4)' }}>
-                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem' }}>Linked Social Profiles</h4>
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>Linked Social Profiles</h4>
                 {customer.social_accounts?.map(soc => (
-                  <div key={soc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem', border: '1px solid var(--border-subtle)', borderRadius: '6px', marginBottom: '0.5rem' }}>
-                    <div>
+                  <div key={soc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem', border: '1px solid var(--border-subtle)', borderRadius: '6px', marginBottom: '0.5rem', backgroundColor: 'var(--bg-canvas-alt)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <Badge variant={soc.platform === 'WHATSAPP' ? 'whatsapp' : 'instagram'}>
                         {soc.platform}
                       </Badge>
-                      <strong style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>{soc.display_name}</strong>
+                      <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>{soc.display_name}</strong>
                     </div>
                     <span className="status-dot active"></span>
                   </div>
@@ -241,22 +229,22 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
           {/* TAB 3: ORDERS */}
           {activeTab === 'orders' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: '8px', fontSize: '0.85rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+              <div style={{ padding: '0.85rem', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--text-primary)' }}>
                   <span>Order #KZ-1049</span>
                   <Badge variant="success">Confirmed</Badge>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                  Artisan Linen Overshirt (Olive / L) • $89.00 • 10 mins ago via WhatsApp
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  Artisan Linen Overshirt (Olive / L) • $89.00 • Just now via WhatsApp
                 </div>
               </div>
 
-              <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: '8px', fontSize: '0.85rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+              <div style={{ padding: '0.85rem', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--text-primary)' }}>
                   <span>Order #KZ-1032</span>
                   <Badge variant="olive">Delivered</Badge>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                   Artisan Linen Overshirt (Sand / L) • $89.00 • 2 weeks ago
                 </div>
               </div>
@@ -281,12 +269,12 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {customer.notes?.map(n => (
-                  <div key={n.id} style={{ padding: '0.75rem', backgroundColor: '#fafbf9', border: '1px solid var(--border-medium)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                  <div key={n.id} style={{ padding: '0.75rem', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: '8px', fontSize: '0.85rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                      <strong>{n.author}</strong>
+                      <strong style={{ color: 'var(--text-primary)' }}>{n.author}</strong>
                       <span>{n.created_at}</span>
                     </div>
-                    <div>{n.content}</div>
+                    <div style={{ color: 'var(--text-secondary)' }}>{n.content}</div>
                   </div>
                 ))}
               </div>
@@ -298,11 +286,11 @@ export function CustomerProfileDrawer({ customer, isOpen, onClose, onRefresh }) 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {customer.activities?.map(act => (
                 <div key={act.id} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.65rem 0', borderBottom: '1px solid var(--border-subtle)', fontSize: '0.825rem' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--olive-100)', color: 'var(--olive-800)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 700, fontSize: '0.7rem' }}>
+                  <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', color: 'var(--bright-olive)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 700, fontSize: '0.7rem' }}>
                     {act.performed_by === 'AI' ? 'AI' : 'US'}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, color: 'var(--olive-950)' }}>{act.description}</div>
+                    <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{act.description}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       Source: {act.source} • {act.created_at}
                     </div>

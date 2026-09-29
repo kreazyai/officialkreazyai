@@ -10,7 +10,7 @@
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background-color: #f1f4ef;
+  background-color: var(--bg-canvas);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -24,14 +24,14 @@
    --------------------------------------------------------------------- */
 .preview-toolbar {
   height: 64px;
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   border-bottom: 1px solid var(--border-medium);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-5);
   z-index: 2010;
-  box-shadow: 0 1px 3px rgba(20, 28, 21, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   gap: var(--space-3);
 }
@@ -151,10 +151,10 @@
   left: 0;
   width: 440px;
   max-width: 95vw;
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-xl);
-  box-shadow: 0 16px 40px rgba(20, 28, 21, 0.18), 0 2px 6px rgba(20, 28, 21, 0.06);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
   z-index: 2050;
   overflow: hidden;
   animation: modalScale 0.18s cubic-bezier(0.16, 1, 0.3, 1);
@@ -166,7 +166,7 @@
 .device-popover-search {
   padding: 0.75rem 0.85rem;
   border-bottom: 1px solid var(--border-subtle);
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -176,7 +176,7 @@
 .device-search-input {
   width: 100%;
   border: 1px solid var(--border-medium);
-  background-color: var(--bg-surface);
+  background-color: var(--bg-canvas-alt);
   border-radius: var(--radius-md);
   padding: 0.45rem 2rem 0.45rem 2.2rem;
   font-size: 0.85rem;
@@ -186,9 +186,9 @@
 }
 
 .device-search-input:focus {
-  border-color: var(--olive-600);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(85, 116, 91, 0.15);
+  border-color: var(--brand-olive-bright);
+  background-color: var(--bg-surface-elevated);
+  box-shadow: 0 0 0 3px rgba(143, 166, 83, 0.2);
 }
 
 .device-search-icon {

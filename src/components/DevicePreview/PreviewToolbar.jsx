@@ -152,7 +152,7 @@ export function PreviewToolbar({
       {/* Secondary Category Navigation Strip (Desktop and Mobile scrollable) */}
       <div 
         style={{ 
-          backgroundColor: '#fafbf9', 
+          backgroundColor: 'var(--bg-canvas-alt)', 
           borderBottom: '1px solid var(--border-medium)', 
           padding: '0.4rem var(--space-5)', 
           display: 'flex', 

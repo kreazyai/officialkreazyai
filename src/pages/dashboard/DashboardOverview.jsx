@@ -129,7 +129,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
       </div>
 
       {/* Two Column Section: Live Activity Feed & Channel Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
+      <div className="dashboard-split-grid">
         
         {/* Left: AI Autonomous Activity Timeline */}
         <div className="card">
@@ -156,7 +156,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
                     padding: '0.85rem 1rem',
                     border: '1px solid var(--border-subtle)',
                     borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: 'var(--bg-canvas-alt)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'space-between',
@@ -197,7 +197,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
               padding: '2.5rem 1.5rem',
               border: '1px dashed var(--border-medium)',
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              backgroundColor: 'var(--bg-canvas-alt)',
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
@@ -209,7 +209,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(163, 230, 53, 0.1)',
+                backgroundColor: 'rgba(143, 166, 83, 0.15)',
                 color: 'var(--bright-olive)',
                 display: 'flex',
                 alignItems: 'center',
