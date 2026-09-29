@@ -15,7 +15,9 @@ import {
   Send,
   CheckCircle2,
   Cpu,
-  Layers
+  Layers,
+  Zap,
+  Activity
 } from 'lucide-react';
 
 export function HeroPlatformVisual({ onGetStarted }) {
@@ -46,9 +48,9 @@ export function HeroPlatformVisual({ onGetStarted }) {
       setSubmittedResponse({
         query: promptText,
         action: 'Autonomous workflow executed successfully',
-        time: '42ms'
+        time: '38ms'
       });
-    }, 450);
+    }, 420);
   };
 
   return (
@@ -59,28 +61,55 @@ export function HeroPlatformVisual({ onGetStarted }) {
         {/* Isometric Grid Background Ground */}
         <div className="iso-grid-mesh"></div>
 
-        {/* Floating Connecting Circuit Lines */}
+        {/* Ambient Radial Energy Glow Under Pedestal */}
+        <div className="iso-ambient-glow"></div>
+
+        {/* Floating Connecting Circuit Lines with Animated Energy Pulses */}
         <svg className="iso-circuits-svg" viewBox="0 0 700 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Main Central Hub Radial Lines */}
-          <path d="M350 210 L160 120" stroke="#BFDBFE" strokeWidth="2" strokeDasharray="4 4" className="circuit-line" />
-          <path d="M350 210 L120 220" stroke="#BFDBFE" strokeWidth="2" strokeDasharray="4 4" className="circuit-line" />
-          <path d="M350 210 L190 320" stroke="#BFDBFE" strokeWidth="2" strokeDasharray="4 4" className="circuit-line" />
-          <path d="M350 210 L540 120" stroke="#BFDBFE" strokeWidth="2" strokeDasharray="4 4" className="circuit-line" />
-          <path d="M350 210 L590 220" stroke="#BFDBFE" strokeWidth="2" strokeDasharray="4 4" className="circuit-line" />
-          <path d="M350 210 L520 320" stroke="#BFDBFE" strokeWidth="2" strokeDasharray="4 4" className="circuit-line" />
+          <defs>
+            <linearGradient id="circuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#93C5FD" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#BFDBFE" stopOpacity="0.3" />
+            </linearGradient>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* Main Central Hub Radial Flow Lines */}
+          <path d="M350 210 L160 120" stroke="url(#circuitGrad)" strokeWidth="2" strokeDasharray="5 5" className="circuit-line circuit-anim-1" />
+          <path d="M350 210 L120 220" stroke="url(#circuitGrad)" strokeWidth="2" strokeDasharray="5 5" className="circuit-line circuit-anim-2" />
+          <path d="M350 210 L190 320" stroke="url(#circuitGrad)" strokeWidth="2" strokeDasharray="5 5" className="circuit-line circuit-anim-3" />
+          <path d="M350 210 L540 120" stroke="url(#circuitGrad)" strokeWidth="2" strokeDasharray="5 5" className="circuit-line circuit-anim-4" />
+          <path d="M350 210 L590 220" stroke="url(#circuitGrad)" strokeWidth="2" strokeDasharray="5 5" className="circuit-line circuit-anim-5" />
+          <path d="M350 210 L520 320" stroke="url(#circuitGrad)" strokeWidth="2" strokeDasharray="5 5" className="circuit-line circuit-anim-6" />
 
           {/* Stepper Flow Lines */}
-          <path d="M350 160 L440 90" stroke="#93C5FD" strokeWidth="2.5" />
-          <path d="M440 90 L560 60" stroke="#93C5FD" strokeWidth="2.5" />
+          <path d="M350 160 L440 90" stroke="#60A5FA" strokeWidth="2.5" strokeDasharray="3 3" className="circuit-line-fast" />
+          <path d="M440 90 L560 60" stroke="#60A5FA" strokeWidth="2.5" strokeDasharray="3 3" className="circuit-line-fast" />
+
+          {/* Animated Energy Signal Packets */}
+          <circle cx="255" cy="165" r="3.5" fill="#2563EB" filter="url(#glow)" className="energy-dot-1" />
+          <circle cx="235" cy="215" r="3.5" fill="#2563EB" filter="url(#glow)" className="energy-dot-2" />
+          <circle cx="445" cy="165" r="3.5" fill="#2563EB" filter="url(#glow)" className="energy-dot-3" />
+          <circle cx="470" cy="215" r="3.5" fill="#2563EB" filter="url(#glow)" className="energy-dot-4" />
         </svg>
 
         {/* Central 3D Elevated Pedestal / Hub */}
         <div className="iso-central-pedestal">
           <div className="pedestal-shadow"></div>
+          
+          {/* Concentric Sonar Pulse Beacons */}
+          <div className="pedestal-sonar-ring ring-1"></div>
+          <div className="pedestal-sonar-ring ring-2"></div>
+          <div className="pedestal-sonar-ring ring-3"></div>
+
           <div className="pedestal-outer-ring">
             <div className="pedestal-inner-ring">
               <div className="pedestal-core">
-                {/* Stylized Modern Moniveo/KreazyAI Mark */}
+                {/* Stylized Modern Moniveo/KreazyAI Mark with Glow */}
                 <div className="pedestal-brand-glyph">
                   <div className="glyph-bar glyph-1"></div>
                   <div className="glyph-bar glyph-2"></div>
@@ -89,7 +118,9 @@ export function HeroPlatformVisual({ onGetStarted }) {
               </div>
             </div>
           </div>
-          <div className="pedestal-pulse-beacon"></div>
+          <div className="pedestal-status-beacon">
+            <span className="beacon-dot"></span>
+          </div>
         </div>
 
         {/* Floating Workflow Step Cards (Top Right) */}
@@ -117,7 +148,7 @@ export function HeroPlatformVisual({ onGetStarted }) {
           </div>
         </div>
 
-        {/* Floating Isometric Integration Service Nodes */}
+        {/* Floating Isometric Integration Service Nodes with Organic Animations */}
         {/* Node 1: Google Sheets (Top Left) */}
         <div className="iso-node-pill node-sheets">
           <div className="node-icon-bg sheets-bg">
@@ -167,14 +198,14 @@ export function HeroPlatformVisual({ onGetStarted }) {
         </div>
       </div>
 
-      {/* Docked AI Prompt Input Bar (Matching Image 1 & 2) */}
+      {/* Docked AI Prompt Input Bar with Shimmer Aura */}
       <div className="hero-prompt-bar-wrap">
         <form className="hero-prompt-card" onSubmit={handleSendPrompt}>
           <div className="hero-prompt-main-row">
             <input 
               type="text"
               className="hero-prompt-input"
-              placeholder="Ask anything ..."
+              placeholder="Ask anything about your business..."
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
               aria-label="Ask AI Agent prompt"
@@ -186,7 +217,7 @@ export function HeroPlatformVisual({ onGetStarted }) {
               <button 
                 type="button" 
                 className="prompt-tool-btn" 
-                title="Add attachment or data source"
+                title="Add data source"
                 onClick={() => setPromptText("Connect Shopify Catalog & Orders")}
               >
                 <Plus size={16} />
@@ -207,7 +238,7 @@ export function HeroPlatformVisual({ onGetStarted }) {
                 type="button" 
                 className="prompt-tool-btn mic-btn" 
                 title="Voice input"
-                onClick={() => setPromptText("Voice prompt recorded: Check customer returns")}
+                onClick={() => setPromptText("Voice prompt: Check today's sales and dispatch")}
               >
                 <Mic size={16} />
               </button>
