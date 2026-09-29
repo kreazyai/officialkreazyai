@@ -145,8 +145,8 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
       </div>
 
       {customers.length > 0 ? (
-        <div className="table-container">
-          <table className="data-table">
+        <div className="table-container smooth-scroll-x" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table className="data-table" style={{ minWidth: '760px' }}>
             <thead>
               <tr>
                 <th>Customer</th>
@@ -166,7 +166,7 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <img
-                        src={c.profile_image}
+                        src={c.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.full_name || 'Customer')}&background=182018&color=a3e635`}
                         alt={c.full_name}
                         style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
                       />
@@ -178,24 +178,24 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
                   </td>
                   <td>
                     <Badge variant={c.preferred_channel === 'WHATSAPP' ? 'whatsapp' : c.preferred_channel === 'INSTAGRAM' ? 'instagram' : 'olive'}>
-                      {c.preferred_channel}
+                      {c.preferred_channel || 'DIRECT'}
                     </Badge>
                   </td>
                   <td>
                     <span className={`badge ${c.customer_type === 'VIP' ? 'badge-olive' : 'badge-default'}`}>
-                      {c.customer_type}
+                      {c.customer_type || 'ACTIVE'}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 600 }}>{c.total_orders} orders</td>
+                  <td style={{ fontWeight: 600 }}>{c.total_orders || 0} orders</td>
                   <td style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>
-                    ${c.total_spent?.toFixed(2)}
+                    ${(Number(c.total_spent || 0)).toFixed(2)}
                   </td>
                   <td style={{ fontSize: '0.85rem' }}>
-                    ${c.average_order_value?.toFixed(2)}
+                    ${(Number(c.average_order_value || 0)).toFixed(2)}
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {c.tags?.map(t => (
+                      {(c.tags || []).map(t => (
                         <span key={t} className="badge badge-default" style={{ fontSize: '0.7rem' }}>{t}</span>
                       ))}
                     </div>

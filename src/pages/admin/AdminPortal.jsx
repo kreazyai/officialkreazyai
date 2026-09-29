@@ -1,19 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLoginPage } from './AdminLoginPage';
 import { AdminDashboard } from './AdminDashboard';
+import { apiClient } from '../../api/client';
 
 export function AdminPortal({ onNavigate }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const authStatus = localStorage.getItem('kreazy_superadmin_auth');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
+    async function verifyAdminSession() {
+      const token = apiClient.getAuthToken();
+      if (!token) {
+        setIsAuthenticated(false);
+        setChecking(false);
+        return;
+      }
+
+      try {
+        const res = await apiClient.get('/auth/me');
+        if (res && res.is_super_admin) {
+          setIsAuthenticated(true);
+          setAdminUser(res);
+        } else {
+          throw new Error('Not an administrator.');
+        }
+      } catch (err) {
+        apiClient.setAuthToken(null);
+        localStorage.removeItem('kreazy_superadmin_auth');
+        localStorage.removeItem('kreazy_superadmin_email');
+        setIsAuthenticated(false);
+      } finally {
+        setChecking(false);
+      }
     }
-    setChecking(false);
+
+    verifyAdminSession();
   }, []);
 
   const handleLoginSuccess = () => {
@@ -21,6 +43,7 @@ export function AdminPortal({ onNavigate }) {
   };
 
   const handleLogout = () => {
+    apiClient.setAuthToken(null);
     localStorage.removeItem('kreazy_superadmin_auth');
     localStorage.removeItem('kreazy_superadmin_email');
     localStorage.removeItem('kreazy_superadmin_login_at');
@@ -40,8 +63,7 @@ export function AdminPortal({ onNavigate }) {
     return <AdminLoginPage onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Logged in as Super Admin -> Render full Platform Admin Dashboard
-  const adminUser = {
+  const activeAdmin = adminUser || {
     name: "Kreazy Master Admin",
     email: "kreazyai@gmail.com",
     role: "SUPER_ADMIN",
@@ -50,7 +72,7 @@ export function AdminPortal({ onNavigate }) {
 
   return (
     <AdminDashboard
-      user={adminUser}
+      user={activeAdmin}
       onNavigate={onNavigate}
       onLogout={handleLogout}
     />

@@ -490,6 +490,7 @@
   width: 100%;
   box-shadow: var(--shadow-xl);
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   animation: modalScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;

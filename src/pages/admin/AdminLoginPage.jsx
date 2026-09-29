@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, ShieldAlert, Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { Button } from '../../components/common/Button';
-
-// Exact required credentials specified by user:
-export const ADMIN_CREDENTIALS = {
-  email: 'kreazyai@gmail.com',
-  password: '12kreazyai12@'
-};
+import { apiClient } from '../../api/client';
 
 export function AdminLoginPage({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -15,28 +10,35 @@ export function AdminLoginPage({ onLoginSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const res = await apiClient.post('/auth/admin-login', {
+        email: email.trim(),
+        password: password
+      });
+
       setLoading(false);
-      // Strict credentials check
-      if (email.trim() === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+      if (res && res.token) {
+        apiClient.setAuthToken(res.token);
         localStorage.setItem('kreazy_superadmin_auth', 'true');
-        localStorage.setItem('kreazy_superadmin_email', ADMIN_CREDENTIALS.email);
+        localStorage.setItem('kreazy_superadmin_email', res.user?.email || email.trim());
         localStorage.setItem('kreazy_superadmin_login_at', new Date().toISOString());
         onLoginSuccess();
       } else {
-        setError('Access Denied: Invalid administrative credentials. Security alert logged.');
+        throw new Error('Authentication failed.');
       }
-    }, 500);
+    } catch (err) {
+      setLoading(false);
+      setError(err.message || 'Access Denied: Invalid administrative credentials.');
+    }
   };
 
   const handleQuickFill = () => {
-    setEmail(ADMIN_CREDENTIALS.email);
-    setPassword(ADMIN_CREDENTIALS.password);
+    setEmail('kreazyai@gmail.com');
   };
 
   return (

@@ -47,10 +47,12 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
 
   const filteredOrders = orders.filter(o => {
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
+    const custName = (typeof o.customer === 'object' ? o.customer?.name : o.customer) || o.customer_name || '';
+    const itemFirst = (o.items && o.items[0]?.name) || (o.items && o.items[0]?.product_name) || '';
     const matchesSearch = 
       o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.items[0]?.name.toLowerCase().includes(searchQuery.toLowerCase());
+      custName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      itemFirst.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -153,28 +155,28 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
                   filteredOrders.map(order => (
                     <tr key={order.id}>
                       <td className="mono" style={{ fontWeight: 700 }}>{order.id}</td>
-                      <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{order.date}</td>
+                      <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{order.date || order.createdAt}</td>
                       <td>
-                        <div style={{ fontWeight: 600 }}>{order.customer.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{order.customer.phone}</div>
+                        <div style={{ fontWeight: 600 }}>{order.customer?.name || order.customer_name || 'Customer'}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{order.customer?.phone || order.customer_phone || order.email || ''}</div>
                       </td>
                       <td>
-                        <Badge variant={order.customer.channel === 'whatsapp' ? 'whatsapp' : order.customer.channel === 'instagram' ? 'instagram' : 'facebook'}>
-                          {order.customer.channel}
+                        <Badge variant={(order.customer?.channel || order.channel) === 'whatsapp' ? 'whatsapp' : (order.customer?.channel || order.channel) === 'instagram' ? 'instagram' : 'facebook'}>
+                          {order.customer?.channel || order.channel || 'direct'}
                         </Badge>
                       </td>
                       <td>
-                        <div style={{ fontWeight: 500 }}>{order.items[0]?.name}</div>
-                        {order.items.length > 1 && (
+                        <div style={{ fontWeight: 500 }}>{(order.items && order.items[0]?.name) || (order.items && order.items[0]?.product_name) || 'Product Item'}</div>
+                        {order.items && order.items.length > 1 && (
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>+{order.items.length - 1} more items</span>
                         )}
                       </td>
                       <td style={{ fontWeight: 700, color: 'var(--bright-olive)' }}>
-                        ${order.totalAmount.toFixed(2)}
+                        ${(Number(order.totalAmount ?? order.total ?? 0)).toFixed(2)}
                       </td>
                       <td>{getStatusBadge(order.status)}</td>
                       <td>
-                        <span className="badge badge-success">{order.paymentStatus.toUpperCase()}</span>
+                        <span className="badge badge-success">{(order.paymentStatus || order.paymentMethod || 'PAID').toUpperCase()}</span>
                       </td>
                       <td>
                         <Button
@@ -297,7 +299,9 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)' }}>
               <div>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Channel:</span>{' '}
-                <Badge variant={selectedOrder.customer.channel}>{selectedOrder.customer.channel.toUpperCase()}</Badge>
+                <Badge variant={selectedOrder.customer?.channel || selectedOrder.channel || 'direct'}>
+                  {(selectedOrder.customer?.channel || selectedOrder.channel || 'DIRECT').toUpperCase()}
+                </Badge>
               </div>
               <div>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Status:</span>{' '}
@@ -305,18 +309,18 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
               </div>
               <div>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Payment:</span>{' '}
-                <span className="badge badge-success">{selectedOrder.paymentStatus.toUpperCase()}</span>
+                <span className="badge badge-success">{(selectedOrder.paymentStatus || selectedOrder.paymentMethod || 'PAID').toUpperCase()}</span>
               </div>
             </div>
 
             {/* Customer Details */}
             <div>
               <h4 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>Customer Information</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
-                <div><strong>Name:</strong> {selectedOrder.customer.name}</div>
-                <div><strong>Phone / Contact:</strong> {selectedOrder.customer.phone}</div>
-                <div><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</div>
-                <div><strong>Order Date:</strong> {selectedOrder.date}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.85rem' }}>
+                <div><strong>Name:</strong> {selectedOrder.customer?.name || selectedOrder.customer_name || 'Customer'}</div>
+                <div><strong>Phone / Contact:</strong> {selectedOrder.customer?.phone || selectedOrder.customer_phone || selectedOrder.email || 'N/A'}</div>
+                <div><strong>Payment Method:</strong> {selectedOrder.paymentMethod || selectedOrder.paymentStatus || 'Direct Chat'}</div>
+                <div><strong>Order Date:</strong> {selectedOrder.date || selectedOrder.createdAt || 'N/A'}</div>
               </div>
             </div>
 
@@ -324,14 +328,14 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
             <div>
               <h4 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>Ordered Products</h4>
               <div style={{ border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                {selectedOrder.items.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 1rem', borderBottom: idx !== selectedOrder.items.length - 1 ? '1px solid var(--border-subtle)' : 'none', fontSize: '0.85rem' }}>
+                {(selectedOrder.items || []).map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 1rem', borderBottom: idx !== ((selectedOrder.items?.length || 0) - 1) ? '1px solid var(--border-subtle)' : 'none', fontSize: '0.85rem' }}>
                     <div>
-                      <div style={{ fontWeight: 600 }}>{item.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Qty: {item.quantity} • Unit: ${item.price.toFixed(2)}</div>
+                      <div style={{ fontWeight: 600 }}>{item.name || item.product_name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Qty: {item.quantity} • Unit: ${(Number(item.price || item.unit_price || 0)).toFixed(2)}</div>
                     </div>
                     <div style={{ fontWeight: 700 }}>
-                      ${(item.quantity * item.price).toFixed(2)}
+                      ${(Number(item.quantity || 1) * Number(item.price || item.unit_price || 0)).toFixed(2)}
                     </div>
                   </div>
                 ))}
@@ -343,7 +347,7 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginRight: '1rem' }}>Total Amount:</span>
                 <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--bright-olive)' }}>
-                  ${selectedOrder.totalAmount.toFixed(2)}
+                  ${(Number(selectedOrder.totalAmount ?? selectedOrder.total ?? 0)).toFixed(2)}
                 </span>
               </div>
             </div>
