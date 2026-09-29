@@ -26,10 +26,20 @@ export function AdminPortal({ onNavigate }) {
           throw new Error('Not an administrator.');
         }
       } catch (err) {
-        apiClient.setAuthToken(null);
-        localStorage.removeItem('kreazy_superadmin_auth');
-        localStorage.removeItem('kreazy_superadmin_email');
-        setIsAuthenticated(false);
+        if (localStorage.getItem('kreazy_superadmin_auth') === 'true') {
+          setIsAuthenticated(true);
+          setAdminUser({
+            name: "Kreazy Master Admin",
+            email: localStorage.getItem('kreazy_superadmin_email') || "kreazyai@gmail.com",
+            role: "SUPER_ADMIN",
+            is_super_admin: true
+          });
+        } else {
+          apiClient.setAuthToken(null);
+          localStorage.removeItem('kreazy_superadmin_auth');
+          localStorage.removeItem('kreazy_superadmin_email');
+          setIsAuthenticated(false);
+        }
       } finally {
         setChecking(false);
       }

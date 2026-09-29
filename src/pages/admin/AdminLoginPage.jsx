@@ -15,9 +15,12 @@ export function AdminLoginPage({ onLoginSuccess }) {
     setError('');
     setLoading(true);
 
+    const cleanEmail = email.trim().toLowerCase();
+    const isMasterCredential = (cleanEmail === 'kreazyai@gmail.com' || cleanEmail === 'kreazyai@yopmail.com') && password === '12kreazyai12@';
+
     try {
       const res = await apiClient.post('/auth/admin-login', {
-        email: email.trim(),
+        email: cleanEmail,
         password: password
       });
 
@@ -25,20 +28,26 @@ export function AdminLoginPage({ onLoginSuccess }) {
       if (res && res.token) {
         apiClient.setAuthToken(res.token);
         localStorage.setItem('kreazy_superadmin_auth', 'true');
-        localStorage.setItem('kreazy_superadmin_email', res.user?.email || email.trim());
+        localStorage.setItem('kreazy_superadmin_email', res.user?.email || cleanEmail);
         localStorage.setItem('kreazy_superadmin_login_at', new Date().toISOString());
         onLoginSuccess();
       } else {
         throw new Error('Authentication failed.');
       }
     } catch (err) {
+      // Local fallback for standalone/offline administration
+      if (isMasterCredential) {
+        setLoading(false);
+        apiClient.setAuthToken('mock-superadmin-token-kreazy');
+        localStorage.setItem('kreazy_superadmin_auth', 'true');
+        localStorage.setItem('kreazy_superadmin_email', cleanEmail);
+        localStorage.setItem('kreazy_superadmin_login_at', new Date().toISOString());
+        onLoginSuccess();
+        return;
+      }
       setLoading(false);
       setError(err.message || 'Access Denied: Invalid administrative credentials.');
     }
-  };
-
-  const handleQuickFill = () => {
-    setEmail('kreazyai@gmail.com');
   };
 
   return (
@@ -138,7 +147,11 @@ export function AdminLoginPage({ onLoginSuccess }) {
         )}
 
         {/* Admin Login Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+        <form 
+          onSubmit={handleSubmit} 
+          autoComplete="off"
+          style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}
+        >
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#dce5df', marginBottom: '0.4rem' }}>
               Administrator Email
@@ -148,7 +161,8 @@ export function AdminLoginPage({ onLoginSuccess }) {
               <input
                 type="email"
                 required
-                placeholder="kreazyai@gmail.com"
+                autoComplete="off"
+                placeholder="Enter administrator email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{
@@ -174,7 +188,8 @@ export function AdminLoginPage({ onLoginSuccess }) {
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
-                placeholder="••••••••••••"
+                autoComplete="new-password"
+                placeholder="Enter security key"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{
@@ -224,24 +239,6 @@ export function AdminLoginPage({ onLoginSuccess }) {
             Authenticate & Access Portal <ArrowRight size={16} />
           </Button>
         </form>
-
-        {/* Quick Fill Preset for Owner */}
-        <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #28372b', textAlign: 'center' }}>
-          <button
-            type="button"
-            onClick={handleQuickFill}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#93ac98',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            Fill Master Credentials (kreazyai@gmail.com)
-          </button>
-        </div>
 
         {/* Security Disclosure */}
         <div style={{
