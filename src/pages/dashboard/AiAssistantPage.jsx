@@ -1,370 +1,474 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Bot,
-  Sparkles,
   Send,
-  Sliders,
-  BookOpen,
-  ShieldCheck,
-  Zap,
-  Check,
-  Save,
+  Sparkles,
   RefreshCw,
-  AlertCircle
+  MessageCircle,
+  ShoppingBag,
+  Camera,
+  Users,
+  HelpCircle,
+  Zap
 } from 'lucide-react';
-import { Badge } from '../../components/common/Badge';
-import { Button } from '../../components/common/Button';
-import { Input, Select, Textarea } from '../../components/common/Input';
-import { aiConfigService } from '../../services/api';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   KNOWLEDGE BASE — canned smart replies for integration-related topics
+───────────────────────────────────────────────────────────────────────────── */
+const KB = [
+  {
+    patterns: ['whatsapp', 'wa ', 'waba', 'business api'],
+    reply:
+      "**WhatsApp Business Integration**\n\nTo connect WhatsApp Business to KreazyAI:\n1. Go to **Integrations** in the sidebar\n2. Click the **WhatsApp Business** card\n3. Scan the QR code with your WhatsApp app\n\nYour AI agent will then handle customer messages 24/7 automatically. Need help with a specific step?",
+  },
+  {
+    patterns: ['instagram', 'ig ', 'instagram dm', 'direct message'],
+    reply:
+      "**Instagram Direct Integration**\n\nTo connect Instagram DMs:\n1. Navigate to **Integrations → Instagram Direct**\n2. Scan the QR code with your Instagram Business account\n3. Grant the required permissions\n\nKreazyAI will then auto-reply to DMs, story mentions, and comments. Is there a specific feature you need help with?",
+  },
+  {
+    patterns: ['facebook', 'messenger', 'fb ', 'page'],
+    reply:
+      "**Facebook Messenger Integration**\n\nTo connect Messenger to your Facebook Business Page:\n1. Open **Integrations → Facebook Messenger**\n2. Scan the QR code with your Facebook app\n3. Select your Business Page to authorize\n\nAll page inbox messages will then flow through KreazyAI for AI-powered responses. Would you like to know more?",
+  },
+  {
+    patterns: ['shopify', 'shop ', 'ecommerce', 'e-commerce', 'store', 'cart', 'order'],
+    reply:
+      "**Shopify Integration**\n\nTo connect your Shopify store:\n1. Open **Integrations → Shopify Messaging**\n2. Scan the QR code with your Shopify Mobile app\n3. Authorize KreazyAI under Apps & Sales Channels\n\nThis enables automated order confirmations, shipping alerts, and cart recovery messages. Anything specific you'd like to set up?",
+  },
+  {
+    patterns: ['qr', 'qr code', 'scan', 'connect'],
+    reply:
+      "**QR Code Connection**\n\nEach integration has a unique QR code for quick connection. Here's how:\n1. Go to **Integrations** in the sidebar\n2. Select the platform you want to connect\n3. Open that platform's app on your phone\n4. Use the app's camera/link device feature to scan the QR\n\nConnections are instant and secured with OAuth 2.0. Which platform are you trying to connect?",
+  },
+  {
+    patterns: ['disconnect', 'unlink', 'remove', 'delete'],
+    reply:
+      "**Disconnecting an Integration**\n\nTo disconnect a channel:\n1. Go to **Integrations**\n2. Click on the connected channel card\n3. Scroll to the bottom and tap **Reconnect** to reset, or contact support to fully revoke access\n\nNote: Disconnecting stops all automated messages from that channel. Existing conversation history is preserved.",
+  },
+  {
+    patterns: ['not working', 'broken', 'error', 'fail', 'issue', 'problem'],
+    reply:
+      "**Troubleshooting Integration Issues**\n\nCommon fixes:\n- **QR expired**: QR codes expire after 60 seconds — refresh and try again\n- **Permission denied**: Make sure you have Admin access to the Business account\n- **Already linked**: One account can only be linked to one KreazyAI workspace at a time\n\nIf the issue persists, try disconnecting and reconnecting the channel. Still stuck? I can escalate this to our support team.",
+  },
+  {
+    patterns: ['hello', 'hi ', 'hey ', 'help', 'start', 'begin'],
+    reply:
+      "**Hello! 👋 I'm KreazyAI Assistant**\n\nI specialize in helping you set up and troubleshoot your integrations. Here's what I can help with:\n\n• 📱 **WhatsApp Business** — Connect & automate\n• 💬 **Facebook Messenger** — Page inbox automation\n• 📸 **Instagram Direct** — DM & story automation\n• 🛍️ **Shopify** — E-commerce messaging sync\n• 🔗 **QR Code setup** — Step-by-step guidance\n\nJust ask me anything about connecting your channels!",
+  },
+  {
+    patterns: ['price', 'cost', 'plan', 'billing', 'subscription'],
+    reply:
+      "**Pricing & Plans**\n\nAll integrations are included in your KreazyAI plan. There are no per-channel fees.\n\nFor detailed pricing information, visit the **Billing** section in Settings or check our Pricing page at kreazy.ai/pricing.\n\nWould you like help setting up an integration instead?",
+  },
+];
+
+const SUGGESTIONS = [
+  { icon: <MessageCircle size={14} />, text: 'How do I connect WhatsApp?' },
+  { icon: <Camera size={14} />, text: 'Set up Instagram DMs' },
+  { icon: <Users size={14} />, text: 'Facebook Messenger setup' },
+  { icon: <ShoppingBag size={14} />, text: 'Connect my Shopify store' },
+  { icon: <HelpCircle size={14} />, text: 'QR code not scanning' },
+  { icon: <Zap size={14} />, text: 'Troubleshoot an integration' },
+];
+
+function getReply(input) {
+  const lower = input.toLowerCase();
+  for (const entry of KB) {
+    if (entry.patterns.some((p) => lower.includes(p))) {
+      return entry.reply;
+    }
+  }
+  return "I'm specialized in KreazyAI integration support. I can help you connect **WhatsApp Business**, **Facebook Messenger**, **Instagram Direct**, or **Shopify** to your workspace.\n\nCould you clarify which integration you need help with? Or try one of the quick questions below.";
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MARKDOWN-LITE RENDERER — bold + newlines only
+───────────────────────────────────────────────────────────────────────────── */
+function MiniMarkdown({ text }) {
+  const parts = text.split(/(\*\*[^*]+\*\*|\n)/g);
+  return (
+    <span>
+      {parts.map((part, i) => {
+        if (part === '\n') return <br key={i} />;
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={i}>{part.slice(2, -2)}</strong>;
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </span>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   AI ASSISTANT PAGE — focused chatbot for integration support
+───────────────────────────────────────────────────────────────────────────── */
 export function AiAssistantPage() {
-  const [activeTab, setActiveTab] = useState('general'); // general | knowledge | behavior | safety
-  const [config, setConfig] = useState(null);
-  const [savedSuccess, setSavedSuccess] = useState(false);
-
-  // Interactive Live Sandbox state
-  const [sandboxMessages, setSandboxMessages] = useState([
-    { sender: 'assistant', text: 'Hello! I am your Kreazy Copilot configured for your store. Ask me anything about sizing, stock, or policies to test my responses.' }
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: 'bot',
+      text:
+        "**Hello! 👋 I'm KreazyAI Assistant**\n\nI specialize in helping you set up and troubleshoot your integrations. Here's what I can help with:\n\n• 📱 **WhatsApp Business** — Connect & automate\n• 💬 **Facebook Messenger** — Page inbox automation\n• 📸 **Instagram Direct** — DM & story automation\n• 🛍️ **Shopify** — E-commerce messaging sync\n• 🔗 **QR Code setup** — Step-by-step guidance\n\nJust ask me anything about connecting your channels!",
+      time: new Date(),
+    },
   ]);
-  const [sandboxInput, setSandboxInput] = useState('');
-  const [simulating, setSimulating] = useState(false);
+  const [input, setInput] = useState('');
+  const [thinking, setThinking] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const bottomRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    aiConfigService.getConfig().then(data => setConfig(data));
-  }, []);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, thinking]);
 
-  const handleSave = async () => {
-    if (!config) return;
-    await aiConfigService.updateConfig(activeTab, config[activeTab]);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2500);
-  };
+  const sendMessage = (text) => {
+    const trimmed = text?.trim() || input.trim();
+    if (!trimmed || thinking) return;
 
-  const handleSendTest = async (e) => {
-    e.preventDefault();
-    if (!sandboxInput.trim() || simulating) return;
+    setInput('');
+    setShowSuggestions(false);
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), sender: 'user', text: trimmed, time: new Date() },
+    ]);
 
-    const userMsg = sandboxInput;
-    setSandboxInput('');
-    setSandboxMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
-
-    setSimulating(true);
-    setTimeout(async () => {
-      const res = await aiConfigService.simulateChat(userMsg);
-      setSandboxMessages(prev => [
+    setThinking(true);
+    setTimeout(() => {
+      const reply = getReply(trimmed);
+      setMessages((prev) => [
         ...prev,
-        {
-          sender: 'assistant',
-          text: res.reply,
-          confidence: res.confidence,
-          source: res.source
-        }
+        { id: Date.now() + 1, sender: 'bot', text: reply, time: new Date() },
       ]);
-      setSimulating(false);
-    }, 400);
+      setThinking(false);
+    }, 800 + Math.random() * 600);
   };
 
-  if (!config) {
-    return <div className="dashboard-content"><p>Loading AI Studio configuration...</p></div>;
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendMessage();
+  };
+
+  const handleReset = () => {
+    setMessages([
+      {
+        id: 1,
+        sender: 'bot',
+        text: "**Hello! 👋 I'm KreazyAI Assistant**\n\nI'm here to help you connect and troubleshoot your integrations. Which platform would you like help with today?",
+        time: new Date(),
+      },
+    ]);
+    setInput('');
+    setShowSuggestions(true);
+  };
+
+  const formatTime = (date) =>
+    date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="dashboard-content">
-      <div className="page-title-row">
-        <div>
-          <h2>AI Assistant Studio & Policy Configuration</h2>
-          <p style={{ fontSize: '0.9rem' }}>Ground your AI commerce agent in your exact brand voice, products, return rules, and guardrails.</p>
+    <div
+      className="dashboard-content"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 80px)',
+        padding: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {/* ── HEADER ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem 1.5rem',
+          borderBottom: '1px solid var(--border-light)',
+          background: 'var(--bg-card)',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Bot size={20} color="#fff" />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>KreazyAI Assistant</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />
+              Online • Integration Support Specialist
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {savedSuccess && (
-            <span style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <Check size={16} /> Changes Saved Live
-            </span>
-          )}
-          <Button variant="primary" size="sm" onClick={handleSave} icon={Save}>
-            Save Active Config
-          </Button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={handleReset}
+            title="Start new conversation"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-light)',
+              borderRadius: '8px',
+              padding: '0.45rem 0.85rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              color: 'var(--text-secondary)',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-card)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-subtle)')}
+          >
+            <RefreshCw size={13} /> New Chat
+          </button>
         </div>
       </div>
 
-      <div className="ai-studio-grid">
-        {/* Left Side: Configuration Tabs & Form */}
-        <div>
-          {/* Studio Navigation Tabs */}
-          <div className="tabs-nav smooth-scroll-x" style={{ marginBottom: 'var(--space-6)', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
-            <button
-              type="button"
-              className={`tab-btn ${activeTab === 'general' ? 'active' : ''}`}
-              onClick={() => setActiveTab('general')}
-            >
-              1. General & Persona
-            </button>
-            <button
-              type="button"
-              className={`tab-btn ${activeTab === 'knowledge' ? 'active' : ''}`}
-              onClick={() => setActiveTab('knowledge')}
-            >
-              2. Store Knowledge Base
-            </button>
-            <button
-              type="button"
-              className={`tab-btn ${activeTab === 'behavior' ? 'active' : ''}`}
-              onClick={() => setActiveTab('behavior')}
-            >
-              3. Sales Behavior
-            </button>
-            <button
-              type="button"
-              className={`tab-btn ${activeTab === 'safety' ? 'active' : ''}`}
-              onClick={() => setActiveTab('safety')}
-            >
-              4. Guardrails & Safety
-            </button>
-          </div>
-
-          <div className="card" style={{ padding: 'var(--space-8)' }}>
-            {/* TAB 1: GENERAL */}
-            {activeTab === 'general' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.15rem' }}>Assistant Identity & Persona</h3>
-
-                <Input
-                  label="Assistant Display Name"
-                  value={config.general.assistantName}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    general: { ...config.general, assistantName: e.target.value }
-                  })}
-                  hint="How the AI introduces itself to shoppers on WhatsApp and Instagram."
-                />
-
-                <Select
-                  label="Conversation Tone"
-                  value={config.general.tone}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    general: { ...config.general, tone: e.target.value }
-                  })}
-                  options={[
-                    { value: 'Professional, warm, and concise', label: 'Professional, warm, and concise (Recommended)' },
-                    { value: 'Luxury & Elevated Concierge', label: 'Luxury & Elevated Concierge' },
-                    { value: 'Friendly & Casual Lifestyle', label: 'Friendly & Casual Lifestyle' },
-                    { value: 'Direct & Technical Specialist', label: 'Direct & Technical Specialist' }
-                  ]}
-                />
-
-                <Textarea
-                  label="Brand Personality Prompt Directive"
-                  rows={3}
-                  value={config.general.personality}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    general: { ...config.general, personality: e.target.value }
-                  })}
-                />
-
-                <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem' }}>
-                  🌐 <strong>Multilingual Auto-Translation:</strong> Active. The AI detects customer language (Spanish, Arabic, French, etc.) and translates automatically.
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: KNOWLEDGE BASE */}
-            {activeTab === 'knowledge' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.15rem' }}>Business Knowledge & Policies</h3>
-
-                <Textarea
-                  label="Store Description & Brand Philosophy"
-                  rows={2}
-                  value={config.knowledge.businessDescription}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    knowledge: { ...config.knowledge, businessDescription: e.target.value }
-                  })}
-                />
-
-                <Textarea
-                  label="Return & Refund Policy Grounding"
-                  rows={3}
-                  value={config.knowledge.returnPolicy}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    knowledge: { ...config.knowledge, returnPolicy: e.target.value }
-                  })}
-                />
-
-                <Textarea
-                  label="Shipping & Courier Timelines"
-                  rows={3}
-                  value={config.knowledge.shippingInfo}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    knowledge: { ...config.knowledge, shippingInfo: e.target.value }
-                  })}
-                />
-
-                <Input
-                  label="Accepted Payment Gateways"
-                  value={config.knowledge.paymentMethods}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    knowledge: { ...config.knowledge, paymentMethods: e.target.value }
-                  })}
-                />
-              </div>
-            )}
-
-            {/* TAB 3: BEHAVIOR */}
-            {activeTab === 'behavior' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.15rem' }}>Sales Behavior & Commercial Triggers</h3>
-
-                <Select
-                  label="Sales Strategy Mode"
-                  value={config.behavior.salesStrategy}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    behavior: { ...config.behavior, salesStrategy: e.target.value }
-                  })}
-                  options={[
-                    { value: 'Consultative (recommends items based on customer context)', label: 'Consultative (Context-aware recommendations)' },
-                    { value: 'Passive Assistance (Answers questions only, no upsell)', label: 'Passive Assistance (Answers questions only)' },
-                    { value: 'Proactive Promotional (Highlights bestsellers & bundles)', label: 'Proactive Promotional (Highlights bestsellers)' }
-                  ]}
-                />
-
-                <Input
-                  label="Maximum Allowed Discretionary Discount (%)"
-                  type="number"
-                  value={config.behavior.maxDiscountAllowed}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    behavior: { ...config.behavior, maxDiscountAllowed: parseInt(e.target.value, 10) }
-                  })}
-                  hint="AI can never offer discounts exceeding this threshold without supervisor sign-off."
-                />
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)' }}>
-                  <div>
-                    <strong>Autonomous Order Creation</strong>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Generate secure payment links directly in chat when customer is ready</p>
-                  </div>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={config.behavior.autoCreateOrders}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        behavior: { ...config.behavior, autoCreateOrders: e.target.checked }
-                      })}
-                    />
-                    <span className="slider"></span>
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 4: SAFETY */}
-            {activeTab === 'safety' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.15rem' }}>Guardrails & Human Escalation Triggers</h3>
-
-                <div>
-                  <label className="form-label">
-                    <span>Minimum AI Confidence Threshold</span>
-                    <span style={{ fontWeight: 700, color: 'var(--olive-900)' }}>{config.safety.confidenceThreshold}%</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="70"
-                    max="98"
-                    value={config.safety.confidenceThreshold}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      safety: { ...config.safety, confidenceThreshold: parseInt(e.target.value, 10) }
-                    })}
-                    style={{ width: '100%', accentColor: 'var(--olive-700)' }}
-                  />
-                  <small style={{ color: 'var(--text-muted)' }}>
-                    If confidence drops below {config.safety.confidenceThreshold}%, the conversation is flagged for human review.
-                  </small>
-                </div>
-
-                <div style={{ padding: '0.85rem', backgroundColor: '#fafbf9', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)' }}>
-                  <strong style={{ fontSize: '0.85rem' }}>Automated Human Handoff Conditions:</strong>
-                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.5rem', fontSize: '0.825rem' }}>
-                    {config.safety.humanHandoffConditions.map((cond, i) => (
-                      <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <Check size={14} color="var(--olive-700)" /> {cond}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Side: Interactive Live Testing Playground */}
-        <div className="ai-playground-card">
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-medium)', backgroundColor: '#fafbf9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.875rem' }}>
-              <Bot size={16} color="var(--olive-700)" />
-              <span>Interactive AI Test Sandbox</span>
-            </div>
-            <Badge variant="olive">Live Grounding</Badge>
-          </div>
-
-          {/* Sandbox Messages */}
-          <div style={{ flexGrow: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
-            {sandboxMessages.map((msg, i) => (
+      {/* ── MESSAGES ── */}
+      <div
+        style={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          padding: '1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          background: 'var(--bg-subtle)',
+        }}
+      >
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            style={{
+              display: 'flex',
+              justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+              gap: '0.65rem',
+              alignItems: 'flex-end',
+            }}
+          >
+            {/* Bot avatar */}
+            {msg.sender === 'bot' && (
               <div
-                key={i}
                 style={{
-                  alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
-                  backgroundColor: msg.sender === 'user' ? 'var(--bg-subtle)' : 'var(--olive-850)',
-                  color: msg.sender === 'user' ? 'var(--text-primary)' : '#ffffff',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '12px',
-                  borderBottomRightRadius: msg.sender === 'user' ? '2px' : '12px',
-                  borderBottomLeftRadius: msg.sender === 'assistant' ? '2px' : '12px',
-                  border: msg.sender === 'user' ? '1px solid var(--border-medium)' : 'none'
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginBottom: '18px',
                 }}
               >
-                <div>{msg.text}</div>
-                {msg.source && (
-                  <div style={{ fontSize: '0.7rem', color: 'var(--olive-200)', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '2px' }}>
-                    Attribution: {msg.source} ({msg.confidence}% confidence)
-                  </div>
-                )}
-              </div>
-            ))}
-            {simulating && (
-              <div style={{ alignSelf: 'flex-start', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                AI is thinking...
+                <Bot size={15} color="#fff" />
               </div>
             )}
-          </div>
 
-          {/* Sandbox Input */}
-          <form onSubmit={handleSendTest} style={{ padding: '0.75rem', borderTop: '1px solid var(--border-medium)', display: 'flex', gap: '0.5rem', backgroundColor: '#fafbf9' }}>
-            <input
-              type="text"
-              className="form-input"
-              style={{ height: '36px', fontSize: '0.825rem' }}
-              placeholder="Ask about returns, sizing, or coupons..."
-              value={sandboxInput}
-              onChange={(e) => setSandboxInput(e.target.value)}
-            />
-            <Button type="submit" variant="primary" size="sm" icon={Send} disabled={simulating}>
-              Test
-            </Button>
-          </form>
-        </div>
+            <div style={{ maxWidth: '75%', display: 'flex', flexDirection: 'column', gap: '3px', alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+              <div
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                  background:
+                    msg.sender === 'user'
+                      ? 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)'
+                      : 'var(--bg-card)',
+                  color: msg.sender === 'user' ? '#fff' : 'var(--text-primary)',
+                  fontSize: '0.875rem',
+                  lineHeight: 1.6,
+                  border: msg.sender === 'bot' ? '1px solid var(--border-light)' : 'none',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                }}
+              >
+                <MiniMarkdown text={msg.text} />
+              </div>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                {formatTime(msg.time)}
+              </span>
+            </div>
+          </div>
+        ))}
+
+        {/* Thinking indicator */}
+        {thinking && (
+          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'flex-end' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Bot size={15} color="#fff" />
+            </div>
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '16px 16px 16px 4px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-light)',
+                display: 'flex',
+                gap: '4px',
+                alignItems: 'center',
+              }}
+            >
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: '7px',
+                    height: '7px',
+                    borderRadius: '50%',
+                    background: 'var(--text-muted)',
+                    animation: `bounce 1.2s ${i * 0.2}s infinite`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick suggestions */}
+        {showSuggestions && messages.length <= 1 && (
+          <div style={{ marginTop: '0.5rem' }}>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem', fontWeight: 600 }}>
+              Quick questions:
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s.text}
+                  onClick={() => sendMessage(s.text)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-medium)',
+                    borderRadius: '100px',
+                    padding: '0.4rem 0.85rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'var(--olive-600)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'var(--border-medium)';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }}
+                >
+                  {s.icon} {s.text}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div ref={bottomRef} />
       </div>
+
+      {/* ── INPUT BAR ── */}
+      <div
+        style={{
+          flexShrink: 0,
+          padding: '1rem 1.5rem',
+          borderTop: '1px solid var(--border-light)',
+          background: 'var(--bg-card)',
+        }}
+      >
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}
+        >
+          <div style={{ flexGrow: 1, position: 'relative' }}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about integrations, QR codes, or connection issues..."
+              className="form-input"
+              style={{
+                width: '100%',
+                paddingRight: '3rem',
+                height: '44px',
+                fontSize: '0.875rem',
+                borderRadius: '12px',
+                boxSizing: 'border-box',
+              }}
+            />
+            <Sparkles
+              size={16}
+              color="var(--text-muted)"
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!input.trim() || thinking}
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background:
+                input.trim() && !thinking
+                  ? 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)'
+                  : 'var(--bg-subtle)',
+              border: 'none',
+              cursor: input.trim() && !thinking ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'background 0.2s',
+            }}
+          >
+            <Send size={16} color={input.trim() && !thinking ? '#fff' : 'var(--text-muted)'} />
+          </button>
+        </form>
+        <p style={{ margin: '6px 0 0', fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+          KreazyAI Assistant • Integration & Technical Support • Powered by AI
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-6px); }
+        }
+      `}</style>
     </div>
   );
 }

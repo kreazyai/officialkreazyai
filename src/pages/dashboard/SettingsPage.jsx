@@ -1,219 +1,1672 @@
-import React, { useState } from 'react';
-import { 
-  Building2, 
-  Users, 
-  Key, 
-  CreditCard, 
-  Copy, 
-  Check, 
-  ShieldCheck, 
-  Plus, 
-  Trash2,
-  ExternalLink
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  User, Building2, ShieldCheck, FileText, Users, Lock,
+  Bell, CreditCard, Key, AlertTriangle, Camera, Upload,
+  Check, X, Eye, EyeOff, Copy, Trash2, Plus, RefreshCw,
+  ExternalLink, ChevronRight, Info, CheckCircle2, Clock,
+  AlertCircle, Save, Loader2, Smartphone, Globe, Mail, Phone
 } from 'lucide-react';
+import { settingsService } from '../../services/api';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
-import { Input, Select } from '../../components/common/Input';
 
-export function SettingsPage({ user }) {
-  const [activeTab, setActiveTab] = useState('workspace'); // workspace | team | api-keys | billing
-  const [copiedKey, setCopiedKey] = useState(false);
+// ─────────────────────────────────────────────────────────────────────────────
+// INLINE TOAST
+// ─────────────────────────────────────────────────────────────────────────────
+function Toast({ message, type = 'success', onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 4000);
+    return () => clearTimeout(t);
+  }, [onClose]);
 
-  const team = [
-    { name: user?.name || 'Marcus Aurelius', email: user?.email || 'founder@kreazybrand.com', role: 'Owner', status: 'Active' },
-    { name: 'Sarah Jenkins', email: 'sarah.j@kreazybrand.com', role: 'Support Specialist', status: 'Active' },
-    { name: 'Devin Cole', email: 'devin@agencypartners.io', role: 'Catalog Manager', status: 'Active' }
-  ];
+  const colors = {
+    success: { bg: 'rgba(22,163,74,0.1)', border: 'rgba(22,163,74,0.25)', color: '#16a34a', icon: <CheckCircle2 size={16} /> },
+    error: { bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)', color: '#dc2626', icon: <AlertCircle size={16} /> },
+    info: { bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.25)', color: '#3b82f6', icon: <Info size={16} /> },
+  };
+  const c = colors[type] || colors.info;
 
-  const handleCopyKey = () => {
-    setCopiedKey(true);
-    setTimeout(() => setCopiedKey(false), 2000);
+  return (
+    <div style={{
+      position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
+      display: 'flex', alignItems: 'center', gap: '0.75rem',
+      background: 'var(--bg-card)', border: `1px solid ${c.border}`,
+      borderLeft: `4px solid ${c.color}`, borderRadius: '10px',
+      padding: '0.85rem 1.25rem', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+      minWidth: '280px', maxWidth: '400px', animation: 'slideInRight 0.3s ease',
+    }}>
+      <span style={{ color: c.color, flexShrink: 0 }}>{c.icon}</span>
+      <span style={{ fontSize: '0.875rem', color: 'var(--text-primary)', flexGrow: 1 }}>{message}</span>
+      <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0, flexShrink: 0 }}>
+        <X size={14} />
+      </button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION WRAPPER — consistent card layout for each settings section
+// ─────────────────────────────────────────────────────────────────────────────
+function SettingsSection({ title, description, children, footer }) {
+  return (
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+      <div style={{ padding: '1.5rem 1.75rem', borderBottom: '1px solid var(--border-light)' }}>
+        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>{title}</h3>
+        {description && <p style={{ margin: '4px 0 0', fontSize: '0.83rem', color: 'var(--text-muted)' }}>{description}</p>}
+      </div>
+      <div style={{ padding: '1.5rem 1.75rem' }}>{children}</div>
+      {footer && (
+        <div style={{ padding: '1rem 1.75rem', borderTop: '1px solid var(--border-light)', background: 'var(--bg-subtle)', display: 'flex', justifyContent: 'flex-end' }}>
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORM FIELD — label + input + helper + error
+// ─────────────────────────────────────────────────────────────────────────────
+function Field({ label, required, hint, error, children }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <label style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {label}
+        {required && <span style={{ color: '#dc2626', fontSize: '0.75rem' }}>*</span>}
+      </label>
+      {children}
+      {hint && !error && <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>{hint}</p>}
+      {error && <p style={{ margin: 0, fontSize: '0.75rem', color: '#dc2626' }}>{error}</p>}
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder, type = 'text', readOnly, disabled, error, suffix, ...props }) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        disabled={disabled}
+        className="form-input"
+        style={{
+          width: '100%', boxSizing: 'border-box',
+          borderColor: error ? '#dc2626' : undefined,
+          paddingRight: suffix ? '3rem' : undefined,
+          background: readOnly ? 'var(--bg-subtle)' : undefined,
+        }}
+        {...props}
+      />
+      {suffix && (
+        <div style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+          {suffix}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SelectInput({ value, onChange, options, disabled }) {
+  return (
+    <select value={value} onChange={onChange} disabled={disabled} className="form-input" style={{ width: '100%', boxSizing: 'border-box' }}>
+      <option value="">Select...</option>
+      {options.map(o => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AVATAR UPLOADER MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function AvatarUploaderModal({ currentUrl, onSave, onRemove, onClose }) {
+  const [preview, setPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+  const fileInputRef = useRef(null);
+
+  const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
+  const MAX_SIZE = 5 * 1024 * 1024;
+
+  const handleFileSelect = (file) => {
+    setError('');
+    if (!ACCEPTED.includes(file.type)) {
+      setError('Only JPG, PNG, and WebP images are accepted.');
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      setError('Image must be smaller than 5 MB.');
+      return;
+    }
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setPreview(e.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedFile) return;
+    setUploading(true);
+    setError('');
+    try {
+      const result = await settingsService.uploadAvatar(selectedFile);
+      onSave(result?.avatarUrl || preview);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
-    <div className="dashboard-content">
-      <div className="page-title-row">
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 10000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+    }} onClick={onClose}>
+      <div
+        style={{
+          background: 'var(--bg-card)', borderRadius: '16px', width: '100%', maxWidth: '480px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: '1rem' }}>
+            <Camera size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+            Change Profile Photo
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '1.5rem' }}>
+          {/* Drop zone */}
+          <div
+            onDrop={handleDrop}
+            onDragOver={e => e.preventDefault()}
+            onClick={() => !preview && fileInputRef.current?.click()}
+            style={{
+              border: `2px dashed ${preview ? 'var(--border-light)' : 'var(--border-medium)'}`,
+              borderRadius: '12px', padding: '2rem', textAlign: 'center',
+              cursor: preview ? 'default' : 'pointer',
+              background: preview ? 'transparent' : 'var(--bg-subtle)',
+              transition: 'all 0.2s',
+            }}
+          >
+            {preview ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                <img
+                  src={preview}
+                  alt="Preview"
+                  style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--border-medium)' }}
+                />
+                <button
+                  onClick={() => { setPreview(null); setSelectedFile(null); }}
+                  style={{ fontSize: '0.8rem', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Choose a different photo
+                </button>
+              </div>
+            ) : (
+              <div>
+                <Upload size={32} color="var(--text-muted)" style={{ marginBottom: '0.75rem' }} />
+                <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: '0.875rem' }}>Drop your photo here</p>
+                <p style={{ margin: '0 0 1rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>or click to browse your device</p>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>JPG, PNG, WebP • Max 5 MB</span>
+              </div>
+            )}
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            style={{ display: 'none' }}
+            onChange={e => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+          />
+
+          {error && (
+            <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <AlertCircle size={13} /> {error}
+            </p>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-light)', display: 'flex', gap: '0.75rem', justifyContent: 'space-between' }}>
+          {currentUrl && (
+            <button
+              onClick={onRemove}
+              style={{ background: 'none', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.8rem', color: '#dc2626', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <Trash2 size={13} /> Remove Photo
+            </button>
+          )}
+          <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
+            <button onClick={onClose} style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.8rem', cursor: 'pointer' }}>
+              Cancel
+            </button>
+            <button
+              onClick={!preview ? () => fileInputRef.current?.click() : handleConfirm}
+              disabled={uploading}
+              style={{
+                background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
+                color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem',
+                fontSize: '0.8rem', fontWeight: 700, cursor: uploading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: uploading ? 0.7 : 1,
+              }}
+            >
+              {uploading ? <><Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> Uploading…</> : preview ? <><Check size={13} /> Save Photo</> : <><Upload size={13} /> Choose Photo</>}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DOCUMENT UPLOADER
+// ─────────────────────────────────────────────────────────────────────────────
+function DocumentUploader({ docType, onUploaded }) {
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState('');
+  const fileInputRef = useRef(null);
+
+  const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+  const MAX_SIZE = 10 * 1024 * 1024;
+
+  const handleFile = async (file) => {
+    setError('');
+    if (!ACCEPTED.includes(file.type)) {
+      setError('Only JPG, PNG, WebP, and PDF files are accepted.');
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      setError('File must be smaller than 10 MB.');
+      return;
+    }
+
+    setUploading(true);
+    setProgress(0);
+    try {
+      const doc = await settingsService.uploadDocument(file, docType, setProgress);
+      onUploaded(doc);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
+
+  return (
+    <div>
+      <div
+        onDragEnter={() => setDragging(true)}
+        onDragLeave={() => setDragging(false)}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
+        onClick={() => fileInputRef.current?.click()}
+        style={{
+          border: `2px dashed ${dragging ? 'var(--olive-600)' : 'var(--border-medium)'}`,
+          borderRadius: '10px', padding: '1.5rem', textAlign: 'center', cursor: 'pointer',
+          background: dragging ? 'rgba(100,120,60,0.05)' : 'var(--bg-subtle)',
+          transition: 'all 0.15s',
+        }}
+      >
+        {uploading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <Loader2 size={24} color="var(--olive-700)" style={{ animation: 'spin 1s linear infinite' }} />
+            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Uploading… {progress}%</p>
+            <div style={{ width: '100%', maxWidth: '200px', height: '4px', background: 'var(--border-light)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ width: `${progress}%`, height: '100%', background: 'var(--olive-700)', transition: 'width 0.2s' }} />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <Upload size={22} color="var(--text-muted)" style={{ marginBottom: '0.5rem' }} />
+            <p style={{ margin: '0 0 4px', fontSize: '0.82rem', fontWeight: 600 }}>Drop file or click to upload</p>
+            <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--text-muted)' }}>JPG, PNG, WebP, PDF • Max 10 MB</p>
+          </div>
+        )}
+      </div>
+      <input ref={fileInputRef} type="file" accept="image/*,application/pdf" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+      {error && <p style={{ margin: '0.5rem 0 0', fontSize: '0.78rem', color: '#dc2626' }}><AlertCircle size={12} style={{ verticalAlign: 'middle' }} /> {error}</p>}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KYC STATUS BADGE
+// ─────────────────────────────────────────────────────────────────────────────
+function KYCStatusBadge({ status }) {
+  const map = {
+    NOT_STARTED: { label: 'Not Started', color: 'var(--text-muted)', bg: 'var(--bg-subtle)', border: 'var(--border-light)', icon: <Info size={13} /> },
+    IN_PROGRESS: { label: 'In Progress', color: '#d97706', bg: 'rgba(217,119,6,0.1)', border: 'rgba(217,119,6,0.25)', icon: <Clock size={13} /> },
+    UNDER_REVIEW: { label: 'Under Review', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.25)', icon: <Clock size={13} /> },
+    VERIFIED: { label: 'Verified', color: '#16a34a', bg: 'rgba(22,163,74,0.1)', border: 'rgba(22,163,74,0.25)', icon: <CheckCircle2 size={13} /> },
+    REJECTED: { label: 'Rejected', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)', icon: <AlertCircle size={13} /> },
+    NEEDS_UPDATE: { label: 'Needs Update', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)', icon: <AlertCircle size={13} /> },
+  };
+  const s = map[status] || map.NOT_STARTED;
+
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: '5px',
+      color: s.color, background: s.bg, border: `1px solid ${s.border}`,
+      borderRadius: '100px', padding: '3px 10px', fontSize: '0.78rem', fontWeight: 700,
+    }}>
+      {s.icon} {s.label}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOGGLE SWITCH
+// ─────────────────────────────────────────────────────────────────────────────
+function Toggle({ checked, onChange, disabled }) {
+  return (
+    <label className="switch" style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}>
+      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} disabled={disabled} />
+      <span className="slider" />
+    </label>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAVE BUTTON with loading state
+// ─────────────────────────────────────────────────────────────────────────────
+function SaveButton({ saving, saved, onClick, label = 'Save Changes' }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={saving}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '0.45rem',
+        background: saved ? 'rgba(22,163,74,0.1)' : 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
+        color: saved ? '#16a34a' : '#fff',
+        border: saved ? '1px solid rgba(22,163,74,0.3)' : 'none',
+        borderRadius: '8px', padding: '0.5rem 1.25rem',
+        fontSize: '0.85rem', fontWeight: 700,
+        cursor: saving ? 'not-allowed' : 'pointer',
+        transition: 'all 0.2s', opacity: saving ? 0.7 : 1,
+      }}
+    >
+      {saving ? (
+        <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Saving…</>
+      ) : saved ? (
+        <><Check size={14} /> Saved!</>
+      ) : (
+        <><Save size={14} /> {label}</>
+      )}
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION COMPONENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ProfileSection({ user, onToast }) {
+  const [form, setForm] = useState({
+    name: '', displayName: '', phone: '', dateOfBirth: '', gender: '', avatarUrl: null,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    settingsService.getProfile().then(data => {
+      setForm({ name: data.name || '', displayName: data.displayName || '', phone: data.phone || '', dateOfBirth: data.dateOfBirth || '', gender: data.gender || '', avatarUrl: data.avatarUrl || null });
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim() || form.name.trim().length < 2) e.name = 'Name must be at least 2 characters.';
+    if (form.phone && !/^\+?[\d\s\-().]{7,20}$/.test(form.phone)) e.phone = 'Enter a valid phone number.';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    try {
+      await settingsService.updateProfile(form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      onToast('Profile updated successfully.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarSave = (url) => {
+    setForm(f => ({ ...f, avatarUrl: url }));
+    setShowAvatarModal(false);
+    onToast('Profile photo updated.', 'success');
+  };
+
+  const handleAvatarRemove = async () => {
+    try {
+      await settingsService.removeAvatar();
+      setForm(f => ({ ...f, avatarUrl: null }));
+      setShowAvatarModal(false);
+      onToast('Profile photo removed.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    }
+  };
+
+  const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  if (loading) return <div style={{ padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading profile…</div>;
+
+  return (
+    <>
+      <SettingsSection
+        title="Profile Information"
+        description="Your personal details visible on your account and team workspace."
+        footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} />}
+      >
+        {/* Avatar row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-light)' }}>
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%',
+              background: form.avatarUrl ? 'transparent' : 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
+              overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '3px solid var(--border-medium)', flexShrink: 0,
+            }}>
+              {form.avatarUrl ? (
+                <img src={form.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800 }}>
+                  {form.name?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || 'K'}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => setShowAvatarModal(true)}
+              style={{
+                position: 'absolute', bottom: '-2px', right: '-2px', width: '24px', height: '24px',
+                borderRadius: '50%', background: 'var(--olive-700)', border: '2px solid var(--bg-card)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              }}
+              title="Change photo"
+            >
+              <Camera size={11} color="#fff" />
+            </button>
+          </div>
+          <div>
+            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.95rem' }}>{form.name || 'Your Name'}</p>
+            <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user?.email}</p>
+            <button
+              onClick={() => setShowAvatarModal(true)}
+              style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--olive-700)', background: 'none', border: '1px solid var(--olive-600)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}
+            >
+              Change Photo
+            </button>
+          </div>
+        </div>
+
+        {/* Form grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+          <Field label="Full Name" required error={errors.name}>
+            <TextInput value={form.name} onChange={e => set('name', e.target.value)} placeholder="Your full name" error={errors.name} />
+          </Field>
+          <Field label="Display Name" hint="How you appear in the workspace UI.">
+            <TextInput value={form.displayName} onChange={e => set('displayName', e.target.value)} placeholder="e.g. Sadat" />
+          </Field>
+          <Field label="Email Address">
+            <TextInput value={user?.email || ''} readOnly suffix={<Mail size={14} />} />
+          </Field>
+          <Field label="Phone Number" error={errors.phone} hint="Include country code. e.g. +1 555 000 0000">
+            <TextInput value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+1 555 000 0000" error={errors.phone} suffix={<Phone size={14} />} />
+          </Field>
+          <Field label="Date of Birth">
+            <TextInput type="date" value={form.dateOfBirth} onChange={e => set('dateOfBirth', e.target.value)} />
+          </Field>
+          <Field label="Gender">
+            <SelectInput value={form.gender} onChange={e => set('gender', e.target.value)} options={[
+              { value: 'male', label: 'Male' },
+              { value: 'female', label: 'Female' },
+              { value: 'non-binary', label: 'Non-binary' },
+              { value: 'prefer-not', label: 'Prefer not to say' },
+            ]} />
+          </Field>
+        </div>
+      </SettingsSection>
+
+      {showAvatarModal && (
+        <AvatarUploaderModal
+          currentUrl={form.avatarUrl}
+          onSave={handleAvatarSave}
+          onRemove={handleAvatarRemove}
+          onClose={() => setShowAvatarModal(false)}
+        />
+      )}
+    </>
+  );
+}
+
+function BusinessSection({ onToast }) {
+  const [form, setForm] = useState({
+    name: '', legalName: '', businessType: '', businessCategory: '', businessDescription: '',
+    website: '', businessEmail: '', businessPhone: '', country: '', state: '', city: '',
+    address: '', postalCode: '', baseCurrency: 'USD', timezone: 'UTC',
+    registrationNumber: '', taxId: '', tradeLicense: '', vatNumber: '',
+    dateOfIncorporation: '', countryOfRegistration: '',
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    settingsService.getBusinessProfile().then(data => {
+      setForm(f => ({ ...f, ...data }));
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await settingsService.updateBusinessProfile(form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      onToast('Business information saved.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  if (loading) return <div style={{ padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading business information…</div>;
+
+  return (
+    <>
+      <SettingsSection
+        title="General Business Information"
+        description="Your workspace display name and primary contact details."
+        footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} />}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+          <Field label="Business Name" required hint="Shown on your workspace and AI agent messages.">
+            <TextInput value={form.name} onChange={e => set('name', e.target.value)} placeholder="Kreazy Flagship Studio" />
+          </Field>
+          <Field label="Business Type">
+            <SelectInput value={form.businessType} onChange={e => set('businessType', e.target.value)} options={[
+              { value: 'sole-proprietorship', label: 'Sole Proprietorship' },
+              { value: 'partnership', label: 'Partnership' },
+              { value: 'private-company', label: 'Private Company (Ltd)' },
+              { value: 'public-company', label: 'Public Company' },
+              { value: 'other', label: 'Other' },
+            ]} />
+          </Field>
+          <Field label="Business Category">
+            <SelectInput value={form.businessCategory} onChange={e => set('businessCategory', e.target.value)} options={[
+              { value: 'retail', label: 'Retail & E-Commerce' },
+              { value: 'fashion', label: 'Fashion & Apparel' },
+              { value: 'food-beverage', label: 'Food & Beverage' },
+              { value: 'beauty', label: 'Beauty & Wellness' },
+              { value: 'electronics', label: 'Electronics' },
+              { value: 'home-decor', label: 'Home & Decor' },
+              { value: 'services', label: 'Professional Services' },
+              { value: 'other', label: 'Other' },
+            ]} />
+          </Field>
+          <Field label="Business Website">
+            <TextInput value={form.website} onChange={e => set('website', e.target.value)} placeholder="https://yourbusiness.com" suffix={<Globe size={14} />} />
+          </Field>
+          <Field label="Business Email">
+            <TextInput type="email" value={form.businessEmail} onChange={e => set('businessEmail', e.target.value)} placeholder="hello@yourbusiness.com" suffix={<Mail size={14} />} />
+          </Field>
+          <Field label="Business Phone">
+            <TextInput value={form.businessPhone} onChange={e => set('businessPhone', e.target.value)} placeholder="+1 555 000 0000" suffix={<Phone size={14} />} />
+          </Field>
+        </div>
+        <div style={{ marginTop: '1.25rem' }}>
+          <Field label="Business Description">
+            <textarea
+              value={form.businessDescription}
+              onChange={e => set('businessDescription', e.target.value)}
+              placeholder="Briefly describe what your business does..."
+              className="form-input"
+              rows={3}
+              style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+            />
+          </Field>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Business Address"
+        footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Address" />}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+          <Field label="Country">
+            <TextInput value={form.country} onChange={e => set('country', e.target.value)} placeholder="United States" />
+          </Field>
+          <Field label="State / Province">
+            <TextInput value={form.state} onChange={e => set('state', e.target.value)} placeholder="New York" />
+          </Field>
+          <Field label="City">
+            <TextInput value={form.city} onChange={e => set('city', e.target.value)} placeholder="New York City" />
+          </Field>
+          <Field label="Postal Code">
+            <TextInput value={form.postalCode} onChange={e => set('postalCode', e.target.value)} placeholder="10001" />
+          </Field>
+          <div style={{ gridColumn: '1/-1' }}>
+            <Field label="Street Address">
+              <TextInput value={form.address} onChange={e => set('address', e.target.value)} placeholder="123 Main Street, Suite 400" />
+            </Field>
+          </div>
+          <Field label="Base Currency">
+            <SelectInput value={form.baseCurrency} onChange={e => set('baseCurrency', e.target.value)} options={[
+              { value: 'USD', label: 'USD ($) — US Dollar' },
+              { value: 'EUR', label: 'EUR (€) — Euro' },
+              { value: 'GBP', label: 'GBP (£) — British Pound' },
+              { value: 'CAD', label: 'CAD ($) — Canadian Dollar' },
+              { value: 'AUD', label: 'AUD ($) — Australian Dollar' },
+              { value: 'BDT', label: 'BDT (৳) — Bangladeshi Taka' },
+              { value: 'INR', label: 'INR (₹) — Indian Rupee' },
+            ]} />
+          </Field>
+          <Field label="Time Zone">
+            <SelectInput value={form.timezone} onChange={e => set('timezone', e.target.value)} options={[
+              { value: 'UTC', label: 'UTC — Coordinated Universal Time' },
+              { value: 'America/New_York', label: 'Eastern Time (EST/EDT)' },
+              { value: 'America/Chicago', label: 'Central Time (CST/CDT)' },
+              { value: 'America/Los_Angeles', label: 'Pacific Time (PST/PDT)' },
+              { value: 'Europe/London', label: 'London (GMT/BST)' },
+              { value: 'Asia/Dhaka', label: 'Dhaka (BST +6)' },
+              { value: 'Asia/Dubai', label: 'Dubai (GST +4)' },
+            ]} />
+          </Field>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Legal & Registration Information"
+        description="Required for business verification and compliance. All fields are optional unless verification is requested."
+        footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Legal Info" />}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+          <Field label="Legal Business Name" hint="Exact name on your business registration.">
+            <TextInput value={form.legalName} onChange={e => set('legalName', e.target.value)} placeholder="Your Legal Company Name Ltd." />
+          </Field>
+          <Field label="Registration Number">
+            <TextInput value={form.registrationNumber} onChange={e => set('registrationNumber', e.target.value)} placeholder="e.g. 12345678" />
+          </Field>
+          <Field label="Tax / TIN Number">
+            <TextInput value={form.taxId} onChange={e => set('taxId', e.target.value)} placeholder="e.g. XX-XXXXXXX" />
+          </Field>
+          <Field label="VAT Number">
+            <TextInput value={form.vatNumber} onChange={e => set('vatNumber', e.target.value)} placeholder="e.g. GB123456789" />
+          </Field>
+          <Field label="Trade License Number">
+            <TextInput value={form.tradeLicense} onChange={e => set('tradeLicense', e.target.value)} placeholder="e.g. TL-2024-001" />
+          </Field>
+          <Field label="Date of Incorporation">
+            <TextInput type="date" value={form.dateOfIncorporation} onChange={e => set('dateOfIncorporation', e.target.value)} />
+          </Field>
+          <Field label="Country of Registration">
+            <TextInput value={form.countryOfRegistration} onChange={e => set('countryOfRegistration', e.target.value)} placeholder="United States" />
+          </Field>
+        </div>
+      </SettingsSection>
+    </>
+  );
+}
+
+function KYCSection({ onToast }) {
+  const [kyc, setKyc] = useState(null);
+  const [form, setForm] = useState({ fullLegalName: '', dateOfBirth: '', nationality: '', countryOfResidence: '', residentialAddress: '', phone: '' });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const loadKyc = () => {
+    setLoading(true);
+    settingsService.getKyc().then(data => {
+      setKyc(data);
+      setForm({
+        fullLegalName: data.fullLegalName || '',
+        dateOfBirth: data.dateOfBirth || '',
+        nationality: data.nationality || '',
+        countryOfResidence: data.countryOfResidence || '',
+        residentialAddress: data.residentialAddress || '',
+        phone: data.phone || '',
+      });
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
+
+  useEffect(() => { loadKyc(); }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await settingsService.updateKyc({ ...form, stepCompleted: Math.max(kyc?.stepCompleted || 0, 1) });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      onToast('KYC information saved.', 'success');
+      loadKyc();
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      await settingsService.submitKyc();
+      setShowConfirm(false);
+      onToast('Verification submitted. Our team will review your information shortly.', 'success');
+      loadKyc();
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const locked = kyc?.status === 'UNDER_REVIEW' || kyc?.status === 'VERIFIED';
+  const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  if (loading) return <div style={{ padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading verification status…</div>;
+
+  return (
+    <>
+      {/* Status Overview */}
+      <SettingsSection title="Identity & Business Verification" description="Verify your identity to unlock eligible KreazyAI features and maintain account trust.">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '8px' }}>
+              <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Verification Status</span>
+              <KYCStatusBadge status={kyc?.status || 'NOT_STARTED'} />
+            </div>
+            {kyc?.submittedAt && (
+              <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                Submitted: {new Date(kyc.submittedAt).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+
+          {/* Progress indicator */}
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {[
+              { label: 'Personal Info', done: !!kyc?.fullLegalName },
+              { label: 'Documents', done: (kyc?.documents?.length || 0) > 0 },
+              { label: 'Submitted', done: !!kyc?.submittedAt },
+            ].map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem' }}>
+                <div style={{
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  background: step.done ? '#16a34a' : 'var(--bg-subtle)',
+                  border: `1.5px solid ${step.done ? '#16a34a' : 'var(--border-medium)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {step.done && <Check size={11} color="#fff" />}
+                </div>
+                <span style={{ color: step.done ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: step.done ? 600 : 400 }}>
+                  {step.label}
+                </span>
+                {i < 2 && <ChevronRight size={12} color="var(--text-muted)" />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {kyc?.rejectionReason && (
+          <div style={{ padding: '1rem', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: '10px', marginBottom: '1.25rem' }}>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#dc2626', fontWeight: 600 }}>Action Required</p>
+            <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{kyc.rejectionReason}</p>
+          </div>
+        )}
+
+        {locked && (
+          <div style={{ padding: '0.85rem 1rem', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '10px', fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Lock size={14} color="#3b82f6" />
+            {kyc?.status === 'UNDER_REVIEW' ? 'Your information is locked while under review.' : 'Your account is verified. Contact support to update verified information.'}
+          </div>
+        )}
+      </SettingsSection>
+
+      {/* Personal Identity */}
+      <SettingsSection
+        title="Personal Identity Information"
+        description="Your personal details for identity verification. This information is private and secure."
+        footer={!locked && <SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Identity Info" />}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+          <Field label="Full Legal Name" required hint="Exactly as shown on your government ID.">
+            <TextInput value={form.fullLegalName} onChange={e => set('fullLegalName', e.target.value)} placeholder="Your Full Legal Name" disabled={locked} />
+          </Field>
+          <Field label="Date of Birth">
+            <TextInput type="date" value={form.dateOfBirth} onChange={e => set('dateOfBirth', e.target.value)} disabled={locked} />
+          </Field>
+          <Field label="Nationality">
+            <TextInput value={form.nationality} onChange={e => set('nationality', e.target.value)} placeholder="e.g. American" disabled={locked} />
+          </Field>
+          <Field label="Country of Residence">
+            <TextInput value={form.countryOfResidence} onChange={e => set('countryOfResidence', e.target.value)} placeholder="e.g. United States" disabled={locked} />
+          </Field>
+          <Field label="Phone Number">
+            <TextInput value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+1 555 000 0000" disabled={locked} />
+          </Field>
+          <div style={{ gridColumn: '1/-1' }}>
+            <Field label="Residential Address">
+              <TextInput value={form.residentialAddress} onChange={e => set('residentialAddress', e.target.value)} placeholder="123 Main St, City, Country" disabled={locked} />
+            </Field>
+          </div>
+        </div>
+      </SettingsSection>
+
+      {/* Documents */}
+      <DocumentsSection kyc={kyc} onToast={onToast} onRefresh={loadKyc} locked={locked} />
+
+      {/* Submit */}
+      {!locked && kyc?.status !== 'NOT_STARTED' && (
+        <SettingsSection title="Submit for Verification">
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+            Once submitted, your information will be reviewed by the KreazyAI team. This process typically takes 1–3 business days.
+          </p>
+          <button
+            onClick={() => setShowConfirm(true)}
+            style={{
+              background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
+              color: '#fff', border: 'none', borderRadius: '10px', padding: '0.7rem 1.5rem',
+              fontSize: '0.875rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+            }}
+          >
+            <ShieldCheck size={16} /> Submit for Verification
+          </button>
+        </SettingsSection>
+      )}
+
+      {/* Confirm dialog */}
+      {showConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: '16px', padding: '2rem', maxWidth: '420px', width: '90%', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
+            <ShieldCheck size={32} color="var(--olive-700)" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem' }}>Confirm Submission</h3>
+            <p style={{ margin: '0 0 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              You are about to submit your identity and business documents for review. Your information will be locked until the review is complete.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button onClick={() => setShowConfirm(false)} style={{ flex: 1, background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: '8px', padding: '0.6rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>Cancel</button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                style={{ flex: 2, background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.6rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+              >
+                {submitting ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Submitting…</> : <><Check size={14} /> Yes, Submit</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function DocumentsSection({ kyc, onToast, onRefresh, locked }) {
+  const [docs, setDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDocType, setSelectedDocType] = useState('national-id');
+  const [deleting, setDeleting] = useState(null);
+
+  const DOC_TYPES = [
+    { value: 'national-id', label: 'National ID Card' },
+    { value: 'passport', label: 'Passport' },
+    { value: 'driving-license', label: 'Driving License' },
+    { value: 'trade-license', label: 'Trade License' },
+    { value: 'business-registration', label: 'Business Registration Certificate' },
+    { value: 'tax-certificate', label: 'Tax / VAT Certificate' },
+    { value: 'other', label: 'Other Business Document' },
+  ];
+
+  const reviewStatusColors = {
+    PENDING: { color: 'var(--text-muted)', label: 'Under Review' },
+    VERIFIED: { color: '#16a34a', label: 'Verified' },
+    REJECTED: { color: '#dc2626', label: 'Rejected' },
+  };
+
+  useEffect(() => {
+    settingsService.getDocuments().then(d => { setDocs(d); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  const handleUploaded = (doc) => {
+    setDocs(prev => [...prev, doc]);
+    onToast('Document uploaded successfully.', 'success');
+    onRefresh?.();
+  };
+
+  const handleDelete = async (id) => {
+    setDeleting(id);
+    try {
+      await settingsService.deleteDocument(id);
+      setDocs(prev => prev.filter(d => d.id !== id));
+      onToast('Document removed.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  return (
+    <SettingsSection title="Verification Documents" description="Upload government-issued ID and business documents for identity verification.">
+      {!locked && (
+        <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'var(--bg-subtle)', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={{ fontSize: '0.83rem', fontWeight: 600 }}>Document Type</label>
+            <SelectInput value={selectedDocType} onChange={e => setSelectedDocType(e.target.value)} options={DOC_TYPES} />
+          </div>
+          <DocumentUploader docType={selectedDocType} onUploaded={handleUploaded} />
+        </div>
+      )}
+
+      {loading ? (
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Loading documents…</p>
+      ) : docs.length === 0 ? (
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No documents uploaded yet.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {docs.map(doc => {
+            const typeLabel = DOC_TYPES.find(t => t.value === doc.docType)?.label || doc.docType;
+            const rvStatus = reviewStatusColors[doc.reviewStatus] || reviewStatusColors.PENDING;
+            return (
+              <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.85rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '10px' }}>
+                <FileText size={20} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+                <div style={{ flexGrow: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.originalName}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{typeLabel} • {new Date(doc.uploadedAt).toLocaleDateString()}</div>
+                </div>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: rvStatus.color, flexShrink: 0 }}>{rvStatus.label}</span>
+                {!locked && (
+                  <button
+                    onClick={() => handleDelete(doc.id)}
+                    disabled={deleting === doc.id}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '4px', flexShrink: 0 }}
+                    title="Remove document"
+                  >
+                    {deleting === doc.id ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={14} />}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </SettingsSection>
+  );
+}
+
+function TeamSection({ user, onToast }) {
+  const [team, setTeam] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ name: '', email: '', role: 'MEMBER' });
+  const [inviting, setInviting] = useState(false);
+  const [removing, setRemoving] = useState(null);
+
+  const loadTeam = () => {
+    settingsService.getTeam().then(t => { setTeam(t); setLoading(false); }).catch(() => setLoading(false));
+  };
+
+  useEffect(() => { loadTeam(); }, []);
+
+  const handleInvite = async () => {
+    if (!inviteForm.name.trim() || !inviteForm.email.trim()) {
+      onToast('Name and email are required.', 'error');
+      return;
+    }
+    setInviting(true);
+    try {
+      await settingsService.inviteMember(inviteForm);
+      setShowInvite(false);
+      setInviteForm({ name: '', email: '', role: 'MEMBER' });
+      onToast('Invitation sent.', 'success');
+      loadTeam();
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  const handleRemove = async (id) => {
+    setRemoving(id);
+    try {
+      await settingsService.removeMember(id);
+      setTeam(prev => prev.filter(m => m.id !== id));
+      onToast('Team member removed.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setRemoving(null);
+    }
+  };
+
+  const roleColors = { Owner: '#16a34a', ADMIN: '#7c3aed', MANAGER: '#d97706', MEMBER: 'var(--text-muted)', PENDING: '#3b82f6' };
+
+  return (
+    <SettingsSection
+      title={`Team Members (${team.length})`}
+      description="Manage who has access to your KreazyAI workspace."
+      footer={(
+        <button
+          onClick={() => setShowInvite(s => !s)}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
+        >
+          <Plus size={14} /> Invite Member
+        </button>
+      )}
+    >
+      {showInvite && (
+        <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'var(--bg-subtle)', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+          <p style={{ margin: '0 0 1rem', fontWeight: 700, fontSize: '0.875rem' }}>Invite a Team Member</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
+            <Field label="Name" required>
+              <TextInput value={inviteForm.name} onChange={e => setInviteForm(f => ({ ...f, name: e.target.value }))} placeholder="Jane Smith" />
+            </Field>
+            <Field label="Email" required>
+              <TextInput type="email" value={inviteForm.email} onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))} placeholder="jane@company.com" />
+            </Field>
+            <Field label="Role">
+              <SelectInput value={inviteForm.role} onChange={e => setInviteForm(f => ({ ...f, role: e.target.value }))} options={[
+                { value: 'ADMIN', label: 'Admin' },
+                { value: 'MANAGER', label: 'Manager' },
+                { value: 'MEMBER', label: 'Member' },
+              ]} />
+            </Field>
+            <button
+              onClick={handleInvite}
+              disabled={inviting}
+              style={{ background: 'var(--olive-700)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', height: '36px' }}
+            >
+              {inviting ? 'Sending…' : 'Send Invite'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Loading team…</p>
+      ) : (
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {team.map(m => (
+                <tr key={m.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', flexShrink: 0 }}>
+                        {m.name[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{m.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{m.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span style={{ fontSize: '0.78rem', fontWeight: 700, color: roleColors[m.role] || 'var(--text-muted)' }}>{m.role}</span></td>
+                  <td>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: m.status === 'Active' || m.status === 'ACTIVE' ? '#16a34a' : '#3b82f6' }}>
+                      {m.status === 'Active' || m.status === 'ACTIVE' ? 'Active' : 'Pending'}
+                    </span>
+                  </td>
+                  <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{m.invitedAt ? new Date(m.invitedAt).toLocaleDateString() : '—'}</td>
+                  <td>
+                    {!m.isOwner && (
+                      <button
+                        onClick={() => handleRemove(m.id)}
+                        disabled={removing === m.id}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '0.78rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                      >
+                        {removing === m.id ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={12} />}
+                        Remove
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </SettingsSection>
+  );
+}
+
+function SecuritySection({ onToast }) {
+  const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [showPw, setShowPw] = useState({ curr: false, new: false, conf: false });
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const e = {};
+    if (!form.currentPassword) e.currentPassword = 'Enter your current password.';
+    if (!form.newPassword || form.newPassword.length < 8) e.newPassword = 'New password must be at least 8 characters.';
+    if (form.newPassword !== form.confirmPassword) e.confirmPassword = 'Passwords do not match.';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleChangePw = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    try {
+      await settingsService.changePassword(form.currentPassword, form.newPassword);
+      setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      onToast('Password changed successfully.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const pwStrength = (pw) => {
+    if (!pw) return { level: 0, label: '', color: '' };
+    let s = 0;
+    if (pw.length >= 8) s++;
+    if (pw.length >= 12) s++;
+    if (/[A-Z]/.test(pw)) s++;
+    if (/[0-9]/.test(pw)) s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s++;
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
+    const colors = ['', '#dc2626', '#d97706', '#ca8a04', '#16a34a', '#059669'];
+    return { level: s, label: labels[s] || '', color: colors[s] || '' };
+  };
+
+  const strength = pwStrength(form.newPassword);
+
+  return (
+    <SettingsSection
+      title="Change Password"
+      description="Use a strong, unique password to protect your account."
+      footer={<SaveButton saving={saving} saved={false} onClick={handleChangePw} label="Update Password" />}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: '480px' }}>
+        <Field label="Current Password" required error={errors.currentPassword}>
+          <TextInput
+            type={showPw.curr ? 'text' : 'password'}
+            value={form.currentPassword}
+            onChange={e => setForm(f => ({ ...f, currentPassword: e.target.value }))}
+            placeholder="Enter current password"
+            error={errors.currentPassword}
+            suffix={
+              <button onClick={() => setShowPw(s => ({ ...s, curr: !s.curr }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPw.curr ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            }
+          />
+        </Field>
+        <Field label="New Password" required error={errors.newPassword} hint="Minimum 8 characters. Use uppercase, numbers, and symbols for a stronger password.">
+          <TextInput
+            type={showPw.new ? 'text' : 'password'}
+            value={form.newPassword}
+            onChange={e => setForm(f => ({ ...f, newPassword: e.target.value }))}
+            placeholder="Enter new password"
+            error={errors.newPassword}
+            suffix={
+              <button onClick={() => setShowPw(s => ({ ...s, new: !s.new }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPw.new ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            }
+          />
+          {form.newPassword && (
+            <div style={{ display: 'flex', gap: '3px', marginTop: '6px' }}>
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength.level ? strength.color : 'var(--border-light)', transition: 'background 0.2s' }} />
+              ))}
+              <span style={{ fontSize: '0.72rem', color: strength.color, fontWeight: 700, marginLeft: '6px' }}>{strength.label}</span>
+            </div>
+          )}
+        </Field>
+        <Field label="Confirm New Password" required error={errors.confirmPassword}>
+          <TextInput
+            type={showPw.conf ? 'text' : 'password'}
+            value={form.confirmPassword}
+            onChange={e => setForm(f => ({ ...f, confirmPassword: e.target.value }))}
+            placeholder="Confirm new password"
+            error={errors.confirmPassword}
+            suffix={
+              <button onClick={() => setShowPw(s => ({ ...s, conf: !s.conf }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPw.conf ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            }
+          />
+        </Field>
+      </div>
+    </SettingsSection>
+  );
+}
+
+function NotificationsSection({ onToast }) {
+  const [prefs, setPrefs] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    settingsService.getNotificationPrefs().then(d => { setPrefs(d); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await settingsService.saveNotificationPrefs(prefs);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      onToast('Notification preferences saved.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const set = (key, val) => setPrefs(p => ({ ...p, [key]: val }));
+
+  const TOGGLES = [
+    { key: 'orderNotifications', label: 'Order Notifications', desc: 'New orders, status changes, cancellations.' },
+    { key: 'aiNotifications', label: 'AI Agent Notifications', desc: 'AI conversation updates and handoff alerts.' },
+    { key: 'automationFailures', label: 'Automation Failures', desc: 'Alerts when an automation rule fails or errors.' },
+    { key: 'integrationAlerts', label: 'Integration Alerts', desc: 'Channel disconnections, webhook failures.' },
+    { key: 'securityAlerts', label: 'Security Alerts', desc: 'Login attempts, password changes, suspicious activity.' },
+    { key: 'marketingEmails', label: 'Marketing Emails', desc: 'Product updates, tips, and KreazyAI news.' },
+  ];
+
+  if (loading) return <div style={{ padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading preferences…</div>;
+
+  return (
+    <SettingsSection
+      title="Notification Preferences"
+      description="Control which notifications you receive for your workspace."
+      footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} />}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        {TOGGLES.map((t, i) => (
+          <div
+            key={t.key}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '1rem 0', gap: '1rem',
+              borderBottom: i < TOGGLES.length - 1 ? '1px solid var(--border-light)' : 'none',
+            }}
+          >
+            <div>
+              <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>{t.label}</p>
+              <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.desc}</p>
+            </div>
+            {prefs && <Toggle checked={prefs[t.key] || false} onChange={val => set(t.key, val)} />}
+          </div>
+        ))}
+      </div>
+    </SettingsSection>
+  );
+}
+
+function BillingSection({ user }) {
+  return (
+    <SettingsSection title="Subscription & Billing" description="Manage your KreazyAI plan, billing cycle, and usage.">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', background: 'var(--bg-subtle)', borderRadius: '12px', border: '1px solid var(--border-medium)', marginBottom: '1.25rem' }}>
         <div>
-          <h2>Workspace & Organization Settings</h2>
-          <p style={{ fontSize: '0.9rem' }}>Configure team access, production API webhooks, and billing plans.</p>
+          <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '1rem' }}>{user?.plan || 'Growth Plan'}</p>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Next billing date: September 2027</p>
+        </div>
+        <span style={{ background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '100px', padding: '4px 12px', fontSize: '0.78rem', fontWeight: 700 }}>Active</span>
+      </div>
+      <div style={{ marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.83rem', marginBottom: '6px' }}>
+          <span>Conversations Used This Month</span>
+          <strong>4,890 / 5,000</strong>
+        </div>
+        <div style={{ height: '8px', background: 'var(--border-light)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '97.8%', height: '100%', background: '#d97706', borderRadius: '4px' }} />
+        </div>
+        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#d97706' }}>97.8% used — consider upgrading to avoid limits.</p>
+      </div>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button style={{ background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.6rem 1.25rem', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}>
+          Upgrade Plan
+        </button>
+        <button style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: '8px', padding: '0.6rem 1.25rem', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
+          View Invoices
+        </button>
+      </div>
+    </SettingsSection>
+  );
+}
+
+function DeveloperSection({ onToast }) {
+  const [keys, setKeys] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [label, setLabel] = useState('');
+  const [newKey, setNewKey] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  const loadKeys = () => {
+    settingsService.getApiKeys().then(k => { setKeys(k); setLoading(false); }).catch(() => setLoading(false));
+  };
+
+  useEffect(() => { loadKeys(); }, []);
+
+  const handleCreate = async () => {
+    if (!label.trim()) { onToast('Enter a label for the API key.', 'error'); return; }
+    setCreating(true);
+    try {
+      const result = await settingsService.createApiKey(label.trim());
+      setNewKey(result);
+      setLabel('');
+      loadKeys();
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleRevoke = async (id) => {
+    try {
+      await settingsService.revokeApiKey(id);
+      setKeys(prev => prev.filter(k => k.id !== id));
+      onToast('API key revoked.', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    }
+  };
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  };
+
+  return (
+    <>
+      <SettingsSection title="API Keys" description="Use API keys to authenticate custom integrations and server-to-server requests.">
+        {/* Create new key */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', alignItems: 'flex-end' }}>
+          <div style={{ flexGrow: 1 }}>
+            <Field label="Key Label">
+              <TextInput value={label} onChange={e => setLabel(e.target.value)} placeholder="e.g. Production Server, Shopify Integration" />
+            </Field>
+          </div>
+          <button
+            onClick={handleCreate}
+            disabled={creating}
+            style={{ background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))', color: '#fff', border: 'none', borderRadius: '8px', padding: '0 1.25rem', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', height: '36px', display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}
+          >
+            {creating ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Plus size={14} />}
+            Create Key
+          </button>
+        </div>
+
+        {/* Newly created key — one-time display */}
+        {newKey && (
+          <div style={{ padding: '1rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.25)', borderRadius: '10px', marginBottom: '1.25rem' }}>
+            <p style={{ margin: '0 0 8px', fontWeight: 700, fontSize: '0.85rem', color: '#16a34a' }}>
+              <CheckCircle2 size={14} style={{ verticalAlign: 'middle' }} /> Key Created — Copy Now!
+            </p>
+            <p style={{ margin: '0 0 8px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>This key will not be shown again. Store it securely.</p>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <code style={{ flexGrow: 1, fontFamily: 'monospace', fontSize: '0.8rem', background: 'var(--bg-card)', padding: '0.5rem 0.75rem', borderRadius: '6px', wordBreak: 'break-all', border: '1px solid var(--border-light)' }}>
+                {newKey.rawKey}
+              </code>
+              <button onClick={() => handleCopy(newKey.rawKey)} style={{ background: 'var(--olive-700)', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.4rem 0.75rem', fontSize: '0.8rem', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                {copied ? <Check size={13} /> : <Copy size={13} />}
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <button onClick={() => setNewKey(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '8px', textDecoration: 'underline' }}>
+              I've saved my key
+            </button>
+          </div>
+        )}
+
+        {/* Existing keys list */}
+        {loading ? (
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Loading API keys…</p>
+        ) : keys.length === 0 ? (
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No API keys created yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {keys.map(k => (
+              <div key={k.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
+                <Key size={15} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+                <div style={{ flexGrow: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{k.label}</div>
+                  <code style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{k.maskedKey}</code>
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', flexShrink: 0 }}>
+                  {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : '—'}
+                </div>
+                <button
+                  onClick={() => handleRevoke(k.id)}
+                  style={{ background: 'none', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', color: '#dc2626', fontSize: '0.75rem', fontWeight: 600, flexShrink: 0 }}
+                >
+                  Revoke
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-light)', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Lock size={13} />
+          Never expose API keys in client-side code. All API calls should be server-to-server.
+        </div>
+      </SettingsSection>
+    </>
+  );
+}
+
+function DangerZoneSection({ user, onToast }) {
+  const [confirmText, setConfirmText] = useState('');
+  const CONFIRM_PHRASE = user?.storeName || 'DELETE MY ACCOUNT';
+
+  return (
+    <SettingsSection title="Danger Zone">
+      <div style={{ padding: '1.25rem', background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.2)', borderRadius: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+          <AlertTriangle size={22} color="#dc2626" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div style={{ flexGrow: 1 }}>
+            <p style={{ margin: '0 0 4px', fontWeight: 700, color: '#dc2626', fontSize: '0.95rem' }}>Delete Account & Business Data</p>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              Permanently deletes your account, business workspace, all customer data, orders, conversations, and integrations.
+              <strong> This action cannot be undone.</strong>
+            </p>
+            <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 600 }}>
+              Type <code style={{ background: 'var(--bg-subtle)', padding: '1px 6px', borderRadius: '4px', fontSize: '0.8rem' }}>{CONFIRM_PHRASE}</code> to confirm:
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <TextInput
+                value={confirmText}
+                onChange={e => setConfirmText(e.target.value)}
+                placeholder={CONFIRM_PHRASE}
+                style={{ maxWidth: '280px' }}
+              />
+              <button
+                disabled={confirmText !== CONFIRM_PHRASE}
+                onClick={() => onToast('Account deletion request submitted. Our team will process this within 24h.', 'info')}
+                style={{
+                  background: confirmText === CONFIRM_PHRASE ? '#dc2626' : 'var(--bg-subtle)',
+                  color: confirmText === CONFIRM_PHRASE ? '#fff' : 'var(--text-muted)',
+                  border: `1px solid ${confirmText === CONFIRM_PHRASE ? '#dc2626' : 'var(--border-medium)'}`,
+                  borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.82rem', fontWeight: 700,
+                  cursor: confirmText === CONFIRM_PHRASE ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Trash2 size={13} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SettingsSection>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN SETTINGS PAGE
+// ─────────────────────────────────────────────────────────────────────────────
+const NAV_SECTIONS = [
+  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'business', label: 'Business Information', icon: Building2 },
+  { id: 'kyc', label: 'KYC & Verification', icon: ShieldCheck },
+  { id: 'team', label: 'Team & Access', icon: Users },
+  { id: 'security', label: 'Security', icon: Lock },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'billing', label: 'Billing & Subscription', icon: CreditCard },
+  { id: 'developer', label: 'Developer / API', icon: Key },
+  { id: 'danger', label: 'Danger Zone', icon: AlertTriangle },
+];
+
+export function SettingsPage({ user }) {
+  const [activeSection, setActiveSection] = useState('profile');
+  const [toast, setToast] = useState(null);
+
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type, id: Date.now() });
+  }, []);
+
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'profile': return <ProfileSection user={user} onToast={showToast} />;
+      case 'business': return <BusinessSection onToast={showToast} />;
+      case 'kyc': return <KYCSection onToast={showToast} />;
+      case 'team': return <TeamSection user={user} onToast={showToast} />;
+      case 'security': return <SecuritySection onToast={showToast} />;
+      case 'notifications': return <NotificationsSection onToast={showToast} />;
+      case 'billing': return <BillingSection user={user} />;
+      case 'developer': return <DeveloperSection onToast={showToast} />;
+      case 'danger': return <DangerZoneSection user={user} onToast={showToast} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="dashboard-content" style={{ padding: 0, display: 'flex', height: 'calc(100vh - 70px)', overflow: 'hidden' }}>
+      {/* ── Left Settings Nav ── */}
+      <div style={{
+        width: '220px', flexShrink: 0, borderRight: '1px solid var(--border-light)',
+        overflowY: 'auto', padding: '1.5rem 0', background: 'var(--bg-card)',
+      }}>
+        <div style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
+          <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Settings</p>
+        </div>
+        {NAV_SECTIONS.map(s => {
+          const Icon = s.icon;
+          const active = activeSection === s.id;
+          const isDanger = s.id === 'danger';
+          return (
+            <button
+              key={s.id}
+              onClick={() => setActiveSection(s.id)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: '0.65rem',
+                padding: '0.6rem 1.25rem', background: active ? 'rgba(100,120,60,0.1)' : 'none',
+                border: 'none', borderRight: active ? '3px solid var(--olive-700)' : '3px solid transparent',
+                textAlign: 'left', cursor: 'pointer', fontSize: '0.82rem', fontWeight: active ? 700 : 500,
+                color: isDanger ? (active ? '#dc2626' : 'rgba(220,38,38,0.7)') : (active ? 'var(--text-primary)' : 'var(--text-secondary)'),
+                transition: 'all 0.15s',
+                marginTop: isDanger ? '1.5rem' : 0,
+                borderTop: isDanger ? '1px solid var(--border-light)' : 'none',
+                paddingTop: isDanger ? '1rem' : undefined,
+              }}
+              onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--bg-subtle)'; }}
+              onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'none'; }}
+            >
+              <Icon size={15} />
+              {s.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Content Area ── */}
+      <div style={{ flexGrow: 1, overflowY: 'auto', padding: '2rem 2.5rem' }}>
+        <div style={{ maxWidth: '820px' }}>
+          {/* Section title */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ margin: '0 0 4px', fontSize: '1.25rem', fontWeight: 800 }}>
+              {NAV_SECTIONS.find(s => s.id === activeSection)?.label}
+            </h2>
+          </div>
+
+          {renderSection()}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="tabs-nav smooth-scroll-x" style={{ marginBottom: 'var(--space-6)', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'workspace' ? 'active' : ''}`}
-          onClick={() => setActiveTab('workspace')}
-        >
-          General Workspace
-        </button>
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'team' ? 'active' : ''}`}
-          onClick={() => setActiveTab('team')}
-        >
-          Team Members (3)
-        </button>
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'api-keys' ? 'active' : ''}`}
-          onClick={() => setActiveTab('api-keys')}
-        >
-          Developer APIs & Webhooks
-        </button>
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'billing' ? 'active' : ''}`}
-          onClick={() => setActiveTab('billing')}
-        >
-          Subscription & Billing
-        </button>
-      </div>
+      {/* Toast */}
+      {toast && (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-      <div className="card" style={{ maxWidth: '820px', padding: 'var(--space-8)' }}>
-        {/* TAB 1: WORKSPACE */}
-        {activeTab === 'workspace' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.15rem' }}>Workspace Details</h3>
-
-            <Input
-              label="Store Display Name"
-              defaultValue={user?.storeName || "Kreazy Flagship Studio"}
-            />
-            <Input
-              label="Primary Contact Email"
-              defaultValue={user?.email || "founder@kreazybrand.com"}
-            />
-            <Select
-              label="Store Base Currency"
-              defaultValue="USD"
-              options={[
-                { value: 'USD', label: 'USD ($) - US Dollar' },
-                { value: 'EUR', label: 'EUR (€) - Euro' },
-                { value: 'GBP', label: 'GBP (£) - British Pound' },
-                { value: 'CAD', label: 'CAD ($) - Canadian Dollar' }
-              ]}
-            />
-            <Button variant="primary" size="sm" style={{ width: 'fit-content' }}>
-              Save Workspace Changes
-            </Button>
-          </div>
-        )}
-
-        {/* TAB 2: TEAM */}
-        {activeTab === 'team' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.15rem' }}>Team Members</h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Colleagues with access to inbox, order management, and AI settings.</p>
-              </div>
-              <Button variant="primary" size="sm" icon={Plus}>
-                Invite Teammate
-              </Button>
-            </div>
-
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Member</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {team.map((m, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{m.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{m.email}</div>
-                      </td>
-                      <td><Badge variant="olive">{m.role}</Badge></td>
-                      <td><span className="badge badge-success">{m.status}</span></td>
-                      <td>
-                        {m.role !== 'Owner' && (
-                          <button type="button" className="btn btn-ghost btn-sm" style={{ color: 'var(--status-error-text)' }}>
-                            Remove
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: API KEYS & WEBHOOKS */}
-        {activeTab === 'api-keys' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div>
-              <h3 style={{ fontSize: '1.15rem', marginBottom: '0.25rem' }}>Production API Keys</h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
-                Use this secret key to authenticate custom ERP or backend server webhook integrations.
-              </p>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '4px' }}>
-                Secret Live API Key
-              </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input
-                  type="password"
-                  className="form-input"
-                  readOnly
-                  value="kz_live_sec_9941a82fbc00192841"
-                  style={{ fontFamily: 'var(--font-mono)', backgroundColor: 'var(--bg-subtle)' }}
-                />
-                <Button variant="secondary" size="md" onClick={handleCopyKey} icon={copiedKey ? Check : Copy}>
-                  {copiedKey ? 'Copied' : 'Copy Key'}
-                </Button>
-              </div>
-            </div>
-
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--olive-50)', borderRadius: 'var(--radius-md)', fontSize: '0.825rem', border: '1px solid var(--olive-100)' }}>
-              🔒 <strong>Security Warning:</strong> Never expose your secret API key in client-side applications. Webhooks should verify HMAC signatures.
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: BILLING */}
-        {activeTab === 'billing' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h3 style={{ fontSize: '1.15rem' }}>Current Subscription Plan</h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Billed annually. Next billing date: September 2027.</p>
-              </div>
-              <Badge variant="olive">Growth Plan ($119/mo)</Badge>
-            </div>
-
-            <div style={{ padding: '1rem', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--bg-subtle)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-                <span>Conversations Used This Month:</span>
-                <strong>4,890 / 5,000 (97.8%)</strong>
-              </div>
-              <div style={{ width: '100%', height: '8px', backgroundColor: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: '97.8%', height: '100%', backgroundColor: 'var(--olive-700)', borderRadius: '4px' }}></div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="primary" size="sm">
-                Upgrade to Scale & Enterprise Plan
-              </Button>
-              <Button variant="secondary" size="sm">
-                View Invoices & Receipts
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(120%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+          .settings-nav { display: none; }
+        }
+      `}</style>
     </div>
   );
 }

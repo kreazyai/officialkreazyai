@@ -8,8 +8,11 @@ import { aiController } from '../controllers/aiController.js';
 import { publicLeadController } from '../controllers/publicLeadController.js';
 import { adminController } from '../controllers/adminController.js';
 import { metaWebhookController } from '../controllers/metaWebhookController.js';
+import { settingsController } from '../controllers/settingsController.js';
 import { authenticate } from '../middleware/auth.js';
 import { requireSuperAdmin } from '../middleware/rbac.js';
+import { avatarUpload, documentUpload, handleUploadError } from '../middleware/upload.js';
+
 
 export const apiRouter = Router();
 
@@ -107,3 +110,46 @@ adminRouter.patch('/leads/:id/status', adminController.updateLeadStatus);
 adminRouter.delete('/leads/:id', adminController.deleteLead);
 adminRouter.get('/audit-logs', adminController.getAuditLogs);
 apiRouter.use('/admin', adminRouter);
+
+// =====================================================================
+// 10. SETTINGS ROUTES — User Profile, Business, KYC, Team, Notifications
+// =====================================================================
+const settingsRouter = Router();
+settingsRouter.use(authenticate);
+
+// User profile
+settingsRouter.get('/profile', settingsController.getProfile);
+settingsRouter.patch('/profile', settingsController.updateProfile);
+settingsRouter.patch('/password', settingsController.changePassword);
+settingsRouter.post('/avatar', avatarUpload.single('avatar'), settingsController.uploadAvatar, handleUploadError);
+settingsRouter.delete('/avatar', settingsController.removeAvatar);
+
+// Business profile
+settingsRouter.get('/business', settingsController.getBusinessProfile);
+settingsRouter.patch('/business', settingsController.updateBusinessProfile);
+
+// KYC
+settingsRouter.get('/kyc', settingsController.getKyc);
+settingsRouter.post('/kyc', settingsController.updateKyc);
+settingsRouter.post('/kyc/submit', settingsController.submitKyc);
+settingsRouter.get('/kyc/documents', settingsController.getDocuments);
+settingsRouter.post('/kyc/documents', documentUpload.single('document'), settingsController.uploadDocument, handleUploadError);
+settingsRouter.get('/kyc/documents/:id/view', settingsController.viewDocument);
+settingsRouter.delete('/kyc/documents/:id', settingsController.deleteDocument);
+
+// Team management
+settingsRouter.get('/team', settingsController.getTeam);
+settingsRouter.post('/team', settingsController.inviteMember);
+settingsRouter.delete('/team/:id', settingsController.removeMember);
+
+// Notification preferences
+settingsRouter.get('/notifications', settingsController.getNotificationPrefs);
+settingsRouter.patch('/notifications', settingsController.updateNotificationPrefs);
+
+// API key management
+settingsRouter.get('/api-keys', settingsController.getApiKeys);
+settingsRouter.post('/api-keys', settingsController.createApiKey);
+settingsRouter.delete('/api-keys/:id', settingsController.revokeApiKey);
+
+apiRouter.use('/settings', settingsRouter);
+

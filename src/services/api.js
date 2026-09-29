@@ -1358,3 +1358,224 @@ export const authService = {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SETTINGS SERVICE — All settings persistence via real backend API
+// NO localStorage for settings data.
+// ─────────────────────────────────────────────────────────────────────────────
+export const settingsService = {
+
+  // ── User Profile ──────────────────────────────────────────────────────────
+  async getProfile() {
+    try {
+      return await apiClient.get('/settings/profile');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load profile.');
+    }
+  },
+
+  async updateProfile(data) {
+    try {
+      return await apiClient.patch('/settings/profile', data);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to save profile changes.');
+    }
+  },
+
+  async changePassword(currentPassword, newPassword) {
+    try {
+      return await apiClient.patch('/settings/password', { currentPassword, newPassword });
+    } catch (err) {
+      throw new Error(err.message || 'Unable to change password.');
+    }
+  },
+
+  async uploadAvatar(file) {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const token = apiClient.getAuthToken();
+      const res = await fetch('/api/v1/settings/avatar', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(json?.error?.message || 'Avatar upload failed.');
+      return json?.data;
+    } catch (err) {
+      throw new Error(err.message || 'Unable to upload profile photo.');
+    }
+  },
+
+  async removeAvatar() {
+    try {
+      return await apiClient.delete('/settings/avatar');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to remove profile photo.');
+    }
+  },
+
+  // ── Business Profile ──────────────────────────────────────────────────────
+  async getBusinessProfile() {
+    try {
+      return await apiClient.get('/settings/business');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load business profile.');
+    }
+  },
+
+  async updateBusinessProfile(data) {
+    try {
+      return await apiClient.patch('/settings/business', data);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to save business information.');
+    }
+  },
+
+  // ── KYC ──────────────────────────────────────────────────────────────────
+  async getKyc() {
+    try {
+      return await apiClient.get('/settings/kyc');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load KYC information.');
+    }
+  },
+
+  async updateKyc(data) {
+    try {
+      return await apiClient.post('/settings/kyc', data);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to save KYC information.');
+    }
+  },
+
+  async submitKyc() {
+    try {
+      return await apiClient.post('/settings/kyc/submit', {});
+    } catch (err) {
+      throw new Error(err.message || 'Unable to submit verification.');
+    }
+  },
+
+  // ── KYC Documents ─────────────────────────────────────────────────────────
+  async getDocuments() {
+    try {
+      return await apiClient.get('/settings/kyc/documents');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load documents.');
+    }
+  },
+
+  async uploadDocument(file, docType, onProgress) {
+    try {
+      const formData = new FormData();
+      formData.append('document', file);
+      formData.append('docType', docType);
+      const token = apiClient.getAuthToken();
+
+      return await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/settings/kyc/documents');
+        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        xhr.upload.onprogress = (e) => {
+          if (onProgress && e.lengthComputable) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        };
+        xhr.onload = () => {
+          try {
+            const json = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(json?.data || json);
+            } else {
+              reject(new Error(json?.error?.message || 'Document upload failed.'));
+            }
+          } catch {
+            reject(new Error('Invalid server response.'));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Network error during upload.'));
+        xhr.send(formData);
+      });
+    } catch (err) {
+      throw new Error(err.message || 'Unable to upload document.');
+    }
+  },
+
+  async deleteDocument(id) {
+    try {
+      return await apiClient.delete(`/settings/kyc/documents/${id}`);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to delete document.');
+    }
+  },
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+  async getNotificationPrefs() {
+    try {
+      return await apiClient.get('/settings/notifications');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load notification preferences.');
+    }
+  },
+
+  async saveNotificationPrefs(data) {
+    try {
+      return await apiClient.patch('/settings/notifications', data);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to save notification preferences.');
+    }
+  },
+
+  // ── Team ──────────────────────────────────────────────────────────────────
+  async getTeam() {
+    try {
+      return await apiClient.get('/settings/team');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load team members.');
+    }
+  },
+
+  async inviteMember(data) {
+    try {
+      return await apiClient.post('/settings/team', data);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to send invitation.');
+    }
+  },
+
+  async removeMember(id) {
+    try {
+      return await apiClient.delete(`/settings/team/${id}`);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to remove team member.');
+    }
+  },
+
+  // ── API Keys ──────────────────────────────────────────────────────────────
+  async getApiKeys() {
+    try {
+      return await apiClient.get('/settings/api-keys');
+    } catch (err) {
+      throw new Error(err.message || 'Unable to load API keys.');
+    }
+  },
+
+  async createApiKey(label) {
+    try {
+      return await apiClient.post('/settings/api-keys', { label });
+    } catch (err) {
+      throw new Error(err.message || 'Unable to create API key.');
+    }
+  },
+
+  async revokeApiKey(id) {
+    try {
+      return await apiClient.delete(`/settings/api-keys/${id}`);
+    } catch (err) {
+      throw new Error(err.message || 'Unable to revoke API key.');
+    }
+  },
+};
+
+

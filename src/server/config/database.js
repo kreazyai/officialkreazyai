@@ -251,7 +251,149 @@ export function runMigrations(db) {
     CREATE INDEX IF NOT EXISTS idx_audit_business ON audit_logs(business_id);
   `);
 
+  // ── Phase 2 Migrations: Settings, KYC, Profile tables ──────────────────────
+  db.exec(`
+    -- 14. Extended User Profiles
+    CREATE TABLE IF NOT EXISTS user_profiles (
+      id TEXT PRIMARY KEY,
+      user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      display_name TEXT,
+      phone TEXT,
+      date_of_birth TEXT,
+      gender TEXT,
+      avatar_path TEXT,
+      avatar_url TEXT,
+      email_verified INTEGER DEFAULT 0,
+      phone_verified INTEGER DEFAULT 0,
+      last_password_changed TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 15. Extended Business Profiles
+    CREATE TABLE IF NOT EXISTS business_profiles (
+      id TEXT PRIMARY KEY,
+      business_id TEXT UNIQUE NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      legal_name TEXT,
+      business_type TEXT,
+      business_category TEXT,
+      business_description TEXT,
+      website TEXT,
+      business_email TEXT,
+      business_phone TEXT,
+      country TEXT,
+      state TEXT,
+      city TEXT,
+      address TEXT,
+      postal_code TEXT,
+      base_currency TEXT DEFAULT 'USD',
+      timezone TEXT DEFAULT 'UTC',
+      registration_number TEXT,
+      tax_id TEXT,
+      trade_license TEXT,
+      vat_number TEXT,
+      date_of_incorporation TEXT,
+      country_of_registration TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 16. KYC Profiles (Individual Identity)
+    CREATE TABLE IF NOT EXISTS kyc_profiles (
+      id TEXT PRIMARY KEY,
+      business_id TEXT UNIQUE NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      status TEXT DEFAULT 'NOT_STARTED',
+      full_legal_name TEXT,
+      date_of_birth TEXT,
+      nationality TEXT,
+      country_of_residence TEXT,
+      residential_address TEXT,
+      phone TEXT,
+      submitted_at TEXT,
+      reviewed_at TEXT,
+      rejection_reason TEXT,
+      step_completed INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 17. KYC Documents
+    CREATE TABLE IF NOT EXISTS kyc_documents (
+      id TEXT PRIMARY KEY,
+      business_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      doc_type TEXT NOT NULL,
+      original_name TEXT,
+      stored_name TEXT NOT NULL,
+      stored_path TEXT NOT NULL,
+      mime_type TEXT,
+      file_size INTEGER,
+      status TEXT DEFAULT 'UPLOADED',
+      review_status TEXT DEFAULT 'PENDING',
+      uploaded_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 18. KYC Submissions (track submission events)
+    CREATE TABLE IF NOT EXISTS kyc_submissions (
+      id TEXT PRIMARY KEY,
+      business_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      status TEXT DEFAULT 'UNDER_REVIEW',
+      submitted_at TEXT DEFAULT (datetime('now')),
+      reviewed_at TEXT,
+      reviewer_notes TEXT
+    );
+
+    -- 19. Notification Preferences
+    CREATE TABLE IF NOT EXISTS notification_preferences (
+      id TEXT PRIMARY KEY,
+      user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      order_notifications INTEGER DEFAULT 1,
+      ai_notifications INTEGER DEFAULT 1,
+      automation_failures INTEGER DEFAULT 1,
+      integration_alerts INTEGER DEFAULT 1,
+      security_alerts INTEGER DEFAULT 1,
+      marketing_emails INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 20. API Keys
+    CREATE TABLE IF NOT EXISTS api_keys (
+      id TEXT PRIMARY KEY,
+      business_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      label TEXT NOT NULL,
+      key_prefix TEXT NOT NULL,
+      key_hash TEXT NOT NULL,
+      last_used_at TEXT,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now')),
+      revoked_at TEXT
+    );
+
+    -- 21. Team Members (workspace users)
+    CREATE TABLE IF NOT EXISTS team_members (
+      id TEXT PRIMARY KEY,
+      business_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      role TEXT DEFAULT 'MEMBER',
+      status TEXT DEFAULT 'ACTIVE',
+      invited_at TEXT DEFAULT (datetime('now')),
+      last_active_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_user_profiles_user ON user_profiles(user_id);
+    CREATE INDEX IF NOT EXISTS idx_business_profiles_business ON business_profiles(business_id);
+    CREATE INDEX IF NOT EXISTS idx_kyc_profiles_business ON kyc_profiles(business_id);
+    CREATE INDEX IF NOT EXISTS idx_kyc_documents_business ON kyc_documents(business_id);
+    CREATE INDEX IF NOT EXISTS idx_notification_prefs_user ON notification_preferences(user_id);
+    CREATE INDEX IF NOT EXISTS idx_api_keys_business ON api_keys(business_id);
+    CREATE INDEX IF NOT EXISTS idx_team_members_business ON team_members(business_id);
+  `);
+
   logger.info('Database schema and performance indexes verified successfully.');
+
 }
 
 export function seedInitialData(db) {
