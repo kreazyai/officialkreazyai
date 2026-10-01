@@ -91,6 +91,14 @@ class ApiClient {
     }
   }
 
+  setToken(token) {
+    this.setAuthToken(token);
+  }
+
+  clearToken() {
+    this.setAuthToken(null);
+  }
+
   getAuthToken() {
     return this.token || safeGet('kreazy_auth_token', null);
   }
@@ -124,7 +132,6 @@ class ApiClient {
 
       if (!response.ok) {
         const errorMsg = json?.error?.message || `HTTP ${response.status}: Request failed`;
-        const errorCode = json?.error?.code || 'NETWORK_ERROR';
         throw new Error(errorMsg);
       }
 

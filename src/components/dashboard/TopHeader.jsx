@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
-export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLogout }) {
+export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLogout, onNavigate }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -49,10 +49,10 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <button
           type="button"
-          className="btn btn-icon btn-ghost"
+          className="btn btn-icon btn-ghost mobile-sidebar-toggle-btn"
           onClick={onToggleMobileSidebar}
-          style={{ display: 'none' }}
           id="mobile-sidebar-toggle"
+          aria-label="Toggle navigation menu"
         >
           <Menu size={20} />
         </button>
@@ -184,12 +184,33 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                 >
                   <Settings size={15} /> Workspace Settings
                 </div>
-                <div 
-                  style={{ padding: '0.65rem 1rem', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--status-error-text)', borderTop: '1px solid var(--border-subtle)' }}
-                  onClick={onLogout}
+                <button 
+                  type="button"
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem 1rem',
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    color: '#f87171',
+                    background: 'transparent',
+                    border: 'none',
+                    borderTop: '1px solid var(--border-subtle)',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.12)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  onClick={() => {
+                    setProfileOpen(false);
+                    if (onLogout) onLogout();
+                  }}
                 >
                   <LogOut size={15} /> Sign Out
-                </div>
+                </button>
               </div>
             </>
           )}

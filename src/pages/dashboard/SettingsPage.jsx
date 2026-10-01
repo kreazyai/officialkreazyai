@@ -4,7 +4,7 @@ import {
   Bell, CreditCard, Key, AlertTriangle, Camera, Upload,
   Check, X, Eye, EyeOff, Copy, Trash2, Plus, RefreshCw,
   ExternalLink, ChevronRight, Info, CheckCircle2, Clock,
-  AlertCircle, Save, Loader2, Smartphone, Globe, Mail, Phone
+  AlertCircle, Save, Loader2, Smartphone, Globe, Mail, Phone, LogOut
 } from 'lucide-react';
 import { settingsService } from '../../services/api';
 import { Badge } from '../../components/common/Badge';
@@ -49,14 +49,14 @@ function Toast({ message, type = 'success', onClose }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function SettingsSection({ title, description, children, footer }) {
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '16px', overflow: 'hidden', marginBottom: '1.5rem' }}>
-      <div style={{ padding: '1.5rem 1.75rem', borderBottom: '1px solid var(--border-light)' }}>
+    <div className="settings-section-card">
+      <div className="settings-section-header">
         <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>{title}</h3>
         {description && <p style={{ margin: '4px 0 0', fontSize: '0.83rem', color: 'var(--text-muted)' }}>{description}</p>}
       </div>
-      <div style={{ padding: '1.5rem 1.75rem' }}>{children}</div>
+      <div className="settings-section-body">{children}</div>
       {footer && (
-        <div style={{ padding: '1rem 1.75rem', borderTop: '1px solid var(--border-light)', background: 'var(--bg-subtle)', display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="settings-section-footer">
           {footer}
         </div>
       )}
@@ -424,7 +424,7 @@ function SaveButton({ saving, saved, onClick, label = 'Save Changes' }) {
 // SECTION COMPONENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ProfileSection({ user, onToast }) {
+function ProfileSection({ user, onToast, onLogout }) {
   const [form, setForm] = useState({
     name: '', displayName: '', phone: '', dateOfBirth: '', gender: '', avatarUrl: null,
   });
@@ -524,17 +524,48 @@ function ProfileSection({ user, onToast }) {
           <div>
             <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.95rem' }}>{form.name || 'Your Name'}</p>
             <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user?.email}</p>
-            <button
-              onClick={() => setShowAvatarModal(true)}
-              style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--olive-700)', background: 'none', border: '1px solid var(--olive-600)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}
-            >
-              Change Photo
-            </button>
+            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setShowAvatarModal(true)}
+                style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--olive-700)', background: 'none', border: '1px solid var(--olive-600)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}
+              >
+                Change Photo
+              </button>
+              {onLogout && (
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    color: '#f87171',
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+                  }}
+                >
+                  <LogOut size={12} /> Sign Out
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Form grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <div className="settings-form-grid-2">
           <Field label="Full Name" required error={errors.name}>
             <TextInput value={form.name} onChange={e => set('name', e.target.value)} placeholder="Your full name" error={errors.name} />
           </Field>
@@ -617,7 +648,7 @@ function BusinessSection({ onToast }) {
         description="Your workspace display name and primary contact details."
         footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} />}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <div className="settings-form-grid-2">
           <Field label="Business Name" required hint="Shown on your workspace and AI agent messages.">
             <TextInput value={form.name} onChange={e => set('name', e.target.value)} placeholder="Kreazy Flagship Studio" />
           </Field>
@@ -670,7 +701,7 @@ function BusinessSection({ onToast }) {
         title="Business Address"
         footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Address" />}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <div className="settings-form-grid-2">
           <Field label="Country">
             <TextInput value={form.country} onChange={e => set('country', e.target.value)} placeholder="United States" />
           </Field>
@@ -718,7 +749,7 @@ function BusinessSection({ onToast }) {
         description="Required for business verification and compliance. All fields are optional unless verification is requested."
         footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Legal Info" />}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <div className="settings-form-grid-2">
           <Field label="Legal Business Name" hint="Exact name on your business registration.">
             <TextInput value={form.legalName} onChange={e => set('legalName', e.target.value)} placeholder="Your Legal Company Name Ltd." />
           </Field>
@@ -870,7 +901,7 @@ function KYCSection({ onToast }) {
         description="Your personal details for identity verification. This information is private and secure."
         footer={!locked && <SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Identity Info" />}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <div className="settings-form-grid-2">
           <Field label="Full Legal Name" required hint="Exactly as shown on your government ID.">
             <TextInput value={form.fullLegalName} onChange={e => set('fullLegalName', e.target.value)} placeholder="Your Full Legal Name" disabled={locked} />
           </Field>
@@ -1099,7 +1130,7 @@ function TeamSection({ user, onToast }) {
       {showInvite && (
         <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'var(--bg-subtle)', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
           <p style={{ margin: '0 0 1rem', fontWeight: 700, fontSize: '0.875rem' }}>Invite a Team Member</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
+          <div className="team-invite-grid">
             <Field label="Name" required>
               <TextInput value={inviteForm.name} onChange={e => setInviteForm(f => ({ ...f, name: e.target.value }))} placeholder="Jane Smith" />
             </Field>
@@ -1506,12 +1537,46 @@ function DeveloperSection({ onToast }) {
   );
 }
 
-function DangerZoneSection({ user, onToast }) {
+function DangerZoneSection({ user, onToast, onLogout }) {
   const [confirmText, setConfirmText] = useState('');
   const CONFIRM_PHRASE = user?.storeName || 'DELETE MY ACCOUNT';
 
   return (
     <SettingsSection title="Danger Zone">
+      {onLogout && (
+        <div style={{ padding: '1.25rem', background: 'var(--bg-canvas-alt)', border: '1px solid var(--border-medium)', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <p style={{ margin: '0 0 4px', fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>Sign Out of Current Session</p>
+            <p style={{ margin: 0, fontSize: '0.83rem', color: 'var(--text-secondary)' }}>Log out from this merchant account on this device.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onLogout}
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: '#f87171',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              padding: '0.5rem 1.25rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+            }}
+          >
+            <LogOut size={15} /> Sign Out Now
+          </button>
+        </div>
+      )}
       <div style={{ padding: '1.25rem', background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.2)', borderRadius: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
           <AlertTriangle size={22} color="#dc2626" style={{ flexShrink: 0, marginTop: '2px' }} />
@@ -1569,7 +1634,7 @@ const NAV_SECTIONS = [
   { id: 'danger', label: 'Danger Zone', icon: AlertTriangle },
 ];
 
-export function SettingsPage({ user }) {
+export function SettingsPage({ user, onLogout }) {
   const [activeSection, setActiveSection] = useState('profile');
   const [toast, setToast] = useState(null);
 
@@ -1579,7 +1644,7 @@ export function SettingsPage({ user }) {
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'profile': return <ProfileSection user={user} onToast={showToast} />;
+      case 'profile': return <ProfileSection user={user} onToast={showToast} onLogout={onLogout} />;
       case 'business': return <BusinessSection onToast={showToast} />;
       case 'kyc': return <KYCSection onToast={showToast} />;
       case 'team': return <TeamSection user={user} onToast={showToast} />;
@@ -1587,53 +1652,40 @@ export function SettingsPage({ user }) {
       case 'notifications': return <NotificationsSection onToast={showToast} />;
       case 'billing': return <BillingSection user={user} />;
       case 'developer': return <DeveloperSection onToast={showToast} />;
-      case 'danger': return <DangerZoneSection user={user} onToast={showToast} />;
+      case 'danger': return <DangerZoneSection user={user} onToast={showToast} onLogout={onLogout} />;
       default: return null;
     }
   };
 
   return (
-    <div className="dashboard-content" style={{ padding: 0, display: 'flex', height: 'calc(100vh - 70px)', overflow: 'hidden' }}>
-      {/* ── Left Settings Nav ── */}
-      <div style={{
-        width: '220px', flexShrink: 0, borderRight: '1px solid var(--border-light)',
-        overflowY: 'auto', padding: '1.5rem 0', background: 'var(--bg-card)',
-      }}>
-        <div style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
-          <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Settings</p>
+    <div className="settings-page-wrapper">
+      {/* ── Left Settings Nav (Horizontal scrollable tabs on mobile) ── */}
+      <div className="settings-nav-sidebar">
+        <div className="settings-nav-heading">
+          <p>Settings</p>
         </div>
-        {NAV_SECTIONS.map(s => {
-          const Icon = s.icon;
-          const active = activeSection === s.id;
-          const isDanger = s.id === 'danger';
-          return (
-            <button
-              key={s.id}
-              onClick={() => setActiveSection(s.id)}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: '0.65rem',
-                padding: '0.6rem 1.25rem', background: active ? 'rgba(100,120,60,0.1)' : 'none',
-                border: 'none', borderRight: active ? '3px solid var(--olive-700)' : '3px solid transparent',
-                textAlign: 'left', cursor: 'pointer', fontSize: '0.82rem', fontWeight: active ? 700 : 500,
-                color: isDanger ? (active ? '#dc2626' : 'rgba(220,38,38,0.7)') : (active ? 'var(--text-primary)' : 'var(--text-secondary)'),
-                transition: 'all 0.15s',
-                marginTop: isDanger ? '1.5rem' : 0,
-                borderTop: isDanger ? '1px solid var(--border-light)' : 'none',
-                paddingTop: isDanger ? '1rem' : undefined,
-              }}
-              onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-              onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'none'; }}
-            >
-              <Icon size={15} />
-              {s.label}
-            </button>
-          );
-        })}
+        <div className="settings-nav-items">
+          {NAV_SECTIONS.map(s => {
+            const Icon = s.icon;
+            const active = activeSection === s.id;
+            const isDanger = s.id === 'danger';
+            return (
+              <button
+                key={s.id}
+                onClick={() => setActiveSection(s.id)}
+                className={`settings-nav-btn ${active ? 'active' : ''} ${isDanger ? 'danger' : ''}`}
+              >
+                <Icon size={15} />
+                <span>{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Content Area ── */}
-      <div style={{ flexGrow: 1, overflowY: 'auto', padding: '2rem 2.5rem' }}>
-        <div style={{ maxWidth: '820px' }}>
+      <div className="settings-content-area">
+        <div className="settings-content-inner">
           {/* Section title */}
           <div style={{ marginBottom: '1.5rem' }}>
             <h2 style={{ margin: '0 0 4px', fontSize: '1.25rem', fontWeight: 800 }}>

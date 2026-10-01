@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
 
-export function Navbar({ currentPage, onNavigate }) {
+export function Navbar({ currentPage, onNavigate, user, onLogout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -75,32 +75,58 @@ export function Navbar({ currentPage, onNavigate }) {
 
           {/* Right: Log In, Sign Up & Book a Demo */}
           <div className="nav-actions">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="nav-btn-signin"
-              onClick={() => handleLinkClick('login')}
-            >
-              Sign In
-            </Button>
+            {user ? (
+              <>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="nav-btn-signup"
+                  onClick={() => handleLinkClick('dashboard')}
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="nav-btn-signin"
+                  onClick={() => {
+                    if (onLogout) onLogout();
+                  }}
+                  style={{ color: '#f87171' }}
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="nav-btn-signin"
+                  onClick={() => handleLinkClick('login')}
+                >
+                  Sign In
+                </Button>
 
-            <Button
-              variant="primary"
-              size="sm"
-              className="nav-btn-signup"
-              onClick={() => handleLinkClick('signup')}
-            >
-              Sign Up
-            </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="nav-btn-signup"
+                  onClick={() => handleLinkClick('signup')}
+                >
+                  Sign Up
+                </Button>
 
-            <Button
-              variant="secondary"
-              size="sm"
-              className="nav-btn-demo"
-              onClick={() => handleLinkClick('book-demo')}
-            >
-              Book a Demo
-            </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="nav-btn-demo"
+                  onClick={() => handleLinkClick('book-demo')}
+                >
+                  Book a Demo
+                </Button>
+              </>
+            )}
 
             {/* Mobile Hamburger Button */}
             <button
@@ -116,13 +142,11 @@ export function Navbar({ currentPage, onNavigate }) {
       </header>
 
       {/* Backdrop overlay for mobile drawer */}
-      {mobileMenuOpen && (
-        <div
-          className="mobile-nav-backdrop"
-          onClick={() => setMobileMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      <div
+        className={`mobile-nav-backdrop ${mobileMenuOpen ? 'open' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden={!mobileMenuOpen}
+      />
 
       {/* Mobile Slide-over Drawer (Outside header to avoid backdrop-filter fixed positioning bugs on mobile) */}
       <div
@@ -157,30 +181,56 @@ export function Navbar({ currentPage, onNavigate }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-medium)' }}>
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => handleLinkClick('signup')}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            Sign Up Free
-          </Button>
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={() => handleLinkClick('login')}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            Log In to Workspace
-          </Button>
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={() => handleLinkClick('book-demo')}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            Book a Demo
-          </Button>
+          {user ? (
+            <>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => handleLinkClick('dashboard')}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Open Dashboard
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  if (onLogout) onLogout();
+                }}
+                style={{ width: '100%', justifyContent: 'center', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => handleLinkClick('signup')}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Sign Up Free
+              </Button>
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => handleLinkClick('login')}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Log In to Workspace
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleLinkClick('book-demo')}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Book a Demo
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -76,7 +76,7 @@ export function FounderMeetingPage({ onNavigate }) {
               {/* Left Column: Agenda & Value */}
               <div className="demo-sidebar-card">
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--olive-950)' }}>
+                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
                     What We Cover in 30 Minutes
                   </h3>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
@@ -90,7 +90,7 @@ export function FounderMeetingPage({ onNavigate }) {
                       1
                     </div>
                     <div>
-                      <strong style={{ fontSize: '0.9rem' }}>Channel Audit & Inbound Velocity</strong>
+                      <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Channel Audit & Inbound Velocity</strong>
                       <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Reviewing your current response delays, cart abandonment, and customer drop-off on WhatsApp & Instagram.</p>
                     </div>
                   </div>
@@ -100,7 +100,7 @@ export function FounderMeetingPage({ onNavigate }) {
                       2
                     </div>
                     <div>
-                      <strong style={{ fontSize: '0.9rem' }}>Catalog & ERP Ingestion Strategy</strong>
+                      <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Catalog & ERP Ingestion Strategy</strong>
                       <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>How your SKUs, live inventory, and multi-tier pricing integrate securely without hallucinations.</p>
                     </div>
                   </div>
@@ -110,7 +110,7 @@ export function FounderMeetingPage({ onNavigate }) {
                       3
                     </div>
                     <div>
-                      <strong style={{ fontSize: '0.9rem' }}>Autonomous Checkout & Safety Policies</strong>
+                      <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Autonomous Checkout & Safety Policies</strong>
                       <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Setting hard boundaries on returns, maximum promotional discounts, and seamless human operator takeover.</p>
                     </div>
                   </div>
@@ -128,7 +128,7 @@ export function FounderMeetingPage({ onNavigate }) {
               </div>
 
               {/* Right Column: Reservation Form */}
-              <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-8)' }}>
+              <div className="demo-form-card">
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
                   <h3 style={{ fontSize: '1.35rem', marginBottom: '0.25rem' }}>
                     Book Your Founder Strategy Call
@@ -143,7 +143,7 @@ export function FounderMeetingPage({ onNavigate }) {
                     </div>
                   )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Input
                       label="Your Name *"
                       placeholder="e.g. Elena Rostova"
@@ -161,7 +161,7 @@ export function FounderMeetingPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Input
                       label="Company / Brand Name *"
                       placeholder="e.g. Copenhagen Botanicals"
@@ -177,7 +177,7 @@ export function FounderMeetingPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Select
                       label="Retail Vertical"
                       value={formData.businessType}
@@ -204,7 +204,7 @@ export function FounderMeetingPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Input
                       label="Preferred Date"
                       type="date"

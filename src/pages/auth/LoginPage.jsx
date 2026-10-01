@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { authService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export function LoginPage({ onNavigate, onLoginSuccess }) {
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  // If already authenticated, redirect to dashboard immediately
+  useEffect(() => {
+    if (isAuthenticated) {
+      onNavigate('dashboard');
+    }
+  }, [isAuthenticated, onNavigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -21,20 +29,31 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const user = authService.login(email, password, false);
+    try {
+      const user = await login(email, password, false);
       if (onLoginSuccess) {
         onLoginSuccess(user);
       }
       onNavigate('dashboard');
-    }, 500);
+    } catch (err) {
+      setError(err?.message || 'Login failed. Please verify your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDemoQuickLogin = () => {
-    const user = authService.login('founder@kreazybrand.com', 'demo', true);
-    if (onLoginSuccess) onLoginSuccess(user);
-    onNavigate('dashboard');
+  const handleDemoQuickLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const user = await login('founder@kreazybrand.com', 'demo', true);
+      if (onLoginSuccess) onLoginSuccess(user);
+      onNavigate('dashboard');
+    } catch (err) {
+      setError('Demo login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

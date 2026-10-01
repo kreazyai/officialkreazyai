@@ -46,7 +46,7 @@ export function ContactPage({ onNavigate }) {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 'var(--space-12)', marginTop: 'var(--space-8)' }}>
+        <div className="contact-page-grid">
           {/* Left Contact Info Cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
             <div className="card">

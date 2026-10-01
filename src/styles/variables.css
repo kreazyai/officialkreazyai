@@ -1,108 +1,96 @@
 :root {
   /* =====================================================================
-     KREAZYAI CORE VISUAL SYSTEM — SOPHISTICATED DEEP OLIVE DARK THEME
-     Exact specification standard for modern AI automation enterprise SaaS
+     KREAZYAI CORE VISUAL SYSTEM — PREMIUM DARK FOREST GREEN SAAS UI
+     Theme: Premium Dark Forest Green SaaS UI with Subtle Glassmorphism
      ===================================================================== */
 
   /* Primary Background & Surface Hierarchy */
-  --bg-surface: #182018;
-  /* Primary deep olive background */
-  --bg-canvas-alt: #202A20;
-  /* Secondary background */
-  --bg-elevated: #263226;
-  /* Elevated surface (modals, popovers, dropdowns) */
-  --bg-card: #2B382A;
-  /* Card surface */
-  --bg-card-hover: #314030;
-  /* Card hover state */
-  --bg-subtle: #202A20;
-  /* Secondary container background */
+  --bg-surface: #172319;         /* Main background */
+  --bg-sidebar: #1C2A20;         /* Sidebar */
+  --bg-canvas-alt: #1C2A20;      /* Secondary canvas / Sidebar */
+  --bg-card: #253426;            /* Content background / Card */
+  --bg-elevated: #283729;        /* Elevated surface (modals, popovers) */
+  --bg-card-hover: #2d3e2e;      /* Card hover state */
+  --bg-subtle: #1C2A20;          /* Secondary container background */
+  --bg-input: #1B281E;           /* Input fields */
 
   /* Borders & Dividers */
-  --border-subtle: rgba(70, 83, 64, 0.45);
-  /* Subtle hairline border */
-  --border-medium: #465340;
-  /* Primary structural border */
-  --border-strong: #667A3E;
-  /* Highlight / active border */
-  --border-bright: #8FA653;
-  /* Bright olive accent border */
+  --border-subtle: rgba(69, 88, 64, 0.45);   /* Subtle hairline border */
+  --border-medium: #455840;                  /* Borders */
+  --border-light: #455840;                   /* Border alias */
+  --border-strong: #71834A;                  /* Primary accent border */
+  --border-bright: #8FA45A;                  /* Bright accent border */
 
-  /* Olive Brand System */
-  --primary-olive: #667A3E;
-  /* Primary brand olive */
-  --bright-olive: #8FA653;
-  /* Bright olive accent / Primary CTA background */
-  --soft-olive: #B8C58A;
-  /* Soft olive accent highlight */
-  --olive-button-bg: #8FA653;
-  /* Tactile CTA button background */
-  --olive-button-hover: #9db55f;
-  /* Hover state for primary button */
+  /* Primary & Bright Accents */
+  --primary-olive: #71834A;      /* Primary accent */
+  --bright-olive: #8FA45A;       /* Bright accent */
+  --soft-olive: #A8B884;         /* Soft olive accent highlight */
+  --olive-button-bg: #8FA45A;    /* Bright accent for primary CTA */
+  --olive-button-hover: #9db264; /* Hover state for primary button */
 
-  /* Warm Cream & Neutral Palette */
-  --warm-cream: #F3F0E4;
-  /* Warm cream accent */
-  --text-primary: #F5F4EC;
-  /* Primary text (crisp warm moonlight) */
-  --text-secondary: #C7C9BA;
-  /* Secondary text (medium contrast body) */
-  --text-muted: #969B8A;
-  /* Muted text (supporting captions, labels) */
-  --text-inverse: #172017;
-  /* Dark text on bright olive buttons */
-  --text-accent: #8FA653;
-  /* Bright olive highlight */
+  /* Typography Palette */
+  --text-primary: #F2F2E8;       /* Main text */
+  --text-secondary: #9DA79A;     /* Secondary text */
+  --text-muted: #8A958A;         /* Placeholder & Muted text */
+  --text-placeholder: #8A958A;   /* Placeholder text */
+  --text-inverse: #172319;       /* Dark text on bright accent buttons */
+  --text-accent: #8FA45A;        /* Bright accent highlight */
+  --warm-cream: #F2F2E8;         /* Warm cream accent */
 
-  /* Sparingly Used Attention & Semantic Accents */
+  /* Danger / Delete & Semantic Accents */
+  --status-error: #D93636;       /* Danger/Delete */
+  --danger: #D93636;             /* Danger alias */
+  --status-error-bg: rgba(217, 54, 54, 0.15);
+  --status-error-border: rgba(217, 54, 54, 0.35);
+  --status-error-text: #D93636;
+
+  --status-success: #8FA45A;
+  --status-success-bg: rgba(143, 164, 90, 0.15);
+  --status-success-border: rgba(143, 164, 90, 0.35);
+  --status-success-text: #8FA45A;
+
   --accent-amber: #D6A85C;
-  /* Accent amber (VIP badges, alerts, highlights) */
-  --status-success: #9DBB68;
-  /* Success olive-green */
-  --status-error: #D97870;
-  /* Semantic error soft red */
-
-  /* Legacy Compatibility Variables mapped to the new palette */
-  --olive-950: #121812;
-  --olive-900: #182018;
-  --olive-850: #202A20;
-  --olive-800: #263226;
-  --olive-700: #2B382A;
-  --olive-600: #465340;
-  --olive-500: #667A3E;
-  --olive-400: #8FA653;
-  --olive-300: #B8C58A;
-  --olive-200: #D8E2B5;
-  --olive-100: #EBF0DC;
-  --olive-50: rgba(143, 166, 83, 0.12);
-
-  --emerald-500: #8FA653;
-  --emerald-400: #B8C58A;
-  --emerald-300: #F3F0E4;
-  --emerald-glow: rgba(143, 166, 83, 0.25);
-
-  --dark-bg: #182018;
-  --dark-surface: #202A20;
-  --dark-card: #2B382A;
-  --dark-border: #465340;
-  --dark-text: #F5F4EC;
-  --dark-muted: #969B8A;
-
-  --status-success-bg: rgba(157, 187, 104, 0.15);
-  --status-success-border: rgba(157, 187, 104, 0.35);
-  --status-success-text: #9DBB68;
-
   --status-warning-bg: rgba(214, 168, 92, 0.15);
   --status-warning-border: rgba(214, 168, 92, 0.35);
   --status-warning-text: #D6A85C;
 
-  --status-error-bg: rgba(217, 120, 112, 0.15);
-  --status-error-border: rgba(217, 120, 112, 0.35);
-  --status-error-text: #D97870;
+  --status-info-bg: rgba(168, 184, 132, 0.15);
+  --status-info-border: rgba(168, 184, 132, 0.35);
+  --status-info-text: #A8B884;
 
-  --status-info-bg: rgba(184, 197, 138, 0.15);
-  --status-info-border: rgba(184, 197, 138, 0.35);
-  --status-info-text: #B8C58A;
+  /* Subtle Glassmorphism Tokens */
+  --glass-bg: rgba(37, 52, 38, 0.72);
+  --glass-bg-subtle: rgba(28, 42, 32, 0.65);
+  --glass-border: rgba(69, 88, 64, 0.55);
+  --glass-blur: blur(12px);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  --glass-card: rgba(37, 52, 38, 0.65);
+
+  /* Legacy Compatibility Variables */
+  --olive-950: #121A13;
+  --olive-900: #172319;
+  --olive-850: #1C2A20;
+  --olive-800: #213024;
+  --olive-700: #253426;
+  --olive-600: #455840;
+  --olive-500: #71834A;
+  --olive-400: #8FA45A;
+  --olive-300: #A8B884;
+  --olive-200: #C8D6AC;
+  --olive-100: #E6EDD8;
+  --olive-50: rgba(143, 164, 90, 0.12);
+
+  --emerald-500: #8FA45A;
+  --emerald-400: #A8B884;
+  --emerald-300: #F2F2E8;
+  --emerald-glow: rgba(143, 164, 90, 0.25);
+
+  --dark-bg: #172319;
+  --dark-surface: #1C2A20;
+  --dark-card: #253426;
+  --dark-border: #455840;
+  --dark-text: #F2F2E8;
+  --dark-muted: #8A958A;
 
   /* Channel Specific Soft Badges */
   --channel-whatsapp: #25D366;
@@ -117,30 +105,18 @@
   --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Spacing Scale */
-  --space-1: 0.25rem;
-  /* 4px */
-  --space-2: 0.5rem;
-  /* 8px */
-  --space-3: 0.75rem;
-  /* 12px */
-  --space-4: 1rem;
-  /* 16px */
-  --space-5: 1.25rem;
-  /* 20px */
-  --space-6: 1.5rem;
-  /* 24px */
-  --space-8: 2rem;
-  /* 32px */
-  --space-10: 2.5rem;
-  /* 40px */
-  --space-12: 3rem;
-  /* 48px */
-  --space-16: 4rem;
-  /* 64px */
-  --space-20: 5rem;
-  /* 80px */
-  --space-24: 6rem;
-  /* 96px */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
 
   /* Border Radii (Refined, architectural, never overly bubbly) */
   --radius-xs: 4px;
@@ -151,14 +127,14 @@
   --radius-2xl: 20px;
   --radius-full: 9999px;
 
-  /* Sophisticated Soft Shadows (Subtle, calm, never neon halos) */
+  /* Soft Shadows with Forest Green Ambient */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.55), 0 3px 8px rgba(0, 0, 0, 0.35);
-  --shadow-xl: 0 18px 45px rgba(0, 0, 0, 0.65), 0 6px 14px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 18px 45px rgba(0, 0, 0, 0.6), 0 6px 14px rgba(0, 0, 0, 0.35);
 
-  /* Fluid & Snappy Transitions */
+  /* Transitions */
   --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-base: 240ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 360ms cubic-bezier(0.16, 1, 0.3, 1);

@@ -60,7 +60,7 @@ export function BookDemoPage({ onNavigate }) {
               {/* Left Column: Why Demo & What to Expect */}
               <div className="demo-sidebar-card">
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--olive-950)' }}>
+                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
                     What to expect during your demo
                   </h3>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
@@ -74,7 +74,7 @@ export function BookDemoPage({ onNavigate }) {
                       1
                     </div>
                     <div>
-                      <strong style={{ fontSize: '0.9rem' }}>Live Channel Simulation</strong>
+                      <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Live Channel Simulation</strong>
                       <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>We test real customer inquiries on WhatsApp and Instagram in front of you.</p>
                     </div>
                   </div>
@@ -84,7 +84,7 @@ export function BookDemoPage({ onNavigate }) {
                       2
                     </div>
                     <div>
-                      <strong style={{ fontSize: '0.9rem' }}>Catalog Grounding Setup</strong>
+                      <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Catalog Grounding Setup</strong>
                       <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>How your SKUs, sizes, and pricing rules are ingested into the AI assistant.</p>
                     </div>
                   </div>
@@ -94,7 +94,7 @@ export function BookDemoPage({ onNavigate }) {
                       3
                     </div>
                     <div>
-                      <strong style={{ fontSize: '0.9rem' }}>Guardrails & Human Handoff</strong>
+                      <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Guardrails & Human Handoff</strong>
                       <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Reviewing discount constraints, sentiment alerts, and team intervention.</p>
                     </div>
                   </div>
@@ -113,7 +113,7 @@ export function BookDemoPage({ onNavigate }) {
               {/* Right Column: High-Converting Form */}
               <div className="demo-form-card">
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Input
                       label="Full Name"
                       name="fullName"
@@ -132,7 +132,7 @@ export function BookDemoPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Input
                       label="Work Email"
                       name="email"
@@ -153,7 +153,7 @@ export function BookDemoPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Select
                       label="Business Category"
                       name="businessType"
@@ -177,7 +177,7 @@ export function BookDemoPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Select
                       label="Primary Sales Channel"
                       name="primaryChannel"
@@ -204,7 +204,7 @@ export function BookDemoPage({ onNavigate }) {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="demo-form-grid-2">
                     <Input
                       label="Preferred Demo Date"
                       name="preferredDate"

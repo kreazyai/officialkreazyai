@@ -59,7 +59,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Button variant="secondary" size="sm" onClick={() => onNavigateModule('ai-assistant')} icon={Bot}>
             Configure AI Agent
           </Button>
@@ -129,7 +129,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
       </div>
 
       {/* Two Column Section: Live Activity Feed & Channel Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
+      <div className="dashboard-grid-two-col">
 
         {/* Left: AI Autonomous Activity Timeline */}
         <div className="card">

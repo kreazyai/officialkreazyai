@@ -12,30 +12,34 @@ import {
   Settings, 
   Sparkles, 
   ChevronDown,
-  ExternalLink,
   LogOut,
   X,
-  Smartphone
+  Home
 } from 'lucide-react';
 
-export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsite, isMobileOpen, onCloseMobile, user }) {
+export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen, onCloseMobile, user, onNavigate }) {
   const isDemo = Boolean(user?.isDemo);
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: isDemo ? '3' : null },
-    { id: 'orders', label: 'Orders', icon: ShoppingBag, badge: isDemo ? '5' : null },
-    { id: 'products', label: 'Products', icon: Boxes },
-    { id: 'customers', label: 'Customers', icon: Users },
-    { id: 'integrations', label: 'Integrations', icon: Network, badge: isDemo ? 'Meta' : null },
-    { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, highlight: true },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'revenue', label: 'Revenue', icon: DollarSign },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'overview', path: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'messages', path: '/dashboard/messages', label: 'Messages', icon: MessageSquare, badge: isDemo ? '3' : null },
+    { id: 'orders', path: '/dashboard/orders', label: 'Orders', icon: ShoppingBag, badge: isDemo ? '5' : null },
+    { id: 'products', path: '/dashboard/products', label: 'Products', icon: Boxes },
+    { id: 'customers', path: '/dashboard/customers', label: 'Customers', icon: Users },
+    { id: 'integrations', path: '/dashboard/integrations', label: 'Integrations', icon: Network, badge: isDemo ? 'Meta' : null },
+    { id: 'ai-assistant', path: '/dashboard/ai-assistant', label: 'AI Assistant', icon: Bot, highlight: true },
+    { id: 'analytics', path: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'revenue', path: '/dashboard/revenue', label: 'Revenue', icon: DollarSign },
+    { id: 'settings', path: '/dashboard/settings', label: 'Settings', icon: Settings }
   ];
 
-  const handleItemClick = (id) => {
-    onSelectModule(id);
+  const handleItemClick = (e, item) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    if (onSelectModule) {
+      onSelectModule(item.id, item.path);
+    }
     if (onCloseMobile) onCloseMobile();
   };
 
@@ -44,23 +48,39 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsit
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
+          className="sidebar-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(20, 28, 21, 0.55)',
-            backdropFilter: 'blur(3px)',
+            backgroundColor: 'rgba(12, 18, 13, 0.7)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
             zIndex: 1050
           }}
           aria-hidden="true"
         />
       )}
-      <aside className={`app-sidebar ${isMobileOpen ? 'open' : ''}`}>
+      <aside className={`app-sidebar ${isMobileOpen ? 'open mobile-open' : ''}`}>
         {/* Sidebar Brand Header */}
         <div className="sidebar-brand">
-          <div className="brand-logo" onClick={() => handleItemClick('overview')} style={{ cursor: 'pointer' }}>
+          <a
+            href="/"
+            className="brand-logo"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onCloseMobile) onCloseMobile();
+              if (onNavigate) {
+                onNavigate('home');
+              } else if (onSelectModule) {
+                onSelectModule('home', '/');
+              }
+            }}
+            style={{ cursor: 'pointer', textDecoration: 'none' }}
+            title="Kreazy AI Landing Page"
+          >
             <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
             <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
-          </div>
+          </a>
 
           {onCloseMobile && (
             <button
@@ -89,33 +109,42 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsit
 
       {/* Nav List */}
       <nav className="sidebar-nav">
-        <div className="sidebar-section-title">Core Management</div>
+        <div className="sidebar-section-title">Navigation</div>
+        <a
+          href="/"
+          className="sidebar-link"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onCloseMobile) onCloseMobile();
+            if (onNavigate) {
+              onNavigate('home');
+            } else if (onSelectModule) {
+              onSelectModule('home', '/');
+            }
+          }}
+          title="Return to Home"
+        >
+          <Home size={18} />
+          <span>Home</span>
+        </a>
+
+        <div className="sidebar-section-title" style={{ marginTop: '0.75rem' }}>Core Management</div>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentModule === item.id;
           return (
-            <div
+            <a
               key={item.id}
+              href={item.path}
               className={`sidebar-link ${isActive ? 'active' : ''}`}
-              onClick={() => handleItemClick(item.id)}
+              onClick={(e) => handleItemClick(e, item)}
             >
               <Icon size={18} />
               <span>{item.label}</span>
               {item.badge && <span className="link-badge">{item.badge}</span>}
-            </div>
+            </a>
           );
         })}
-
-        <div className="sidebar-section-title" style={{ marginTop: '0.75rem' }}>Tools & External</div>
-        <div className="sidebar-link" onClick={() => window.open('/?preview=true', '_blank')}>
-          <Smartphone size={18} />
-          <span>Device Preview</span>
-          <span className="link-badge">New</span>
-        </div>
-        <div className="sidebar-link" onClick={onVisitWebsite}>
-          <ExternalLink size={18} />
-          <span>Public Website</span>
-        </div>
       </nav>
 
       {/* Sidebar Footer */}
@@ -130,9 +159,32 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, onVisitWebsit
 
         <button 
           type="button" 
-          onClick={onLogout} 
-          className="btn btn-sm btn-ghost" 
-          style={{ justifyContent: 'flex-start', color: 'var(--text-muted)' }}
+          onClick={() => {
+            if (onCloseMobile) onCloseMobile();
+            if (onLogout) onLogout();
+          }} 
+          className="btn btn-sm" 
+          style={{
+            justifyContent: 'flex-start',
+            gap: '0.65rem',
+            color: '#f87171',
+            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.55rem 0.85rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            width: '100%',
+            transition: 'all var(--transition-fast)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.18)';
+            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+          }}
         >
           <LogOut size={16} />
           <span>Sign Out</span>

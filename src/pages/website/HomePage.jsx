@@ -24,9 +24,10 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { HeroProblemShowcase } from '../../components/website/HeroProblemShowcase';
 import { IphoneIntegrationShowcase } from '../../components/website/IphoneIntegrationShowcase';
+import { PricingTiersSection } from '../../components/website/PricingTiersSection';
 import { leadService } from '../../services/api';
 
-export function HomePage({ onNavigate }) {
+export function HomePage({ onNavigate, user }) {
   // Founder Meeting Form State
   const [founderForm, setFounderForm] = useState({
     name: '',
@@ -156,12 +157,6 @@ export function HomePage({ onNavigate }) {
           ------------------------------------------------------------- */}
       <section className="hero-section">
         <div className="container">
-          <div className="hero-badge-wrap">
-            <span className="eyebrow">
-              AI AUTOMATION FOR MODERN BUSINESSES
-            </span>
-          </div>
-
           <h1 className="hero-title">
             Turn Your Business Into an <span className="highlight">AI-Powered Operation</span>.
           </h1>
@@ -171,13 +166,24 @@ export function HomePage({ onNavigate }) {
           </p>
 
           <div className="hero-cta-group">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => onNavigate('book-demo')}
-            >
-              Book a Demo
-            </Button>
+            {user ? (
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => onNavigate('dashboard')}
+                iconRight={ArrowRight}
+              >
+                Open Workspace Dashboard
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => onNavigate('book-demo')}
+              >
+                Book a Demo
+              </Button>
+            )}
             <Button
               variant="secondary"
               size="lg"
@@ -189,34 +195,6 @@ export function HomePage({ onNavigate }) {
             >
               Explore KreazyAI
             </Button>
-          </div>
-
-          {/* Real SaaS Automation Pipeline Visual Flow */}
-          <div className="automation-flow-bar">
-            <div className="flow-step-node active">
-              <MessageSquare size={13} color="var(--soft-olive)" />
-              <span>Customer Message</span>
-            </div>
-            <span className="flow-arrow-sep">→</span>
-            <div className="flow-step-node active">
-              <Bot size={13} color="var(--soft-olive)" />
-              <span>AI Understanding</span>
-            </div>
-            <span className="flow-arrow-sep">→</span>
-            <div className="flow-step-node active">
-              <Layers size={13} color="var(--soft-olive)" />
-              <span>Product Recommendation</span>
-            </div>
-            <span className="flow-arrow-sep">→</span>
-            <div className="flow-step-node active">
-              <ShoppingBag size={13} color="var(--soft-olive)" />
-              <span>Order Confirmation</span>
-            </div>
-            <span className="flow-arrow-sep">→</span>
-            <div className="flow-step-node active">
-              <Zap size={13} color="var(--soft-olive)" />
-              <span>Business Notification</span>
-            </div>
           </div>
 
           {/* Interactive Hero Product Interface Preview - Problem vs Solution */}
@@ -268,9 +246,6 @@ export function HomePage({ onNavigate }) {
       <section className="services-section">
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto var(--space-12) auto' }}>
-            <span className="eyebrow" style={{ marginBottom: 'var(--space-3)' }}>
-              COMPREHENSIVE CAPABILITIES
-            </span>
             <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-4)' }}>
               Everything Your Business Needs To Automate.
             </h2>
@@ -306,9 +281,6 @@ export function HomePage({ onNavigate }) {
       <section className="workflow-section">
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto var(--space-12) auto' }}>
-            <span className="eyebrow" style={{ marginBottom: 'var(--space-3)' }}>
-              SIMPLE IMPLEMENTATION
-            </span>
             <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-4)' }}>
               How KreazyAI Works
             </h2>
@@ -335,9 +307,6 @@ export function HomePage({ onNavigate }) {
       <section className="meta-section">
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '750px', margin: '0 auto' }}>
-            <span className="eyebrow" style={{ marginBottom: 'var(--space-3)' }}>
-              UNIFIED META ARCHITECTURE
-            </span>
             <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-4)' }}>
               Connected Channels. Zero Disconnected Silos.
             </h2>
@@ -413,9 +382,6 @@ export function HomePage({ onNavigate }) {
       <section className="pricing-section">
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto var(--space-12) auto' }}>
-            <span className="eyebrow" style={{ marginBottom: 'var(--space-3)' }}>
-              TRANSPARENT VALUE
-            </span>
             <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-4)' }}>
               Predictable Pricing Built for Scaling Brands
             </h2>
@@ -520,9 +486,6 @@ export function HomePage({ onNavigate }) {
         <div className="container">
           <div className="founder-card">
             <div className="founder-info">
-              <span className="eyebrow" style={{ marginBottom: 'var(--space-3)' }}>
-                DIRECT FOUNDER ACCESS
-              </span>
               <h2>Want to Build a More Automated Business?</h2>
               <p>
                 Talk directly with the KreazyAI team about how AI automation can fit your business operations,
@@ -571,7 +534,7 @@ export function HomePage({ onNavigate }) {
                     </div>
                   )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div className="founder-form-row-2">
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.775rem' }}>Your Name *</label>
                       <input
@@ -596,7 +559,7 @@ export function HomePage({ onNavigate }) {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div className="founder-form-row-2">
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.775rem' }}>Phone / WhatsApp</label>
                       <input
@@ -620,7 +583,7 @@ export function HomePage({ onNavigate }) {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div className="founder-form-row-2">
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.775rem' }}>Preferred Date</label>
                       <input
@@ -647,7 +610,7 @@ export function HomePage({ onNavigate }) {
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.775rem' }}>Current Automation Goals</label>
                     <textarea
-                      rows={2}
+                      rows={3}
                       className="form-textarea"
                       placeholder="What is your biggest bottleneck across WhatsApp or Instagram sales?"
                       value={founderForm.message}
@@ -672,14 +635,16 @@ export function HomePage({ onNavigate }) {
       </section>
 
       {/* -------------------------------------------------------------
-          9. ABOUT THE FOUNDATION
+          9. PRICING TIERS (USD)
+          ------------------------------------------------------------- */}
+      <PricingTiersSection onNavigate={onNavigate} />
+
+      {/* -------------------------------------------------------------
+          10. ABOUT THE FOUNDATION
           ------------------------------------------------------------- */}
       <section className="about-section">
         <div className="container">
           <div className="about-box">
-            <span className="eyebrow" style={{ marginBottom: 'var(--space-3)' }}>
-              BUILT FOR REAL COMMERCE
-            </span>
             <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-4)' }}>
               Why We Built KreazyAI
             </h2>

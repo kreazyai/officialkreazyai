@@ -247,7 +247,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               Back to Merchant Workspace
             </button>
             <button className="btn btn-primary" onClick={() => onNavigate('home')}>
-              Return to Public Website
+              Return to Home Page
             </button>
           </div>
         </div>

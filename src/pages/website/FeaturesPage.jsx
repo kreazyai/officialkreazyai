@@ -158,7 +158,7 @@ export function FeaturesPage({ onNavigate }) {
         </div>
 
         {/* Filter Tabs */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: 'var(--space-10)' }}>
+        <div className="features-category-filters">
           {FEATURE_CATEGORIES.map(cat => (
             <button
               key={cat.id}
@@ -177,23 +177,23 @@ export function FeaturesPage({ onNavigate }) {
             const Icon = item.icon;
             return (
               <div key={item.id} className="feature-card">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                   <div className="feature-icon-box">
                     <Icon size={20} />
                   </div>
                   <Badge variant="olive">{item.tag}</Badge>
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem' }}>{item.title}</h3>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{item.title}</h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
                   {item.desc}
                 </p>
 
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)' }}>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: 'auto', paddingTop: '0.85rem', borderTop: '1px solid var(--border-subtle)' }}>
                   {item.bullets.map((b, idx) => (
-                    <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      <Check size={14} color="var(--olive-700)" />
-                      {b}
+                    <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+                      <Check size={15} color="var(--bright-olive)" style={{ flexShrink: 0 }} />
+                      <span>{b}</span>
                     </li>
                   ))}
                 </ul>
@@ -203,12 +203,12 @@ export function FeaturesPage({ onNavigate }) {
         </div>
 
         {/* CTA Bar */}
-        <div style={{ marginTop: 'var(--space-16)', textAlign: 'center', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-10)' }}>
+        <div className="features-cta-card">
           <h3 style={{ marginBottom: '0.5rem' }}>Need custom enterprise channel orchestration?</h3>
           <p style={{ maxWidth: '500px', margin: '0 auto 1.5rem auto', fontSize: '0.925rem' }}>
             We support high-volume retailers with custom ERP connectors, dedicated WhatsApp numbers, and enterprise SLAs.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div className="features-cta-actions">
             <Button variant="primary" onClick={() => onNavigate('book-demo')}>
               Request Custom Demo
             </Button>

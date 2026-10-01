@@ -17,13 +17,13 @@ export function AboutPage({ onNavigate }) {
         </div>
 
         {/* Core Pillars */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-8)', margin: 'var(--space-12) 0' }}>
+        <div className="about-pillars-grid">
           <div className="card">
             <div className="feature-icon-box">
               <Target size={22} />
             </div>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Our Mission</h3>
-            <p style={{ fontSize: '0.925rem' }}>
+            <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)' }}>
               To empower online retailers and independent brands with intelligent, reliable automation that turns
               casual chats into lifelong customer relationships and profitable transactions.
             </p>
@@ -34,7 +34,7 @@ export function AboutPage({ onNavigate }) {
               <HeartHandshake size={22} />
             </div>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>What We Believe</h3>
-            <p style={{ fontSize: '0.925rem' }}>
+            <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)' }}>
               Commerce is fundamentally conversational. Customers want real answers from brands they trust,
               not robotic scripts or endless wait times. AI should empower merchants, not distance them from buyers.
             </p>
@@ -45,7 +45,7 @@ export function AboutPage({ onNavigate }) {
               <Shield size={22} />
             </div>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Safety & Brand Integrity</h3>
-            <p style={{ fontSize: '0.925rem' }}>
+            <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)' }}>
               We believe in deterministic guardrails. AI agents must operate strictly within business knowledge
               boundaries and preserve brand reputation with zero hallucinations or rogue behavior.
             </p>
@@ -53,7 +53,7 @@ export function AboutPage({ onNavigate }) {
         </div>
 
         {/* Why KreazyAI Deep Dive */}
-        <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-10)', marginTop: 'var(--space-8)' }}>
+        <div className="card" style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)', marginTop: 'var(--space-8)' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <span className="eyebrow" style={{ marginBottom: '1rem' }}>Why KreazyAI</span>
             <h2 style={{ marginBottom: '1.25rem' }}>Engineered for real commercial operations</h2>

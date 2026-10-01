@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Building2, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { authService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export function SignUpPage({ onNavigate, onLoginSuccess }) {
+  const { register, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     businessName: '',
     fullName: '',
@@ -16,6 +17,13 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // If already authenticated, redirect to dashboard immediately
+  useEffect(() => {
+    if (isAuthenticated) {
+      onNavigate('dashboard');
+    }
+  }, [isAuthenticated, onNavigate]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -24,7 +32,7 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -42,9 +50,8 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const user = authService.registerWorkspace({
+    try {
+      const user = await register({
         storeName: formData.businessName || "My Retail Store",
         ownerName: formData.fullName || "Store Owner",
         email: formData.email,
@@ -53,7 +60,11 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
       });
       if (onLoginSuccess) onLoginSuccess(user);
       onNavigate('onboarding');
-    }, 500);
+    } catch (err) {
+      setError(err?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

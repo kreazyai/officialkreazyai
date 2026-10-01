@@ -27,10 +27,6 @@ export function Footer({ onNavigate }) {
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', maxWidth: '320px', lineHeight: 1.6 }}>
               Enterprise-grade AI automation platform designed for modern retailers, high-volume merchants, and multichannel business operations.
             </p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.3rem 0.75rem', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', color: 'var(--soft-olive)', fontWeight: 600 }}>
-              <span className="status-dot active"></span>
-              Meta Cloud APIs Operational
-            </div>
           </div>
 
           {/* Product & Solutions */}

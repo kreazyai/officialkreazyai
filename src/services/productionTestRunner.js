@@ -95,7 +95,7 @@ export async function runProductionTestSuite() {
   // JOURNEY 3: Business Register -> Login -> Add Product -> Configure AI
   // -------------------------------------------------------------------
   try {
-    const reg = authService.registerWorkspace({
+    const reg = await authService.registerWorkspace({
       storeName: "Nordic Atelier Studio",
       ownerName: "Henrik Vinter",
       email: "henrik@nordicatelier.se",

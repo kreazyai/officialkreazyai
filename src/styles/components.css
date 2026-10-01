@@ -108,13 +108,14 @@
 }
 
 .btn-danger {
-  background-color: rgba(217, 120, 112, 0.15);
+  background-color: rgba(217, 54, 54, 0.15);
   color: var(--status-error);
-  border: 1px solid rgba(217, 120, 112, 0.35);
+  border: 1px solid rgba(217, 54, 54, 0.35);
 }
 
 .btn-danger:hover {
-  background-color: rgba(217, 120, 112, 0.25);
+  background-color: var(--status-error);
+  color: #ffffff;
   border-color: var(--status-error);
 }
 
@@ -192,7 +193,7 @@
   padding: 0.7rem 0.95rem;
   font-size: 0.925rem;
   color: var(--text-primary);
-  background-color: var(--bg-canvas-alt);
+  background-color: var(--bg-input);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -201,14 +202,14 @@
 
 .form-input::placeholder,
 .form-textarea::placeholder {
-  color: var(--text-muted);
+  color: var(--text-placeholder);
 }
 
 .form-input:hover,
 .form-select:hover,
 .form-textarea:hover {
   border-color: var(--primary-olive);
-  background-color: var(--bg-elevated);
+  background-color: #1f2d22;
 }
 
 .form-input:focus,
@@ -216,8 +217,14 @@
 .form-textarea:focus {
   border-color: var(--bright-olive);
   outline: none;
+  background-color: #1f2d22;
+  box-shadow: 0 0 0 2px rgba(143, 164, 90, 0.25);
+}
+
+.form-select option {
   background-color: var(--bg-card);
-  box-shadow: 0 0 0 2px rgba(143, 166, 83, 0.25);
+  color: var(--text-primary);
+  padding: 0.5rem;
 }
 
 .form-input:disabled,
@@ -276,8 +283,10 @@
    --------------------------------------------------------------------- */
 .card {
   background-color: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-medium);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);
   position: relative;
@@ -492,9 +501,9 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(24, 32, 24, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(23, 35, 25, 0.85);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   z-index: 999;
   display: flex;
   align-items: center;
@@ -504,7 +513,9 @@
 }
 
 .modal-content {
-  background-color: var(--bg-elevated);
+  background-color: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-xl);
   max-width: 580px;
@@ -846,4 +857,244 @@ input:checked+.slider:before {
 .switch input:disabled + .slider {
   opacity: 0.5;
   cursor: not-allowed;
-}
+}
+
+/* =====================================================================
+   ONBOARDING PAGE — DARK OLIVE THEME (7-STEP WIZARD)
+   ===================================================================== */
+
+/* Full-page dark background wrapper */
+.onboarding-page {
+  min-height: 100vh;
+  background-color: var(--bg-surface);
+  padding: var(--space-8) 0 var(--space-16);
+}
+
+/* Centered column — max 740px */
+.onboarding-container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+/* ── Top header row ── */
+.onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+}
+
+.onboarding-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 0.4rem;
+}
+
+/* ── Horizontal 7-step progress bar ── */
+.onboarding-progress-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: var(--space-6);
+}
+
+/* Connecting line behind circles */
+.onboarding-progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: calc(100% / 14);
+  right: calc(100% / 14);
+  height: 2px;
+  background: var(--border-medium);
+  z-index: 0;
+}
+
+/* Individual step column */
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  cursor: default;
+  z-index: 1;
+}
+
+.step-indicator.completed {
+  cursor: pointer;
+}
+
+/* Number circle */
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 2px solid var(--border-medium);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.step-indicator.active .step-circle {
+  background: var(--olive-400);
+  border-color: var(--olive-400);
+  color: var(--text-inverse);
+  box-shadow: 0 0 0 4px rgba(143, 166, 83, 0.22);
+}
+
+.step-indicator.completed .step-circle {
+  background: var(--olive-500);
+  border-color: var(--olive-500);
+  color: #fff;
+}
+
+/* Label below circle */
+.step-label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease;
+}
+
+.step-indicator.active .step-label {
+  color: var(--olive-400);
+}
+
+.step-indicator.completed .step-label {
+  color: var(--text-secondary);
+}
+
+/* ── Mobile compact summary bar ── */
+.mobile-step-summary {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+  padding: 0.75rem 1rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+}
+
+.mobile-step-counter {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
+.mobile-step-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.mobile-step-track {
+  width: 90px;
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mobile-step-fill {
+  height: 100%;
+  background: var(--olive-400);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* ── Step content card (dark, not white) ── */
+.onboarding-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  min-height: 340px;
+  padding: var(--space-8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Eyebrow pill badge ── */
+.eyebrow {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive-400);
+  background: rgba(143, 166, 83, 0.13);
+  border: 1px solid rgba(143, 166, 83, 0.25);
+  padding: 0.22rem 0.7rem;
+  border-radius: 99px;
+  margin-bottom: 0.8rem;
+}
+
+/* ── Typography inside the card ── */
+.onboarding-h2 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+.onboarding-p {
+  font-size: 0.925rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Step 7 success icon ── */
+.onboarding-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(143, 166, 83, 0.18);
+  border: 2px solid var(--olive-400);
+  color: var(--olive-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 640px) {
+  .onboarding-progress-bar {
+    display: none;
+  }
+
+  .mobile-step-summary {
+    display: flex;
+  }
+
+  .onboarding-container {
+    padding: 0 var(--space-4);
+  }
+
+  .onboarding-card {
+    padding: var(--space-5);
+  }
+
+  .onboarding-h2 {
+    font-size: 1.35rem;
+  }
+}
+

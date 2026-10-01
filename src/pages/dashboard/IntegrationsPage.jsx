@@ -280,17 +280,9 @@ function IntegrationDetailPage({ integration, onBack }) {
 
       {/* Header Banner */}
       <div
+        className="integration-banner"
         style={{
           background: integration.gradient,
-          borderRadius: '16px',
-          padding: '2rem 2.5rem',
-          marginBottom: '2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem',
-          color: '#fff',
-          position: 'relative',
-          overflow: 'hidden',
         }}
       >
         <div
@@ -350,14 +342,7 @@ function IntegrationDetailPage({ integration, onBack }) {
       </div>
 
       {/* Stats Row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
+      <div className="integration-stats-grid">
         {[
           { label: 'Messages Handled', value: integration.stats.messages },
           { label: 'Avg Response Time', value: integration.stats.response },
@@ -384,9 +369,10 @@ function IntegrationDetailPage({ integration, onBack }) {
       </div>
 
       {/* Main Content: QR + Steps */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="integration-qr-grid">
         {/* QR Code Panel */}
         <div
+          className="integration-qr-panel"
           style={{
             background: 'var(--bg-card)',
             border: `1px solid ${integration.borderColor}`,
@@ -584,7 +570,7 @@ function IntegrationDetailPage({ integration, onBack }) {
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: integration.darkAccent, marginBottom: '0.75rem' }}>
               What you unlock
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            <div className="integration-features-grid">
               {integration.features.map((f) => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                   <Zap size={12} color={integration.accentColor} />
@@ -597,7 +583,7 @@ function IntegrationDetailPage({ integration, onBack }) {
       </div>
 
       {/* Description + Security Note */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+      <div className="integration-footer-grid">
         <div
           style={{
             background: 'var(--bg-card)',

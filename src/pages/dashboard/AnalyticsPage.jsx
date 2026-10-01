@@ -1,60 +1,71 @@
 import React, { useState } from 'react';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Download, 
-  Calendar, 
-  Filter, 
-  MessageSquare, 
-  ShoppingBag, 
-  Bot, 
-  Users,
+import {
+  MessageSquare,
+  Bot,
+  Clock,
+  Zap,
   CheckCircle2,
-  Sparkles
+  TrendingUp,
+  Download,
+  Users,
+  Smile,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 
 export function AnalyticsPage({ user }) {
   const isDemo = Boolean(user?.isDemo);
-  const [timeframe, setTimeframe] = useState('30d'); // 7d | 30d | 90d
-  const [channelFilter, setChannelFilter] = useState('all');
+  const [timeframe, setTimeframe] = useState('30d');
 
-  // Channel revenue breakdown
-  const channelData = isDemo ? [
-    { channel: 'WhatsApp Cloud API', revenue: '$26,410.00', orders: 670, share: '54%', badge: 'whatsapp' },
-    { channel: 'Instagram Direct', revenue: '$16,130.00', orders: 412, share: '33%', badge: 'instagram' },
-    { channel: 'Facebook Messenger', revenue: '$6,380.00', orders: 158, share: '13%', badge: 'facebook' }
+  const mult = timeframe === '7d' ? 0.25 : timeframe === '90d' ? 2.8 : 1;
+
+  const totalConversations = isDemo ? Math.round(4890 * mult).toLocaleString() : '0';
+  const resolvedAuto = isDemo ? '94.8%' : '100%';
+  const avgResponseTime = isDemo ? '1.2s' : '< 2s';
+  const satisfactionRate = isDemo ? '98.4%' : 'N/A';
+
+  const channels = isDemo ? [
+    { name: 'WhatsApp Cloud API', threads: Math.round(2740 * mult), share: 56, badge: 'whatsapp' },
+    { name: 'Instagram Direct', threads: Math.round(1560 * mult), share: 32, badge: 'instagram' },
+    { name: 'Facebook Messenger', threads: Math.round(590 * mult), share: 12, badge: 'facebook' }
   ] : [
-    { channel: 'WhatsApp Cloud API', revenue: '$0.00', orders: 0, share: '0%', badge: 'whatsapp' },
-    { channel: 'Instagram Direct', revenue: '$0.00', orders: 0, share: '0%', badge: 'instagram' },
-    { channel: 'Facebook Messenger', revenue: '$0.00', orders: 0, share: '0%', badge: 'facebook' }
+    { name: 'WhatsApp Cloud API', threads: 0, share: 0, badge: 'whatsapp' },
+    { name: 'Instagram Direct', threads: 0, share: 0, badge: 'instagram' },
+    { name: 'Facebook Messenger', threads: 0, share: 0, badge: 'facebook' }
   ];
 
-  const handleExportCSV = () => {
-    alert("Exporting analytics telemetry to CSV (orders_and_conversations_telemetry.csv)...");
+  const handleExport = () => {
+    alert(`Exporting conversation telemetry report (${timeframe}) to CSV...`);
   };
 
   return (
     <div className="dashboard-content">
-      <div className="page-title-row">
+      {/* Header — matching Settings layout */}
+      <div className="page-title-row" style={{ marginBottom: '1.5rem' }}>
         <div>
-          <h2>Analytics & Commercial Performance</h2>
-          <p style={{ fontSize: '0.9rem' }}>
-            {isDemo 
-              ? 'Comprehensive metrics on automated revenue, conversational conversion, and team time saved.'
-              : 'Real-time telemetry and revenue performance across your connected social channels.'}
+          <h2>Analytics & Intelligence</h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Real-time conversational volume, autonomous resolution rates, and response speed.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', gap: '2px', backgroundColor: 'var(--bg-subtle)', padding: '2px', borderRadius: 'var(--radius-md)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div style={{
+            display: 'flex',
+            gap: '2px',
+            backgroundColor: 'var(--bg-canvas-alt)',
+            padding: '3px',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-subtle)'
+          }}>
             {['7d', '30d', '90d'].map(t => (
               <button
                 key={t}
                 type="button"
                 className={`btn btn-sm ${timeframe === t ? 'btn-primary' : 'btn-ghost'}`}
-                style={{ height: '30px', padding: '0 0.65rem', fontSize: '0.75rem' }}
+                style={{ height: '30px', padding: '0 0.75rem', fontSize: '0.75rem', fontWeight: 600 }}
                 onClick={() => setTimeframe(t)}
               >
                 {t.toUpperCase()}
@@ -62,78 +73,149 @@ export function AnalyticsPage({ user }) {
             ))}
           </div>
 
-          <Button variant="secondary" size="sm" onClick={handleExportCSV} icon={Download}>
-            Export Telemetry
+          <Button variant="secondary" size="sm" onClick={handleExport} icon={Download}>
+            Export CSV
           </Button>
         </div>
       </div>
 
-      {/* Top Telemetry KPI Row */}
-      <div className="metrics-grid">
-        <div className="metric-card">
-          <span className="metric-header">Automated Revenue</span>
-          <span className="metric-val">{isDemo ? '$48,920.00' : '$0.00'}</span>
-          <span className="metric-sub" style={{ color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)' }}>
-            {isDemo ? '+18.4% this period' : 'Awaiting initial transactions'}
-          </span>
+      {/* 4 Conversational Intelligence KPI Cards — styled with Settings theme */}
+      <div className="analytics-kpi-grid">
+        {/* Total Conversations */}
+        <div style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-medium)',
+          borderRadius: '16px',
+          padding: '1.25rem 1.5rem'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Conversations
+            </span>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
+              <MessageSquare size={16} />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+            {totalConversations}
+          </div>
+          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {isDemo ? <><TrendingUp size={13} /> +14.2% inbound volume</> : 'Awaiting first message'}
+          </div>
         </div>
 
-        <div className="metric-card">
-          <span className="metric-header">Autonomous Resolution</span>
-          <span className="metric-val">{isDemo ? '92.4%' : '100%'}</span>
-          <span className="metric-sub" style={{ color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)' }}>
-            {isDemo ? '4,518 resolved with zero human touch' : 'AI Copilot standby active'}
-          </span>
+        {/* Autonomous Resolution Rate */}
+        <div style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-medium)',
+          borderRadius: '16px',
+          padding: '1.25rem 1.5rem'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              AI Resolution
+            </span>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
+              <Bot size={16} />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+            {resolvedAuto}
+          </div>
+          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem' }}>
+            {isDemo ? 'Resolved with zero human touch' : 'AI Copilot standby'}
+          </div>
         </div>
 
-        <div className="metric-card">
-          <span className="metric-header">Human Handoff Escalations</span>
-          <span className="metric-val">{isDemo ? '7.6%' : '0%'}</span>
-          <span className="metric-sub" style={{ color: 'var(--text-muted)' }}>
-            {isDemo ? '372 conversations escalated' : '0 handoffs requested'}
-          </span>
+        {/* Average AI Response Speed */}
+        <div style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-medium)',
+          borderRadius: '16px',
+          padding: '1.25rem 1.5rem'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Avg. Response Time
+            </span>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
+              <Zap size={16} />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+            {avgResponseTime}
+          </div>
+          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem' }}>
+            {isDemo ? 'Instant autonomous replies' : 'Sub-second webhook response'}
+          </div>
         </div>
 
-        <div className="metric-card">
-          <span className="metric-header">Hours of Staff Time Saved</span>
-          <span className="metric-val">{isDemo ? '284 hrs' : '0 hrs'}</span>
-          <span className="metric-sub" style={{ color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)' }}>
-            {isDemo ? 'Equivalent to 1.8 full-time reps' : 'Ready to automate support'}
-          </span>
+        {/* Customer Satisfaction */}
+        <div style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-medium)',
+          borderRadius: '16px',
+          padding: '1.25rem 1.5rem'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              CSAT Rating
+            </span>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
+              <Smile size={16} />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+            {satisfactionRate}
+          </div>
+          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem' }}>
+            {isDemo ? 'Positive customer sentiment' : 'Based on sentiment analysis'}
+          </div>
         </div>
       </div>
 
-      {/* Visual Revenue Bars by Channel */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
+      {/* Main Grid: Channel Activity & AI Resolution Breakdown */}
+      <div className="analytics-breakdown-grid">
         
-        {/* Channel Revenue Comparison */}
-        <div className="card">
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>Revenue Breakdown by Channel</h3>
-          <p style={{ fontSize: '0.825rem', marginBottom: '1.5rem' }}>Comparison of gross converted sales across social commerce endpoints.</p>
+        {/* Section 1: Inbound Volume by Channel (Settings-card styled) */}
+        <div style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-medium)',
+          borderRadius: '16px',
+          overflow: 'hidden'
+        }}>
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Inbound Traffic by Channel
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+              Message distribution and customer threads across Meta platforms.
+            </p>
+          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {channelData.map(ch => (
-              <div key={ch.channel}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.85rem' }}>
+          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {channels.map(ch => (
+              <div key={ch.name}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Badge variant={ch.badge}>{ch.channel}</Badge>
-                    <span style={{ fontWeight: 600 }}>{ch.orders} orders</span>
+                    <Badge variant={ch.badge}>{ch.name}</Badge>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{ch.threads} threads</span>
                   </div>
-                  <div>
-                    <strong style={{ fontSize: '0.95rem', color: 'var(--bright-olive)' }}>{ch.revenue}</strong>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginLeft: '6px' }}>({ch.share})</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <strong style={{ fontSize: '0.95rem', color: 'var(--bright-olive)' }}>{ch.share}%</strong>
                   </div>
                 </div>
 
-                {/* Clean CSS Bar */}
-                <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
-                  <div 
-                    style={{ 
-                      width: isDemo ? ch.share : '0%', 
-                      height: '100%', 
-                      backgroundColor: ch.badge === 'whatsapp' ? 'var(--bright-olive)' : ch.badge === 'instagram' ? '#10B981' : '#3B82F6',
-                      borderRadius: '4px'
-                    }} 
+                {/* Progress bar */}
+                <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${ch.share}%`,
+                      height: '100%',
+                      backgroundColor: 'var(--bright-olive)',
+                      borderRadius: '4px',
+                      transition: 'width 0.5s ease'
+                    }}
                   />
                 </div>
               </div>
@@ -141,30 +223,53 @@ export function AnalyticsPage({ user }) {
           </div>
         </div>
 
-        {/* Conversion Funnel */}
-        <div className="card">
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>Conversational Funnel Efficiency</h3>
-          <p style={{ fontSize: '0.825rem', marginBottom: '1.25rem' }}>Conversion progression from initial DM to verified payment.</p>
+        {/* Section 2: AI Automation Breakdown (Settings-card styled) */}
+        <div style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-medium)',
+          borderRadius: '16px',
+          overflow: 'hidden'
+        }}>
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Autonomous Capability Breakdown
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+              How customer inquiries are classified and handled by AI Copilot.
+            </p>
+          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem' }}>
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between' }}>
-              <span>1. Total Inquiries Initiated</span>
-              <strong>{isDemo ? '4,890 threads (100%)' : '0 threads (0%)'}</strong>
+          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', fontSize: '0.85rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+              <div>
+                <strong style={{ color: 'var(--text-primary)' }}>Product & Catalog Questions</strong>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pricing, sizing, availability</div>
+              </div>
+              <strong style={{ color: 'var(--bright-olive)' }}>{isDemo ? '58.2%' : '0%'}</strong>
             </div>
 
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between' }}>
-              <span>2. Product Sizing / Catalog Views</span>
-              <strong>{isDemo ? '3,410 interactions (69.7%)' : '0 interactions (0%)'}</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+              <div>
+                <strong style={{ color: 'var(--text-primary)' }}>Order Status & Tracking</strong>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Courier updates, delivery ETA</div>
+              </div>
+              <strong style={{ color: 'var(--bright-olive)' }}>{isDemo ? '24.6%' : '0%'}</strong>
             </div>
 
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between' }}>
-              <span>3. Checkout Links Generated</span>
-              <strong>{isDemo ? '1,580 links (32.3%)' : '0 links (0%)'}</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+              <div>
+                <strong style={{ color: 'var(--text-primary)' }}>Automated Checkout Links</strong>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Direct pay in chat</div>
+              </div>
+              <strong style={{ color: 'var(--bright-olive)' }}>{isDemo ? '12.0%' : '0%'}</strong>
             </div>
 
-            <div style={{ padding: '0.75rem', backgroundColor: isDemo ? 'rgba(163, 230, 53, 0.1)' : 'var(--bg-subtle)', border: isDemo ? '1px solid rgba(163, 230, 53, 0.25)' : '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', color: isDemo ? 'var(--bright-olive)' : 'var(--text-primary)' }}>
-              <strong>4. Confirmed & Paid Orders</strong>
-              <strong>{isDemo ? '1,240 orders (25.3% final conv.)' : '0 orders (0%)'}</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+              <div>
+                <strong style={{ color: 'var(--text-primary)' }}>Human Escalations</strong>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Complex edge-cases passed to staff</div>
+              </div>
+              <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{isDemo ? '5.2%' : '0%'}</span>
             </div>
           </div>
         </div>

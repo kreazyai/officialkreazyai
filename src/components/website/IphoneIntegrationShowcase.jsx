@@ -12,6 +12,7 @@ import {
   Layers,
   ChevronRight
 } from 'lucide-react';
+import { MobilePhoneMockup } from './MobilePhoneMockup';
 
 export function IphoneIntegrationShowcase({ onNavigate }) {
   const [selectedChannel, setSelectedChannel] = useState('all');
@@ -54,39 +55,13 @@ export function IphoneIntegrationShowcase({ onNavigate }) {
   return (
     <div className="iphone-integration-wrapper">
       <div className="iphone-integration-grid">
-        {/* Left Column: Visual Showcase */}
+        {/* Left Column: Realistic AI Customer Messaging Mobile Phone Mockup */}
         <div className="iphone-visual-container">
-          <div className="iphone-image-frame">
-            <img 
-              src="/images/iphone-integrations.jpg" 
-              alt="Ultra-premium iPhone 16 Pro displaying KreazyAI omnichannel messaging interface with WhatsApp, Instagram, Messenger, and Shopify integrations" 
-              className="iphone-showcase-img"
-              loading="lazy"
-            />
-            
-            {/* Interactive Dynamic Island Float Badge */}
-            <div className="dynamic-island-badge">
-              <span className="di-dot"></span>
-              <span>KreazyAI Dynamic Island • 3 Channels Live</span>
-            </div>
-
-            {/* Floating Glass Meta Cloud Pill */}
-            <div className="meta-verified-glass-pill">
-              <ShieldCheck size={16} color="#22c55e" />
-              <span>Official Meta Cloud API • End-to-End Encrypted</span>
-            </div>
-          </div>
+          <MobilePhoneMockup activeChannel={selectedChannel} onSelectChannel={setSelectedChannel} />
         </div>
 
         {/* Right Column: Premium iOS Native Experience Details */}
         <div className="iphone-details-container">
-          <div className="integration-eyebrow-wrap">
-            <span className="eyebrow">
-              <Sparkles size={13} style={{ display: 'inline', marginRight: '5px' }} />
-              NATIVE IOS & OMNICHANNEL SUITE
-            </span>
-          </div>
-
           <h2 className="integration-main-heading">
             Your Entire Business Messenger <br />
             <span className="highlight">Re-Engineered for iPhone.</span>

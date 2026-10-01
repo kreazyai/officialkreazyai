@@ -311,7 +311,7 @@ export function ProductsPage({ user, onNavigateModule }) {
             placeholder="e.g. Linen Relaxed Trousers"
           />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="settings-form-grid-2">
             <Input
               label="SKU Identifier"
               required
@@ -332,7 +332,7 @@ export function ProductsPage({ user, onNavigateModule }) {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="settings-form-grid-2">
             <Input
               label="Retail Price ($ USD)"
               type="number"
