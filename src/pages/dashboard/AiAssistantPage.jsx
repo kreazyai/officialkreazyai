@@ -172,9 +172,14 @@ export function AiAssistantPage() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: 'calc(100vh - 80px)',
+        height: 'calc(100vh - 90px)',
         padding: 0,
         overflow: 'hidden',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-2xl)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: 'var(--shadow-card)',
       }}
     >
       {/* ── HEADER ── */}
@@ -183,32 +188,34 @@ export function AiAssistantPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '1rem 1.5rem',
-          borderBottom: '1px solid var(--border-light)',
-          background: 'var(--bg-card)',
+          padding: '1.25rem 1.75rem',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: 'rgba(214, 229, 215, 0.04)',
           flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <div
             style={{
-              width: '40px',
-              height: '40px',
+              width: '42px',
+              height: '42px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)',
+              background: 'rgba(189, 213, 148, 0.15)',
+              border: '1px solid rgba(189, 213, 148, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
+              color: 'var(--color-accent-lime)',
             }}
           >
-            <Bot size={20} color="#fff" />
+            <Bot size={22} />
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>KreazyAI Assistant</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />
-              Online • Integration Support Specialist
+            <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>KreazyAI Assistant</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: 'var(--color-accent-lime)', fontWeight: 600 }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-accent-lime)', boxShadow: '0 0 8px var(--color-accent-lime)' }} />
+              Online • Retail & Channel Automation Specialist
             </div>
           </div>
         </div>
@@ -217,22 +224,21 @@ export function AiAssistantPage() {
           <button
             onClick={handleReset}
             title="Start new conversation"
+            className="capsule-pill"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              background: 'var(--bg-subtle)',
-              border: '1px solid var(--border-light)',
-              borderRadius: '8px',
-              padding: '0.45rem 0.85rem',
-              fontSize: '0.8rem',
+              gap: '0.45rem',
+              background: 'rgba(214, 229, 215, 0.08)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-capsule)',
+              padding: '0.5rem 1.1rem',
+              fontSize: '0.825rem',
               fontWeight: 600,
               cursor: 'pointer',
-              color: 'var(--text-secondary)',
-              transition: 'all 0.15s',
+              color: 'var(--text-primary)',
+              transition: 'all 0.15s ease',
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-card)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-subtle)')}
           >
             <RefreshCw size={13} /> New Chat
           </button>
@@ -244,11 +250,11 @@ export function AiAssistantPage() {
         style={{
           flexGrow: 1,
           overflowY: 'auto',
-          padding: '1.5rem',
+          padding: '1.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem',
-          background: 'var(--bg-subtle)',
+          gap: '1.25rem',
+          background: 'transparent',
         }}
       >
         {messages.map((msg) => (
@@ -257,7 +263,7 @@ export function AiAssistantPage() {
             style={{
               display: 'flex',
               justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              gap: '0.65rem',
+              gap: '0.75rem',
               alignItems: 'flex-end',
             }}
           >
@@ -265,40 +271,46 @@ export function AiAssistantPage() {
             {msg.sender === 'bot' && (
               <div
                 style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '34px',
+                  height: '34px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)',
+                  background: 'rgba(189, 213, 148, 0.15)',
+                  border: '1px solid rgba(189, 213, 148, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
                   marginBottom: '18px',
+                  color: 'var(--color-accent-lime)',
                 }}
               >
-                <Bot size={15} color="#fff" />
+                <Bot size={16} />
               </div>
             )}
 
-            <div style={{ maxWidth: '75%', display: 'flex', flexDirection: 'column', gap: '3px', alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
               <div
                 style={{
-                  padding: '0.75rem 1rem',
-                  borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                  padding: '0.9rem 1.25rem',
+                  borderRadius: msg.sender === 'user' ? '22px 22px 4px 22px' : '22px 22px 22px 4px',
                   background:
                     msg.sender === 'user'
-                      ? 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)'
-                      : 'var(--bg-card)',
-                  color: msg.sender === 'user' ? '#fff' : 'var(--text-primary)',
-                  fontSize: '0.875rem',
+                      ? 'rgba(189, 213, 148, 0.18)'
+                      : 'rgba(214, 229, 215, 0.08)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.9rem',
                   lineHeight: 1.6,
-                  border: msg.sender === 'bot' ? '1px solid var(--border-light)' : 'none',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  border:
+                    msg.sender === 'user'
+                      ? '1px solid rgba(189, 213, 148, 0.35)'
+                      : '1px solid var(--border-subtle)',
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
                 }}
               >
                 <MiniMarkdown text={msg.text} />
               </div>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', padding: '0 4px', fontVariantNumeric: 'tabular-nums' }}>
                 {formatTime(msg.time)}
               </span>
             </div>
@@ -307,29 +319,31 @@ export function AiAssistantPage() {
 
         {/* Thinking indicator */}
         {thinking && (
-          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)',
+                background: 'rgba(189, 213, 148, 0.15)',
+                border: '1px solid rgba(189, 213, 148, 0.25)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
+                color: 'var(--color-accent-lime)',
               }}
             >
-              <Bot size={15} color="#fff" />
+              <Bot size={16} />
             </div>
             <div
               style={{
-                padding: '0.75rem 1rem',
-                borderRadius: '16px 16px 16px 4px',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-light)',
+                padding: '0.85rem 1.25rem',
+                borderRadius: '22px 22px 22px 4px',
+                background: 'rgba(214, 229, 215, 0.08)',
+                border: '1px solid var(--border-subtle)',
                 display: 'flex',
-                gap: '4px',
+                gap: '5px',
                 alignItems: 'center',
               }}
             >
@@ -340,7 +354,7 @@ export function AiAssistantPage() {
                     width: '7px',
                     height: '7px',
                     borderRadius: '50%',
-                    background: 'var(--text-muted)',
+                    background: 'var(--color-accent-lime)',
                     animation: `bounce 1.2s ${i * 0.2}s infinite`,
                   }}
                 />
@@ -351,11 +365,11 @@ export function AiAssistantPage() {
 
         {/* Quick suggestions */}
         {showSuggestions && messages.length <= 1 && (
-          <div style={{ marginTop: '0.5rem' }}>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem', fontWeight: 600 }}>
-              Quick questions:
+          <div style={{ marginTop: '0.75rem' }}>
+            <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>
+              Quick prompts:
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem' }}>
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s.text}
@@ -363,27 +377,29 @@ export function AiAssistantPage() {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border-medium)',
-                    borderRadius: '100px',
-                    padding: '0.4rem 0.85rem',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
+                    gap: '0.45rem',
+                    background: 'rgba(214, 229, 215, 0.06)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-capsule)',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.825rem',
+                    fontWeight: 500,
                     color: 'var(--text-secondary)',
                     cursor: 'pointer',
-                    transition: 'all 0.15s',
+                    transition: 'all 0.15s ease',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'var(--olive-600)';
+                    e.currentTarget.style.borderColor = 'rgba(189, 213, 148, 0.4)';
                     e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.background = 'rgba(214, 229, 215, 0.12)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'var(--border-medium)';
+                    e.currentTarget.style.borderColor = 'var(--border-subtle)';
                     e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.background = 'rgba(214, 229, 215, 0.06)';
                   }}
                 >
-                  {s.icon} {s.text}
+                  <span style={{ color: 'var(--color-accent-lime)' }}>{s.icon}</span> {s.text}
                 </button>
               ))}
             </div>
@@ -397,14 +413,14 @@ export function AiAssistantPage() {
       <div
         style={{
           flexShrink: 0,
-          padding: '1rem 1.5rem',
-          borderTop: '1px solid var(--border-light)',
-          background: 'var(--bg-card)',
+          padding: '1.25rem 1.75rem',
+          borderTop: '1px solid var(--border-subtle)',
+          background: 'rgba(214, 229, 215, 0.04)',
         }}
       >
         <form
           onSubmit={handleSubmit}
-          style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}
+          style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}
         >
           <div style={{ flexGrow: 1, position: 'relative' }}>
             <input
@@ -412,26 +428,30 @@ export function AiAssistantPage() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about integrations, QR codes, or connection issues..."
+              placeholder="Ask about integrations, WhatsApp QR pairing, or automation rules..."
               className="form-input"
               style={{
                 width: '100%',
-                paddingRight: '3rem',
-                height: '44px',
-                fontSize: '0.875rem',
-                borderRadius: '12px',
+                paddingRight: '3.25rem',
+                height: '48px',
+                fontSize: '0.9rem',
+                borderRadius: 'var(--radius-capsule)',
+                background: 'rgba(214, 229, 215, 0.07)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-primary)',
                 boxSizing: 'border-box',
               }}
             />
             <Sparkles
-              size={16}
-              color="var(--text-muted)"
+              size={17}
+              color="var(--color-accent-lime)"
               style={{
                 position: 'absolute',
-                right: '12px',
+                right: '16px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 pointerEvents: 'none',
+                opacity: 0.8,
               }}
             />
           </div>
@@ -439,27 +459,28 @@ export function AiAssistantPage() {
             type="submit"
             disabled={!input.trim() || thinking}
             style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
               background:
                 input.trim() && !thinking
-                  ? 'linear-gradient(135deg, var(--olive-700) 0%, var(--olive-900) 100%)'
-                  : 'var(--bg-subtle)',
+                  ? 'var(--color-accent-lime)'
+                  : 'rgba(214, 229, 215, 0.08)',
               border: 'none',
               cursor: input.trim() && !thinking ? 'pointer' : 'not-allowed',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              transition: 'background 0.2s',
+              transition: 'all 0.2s ease',
+              boxShadow: input.trim() && !thinking ? '0 0 16px rgba(189, 213, 148, 0.35)' : 'none',
             }}
           >
-            <Send size={16} color={input.trim() && !thinking ? '#fff' : 'var(--text-muted)'} />
+            <Send size={18} color={input.trim() && !thinking ? '#142018' : 'var(--text-muted)'} />
           </button>
         </form>
-        <p style={{ margin: '6px 0 0', fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-          KreazyAI Assistant • Integration & Technical Support • Powered by AI
+        <p style={{ margin: '8px 0 0', fontSize: '0.725rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+          KreazyAI Copilot • Multi-channel Grounded Automation • Official Meta Cloud API
         </p>
       </div>
 

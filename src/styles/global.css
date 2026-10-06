@@ -20,6 +20,10 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-surface);
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(189, 211, 148, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 20%, rgba(189, 211, 148, 0.04) 0%, transparent 60%);
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   font-weight: 400;
@@ -28,7 +32,7 @@ body {
   position: relative;
 }
 
-/* Subtle, calm atmospheric texture (extremely subtle, not noisy) */
+/* Subtle, calm atmospheric texture */
 body::before {
   content: "";
   position: fixed;
@@ -37,8 +41,8 @@ body::before {
   height: 100%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.018;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 /* Typography Hierarchy with Intentional Contrast */
@@ -132,7 +136,7 @@ img, svg {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-medium);
+  background: rgba(62, 88, 56, 0.7);
   border-radius: var(--radius-full);
 }
 
@@ -186,20 +190,22 @@ img, svg {
 .text-center { text-align: center; }
 .mono { font-family: var(--font-mono); }
 
-/* Small Editorial Eyebrows */
+/* Editorial Eyebrow Pills */
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0.35rem 0.85rem;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-medium);
+  padding: 0.32rem 0.9rem;
+  background-color: rgba(28, 40, 32, 0.9);
+  border: 1px solid rgba(72, 110, 55, 0.5);
   border-radius: var(--radius-full);
   color: var(--soft-olive);
-  font-size: 0.775rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Touch & Mobile Optimizations */
@@ -235,7 +241,7 @@ html, body, #root, .app-root {
 .brand-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
   text-decoration: none;
   user-select: none;
   cursor: pointer;
@@ -243,29 +249,51 @@ html, body, #root, .app-root {
 }
 
 .brand-logo:hover {
-  opacity: 0.95;
+  opacity: 0.92;
 }
 
 .brand-logo-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  object-fit: cover;
-  border: 1px solid rgba(143, 166, 83, 0.45);
-  box-shadow: 0 0 14px rgba(110, 231, 135, 0.22), 0 2px 6px rgba(0, 0, 0, 0.35);
+  height: 40px;
+  width: auto;
+  max-width: 175px;
+  object-fit: contain;
   flex-shrink: 0;
   display: block;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
 }
 
 .brand-logo:hover .brand-logo-img {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(110, 231, 135, 0.4), 0 4px 10px rgba(0, 0, 0, 0.45);
+  transform: translateY(-1px) scale(1.02);
+  filter: drop-shadow(0 0 16px rgba(189, 213, 148, 0.45));
+}
+
+.brand-logo-img.brand-logo-sm {
+  height: 32px;
+  max-width: 140px;
+}
+
+.brand-logo-img.brand-logo-md {
+  height: 40px;
+  max-width: 175px;
+}
+
+.brand-logo-img.brand-logo-lg {
+  height: 52px;
+  max-width: 230px;
+}
+
+.brand-logo-img.brand-logo-xl {
+  height: 64px;
+  max-width: 280px;
 }
 
 .brand-text {
   font-family: var(--font-sans);
-  font-size: 1.28rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.028em;
   color: var(--text-primary, #F5F4EC);
@@ -278,20 +306,180 @@ html, body, #root, .app-root {
 .brand-logo span.ai {
   font-weight: 800;
   margin-left: 0.28rem;
-  background: linear-gradient(135deg, #a3cb58 0%, #5ce182 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 8px rgba(92, 225, 130, 0.25));
+  color: var(--color-accent-lime, #BDD394);
+  filter: drop-shadow(0 0 8px rgba(189, 213, 148, 0.3));
   letter-spacing: -0.01em;
 }
 
 @media (max-width: 640px) {
   .brand-logo-img {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    height: 34px;
+    max-width: 145px;
   }
-  .brand-text {
-    font-size: 1.15rem;
+  .brand-logo-img.brand-logo-lg {
+    height: 44px;
+    max-width: 190px;
   }
 }
+
+@media (max-width: 480px) {
+  .brand-logo-img {
+    height: 30px;
+    max-width: 130px;
+  }
+  .brand-logo-img.brand-logo-lg {
+    height: 40px;
+    max-width: 170px;
+  }
+}
+
+/* =====================================================================
+   REFERENCE DESIGN PRIMITIVES: SMOKED GLASS, CAPSULES & METRICS
+   ===================================================================== */
+/* Tabular figures for metrics, financial figures, charts, and tables */
+.tabular-num,
+.metric-val,
+.metric-value,
+.stat-number,
+.kpi-value,
+.table-num,
+.price-value,
+.count-pill {
+  font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1, "cv04" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Smoked Glass Containers & Panels */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.glass-panel-elevated {
+  background: var(--bg-elevated);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-xl);
+}
+
+.card-nested {
+  background: rgba(16, 26, 22, 0.65);
+  border: 1px solid rgba(232, 240, 231, 0.10);
+  border-radius: var(--radius-nested);
+  transition: all var(--transition-fast);
+}
+
+.card-nested:hover {
+  background: rgba(16, 26, 22, 0.85);
+  border-color: rgba(232, 240, 231, 0.18);
+}
+
+/* Capsule & Pill Primitives */
+.capsule-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-capsule);
+  padding: 0.45rem 1.15rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.capsule-pill:hover {
+  background: rgba(214, 229, 215, 0.08);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.capsule-pill.active,
+.capsule-pill-active {
+  background: rgba(243, 245, 238, 0.16);
+  color: var(--text-primary);
+  border-color: rgba(232, 240, 231, 0.28);
+}
+
+.capsule-pill-sage {
+  background: var(--primary-accent);
+  color: var(--accent-text);
+  border-color: rgba(189, 211, 148, 0.5);
+  font-weight: 700;
+}
+
+.capsule-pill-sage:hover {
+  background: var(--accent-hover);
+  color: var(--accent-text);
+}
+
+/* Oversized Metric Typography */
+.oversized-metric {
+  font-size: clamp(2.2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15em;
+}
+
+.oversized-metric-unit {
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  vertical-align: super;
+}
+
+.metric-label-capsule {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.35rem;
+  text-transform: capitalize;
+}
+
+/* Capsule Segmented Control (e.g. [ x | v ]) */
+.capsule-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(16, 26, 22, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-capsule);
+  padding: 3px;
+  gap: 2px;
+}
+
+.capsule-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.capsule-toggle-btn.active {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+

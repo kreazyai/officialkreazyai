@@ -325,20 +325,20 @@ function MessageBubble({ msg, customerName }) {
           background: isCustomer
             ? 'var(--bg-subtle)'
             : isAi
-              ? 'linear-gradient(135deg, rgba(74,90,40,0.9), rgba(50,65,25,0.95))'
+              ? 'linear-gradient(135deg, rgba(42, 65, 30, 0.95), rgba(28, 48, 22, 0.95))'
               : 'var(--bg-card)',
           color: isCustomer
             ? 'var(--text-primary)'
-            : isAi ? '#e8f5c8' : 'var(--text-primary)',
+            : isAi ? '#F3F5EE' : 'var(--text-primary)',
           border: isCustomer
             ? '1px solid var(--border-medium)'
             : isAi
-              ? '1px solid rgba(163,230,53,0.2)'
+              ? '1px solid rgba(189, 211, 148, 0.35)'
               : '1px solid var(--border-medium)',
           fontSize: '0.875rem',
           lineHeight: 1.5,
           wordBreak: 'break-word',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
         }}>
           {msg.text}
 
@@ -365,7 +365,7 @@ function MessageBubble({ msg, customerName }) {
         }}>
           <span>{msg.time || msg.timestamp || relTime(msg.created_at)}</span>
           {!isCustomer && (
-            <CheckCheck size={11} color={isAi ? 'var(--olive-700)' : 'var(--text-muted)'} />
+            <CheckCheck size={11} color={isAi ? 'var(--primary-accent)' : 'var(--text-muted)'} />
           )}
         </div>
       </div>
@@ -676,6 +676,41 @@ export function MessagesPage({ user, onNavigateModule }) {
     setActionMenuOpen(false);
   };
 
+  const handleTakeOver = async () => {
+    if (!activeConv) return;
+    try {
+      await conversationService.updateStatus(activeId, { status: 'NEEDS_HUMAN' });
+      setConversations(prev => prev.map(c => c.id === activeId ? { ...c, status: 'NEEDS_HUMAN', needsHuman: true } : c));
+      setToast({ message: 'You took over this conversation. AI Auto-Reply paused.', type: 'info' });
+    } catch (err) {
+      setToast({ message: err.message, type: 'error' });
+    }
+    setActionMenuOpen(false);
+  };
+
+  const handleHandBackToAi = async () => {
+    if (!activeConv) return;
+    try {
+      await conversationService.updateStatus(activeId, { status: 'ACTIVE' });
+      setConversations(prev => prev.map(c => c.id === activeId ? { ...c, status: 'ACTIVE', needsHuman: false, autoReplyBlocked: false } : c));
+      setToast({ message: 'Handed back to AI. Autonomous auto-replies resumed.', type: 'success' });
+    } catch (err) {
+      setToast({ message: err.message, type: 'error' });
+    }
+    setActionMenuOpen(false);
+  };
+
+  const handleBlockAutoReply = () => {
+    if (!activeConv) return;
+    const isBlocked = activeConv.autoReplyBlocked;
+    setConversations(prev => prev.map(c => c.id === activeId ? { ...c, autoReplyBlocked: !isBlocked } : c));
+    setToast({
+      message: !isBlocked ? 'AI Auto-Reply blocked for this customer thread.' : 'AI Auto-Reply unblocked.',
+      type: 'info'
+    });
+    setActionMenuOpen(false);
+  };
+
   // ── Last customer message (for AI context) ─────────────────────────────────
   const lastCustomerMessage = useMemo(() => {
     if (!activeConv?.messages) return '';
@@ -872,89 +907,118 @@ export function MessagesPage({ user, onNavigateModule }) {
 
               {/* Header Actions */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-                {/* Toggle human mode */}
-                <button
-                  onClick={handleToggleHandoff}
-                  title={activeConv.needsHuman ? 'Switch to AI mode' : 'Take over as human'}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '5px',
-                    padding: '0.3rem 0.7rem', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 700,
-                    background: (activeConv.needsHuman || activeConv.status === 'NEEDS_HUMAN')
-                      ? 'rgba(245,158,11,0.12)' : 'rgba(22,163,74,0.1)',
-                    border: (activeConv.needsHuman || activeConv.status === 'NEEDS_HUMAN')
-                      ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(22,163,74,0.3)',
-                    color: (activeConv.needsHuman || activeConv.status === 'NEEDS_HUMAN')
-                      ? '#f59e0b' : '#16a34a',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {(activeConv.needsHuman || activeConv.status === 'NEEDS_HUMAN')
-                    ? <><UserCheck size={12} /> Human Mode</>
-                    : <><Bot size={12} /> AI Active</>}
-                </button>
+                {/* Header Actions (Section 11 Controls) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                  {/* Quick Action Button: Take Over or Hand Back */}
+                  {(activeConv.needsHuman || activeConv.status === 'NEEDS_HUMAN') ? (
+                    <button
+                      onClick={handleHandBackToAi}
+                      title="Resume autonomous AI replies"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '5px',
+                        padding: '0.35rem 0.75rem', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 800,
+                        background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.35)',
+                        color: '#4ade80', cursor: 'pointer',
+                      }}
+                    >
+                      <Bot size={13} /> HAND BACK TO AI
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleTakeOver}
+                      title="Pause AI and take over as human agent"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '5px',
+                        padding: '0.35rem 0.75rem', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 800,
+                        background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.35)',
+                        color: '#f59e0b', cursor: 'pointer',
+                      }}
+                    >
+                      <UserCheck size={13} /> TAKE OVER
+                    </button>
+                  )}
 
-                {/* Customer info toggle */}
-                <button
-                  onClick={() => { setShowCustomerPanel(s => !s); setMobileCustomerOpen(s => !s); }}
-                  title="Customer details"
-                  style={{
-                    background: showCustomerPanel ? 'var(--bg-subtle)' : 'none',
-                    border: '1px solid var(--border-light)', borderRadius: '8px',
-                    padding: '0.3rem 0.5rem', cursor: 'pointer', color: 'var(--text-secondary)',
-                    display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem',
-                  }}
-                >
-                  <User size={13} /> Info
-                </button>
-
-                {/* Action menu */}
-                <div style={{ position: 'relative' }} ref={actionMenuRef}>
+                  {/* Customer info toggle */}
                   <button
-                    onClick={() => setActionMenuOpen(s => !s)}
-                    style={{ background: 'none', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0.3rem 0.4rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                    onClick={() => { setShowCustomerPanel(s => !s); setMobileCustomerOpen(s => !s); }}
+                    title="Customer details"
+                    style={{
+                      background: showCustomerPanel ? 'var(--bg-subtle)' : 'none',
+                      border: '1px solid var(--border-light)', borderRadius: '8px',
+                      padding: '0.3rem 0.5rem', cursor: 'pointer', color: 'var(--text-secondary)',
+                      display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem',
+                    }}
                   >
-                    <MoreVertical size={15} />
+                    <User size={13} /> Info
                   </button>
 
-                  {actionMenuOpen && (
-                    <div style={{
-                      position: 'absolute', top: '100%', right: 0, zIndex: 100, marginTop: '4px',
-                      background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
-                      borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-                      minWidth: '180px', overflow: 'hidden',
-                    }}>
-                      {[
-                        {
-                          icon: activeConv.status === 'RESOLVED' ? <RotateCcw size={14} /> : <CheckCircle2 size={14} />,
-                          label: activeConv.status === 'RESOLVED' ? 'Reopen' : 'Mark Resolved',
-                          action: handleResolve,
-                        },
-                        {
-                          icon: <UserX size={14} />,
-                          label: (activeConv.needsHuman || activeConv.status === 'NEEDS_HUMAN')
-                            ? 'Hand back to AI'
-                            : 'Request Human',
-                          action: handleToggleHandoff,
-                        },
-                      ].map((item, i) => (
-                        <button
-                          key={i}
-                          onClick={item.action}
-                          style={{
-                            width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem',
-                            padding: '0.65rem 1rem', background: 'none', border: 'none',
-                            fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-primary)',
-                            borderBottom: i < 1 ? '1px solid var(--border-light)' : 'none',
-                            textAlign: 'left',
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-subtle)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                        >
-                          {item.icon} {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {/* Action menu */}
+                  <div style={{ position: 'relative' }} ref={actionMenuRef}>
+                    <button
+                      onClick={() => setActionMenuOpen(s => !s)}
+                      style={{ background: 'none', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '0.3rem 0.4rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                    >
+                      <MoreVertical size={15} />
+                    </button>
+
+                    {actionMenuOpen && (
+                      <div style={{
+                        position: 'absolute', top: '100%', right: 0, zIndex: 100, marginTop: '4px',
+                        background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                        borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                        minWidth: '200px', overflow: 'hidden',
+                      }}>
+                        {[
+                          {
+                            icon: <Bot size={14} color="#4ade80" />,
+                            label: 'AI ON (Autonomous)',
+                            action: handleHandBackToAi,
+                          },
+                          {
+                            icon: <UserCheck size={14} color="#f59e0b" />,
+                            label: 'AI OFF (Human Mode)',
+                            action: handleTakeOver,
+                          },
+                          {
+                            icon: <UserCheck size={14} color="#f59e0b" />,
+                            label: 'TAKE OVER',
+                            action: handleTakeOver,
+                          },
+                          {
+                            icon: <Bot size={14} color="#4ade80" />,
+                            label: 'HAND BACK TO AI',
+                            action: handleHandBackToAi,
+                          },
+                          {
+                            icon: <UserX size={14} color="#f87171" />,
+                            label: activeConv.autoReplyBlocked ? 'UNBLOCK AUTO REPLY' : 'BLOCK AUTO REPLY',
+                            action: handleBlockAutoReply,
+                          },
+                          {
+                            icon: activeConv.status === 'RESOLVED' ? <RotateCcw size={14} /> : <CheckCircle2 size={14} />,
+                            label: activeConv.status === 'RESOLVED' ? 'Reopen Conversation' : 'Mark Resolved',
+                            action: handleResolve,
+                          },
+                        ].map((item, i) => (
+                          <button
+                            key={i}
+                            onClick={item.action}
+                            style={{
+                              width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem',
+                              padding: '0.65rem 1rem', background: 'none', border: 'none',
+                              fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-primary)',
+                              borderBottom: i < 5 ? '1px solid var(--border-light)' : 'none',
+                              textAlign: 'left',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-subtle)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                          >
+                            {item.icon} {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

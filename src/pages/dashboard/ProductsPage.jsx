@@ -144,12 +144,12 @@ export function ProductsPage({ user, onNavigateModule }) {
       {/* Filter and Search Bar */}
       <div className="card" style={{ padding: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <div className="smooth-scroll-x" style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '2px', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+          <div className="capsule-filter-group" style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '2px', whiteSpace: 'nowrap', maxWidth: '100%' }}>
             {['All', 'Apparel', 'Home & Living', 'Accessories', 'Fragrance'].map(cat => (
               <button
                 key={cat}
                 type="button"
-                className={`btn btn-sm ${selectedCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
+                className={`capsule-filter-btn ${selectedCategory === cat ? 'active' : ''}`}
                 style={{ flexShrink: 0 }}
                 onClick={() => setSelectedCategory(cat)}
               >

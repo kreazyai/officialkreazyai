@@ -49,15 +49,13 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
             className="brand-logo"
             onClick={() => handleLinkClick('home')}
             style={{ cursor: 'pointer' }}
+            title="KreazyAI"
           >
             <img
               src="/logo.png"
-              alt="Kreazy AI Logo"
+              alt="KreazyAI"
               className="brand-logo-img"
             />
-            <span className="brand-text">
-              Kreazy <span className="brand-ai">AI</span>
-            </span>
           </div>
 
           {/* Center: Navigation Links */}
@@ -114,7 +112,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   className="nav-btn-signup"
                   onClick={() => handleLinkClick('signup')}
                 >
-                  Sign Up
+                  Start Free
                 </Button>
 
                 <Button

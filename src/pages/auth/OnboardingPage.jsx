@@ -78,19 +78,21 @@ export function OnboardingPage({ onNavigate, user }) {
   /* ─── shared dark-theme style tokens ─────────────────────────────── */
   const card = {
     backgroundColor: 'var(--bg-card)',
-    border:          '1px solid var(--border-medium)',
-    borderRadius:    'var(--radius-xl)',
+    backdropFilter:  'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    border:          '1px solid var(--border-subtle)',
+    borderRadius:    'var(--radius-panel)',
     padding:         'var(--space-8)',
-    boxShadow:       '0 8px 32px rgba(0,0,0,0.35)'
+    boxShadow:       'var(--shadow-panel)'
   };
 
   const vertexCard = (active) => ({
     padding:         '1rem',
-    border:          `2px solid ${active ? 'var(--olive-400)' : 'var(--border-medium)'}`,
-    borderRadius:    'var(--radius-md)',
+    border:          `1.5px solid ${active ? 'var(--primary-accent)' : 'var(--border-subtle)'}`,
+    borderRadius:    'var(--radius-nested)',
     cursor:          'pointer',
-    backgroundColor: active ? 'rgba(143,166,83,0.14)' : 'var(--bg-elevated)',
-    color:           active ? 'var(--olive-300)' : 'var(--text-secondary)',
+    backgroundColor: active ? 'rgba(189, 211, 148, 0.14)' : 'rgba(16, 26, 22, 0.75)',
+    color:           active ? 'var(--text-primary)' : 'var(--text-secondary)',
     fontWeight:      600,
     fontSize:        '0.95rem',
     transition:      'all 0.18s ease'
@@ -142,12 +144,10 @@ export function OnboardingPage({ onNavigate, user }) {
             className="brand-logo"
             onClick={() => onNavigate('home')}
             style={{ cursor: 'pointer' }}
+            title="KreazyAI"
           >
-            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
-            <span className="brand-text">
-              Kreazy <span className="brand-ai">AI</span>
-              <span className="onboarding-label">Onboarding</span>
-            </span>
+            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img" />
+            <span className="onboarding-label" style={{ marginLeft: '0.65rem' }}>Onboarding</span>
           </div>
 
           <button

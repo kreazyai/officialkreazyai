@@ -9,10 +9,14 @@ import { publicLeadController } from '../controllers/publicLeadController.js';
 import { adminController } from '../controllers/adminController.js';
 import { metaWebhookController } from '../controllers/metaWebhookController.js';
 import { settingsController } from '../controllers/settingsController.js';
-import { authenticate } from '../middleware/auth.js';
+import { metaRouter } from './metaRoutes.js';
+import { faqController } from '../controllers/faqController.js';
+import { policyController } from '../controllers/policyController.js';
+import { aiSettingsController } from '../controllers/aiSettingsController.js';
+import { whatsappController } from '../controllers/whatsappController.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSuperAdmin } from '../middleware/rbac.js';
 import { avatarUpload, documentUpload, handleUploadError } from '../middleware/upload.js';
-
 
 export const apiRouter = Router();
 
@@ -91,15 +95,54 @@ aiRouter.use(authenticate);
 aiRouter.post('/chat', aiController.chat);
 aiRouter.get('/config', aiController.getConfig);
 aiRouter.put('/config', aiController.updateConfig);
+aiRouter.get('/settings', aiSettingsController.getSettings);
+aiRouter.put('/settings', aiSettingsController.updateSettings);
 apiRouter.use('/ai', aiRouter);
 
 // =====================================================================
-// 8. META INTEGRATION & WEBHOOKS
+// 8. TENANT-SCOPED KNOWLEDGE BASE: FAQS & POLICIES
 // =====================================================================
-const webhookRouter = Router();
-webhookRouter.get('/meta', metaWebhookController.verifyWebhook);
-webhookRouter.post('/meta', metaWebhookController.handleIncoming);
-apiRouter.use('/webhooks', webhookRouter);
+const faqRouter = Router();
+faqRouter.use(authenticate);
+faqRouter.get('/', faqController.getAll);
+faqRouter.post('/', faqController.create);
+faqRouter.get('/:id', faqController.getById);
+faqRouter.put('/:id', faqController.update);
+faqRouter.delete('/:id', faqController.delete);
+apiRouter.use('/faqs', faqRouter);
+
+const policyRouter = Router();
+policyRouter.use(authenticate);
+policyRouter.get('/', policyController.getAll);
+policyRouter.post('/', policyController.create);
+policyRouter.get('/:id', policyController.getById);
+policyRouter.put('/:id', policyController.update);
+policyRouter.delete('/:id', policyController.delete);
+apiRouter.use('/policies', policyRouter);
+
+// =====================================================================
+// 9. DEDICATED WHATSAPP BUSINESS PLATFORM INTEGRATION
+// =====================================================================
+const whatsappRouter = Router();
+whatsappRouter.use(optionalAuth);
+whatsappRouter.get('/connection', whatsappController.getConnection);
+whatsappRouter.get('/qr-session', whatsappController.getQrSession);
+whatsappRouter.post('/pair-qr', whatsappController.pairWithQr);
+whatsappRouter.post('/configure-credentials', whatsappController.configureCredentials);
+whatsappRouter.patch('/auto-reply', whatsappController.updateAutoReply);
+whatsappRouter.post('/connect', whatsappController.connect);
+whatsappRouter.post('/reconnect', whatsappController.reconnect);
+whatsappRouter.post('/disconnect', whatsappController.disconnect);
+whatsappRouter.get('/observability', whatsappController.getObservability);
+whatsappRouter.post('/health-check', whatsappController.healthCheck);
+whatsappRouter.post('/test-message', whatsappController.testMessage);
+apiRouter.use('/whatsapp', whatsappRouter);
+
+// =====================================================================
+// 10. META INTEGRATION & WEBHOOKS (Official Graph & Cloud API Suite)
+// =====================================================================
+apiRouter.use('/meta', metaRouter);
+apiRouter.use('/webhooks', metaRouter); // alias for backward compatibility
 
 // =====================================================================
 // 9. PLATFORM ADMIN ROUTES (Super Admin Protected)

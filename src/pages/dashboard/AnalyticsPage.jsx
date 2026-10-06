@@ -42,30 +42,24 @@ export function AnalyticsPage({ user }) {
 
   return (
     <div className="dashboard-content">
-      {/* Header — matching Settings layout */}
-      <div className="page-title-row" style={{ marginBottom: '1.5rem' }}>
+      {/* Header — matching reference title & capsule filter controls */}
+      <div className="page-title-row" style={{ marginBottom: '1.75rem', alignItems: 'center' }}>
         <div>
-          <h2>Analytics & Intelligence</h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 6px 0', color: 'var(--text-primary)' }}>
+            Analytics & Intelligence
+          </h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: 0 }}>
             Real-time conversational volume, autonomous resolution rates, and response speed.
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div style={{
-            display: 'flex',
-            gap: '2px',
-            backgroundColor: 'var(--bg-canvas-alt)',
-            padding: '3px',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-subtle)'
-          }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="capsule-filter-group" style={{ margin: 0 }}>
             {['7d', '30d', '90d'].map(t => (
               <button
                 key={t}
                 type="button"
-                className={`btn btn-sm ${timeframe === t ? 'btn-primary' : 'btn-ghost'}`}
-                style={{ height: '30px', padding: '0 0.75rem', fontSize: '0.75rem', fontWeight: 600 }}
+                className={`capsule-filter-btn ${timeframe === t ? 'active' : ''}`}
                 onClick={() => setTimeframe(t)}
               >
                 {t.toUpperCase()}
@@ -79,142 +73,120 @@ export function AnalyticsPage({ user }) {
         </div>
       </div>
 
-      {/* 4 Conversational Intelligence KPI Cards — styled with Settings theme */}
+      {/* 4 Conversational Intelligence KPI Cards — styled with reference glass theme */}
       <div className="analytics-kpi-grid">
         {/* Total Conversations */}
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <div className="card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Conversations
             </span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
-              <MessageSquare size={16} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(189, 213, 148, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-lime)' }}>
+              <MessageSquare size={17} />
             </div>
           </div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
             {totalConversations}
           </div>
-          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ fontSize: '0.78rem', color: isDemo ? 'var(--color-accent-lime)' : 'var(--text-muted)', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 500 }}>
             {isDemo ? <><TrendingUp size={13} /> +14.2% inbound volume</> : 'Awaiting first message'}
           </div>
         </div>
 
         {/* Autonomous Resolution Rate */}
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <div className="card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               AI Resolution
             </span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
-              <Bot size={16} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(189, 213, 148, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-lime)' }}>
+              <Bot size={17} />
             </div>
           </div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
             {resolvedAuto}
           </div>
-          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem' }}>
+          <div style={{ fontSize: '0.78rem', color: isDemo ? 'var(--color-accent-lime)' : 'var(--text-muted)', marginTop: '0.5rem', fontWeight: 500 }}>
             {isDemo ? 'Resolved with zero human touch' : 'AI Copilot standby'}
           </div>
         </div>
 
         {/* Average AI Response Speed */}
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <div className="card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Avg. Response Time
             </span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
-              <Zap size={16} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(189, 213, 148, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-lime)' }}>
+              <Zap size={17} />
             </div>
           </div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
             {avgResponseTime}
           </div>
-          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem' }}>
+          <div style={{ fontSize: '0.78rem', color: isDemo ? 'var(--color-accent-lime)' : 'var(--text-muted)', marginTop: '0.5rem', fontWeight: 500 }}>
             {isDemo ? 'Instant autonomous replies' : 'Sub-second webhook response'}
           </div>
         </div>
 
         {/* Customer Satisfaction */}
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <div className="card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               CSAT Rating
             </span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(143, 166, 83, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bright-olive)' }}>
-              <Smile size={16} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(189, 213, 148, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-lime)' }}>
+              <Smile size={17} />
             </div>
           </div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
             {satisfactionRate}
           </div>
-          <div style={{ fontSize: '0.775rem', color: isDemo ? 'var(--bright-olive)' : 'var(--text-muted)', marginTop: '0.4rem' }}>
+          <div style={{ fontSize: '0.78rem', color: isDemo ? 'var(--color-accent-lime)' : 'var(--text-muted)', marginTop: '0.5rem', fontWeight: 500 }}>
             {isDemo ? 'Positive customer sentiment' : 'Based on sentiment analysis'}
           </div>
         </div>
       </div>
 
       {/* Main Grid: Channel Activity & AI Resolution Breakdown */}
-      <div className="analytics-breakdown-grid">
+      <div className="analytics-breakdown-grid" style={{ marginTop: '1.5rem' }}>
         
-        {/* Section 1: Inbound Volume by Channel (Settings-card styled) */}
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: '16px',
-          overflow: 'hidden'
-        }}>
-          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+        {/* Section 1: Inbound Volume by Channel */}
+        <div className="card" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', padding: 0 }}>
+          <div style={{ padding: '1.35rem 1.75rem', borderBottom: '1px solid var(--border-subtle)', background: 'rgba(214, 229, 215, 0.04)' }}>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Inbound Traffic by Channel
             </h3>
-            <p style={{ margin: '4px 0 0', fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+            <p style={{ margin: '4px 0 0', fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
               Message distribution and customer threads across Meta platforms.
             </p>
           </div>
 
-          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
             {channels.map(ch => (
-              <div key={ch.name}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div key={ch.name} className="card-nested" style={{ padding: '1rem 1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                     <Badge variant={ch.badge}>{ch.name}</Badge>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{ch.threads} threads</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontVariantNumeric: 'tabular-nums' }}>
+                      {ch.threads} threads
+                    </span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <strong style={{ fontSize: '0.95rem', color: 'var(--bright-olive)' }}>{ch.share}%</strong>
+                    <strong style={{ fontSize: '1rem', color: 'var(--color-accent-lime)', fontVariantNumeric: 'tabular-nums' }}>{ch.share}%</strong>
                   </div>
                 </div>
 
-                {/* Progress bar */}
-                <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-canvas-alt)', borderRadius: '4px', overflow: 'hidden' }}>
+                {/* Capsule progress bar */}
+                <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(214, 229, 215, 0.1)', borderRadius: 'var(--radius-capsule)', overflow: 'hidden' }}>
                   <div
                     style={{
                       width: `${ch.share}%`,
                       height: '100%',
-                      backgroundColor: 'var(--bright-olive)',
-                      borderRadius: '4px',
-                      transition: 'width 0.5s ease'
+                      backgroundColor: 'var(--color-accent-lime)',
+                      borderRadius: 'var(--radius-capsule)',
+                      transition: 'width 0.5s ease',
+                      boxShadow: '0 0 10px rgba(189, 213, 148, 0.4)'
                     }}
                   />
                 </div>
@@ -223,53 +195,48 @@ export function AnalyticsPage({ user }) {
           </div>
         </div>
 
-        {/* Section 2: AI Automation Breakdown (Settings-card styled) */}
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: '16px',
-          overflow: 'hidden'
-        }}>
-          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+        {/* Section 2: AI Automation Breakdown */}
+        <div className="card" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', padding: 0 }}>
+          <div style={{ padding: '1.35rem 1.75rem', borderBottom: '1px solid var(--border-subtle)', background: 'rgba(214, 229, 215, 0.04)' }}>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Autonomous Capability Breakdown
             </h3>
-            <p style={{ margin: '4px 0 0', fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+            <p style={{ margin: '4px 0 0', fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
               How customer inquiries are classified and handled by AI Copilot.
             </p>
           </div>
 
-          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', fontSize: '0.85rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+          <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.85rem' }}>
+            <div className="card-nested" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.25rem' }}>
               <div>
                 <strong style={{ color: 'var(--text-primary)' }}>Product & Catalog Questions</strong>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pricing, sizing, availability</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Pricing, sizing, availability</div>
               </div>
-              <strong style={{ color: 'var(--bright-olive)' }}>{isDemo ? '58.2%' : '0%'}</strong>
+              <strong style={{ color: 'var(--color-accent-lime)', fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>{isDemo ? '58.2%' : '0%'}</strong>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+            <div className="card-nested" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.25rem' }}>
               <div>
                 <strong style={{ color: 'var(--text-primary)' }}>Order Status & Tracking</strong>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Courier updates, delivery ETA</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Courier updates, delivery ETA</div>
               </div>
-              <strong style={{ color: 'var(--bright-olive)' }}>{isDemo ? '24.6%' : '0%'}</strong>
+              <strong style={{ color: 'var(--color-accent-lime)', fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>{isDemo ? '24.6%' : '0%'}</strong>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+            <div className="card-nested" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.25rem' }}>
               <div>
                 <strong style={{ color: 'var(--text-primary)' }}>Automated Checkout Links</strong>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Direct pay in chat</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Direct pay in chat</div>
               </div>
-              <strong style={{ color: 'var(--bright-olive)' }}>{isDemo ? '12.0%' : '0%'}</strong>
+              <strong style={{ color: 'var(--color-accent-lime)', fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>{isDemo ? '12.0%' : '0%'}</strong>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'var(--bg-canvas-alt)', borderRadius: '8px' }}>
+            <div className="card-nested" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.25rem' }}>
               <div>
                 <strong style={{ color: 'var(--text-primary)' }}>Human Escalations</strong>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Complex edge-cases passed to staff</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Complex edge-cases passed to staff</div>
               </div>
-              <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{isDemo ? '5.2%' : '0%'}</span>
+              <span style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.95rem', fontVariantNumeric: 'tabular-nums' }}>{isDemo ? '5.2%' : '0%'}</span>
             </div>
           </div>
         </div>

@@ -16,7 +16,7 @@ export function BookDemoPage({ onNavigate }) {
     primaryChannel: 'WhatsApp',
     monthlyOrders: '100 - 500 orders/month',
     preferredDate: '',
-    preferredTime: '10:00 AM - 12:00 PM EST',
+    preferredTime: '10:00 AM - 01:00 PM BST / 12:00 AM - 03:00 AM EST',
     message: ''
   });
 
@@ -214,15 +214,15 @@ export function BookDemoPage({ onNavigate }) {
                       onChange={handleChange}
                     />
                     <Select
-                      label="Preferred Time Window"
+                      label="Preferred Time Window (BST / EST)"
                       name="preferredTime"
                       value={formData.preferredTime}
                       onChange={handleChange}
                       options={[
-                        { value: '09:00 AM - 11:00 AM EST', label: '09:00 AM - 11:00 AM EST' },
-                        { value: '11:00 AM - 01:00 PM EST', label: '11:00 AM - 01:00 PM EST' },
-                        { value: '02:00 PM - 04:00 PM EST', label: '02:00 PM - 04:00 PM EST' },
-                        { value: '04:00 PM - 06:00 PM EST', label: '04:00 PM - 06:00 PM EST' }
+                        { value: '10:00 AM - 01:00 PM BST / 12:00 AM - 03:00 AM EST', label: 'Morning (10:00 AM - 1:00 PM BST / Local)' },
+                        { value: '02:00 PM - 05:00 PM BST / 04:00 AM - 07:00 AM EST', label: 'Afternoon (2:00 PM - 5:00 PM BST / Local)' },
+                        { value: '06:00 PM - 09:00 PM BST / 08:00 AM - 11:00 AM EST', label: 'Evening (6:00 PM - 9:00 PM BST / 8-11 AM EST)' },
+                        { value: '09:00 PM - 11:00 PM BST / 11:00 AM - 01:00 PM EST', label: 'Night (9:00 PM - 11:00 PM BST / 11 AM - 1 PM EST)' }
                       ]}
                     />
                   </div>

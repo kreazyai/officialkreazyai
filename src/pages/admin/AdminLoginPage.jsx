@@ -53,7 +53,8 @@ export function AdminLoginPage({ onLoginSuccess }) {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#111712',
+      backgroundColor: 'var(--bg-surface)',
+      backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(189, 211, 148, 0.08) 0%, transparent 70%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -61,41 +62,34 @@ export function AdminLoginPage({ onLoginSuccess }) {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Background Accent Grid */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: 'radial-gradient(#28382b 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-        opacity: 0.35,
-        pointerEvents: 'none'
-      }}></div>
-
       <div style={{
         width: '100%',
         maxWidth: '460px',
-        backgroundColor: '#1b241d',
-        border: '1px solid #2d3e30',
-        borderRadius: 'var(--radius-xl)',
+        backgroundColor: 'var(--bg-card)',
+        backdropFilter: 'blur(28px)',
+        WebkitBackdropFilter: 'blur(28px)',
+        border: '1px solid var(--border-medium)',
+        borderRadius: 'var(--radius-panel)',
         padding: 'var(--space-8)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        boxShadow: 'var(--shadow-panel)',
         position: 'relative',
         zIndex: 2,
-        color: '#f0f4f1'
+        color: 'var(--text-primary)'
       }}>
-        {/* Top Security Emblem */}
+        {/* Top Security Emblem & Brand Logo */}
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+          <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" style={{ margin: '0 auto 1.25rem auto' }} />
           <div style={{
             width: '54px',
             height: '54px',
-            borderRadius: '14px',
-            backgroundColor: '#27382a',
-            border: '1px solid #3c5440',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(189, 211, 148, 0.15)',
+            border: '1px solid rgba(189, 211, 148, 0.35)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto var(--space-4) auto',
-            color: '#71a376'
+            color: 'var(--primary-accent)'
           }}>
             <ShieldCheck size={28} />
           </div>

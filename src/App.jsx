@@ -52,20 +52,21 @@ function PageLoader() {
       justifyContent: 'center',
       minHeight: '60vh',
       flexDirection: 'column',
-      gap: '16px',
-      color: '#667A3E',
-      fontFamily: 'var(--font-primary, system-ui)'
+      gap: '14px',
+      color: 'var(--primary-accent)',
+      fontFamily: 'var(--font-sans, system-ui)'
     }}>
+      <img src="/logo.png" alt="KreazyAI" style={{ height: '26px', width: 'auto', opacity: 0.85, marginBottom: '4px' }} />
       <div style={{
-        width: '40px',
-        height: '40px',
-        border: '3px solid rgba(102,122,62,0.2)',
-        borderTop: '3px solid #667A3E',
+        width: '36px',
+        height: '36px',
+        border: '3px solid rgba(189, 211, 148, 0.2)',
+        borderTop: '3px solid var(--primary-accent)',
         borderRadius: '50%',
         animation: 'spin 0.8s linear infinite'
       }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <span style={{ fontSize: '14px', opacity: 0.7 }}>Loading…</span>
+      <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Loading…</span>
     </div>
   );
 }

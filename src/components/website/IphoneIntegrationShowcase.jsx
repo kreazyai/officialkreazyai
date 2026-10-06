@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Check, 
-  Smartphone, 
-  MessageCircle, 
-  Send, 
-  ShoppingBag, 
-  ShieldCheck, 
-  Zap, 
+import {
+  Sparkles,
+  Check,
+  Smartphone,
+  MessageCircle,
+  Send,
+  ShoppingBag,
+  ShieldCheck,
+  Zap,
   ArrowUpRight,
   Layers,
   ChevronRight
@@ -74,8 +74,8 @@ export function IphoneIntegrationShowcase({ onNavigate }) {
           {/* Interactive Channel Cards */}
           <div className="integration-channel-cards">
             {channels.map((chan) => (
-              <div 
-                key={chan.id} 
+              <div
+                key={chan.id}
                 onClick={() => setSelectedChannel(chan.id)}
                 className={`integration-card ${selectedChannel === chan.id ? 'active' : ''}`}
               >
@@ -104,8 +104,8 @@ export function IphoneIntegrationShowcase({ onNavigate }) {
               </div>
             </div>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => onNavigate('integrations')}
               className="btn btn-primary btn-md"
             >

@@ -262,14 +262,7 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
 
           {/* Clean Toolbar: Filter tabs + Search */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-            <div style={{
-              display: 'inline-flex',
-              backgroundColor: 'var(--bg-canvas-alt)',
-              padding: '3px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-subtle)',
-              gap: '2px'
-            }}>
+            <div className="capsule-filter-group">
               {[
                 { key: 'all', label: 'All', count: customers.length },
                 { key: 'vip', label: 'VIP Shoppers', count: stats.vips },
@@ -278,16 +271,16 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
                 <button
                   key={tab.key}
                   type="button"
-                  className={`btn btn-sm ${filterTab === tab.key ? 'btn-primary' : 'btn-ghost'}`}
-                  style={{ height: '32px', padding: '0 0.85rem', fontSize: '0.8rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  className={`capsule-filter-btn ${filterTab === tab.key ? 'active' : ''}`}
                   onClick={() => setFilterTab(tab.key)}
                 >
                   <span>{tab.label}</span>
                   <span style={{
                     fontSize: '0.7rem',
-                    padding: '1px 5px',
+                    padding: '1px 6px',
                     borderRadius: '9999px',
-                    backgroundColor: filterTab === tab.key ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.08)'
+                    backgroundColor: filterTab === tab.key ? 'rgba(189, 211, 148, 0.25)' : 'rgba(255,255,255,0.08)',
+                    color: filterTab === tab.key ? 'var(--primary-accent)' : 'inherit'
                   }}>
                     {tab.count}
                   </span>
@@ -308,11 +301,12 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
             </div>
           </div>
 
-          {/* Simplified Table wrapped in Settings-style container */}
+          {/* Simplified Table wrapped in Smoked-Glass container */}
           <div style={{
             background: 'var(--bg-card)',
-            border: '1px solid var(--border-medium)',
-            borderRadius: '16px',
+            backdropFilter: 'blur(24px)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-card)',
             overflow: 'hidden'
           }}>
             <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>

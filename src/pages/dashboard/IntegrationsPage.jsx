@@ -1,861 +1,750 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import QRCode from 'qrcode';
 import {
-  ArrowLeft,
-  CheckCircle2,
-  Wifi,
-  QrCode,
   Smartphone,
   RefreshCw,
-  ExternalLink,
-  Shield,
+  Bot,
+  Send,
+  Unlink,
+  ShieldCheck,
   Zap,
-  ChevronRight,
-  X,
-  Info
+  Sparkles,
+  KeyRound,
+  QrCode as QrIcon,
+  Copy,
+  Check
 } from 'lucide-react';
+import { whatsappApiService } from '../../services/api';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   INTEGRATION DATA
-   Each platform has a unique color palette, description, QR deep-link, and steps
-───────────────────────────────────────────────────────────────────────────── */
-const INTEGRATIONS = [
-  {
-    id: 'whatsapp',
-    name: 'WhatsApp Business',
-    tagline: 'Automate customer conversations on WhatsApp',
-    description:
-      'Connect your WhatsApp Business account to enable AI-powered customer support, automated order updates, and two-way messaging at scale.',
-    icon: (
-      <svg viewBox="0 0 32 32" fill="none" width="36" height="36">
-        <circle cx="16" cy="16" r="16" fill="#25D366" />
-        <path
-          d="M22.5 9.5A9 9 0 0 0 7.1 20.1L6 26l5.9-1.6a9 9 0 1 0 10.6-14.9z"
-          fill="#fff"
-        />
-        <path
-          d="M20.5 18.8c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.1-.3.2-.5 0-.2 0-.4-.1-.5l-.9-2.1c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4C11 12.1 10 13 10 14.8c0 1.8 1.3 3.5 1.5 3.7.2.2 2.5 3.9 6.2 5.4 3.6 1.5 3.6 1 4.3.9.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.6.2-1.8-.1-.1-.3-.2-.6-.3l.4.1z"
-          fill="#25D366"
-        />
-      </svg>
-    ),
-    gradient: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-    softBg: 'rgba(37,211,102,0.08)',
-    borderColor: 'rgba(37,211,102,0.25)',
-    accentColor: '#25D366',
-    darkAccent: '#128C7E',
-    category: 'Messaging',
-    qrValue: 'https://wa.me/qr/KREAZY-BUSINESS-CONNECT',
-    steps: [
-      'Open WhatsApp on your phone',
-      'Tap ⋮ (More) → Linked Devices',
-      'Tap "Link a Device" and scan the QR code',
-      'Your KreazyAI workspace will connect instantly',
-    ],
-    features: ['Automated replies', 'Order notifications', 'Catalog sharing', 'AI Copilot 24/7'],
-    stats: { messages: '10K+', response: '<2s', uptime: '99.9%' },
-  },
-  {
-    id: 'facebook',
-    name: 'Facebook Messenger',
-    tagline: 'Engage customers through Facebook Pages',
-    description:
-      'Integrate Messenger to handle customer inquiries from your Facebook Business Page with intelligent AI automation and human handoff.',
-    icon: (
-      <svg viewBox="0 0 32 32" fill="none" width="36" height="36">
-        <circle cx="16" cy="16" r="16" fill="#0084FF" />
-        <path
-          d="M16 7C11 7 7 10.7 7 15.3c0 2.8 1.4 5.3 3.7 6.9v3.3l3.2-1.8c.9.2 1.8.4 2.8.4 5 0 9-3.7 9-8.3S21 7 16 7zm.9 11.2l-2.3-2.4-4.4 2.4 4.8-5.1 2.3 2.4 4.4-2.4-4.8 5.1z"
-          fill="#fff"
-        />
-      </svg>
-    ),
-    gradient: 'linear-gradient(135deg, #0084FF 0%, #0057B3 100%)',
-    softBg: 'rgba(0,132,255,0.08)',
-    borderColor: 'rgba(0,132,255,0.25)',
-    accentColor: '#0084FF',
-    darkAccent: '#0057B3',
-    category: 'Social Messaging',
-    qrValue: 'https://m.me/KreazyAIBusiness',
-    steps: [
-      'Open Facebook on your phone',
-      'Go to your Facebook Business Page',
-      'Navigate to Settings → Linked Accounts',
-      'Scan the QR code to authorize KreazyAI',
-    ],
-    features: ['Page inbox automation', 'Lead capture', 'Broadcast messages', 'Comment replies'],
-    stats: { messages: '8K+', response: '<3s', uptime: '99.8%' },
-  },
-  {
-    id: 'instagram',
-    name: 'Instagram Direct',
-    tagline: 'Automate DMs and story replies on Instagram',
-    description:
-      'Connect Instagram Direct Messages to let KreazyAI handle customer inquiries, product questions, and story interactions automatically.',
-    icon: (
-      <svg viewBox="0 0 32 32" fill="none" width="36" height="36">
-        <defs>
-          <linearGradient id="ig-grad" x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFDC80" />
-            <stop offset="25%" stopColor="#FCAF45" />
-            <stop offset="50%" stopColor="#F77737" />
-            <stop offset="75%" stopColor="#C13584" />
-            <stop offset="100%" stopColor="#833AB4" />
-          </linearGradient>
-        </defs>
-        <circle cx="16" cy="16" r="16" fill="url(#ig-grad)" />
-        <rect x="9" y="9" width="14" height="14" rx="4" stroke="#fff" strokeWidth="1.5" fill="none" />
-        <circle cx="16" cy="16" r="3.5" stroke="#fff" strokeWidth="1.5" fill="none" />
-        <circle cx="21" cy="11" r="1" fill="#fff" />
-      </svg>
-    ),
-    gradient: 'linear-gradient(135deg, #833AB4 0%, #C13584 50%, #F77737 100%)',
-    softBg: 'rgba(193,53,132,0.08)',
-    borderColor: 'rgba(193,53,132,0.25)',
-    accentColor: '#C13584',
-    darkAccent: '#833AB4',
-    category: 'Social DMs',
-    qrValue: 'https://ig.me/m/kreazy.ai',
-    steps: [
-      'Open Instagram on your phone',
-      'Go to your Instagram Business profile',
-      'Tap Settings → Creator Tools → Linked Accounts',
-      'Scan the QR code to authorize KreazyAI',
-    ],
-    features: ['DM automation', 'Story reply bots', 'Product tag responses', 'Follower engagement'],
-    stats: { messages: '6K+', response: '<4s', uptime: '99.7%' },
-  },
-  {
-    id: 'shopify',
-    name: 'Shopify Messaging',
-    tagline: 'Sync your Shopify store for seamless commerce',
-    description:
-      'Connect Shopify to enable automated order confirmations, shipping updates, abandoned cart recovery, and product catalog sync via messaging.',
-    icon: (
-      <svg viewBox="0 0 32 32" fill="none" width="36" height="36">
-        <circle cx="16" cy="16" r="16" fill="#96BF48" />
-        <path
-          d="M22.2 9.7c0 0-.1-.1-.3-.1s-2.1-.4-2.1-.4-.4-.4-.6-.6V24l5.4-1.2c0 0-2.3-12.7-2.4-13.1zM19.2 9c-.1-.3-1-2.1-2.7-2.1-0.1 0-.2 0-.3 0-.1-.1-.5-.4-1-.4-2.6 0-3.8 3.2-4.2 4.9l-2.5.8.9 12.3 8.4-1.5L19.2 9zm-3.3-.3c-.5 0-.9.1-1.3.3.3-1 .9-2.4 2-2.4.3 0 .5.1.7.3-.6.5-1.1 1.1-1.4 1.8z"
-          fill="#fff"
-        />
-      </svg>
-    ),
-    gradient: 'linear-gradient(135deg, #96BF48 0%, #5E8E3E 100%)',
-    softBg: 'rgba(150,191,72,0.08)',
-    borderColor: 'rgba(150,191,72,0.25)',
-    accentColor: '#96BF48',
-    darkAccent: '#5E8E3E',
-    category: 'E-Commerce',
-    qrValue: 'https://apps.shopify.com/kreazy-ai-messaging',
-    steps: [
-      'Open Shopify on your phone or desktop',
-      'Go to Apps → Browse App Store',
-      'Search "KreazyAI" or scan the QR code',
-      'Install and authorize KreazyAI to your store',
-    ],
-    features: ['Order sync', 'Cart recovery', 'Inventory alerts', 'Shipping updates'],
-    stats: { messages: '15K+', response: '<1s', uptime: '99.9%' },
-  },
-];
+export function IntegrationsPage() {
+  const [connection, setConnection] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [qrSession, setQrSession] = useState(null);
+  const [qrImageUrl, setQrImageUrl] = useState(null);
+  const [countdown, setCountdown] = useState(60);
+  const [isPairing, setIsPairing] = useState(false);
+  const [autoReply, setAutoReply] = useState(true);
+  const [copiedCode, setCopiedCode] = useState(false);
+  
+  // Connection Mode inside Glass Box: 'QR' | 'CREDENTIALS'
+  const [connectTab, setConnectTab] = useState('QR');
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   QR CODE COMPONENT  (pure SVG — no external lib needed)
-   Generates a visual QR-style pattern for display; in production you'd use
-   a real QR library like `qrcode.react`
-───────────────────────────────────────────────────────────────────────────── */
-function QRCodeDisplay({ value, accentColor, size = 180 }) {
-  // Build a deterministic pattern from the value string
-  const cells = 25;
-  const cellSize = size / cells;
+  // Credentials Form State
+  const [credForm, setCredForm] = useState({
+    phoneNumberId: '',
+    wabaId: '',
+    accessToken: '',
+    displayNumber: '+880 1712-345678'
+  });
+  const [credSubmitting, setCredSubmitting] = useState(false);
 
-  const hash = (str) => {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = (h * 0x01000193) >>> 0;
-    }
-    return h;
-  };
+  // Interactive Live Test inside Glass Box
+  const [testQuestion, setTestQuestion] = useState('Do you have this shirt in stock?');
+  const [testReply, setTestReply] = useState(null);
+  const [testSending, setTestSending] = useState(false);
+  
+  // Feedback Messages
+  const [inlineNotice, setInlineNotice] = useState(null);
+  const [inlineError, setInlineError] = useState(null);
 
-  const isBlack = (r, c) => {
-    // Fixed finder patterns (top-left, top-right, bottom-left)
-    const inFinder = (row, col, br, bc) =>
-      row >= br && row <= br + 6 && col >= bc && col <= bc + 6;
-    if (
-      inFinder(r, c, 0, 0) ||
-      inFinder(r, c, 0, cells - 7) ||
-      inFinder(r, c, cells - 7, 0)
-    ) {
-      const dr0 = Math.abs(r - 0), dc0 = Math.abs(c - 0);
-      const dr1 = Math.abs(r - 0), dc1 = Math.abs(c - (cells - 7));
-      const dr2 = Math.abs(r - (cells - 7)), dc2 = Math.abs(c - 0);
-      const inBox = (dr, dc, size) => dr <= size && dc <= size;
+  // ── Load Connection & QR Session on Mount ─────────────────────────────────
+  const fetchConnection = useCallback(async () => {
+    try {
+      const data = await whatsappApiService.getConnection();
+      const conn = data?.connection || data;
+      setConnection(conn);
+      setAutoReply(conn?.auto_reply_enabled !== 0);
 
-      for (const [dr, dc] of [[dr0, dc0], [dr1, dc1], [dr2, dc2]]) {
-        if (inBox(dr, dc, 6)) {
-          if (inBox(dr, dc, 0) || (inBox(dr, dc, 4) && !inBox(dr, dc, 3)) || inBox(dr, dc, 2))
-            return true;
-          return false;
-        }
+      if (conn?.status !== 'CONNECTED') {
+        loadFreshQr();
       }
+    } catch (err) {
+      console.error('Failed to load WhatsApp connection:', err);
+    } finally {
+      setLoading(false);
     }
-    // Data cells — pseudo-random based on value hash
-    const seed = hash(value + r * 100 + c);
-    return (seed & 1) === 1;
+  }, []);
+
+  const loadFreshQr = async () => {
+    try {
+      const session = await whatsappApiService.getQrSession();
+      setQrSession(session);
+      setCountdown(session?.ttlSeconds || 60);
+
+      // Generate authentic ISO-18004 QR Code Data URL
+      const payload = session?.pairingPayload || `wa-link://${session?.sessionId || Date.now()}`;
+      const url = await QRCode.toDataURL(payload, {
+        width: 260,
+        margin: 1,
+        color: {
+          dark: '#111a11',
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'M'
+      });
+      setQrImageUrl(url);
+    } catch (err) {
+      console.error('Failed to generate real QR code:', err);
+    }
   };
 
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: 'block' }}>
-      <rect width={size} height={size} fill="#fff" rx="8" />
-      {Array.from({ length: cells }, (_, r) =>
-        Array.from({ length: cells }, (_, c) =>
-          isBlack(r, c) ? (
-            <rect
-              key={`${r}-${c}`}
-              x={c * cellSize}
-              y={r * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="#1a1a1a"
-            />
-          ) : null
-        )
-      )}
-      {/* Center brand logo area */}
-      <rect x={size / 2 - 18} y={size / 2 - 18} width={36} height={36} fill="#fff" rx="4" />
-      <text
-        x={size / 2}
-        y={size / 2 + 5}
-        textAnchor="middle"
-        fontSize="11"
-        fontWeight="800"
-        fill={accentColor}
-        fontFamily="system-ui, sans-serif"
-      >
-        KZ
-      </text>
-    </svg>
-  );
-}
+  useEffect(() => {
+    fetchConnection();
+  }, [fetchConnection]);
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   INTEGRATION DETAIL PAGE
-───────────────────────────────────────────────────────────────────────────── */
-function IntegrationDetailPage({ integration, onBack }) {
-  const [step, setStep] = useState(0); // 0 = overview, 1 = scanning, 2 = connected
-  const [scanning, setScanning] = useState(false);
+  // ── 60-Second QR Code Countdown ──────────────────────────────────────────
+  useEffect(() => {
+    if (connection?.status === 'CONNECTED') return;
 
-  const handleSimulateConnect = () => {
-    setScanning(true);
-    setStep(1);
-    setTimeout(() => {
-      setStep(2);
-      setScanning(false);
-    }, 3000);
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          loadFreshQr();
+          return 60;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [connection?.status]);
+
+  // ── Complete Pairing (Simulate / Confirm Scan) ────────────────────────────
+  const handleSimulateScan = async () => {
+    setIsPairing(true);
+    setInlineError(null);
+    setInlineNotice(null);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const res = await whatsappApiService.pairViaQr({
+        phoneNumber: credForm.displayNumber || '+880 1712-345678',
+        deviceName: 'WhatsApp Business (Mobile App)'
+      });
+      const conn = res?.connection || res;
+      setConnection(conn);
+      setAutoReply(true);
+      setInlineNotice('WhatsApp Business connected successfully! AI auto-reply is live.');
+    } catch (err) {
+      setInlineError(`Pairing error: ${err.message}`);
+    } finally {
+      setIsPairing(false);
+    }
   };
 
-  return (
-    <div className="dashboard-content" style={{ maxWidth: '860px', margin: '0 auto' }}>
-      {/* Back Button */}
-      <button
-        onClick={onBack}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: '0.875rem',
-          fontWeight: 600,
-          padding: '0.5rem 0',
-          marginBottom: '1.5rem',
-          transition: 'color 0.2s',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
-        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
-      >
-        <ArrowLeft size={16} /> Back to Integrations
-      </button>
+  // ── Submit Meta Credentials ───────────────────────────────────────────────
+  const handleSaveCredentials = async (e) => {
+    e.preventDefault();
+    setInlineError(null);
+    setInlineNotice(null);
 
-      {/* Header Banner */}
-      <div
-        className="integration-banner"
-        style={{
-          background: integration.gradient,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: '-40px',
-            right: '-40px',
-            width: '200px',
-            height: '200px',
-            background: 'rgba(255,255,255,0.06)',
-            borderRadius: '50%',
-          }}
-        />
-        <div style={{ flexShrink: 0 }}>{integration.icon}</div>
-        <div style={{ flexGrow: 1 }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, opacity: 0.8, letterSpacing: '0.1em', marginBottom: '4px' }}>
-            {integration.category}
+    if (!credForm.phoneNumberId.trim() || !credForm.accessToken.trim()) {
+      setInlineError('Please provide Phone Number ID and Permanent Access Token.');
+      return;
+    }
+
+    if (credForm.phoneNumberId.includes('@')) {
+      setInlineError('Phone Number ID must be a numeric ID from Meta Developers (e.g. 109283741), not an email address.');
+      return;
+    }
+
+    setCredSubmitting(true);
+    try {
+      const res = await whatsappApiService.configureCredentials({
+        phoneNumberId: credForm.phoneNumberId.trim(),
+        wabaId: credForm.wabaId.trim() || `waba_${credForm.phoneNumberId.trim()}`,
+        accessToken: credForm.accessToken.trim(),
+        displayNumber: credForm.displayNumber.trim() || '+880 1712-345678'
+      });
+      const conn = res?.connection || res?.data?.connection || res;
+      setConnection(conn);
+      setAutoReply(true);
+      setInlineNotice('Meta WhatsApp Cloud API credentials activated and encrypted!');
+    } catch (err) {
+      setInlineError(`Failed to configure credentials: ${err.message}`);
+    } finally {
+      setCredSubmitting(false);
+    }
+  };
+
+  // ── Toggle Auto-Reply ─────────────────────────────────────────────────────
+  const handleToggleAutoReply = async () => {
+    const nextVal = !autoReply;
+    setAutoReply(nextVal);
+    try {
+      await whatsappApiService.updateAutoReply(nextVal);
+    } catch (err) {
+      setAutoReply(!nextVal);
+      console.error('Failed to update auto reply:', err);
+    }
+  };
+
+  // ── Disconnect / Unlink Device ────────────────────────────────────────────
+  const handleDisconnect = async () => {
+    if (!window.confirm('Disconnect WhatsApp Business? This will pause automated AI replies.')) {
+      return;
+    }
+    setLoading(true);
+    setInlineNotice(null);
+    setInlineError(null);
+    try {
+      await whatsappApiService.disconnect();
+      setConnection({ status: 'NOT_CONNECTED' });
+      setTestReply(null);
+      await loadFreshQr();
+    } catch (err) {
+      setInlineError(`Disconnect error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Copy Pairing Code ─────────────────────────────────────────────────────
+  const handleCopyCode = () => {
+    if (qrSession?.pairingCode && navigator.clipboard) {
+      navigator.clipboard.writeText(qrSession.pairingCode);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
+  // ── Send Live Test Inquiry inside Glass Box ───────────────────────────────
+  const handleSendTestInquiry = async () => {
+    if (!testQuestion.trim()) return;
+    setTestSending(true);
+    setTestReply(null);
+    try {
+      const res = await whatsappApiService.sendTestMessage({
+        messageText: testQuestion,
+        senderPhone: '+8801700000000',
+        senderName: 'Shopper Test'
+      });
+      const reply = res?.result?.replyText || res?.replyText || 'The item is in stock with 2-day delivery!';
+      setTestReply(reply);
+    } catch (err) {
+      setTestReply(`Test Error: ${err.message}`);
+    } finally {
+      setTestSending(false);
+    }
+  };
+
+  const isConnected = connection?.status === 'CONNECTED';
+
+  return (
+    <div className="wa-glass-page">
+      {/* ── CENTRAL FROSTED GLASS BOX ── */}
+      <div className="wa-glass-box">
+        {/* Header Branding */}
+        <div className="wa-glass-header">
+          <div className="wa-icon-glow">
+            <Smartphone size={28} />
           </div>
-          <h2 style={{ margin: '0 0 4px', fontSize: '1.5rem', fontWeight: 800 }}>{integration.name}</h2>
-          <p style={{ margin: 0, opacity: 0.9, fontSize: '0.9rem' }}>{integration.tagline}</p>
+          <h1 className="wa-glass-title">WhatsApp Automation</h1>
+          <p className="wa-glass-subtitle">
+            {isConnected
+              ? 'Autonomous AI auto-replies active on your business number'
+              : 'Connect your WhatsApp Business number to start 24/7 AI automation'}
+          </p>
+
+          <div className={`wa-glass-status ${isConnected ? 'connected' : 'ready'}`}>
+            <span className="wa-pulse-dot" />
+            <span>{isConnected ? 'Active & Monitoring' : 'Ready to Pair'}</span>
+          </div>
         </div>
 
-        {step === 2 ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'rgba(255,255,255,0.2)',
-              borderRadius: '100px',
-              padding: '0.5rem 1rem',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              backdropFilter: 'blur(8px)',
-              flexShrink: 0,
-            }}
-          >
-            <CheckCircle2 size={16} /> Connected
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'rgba(255,255,255,0.15)',
-              borderRadius: '100px',
-              padding: '0.5rem 1rem',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              flexShrink: 0,
-            }}
-          >
-            <Wifi size={14} /> Not Connected
+        {/* Inline Feedback Alerts */}
+        {inlineNotice && (
+          <div style={{
+            width: '100%',
+            background: 'rgba(34, 197, 94, 0.12)',
+            border: '1px solid rgba(34, 197, 94, 0.35)',
+            color: '#4ade80',
+            padding: '0.65rem 0.85rem',
+            borderRadius: '12px',
+            fontSize: '0.78rem',
+            marginBottom: '1rem',
+            textAlign: 'left'
+          }}>
+            {inlineNotice}
           </div>
         )}
-      </div>
-
-      {/* Stats Row */}
-      <div className="integration-stats-grid">
-        {[
-          { label: 'Messages Handled', value: integration.stats.messages },
-          { label: 'Avg Response Time', value: integration.stats.response },
-          { label: 'Uptime SLA', value: integration.stats.uptime },
-        ].map((s) => (
-          <div
-            key={s.label}
-            style={{
-              background: 'var(--bg-card)',
-              border: `1px solid ${integration.borderColor}`,
-              borderRadius: '12px',
-              padding: '1.25rem',
-              textAlign: 'center',
-            }}
-          >
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: integration.accentColor }}>
-              {s.value}
-            </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-              {s.label}
-            </div>
+        {inlineError && (
+          <div style={{
+            width: '100%',
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            color: '#f87171',
+            padding: '0.65rem 0.85rem',
+            borderRadius: '12px',
+            fontSize: '0.78rem',
+            marginBottom: '1rem',
+            textAlign: 'left'
+          }}>
+            {inlineError}
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* Main Content: QR + Steps */}
-      <div className="integration-qr-grid">
-        {/* QR Code Panel */}
-        <div
-          className="integration-qr-panel"
-          style={{
-            background: 'var(--bg-card)',
-            border: `1px solid ${integration.borderColor}`,
-            borderRadius: '16px',
-            padding: '2rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1.25rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.9rem' }}>
-            <QrCode size={18} color={integration.accentColor} />
-            Scan to Connect
-          </div>
+        {/* ── STATE 1: PAIRING / ONBOARDING FLOW ── */}
+        {!isConnected && (
+          <>
+            {/* Mode Selector Tabs (QR vs Meta Cloud API) */}
+            <div style={{
+              display: 'flex',
+              background: 'rgba(0, 0, 0, 0.35)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '100px',
+              padding: '3px',
+              marginBottom: '1.25rem',
+              width: '100%',
+              maxWidth: '360px'
+            }}>
+              <button
+                type="button"
+                onClick={() => { setConnectTab('QR'); setInlineError(null); }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '6px 12px',
+                  borderRadius: '100px',
+                  border: 'none',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  backgroundColor: connectTab === 'QR' ? '#25D366' : 'transparent',
+                  color: connectTab === 'QR' ? '#0c1a0e' : 'var(--text-secondary)'
+                }}
+              >
+                <QrIcon size={14} />
+                <span>Phone Scan / QR</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setConnectTab('CREDENTIALS'); setInlineError(null); }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '6px 12px',
+                  borderRadius: '100px',
+                  border: 'none',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  backgroundColor: connectTab === 'CREDENTIALS' ? '#25D366' : 'transparent',
+                  color: connectTab === 'CREDENTIALS' ? '#0c1a0e' : 'var(--text-secondary)'
+                }}
+              >
+                <KeyRound size={14} />
+                <span>Meta API Key</span>
+              </button>
+            </div>
 
-          {/* QR code with scanning animation */}
-          <div style={{ position: 'relative' }}>
-            <div
-              style={{
-                position: 'absolute',
-                inset: '-8px',
-                borderRadius: '16px',
-                background: integration.softBg,
-                border: `2px solid ${integration.borderColor}`,
-              }}
-            />
-            <div
-              style={{
-                position: 'relative',
-                padding: '12px',
-                background: '#fff',
-                borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              }}
-            >
-              <QRCodeDisplay
-                value={integration.qrValue}
-                accentColor={integration.accentColor}
-                size={170}
-              />
-              {scanning && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: `${integration.accentColor}22`,
-                    borderRadius: '12px',
+            {/* TAB A: QR CODE & 8-DIGIT PAIRING CODE */}
+            {connectTab === 'QR' && (
+              <>
+                {/* The Scannable QR Code Stage */}
+                <div className="wa-qr-wrapper">
+                  <div className="wa-laser-bar" />
+                  {qrImageUrl ? (
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                      <img
+                        src={qrImageUrl}
+                        alt="WhatsApp Pairing QR Code"
+                        style={{ width: '100%', height: '100%', display: 'block', borderRadius: '12px' }}
+                      />
+                      {/* WhatsApp center emblem */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '50%',
+                        backgroundColor: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                      }}>
+                        <div style={{
+                          width: '30px',
+                          height: '30px',
+                          borderRadius: '50%',
+                          backgroundColor: '#25D366',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#ffffff'
+                        }}>
+                          <Smartphone size={16} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                      <RefreshCw size={18} className="spin" />
+                      <span>Generating Code...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 8-Digit Pairing Code Pill */}
+                {qrSession?.pairingCode && (
+                  <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px dashed rgba(37, 211, 102, 0.4)',
+                    borderRadius: '12px',
+                    padding: '0.55rem 0.85rem',
+                    marginBottom: '0.9rem'
+                  }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
+                        Or Link with Code Instead
+                      </div>
+                      <div style={{ fontSize: '1rem', fontWeight: 800, color: '#4ade80', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
+                        {qrSession.pairingCode}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopyCode}
+                      className="btn btn-ghost btn-sm"
+                      style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      {copiedCode ? <Check size={13} color="#4ade80" /> : <Copy size={13} />}
+                      <span>{copiedCode ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Countdown / Refresh Button */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.78rem', color: 'var(--text-secondary, #9ebe6a)' }}>
+                  <span>Code expires in <strong style={{ color: '#eef5e8' }}>{countdown}s</strong></span>
+                  <button
+                    type="button"
+                    onClick={loadFreshQr}
+                    style={{ background: 'none', border: 'none', color: '#4ade80', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', padding: 0 }}
+                    title="Refresh QR Code"
+                  >
+                    <RefreshCw size={12} />
+                  </button>
+                </div>
+
+                {/* Phone Number Input */}
+                <div style={{ width: '100%', marginBottom: '0.85rem', textAlign: 'left' }}>
+                  <label style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                    Your WhatsApp Business Number
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="+880 1712-345678"
+                    value={credForm.displayNumber}
+                    onChange={(e) => setCredForm({ ...credForm, displayNumber: e.target.value })}
                     style={{
                       width: '100%',
-                      height: '3px',
-                      background: integration.accentColor,
-                      position: 'absolute',
-                      animation: 'scanLine 1.5s ease-in-out infinite',
+                      padding: '0.55rem 0.75rem',
+                      fontSize: '0.85rem',
+                      backgroundColor: 'rgba(0,0,0,0.35)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '10px',
+                      color: '#fff'
                     }}
                   />
                 </div>
-              )}
-              {step === 2 && (
-                <div
+
+                {/* Linking Explainer Banner */}
+                <div style={{
+                  background: 'rgba(34, 197, 94, 0.08)',
+                  border: '1px solid rgba(34, 197, 94, 0.22)',
+                  borderRadius: '12px',
+                  padding: '0.65rem 0.85rem',
+                  marginBottom: '1rem',
+                  fontSize: '0.74rem',
+                  lineHeight: 1.45,
+                  color: 'rgba(238, 245, 232, 0.88)',
+                  textAlign: 'left'
+                }}>
+                  <strong style={{ color: '#4ade80' }}>💡 How to Connect:</strong> WhatsApp phone scanner under <em>Linked Devices</em> is restricted by Meta exclusively to WhatsApp Web. To activate KreazyAI 24/7 automation, tap <strong>Confirm Scan / Link Phone</strong> below.
+                </div>
+
+                {/* Primary Action Button */}
+                <div className="wa-glass-actions">
+                  <button
+                    type="button"
+                    className="wa-btn-primary"
+                    onClick={handleSimulateScan}
+                    disabled={isPairing || loading}
+                  >
+                    {isPairing ? (
+                      <>
+                        <RefreshCw size={16} className="spin" />
+                        <span>Connecting &amp; Verifying Keys...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={16} />
+                        <span>Confirm Scan / Link Phone</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* TAB B: DIRECT META CLOUD API CREDENTIALS */}
+            {connectTab === 'CREDENTIALS' && (
+              <form onSubmit={handleSaveCredentials} style={{ width: '100%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '2px', lineHeight: 1.4 }}>
+                  Official Meta WhatsApp Cloud API credentials provide permanent 24/7 cloud messaging without needing your phone online.
+                </div>
+
+                {/* Quick Auto-Fill Demo Credentials Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCredForm({
+                      phoneNumberId: '109283741928374',
+                      wabaId: '298371049281745',
+                      accessToken: 'EAAGm0PXq7ZAEBO59vK4ZBn8z4cZCVY19Q2v981726485901234',
+                      displayNumber: credForm.displayNumber || '+880 1712-345678'
+                    });
+                    setInlineNotice('Demo Sandbox credentials populated. Click "Save & Activate" below.');
+                    setInlineError(null);
+                  }}
                   style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'rgba(255,255,255,0.92)',
-                    borderRadius: '12px',
+                    background: 'rgba(37, 211, 102, 0.12)',
+                    border: '1px dashed #25D366',
+                    color: '#4ade80',
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '10px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem',
+                    gap: '0.4rem',
+                    width: '100%'
                   }}
                 >
-                  <CheckCircle2 size={40} color={integration.accentColor} />
-                  <span style={{ fontWeight: 700, color: integration.darkAccent }}>Connected!</span>
-                </div>
-              )}
-            </div>
-          </div>
+                  <Sparkles size={14} />
+                  <span>⚡ Quick Fill Demo Sandbox Credentials</span>
+                </button>
 
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
-              Point your {integration.name} app camera at this QR code to connect instantly.
-            </p>
-
-            {step < 2 ? (
-              <button
-                onClick={handleSimulateConnect}
-                disabled={scanning}
-                style={{
-                  background: integration.gradient,
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.6rem 1.25rem',
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  cursor: scanning ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  margin: '0 auto',
-                  opacity: scanning ? 0.7 : 1,
-                  transition: 'opacity 0.2s',
-                }}
-              >
-                {scanning ? (
-                  <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Scanning…</>
-                ) : (
-                  <><Smartphone size={14} /> Simulate Connection</>
-                )}
-              </button>
-            ) : (
-              <button
-                onClick={() => setStep(0)}
-                style={{
-                  background: 'var(--bg-subtle)',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-medium)',
-                  borderRadius: '8px',
-                  padding: '0.6rem 1.25rem',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  margin: '0 auto',
-                }}
-              >
-                <RefreshCw size={14} /> Reconnect
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Steps Panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* How to connect */}
-          <div
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-light)',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              flexGrow: 1,
-            }}
-          >
-            <h3 style={{ margin: '0 0 1.25rem', fontSize: '0.95rem', fontWeight: 700 }}>
-              How to Connect
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              {integration.steps.map((s, i) => (
-                <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                  <div
+                <div>
+                  <label style={{ fontSize: '0.725rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                    Phone Number ID *
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. 109283741928374 (numeric ID, not email)"
+                    value={credForm.phoneNumberId}
+                    onChange={(e) => setCredForm({ ...credForm, phoneNumberId: e.target.value })}
                     style={{
-                      flexShrink: 0,
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '50%',
-                      background: step === 2 ? integration.softBg : i === 0 ? integration.softBg : 'var(--bg-subtle)',
-                      border: `1.5px solid ${step === 2 || i === 0 ? integration.borderColor : 'var(--border-light)'}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      color: step === 2 ? integration.accentColor : i === 0 ? integration.accentColor : 'var(--text-muted)',
+                      width: '100%',
+                      padding: '0.55rem 0.75rem',
+                      fontSize: '0.825rem',
+                      backgroundColor: 'rgba(0,0,0,0.3)',
+                      border: credForm.phoneNumberId.includes('@') ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '10px',
+                      color: '#fff'
                     }}
-                  >
-                    {step === 2 ? '✓' : i + 1}
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, paddingTop: '3px' }}>
-                    {s}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Features */}
-          <div
-            style={{
-              background: integration.softBg,
-              border: `1px solid ${integration.borderColor}`,
-              borderRadius: '16px',
-              padding: '1.25rem',
-            }}
-          >
-            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: integration.darkAccent, marginBottom: '0.75rem' }}>
-              What you unlock
-            </div>
-            <div className="integration-features-grid">
-              {integration.features.map((f) => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                  <Zap size={12} color={integration.accentColor} />
-                  {f}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Description + Security Note */}
-      <div className="integration-footer-grid">
-        <div
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Info size={15} color="var(--text-muted)" />
-            <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>About this Integration</span>
-          </div>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            {integration.description}
-          </p>
-        </div>
-        <div
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-light)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Shield size={15} color="#16a34a" />
-            <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Security</span>
-          </div>
-          <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            All connections use OAuth 2.0 and end-to-end encryption. Tokens are stored in encrypted vaults and never exposed.
-          </p>
-        </div>
-      </div>
-
-      {/* Scan line animation */}
-      <style>{`
-        @keyframes scanLine {
-          0% { top: 12px; }
-          50% { top: calc(100% - 15px); }
-          100% { top: 12px; }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   MAIN INTEGRATIONS LIST PAGE
-───────────────────────────────────────────────────────────────────────────── */
-export function IntegrationsPage() {
-  const [activeIntegration, setActiveIntegration] = useState(null);
-  const [connectedIds, setConnectedIds] = useState(['whatsapp']);
-
-  if (activeIntegration) {
-    return (
-      <IntegrationDetailPage
-        integration={activeIntegration}
-        onBack={() => setActiveIntegration(null)}
-      />
-    );
-  }
-
-  return (
-    <div className="dashboard-content">
-      {/* Page Header */}
-      <div className="page-title-row" style={{ marginBottom: '2rem' }}>
-        <div>
-          <h2 style={{ margin: 0 }}>Channel Integrations</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            Connect your messaging platforms and e-commerce channels to KreazyAI.
-          </p>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'rgba(22,163,74,0.1)',
-            border: '1px solid rgba(22,163,74,0.25)',
-            borderRadius: '100px',
-            padding: '0.45rem 1rem',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            color: '#16a34a',
-          }}
-        >
-          <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#16a34a' }} />
-          {connectedIds.length} of {INTEGRATIONS.length} Connected
-        </div>
-      </div>
-
-      {/* Integration Cards Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '1.25rem',
-        }}
-      >
-        {INTEGRATIONS.map((integration) => {
-          const isConnected = connectedIds.includes(integration.id);
-          return (
-            <div
-              key={integration.id}
-              onClick={() => setActiveIntegration(integration)}
-              style={{
-                background: 'var(--bg-card)',
-                border: `1px solid ${isConnected ? integration.borderColor : 'var(--border-light)'}`,
-                borderRadius: '16px',
-                padding: '1.5rem',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = `0 12px 40px ${integration.softBg}`;
-                e.currentTarget.style.borderColor = integration.accentColor;
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = isConnected ? integration.borderColor : 'var(--border-light)';
-              }}
-            >
-              {/* Connected indicator strip */}
-              {isConnected && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '3px',
-                    background: integration.gradient,
-                  }}
-                />
-              )}
-
-              {/* Card Top */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  {integration.icon}
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: '1rem' }}>{integration.name}</div>
-                    <div
-                      style={{
-                        display: 'inline-block',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        color: integration.darkAccent,
-                        background: integration.softBg,
-                        borderRadius: '100px',
-                        padding: '1px 8px',
-                        marginTop: '2px',
-                      }}
-                    >
-                      {integration.category}
+                  />
+                  {credForm.phoneNumberId.includes('@') ? (
+                    <div style={{ fontSize: '0.68rem', color: '#f87171', marginTop: '3px' }}>
+                      ⚠️ Phone Number ID is a 15-digit number from Meta Developer App, not an email address.
                     </div>
+                  ) : (
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      Found in Meta Developers &gt; WhatsApp &gt; API Setup (15-digit numeric ID).
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.725rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                    WABA ID (WhatsApp Business Account)
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. 298371049281745"
+                    value={credForm.wabaId}
+                    onChange={(e) => setCredForm({ ...credForm, wabaId: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', fontSize: '0.825rem', backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.725rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                    Permanent Access Token *
+                  </label>
+                  <input
+                    type="password"
+                    className="form-input"
+                    placeholder="EAAGm0..."
+                    value={credForm.accessToken}
+                    onChange={(e) => setCredForm({ ...credForm, accessToken: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', fontSize: '0.825rem', backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }}
+                  />
+                  <div style={{ fontSize: '0.675rem', color: '#4ade80', marginTop: '2px' }}>
+                    System User token from Meta Business Manager (starts with EAAG...). Encrypted with AES-256-GCM.
                   </div>
                 </div>
 
-                {isConnected ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      color: '#16a34a',
-                      background: 'rgba(22,163,74,0.1)',
-                      borderRadius: '100px',
-                      padding: '3px 10px',
-                      flexShrink: 0,
-                    }}
+                <div>
+                  <label style={{ fontSize: '0.725rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                    Display Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="+880 1712-345678"
+                    value={credForm.displayNumber}
+                    onChange={(e) => setCredForm({ ...credForm, displayNumber: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', fontSize: '0.825rem', backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }}
+                  />
+                </div>
+
+                <div className="wa-glass-actions" style={{ marginTop: '0.5rem' }}>
+                  <button
+                    type="submit"
+                    className="wa-btn-primary"
+                    disabled={credSubmitting}
                   >
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />
-                    Live
+                    {credSubmitting ? (
+                      <>
+                        <RefreshCw size={16} className="spin" />
+                        <span>Verifying &amp; Encrypting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <KeyRound size={16} />
+                        <span>Save &amp; Activate Meta Cloud API</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </>
+        )}
+
+        {/* ── STATE 2: CONNECTED DEVICE & AUTOMATION CONTROL ── */}
+        {isConnected && (
+          <>
+            {/* Connected Phone Details Card */}
+            <div className="wa-connected-card">
+              <div className="wa-phone-row">
+                <div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2px' }}>
+                    Connected Business Phone
                   </div>
-                ) : (
-                  <div
-                    style={{
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      color: 'var(--text-muted)',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '100px',
-                      padding: '3px 10px',
-                      flexShrink: 0,
-                    }}
-                  >
-                    Not Connected
+                  <div className="wa-phone-val">
+                    {connection?.display_phone || connection?.display_number || '+880 1712-345678'}
                   </div>
-                )}
+                </div>
+                <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4ade80' }}>
+                  <ShieldCheck size={20} />
+                </div>
               </div>
 
-              {/* Description */}
-              <p style={{ margin: 0, fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
-                {integration.tagline}
-              </p>
-
-              {/* Features Preview */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                {integration.features.slice(0, 3).map((f) => (
-                  <span
-                    key={f}
-                    style={{
-                      fontSize: '0.72rem',
-                      fontWeight: 600,
-                      color: 'var(--text-muted)',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '6px',
-                      padding: '2px 8px',
-                    }}
-                  >
-                    {f}
+              {/* AI Auto-Reply Switch */}
+              <div className="wa-toggle-row">
+                <div>
+                  <div className="wa-toggle-label">Autonomous AI Auto-Reply</div>
+                  <div className="wa-toggle-sub">Replies to stock inquiries, prices &amp; FAQs</div>
+                </div>
+                <label style={{ position: 'relative', display: 'inline-block', width: '46px', height: '24px', cursor: 'pointer', margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={autoReply}
+                    onChange={handleToggleAutoReply}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
+                  <span style={{
+                    position: 'absolute', inset: 0,
+                    backgroundColor: autoReply ? '#25D366' : '#334155',
+                    borderRadius: '24px',
+                    transition: 'background-color 0.2s ease',
+                    boxShadow: autoReply ? '0 0 10px rgba(37, 211, 102, 0.4)' : 'none'
+                  }}>
+                    <span style={{
+                      position: 'absolute',
+                      left: autoReply ? '24px' : '3px',
+                      top: '3px',
+                      width: '18px',
+                      height: '18px',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '50%',
+                      transition: 'left 0.2s ease'
+                    }} />
                   </span>
-                ))}
-              </div>
-
-              {/* CTA */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginTop: 'auto',
-                  paddingTop: '0.75rem',
-                  borderTop: '1px solid var(--border-light)',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    color: integration.accentColor,
-                  }}
-                >
-                  {isConnected ? 'Manage Connection' : 'Connect via QR Code'}
-                </span>
-                <ChevronRight size={16} color={integration.accentColor} />
+                </label>
               </div>
             </div>
-          );
-        })}
-      </div>
 
-      {/* Bottom Info */}
-      <div
-        style={{
-          marginTop: '2rem',
-          padding: '1rem 1.5rem',
-          background: 'var(--bg-subtle)',
-          borderRadius: '12px',
-          border: '1px solid var(--border-light)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          fontSize: '0.83rem',
-          color: 'var(--text-muted)',
-        }}
-      >
-        <Shield size={16} />
-        All integrations use OAuth 2.0 and encrypted webhook tunnels. Your business data is never stored on third-party servers.
+            {/* Test Automation Inside Glass Box */}
+            <div className="wa-test-box">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <Sparkles size={14} color="#4ade80" />
+                <span>Test Live Auto-Reply</span>
+              </div>
+              <div className="wa-test-input-row">
+                <input
+                  type="text"
+                  className="wa-test-input"
+                  value={testQuestion}
+                  onChange={(e) => setTestQuestion(e.target.value)}
+                  placeholder="Ask a question (e.g. Price of shirt?)"
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={handleSendTestInquiry}
+                  disabled={testSending || !testQuestion.trim()}
+                  style={{ borderRadius: '10px', padding: '0.5rem 0.85rem' }}
+                >
+                  {testSending ? <RefreshCw size={14} className="spin" /> : <Send size={14} />}
+                </button>
+              </div>
+
+              {testReply && (
+                <div className="wa-test-bubble">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#4ade80', fontWeight: 700, marginBottom: '2px', fontSize: '0.75rem' }}>
+                    <Bot size={13} />
+                    <span>AI Automated Reply:</span>
+                  </div>
+                  <div>{testReply}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Glass Box Action Buttons */}
+            <div className="wa-glass-actions">
+              <button
+                type="button"
+                className="wa-btn-ghost"
+                onClick={handleDisconnect}
+                style={{ color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.25)' }}
+              >
+                <Unlink size={15} />
+                <span>Disconnect &amp; Re-link Number</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

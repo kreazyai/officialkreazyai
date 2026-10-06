@@ -7,23 +7,27 @@ export function LegalPage({ initialTab = 'privacy' }) {
   return (
     <div style={{ padding: 'var(--space-12) 0 var(--space-20) 0' }}>
       <div className="container" style={{ maxWidth: '840px' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--space-8)' }}>
-          <button
-            type="button"
-            className={`btn btn-md ${activeTab === 'privacy' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveTab('privacy')}
-          >
-            <ShieldCheck size={16} />
-            Privacy Policy
-          </button>
-          <button
-            type="button"
-            className={`btn btn-md ${activeTab === 'terms' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveTab('terms')}
-          >
-            <FileText size={16} />
-            Terms of Service
-          </button>
+        <div style={{ display: 'flex', marginBottom: 'var(--space-8)' }}>
+          <div className="capsule-filter-group">
+            <button
+              type="button"
+              className={`capsule-filter-btn ${activeTab === 'privacy' ? 'active' : ''}`}
+              onClick={() => setActiveTab('privacy')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+            >
+              <ShieldCheck size={16} />
+              Privacy Policy
+            </button>
+            <button
+              type="button"
+              className={`capsule-filter-btn ${activeTab === 'terms' ? 'active' : ''}`}
+              onClick={() => setActiveTab('terms')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+            >
+              <FileText size={16} />
+              Terms of Service
+            </button>
+          </div>
         </div>
 
         <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-10)', lineHeight: 1.7 }}>

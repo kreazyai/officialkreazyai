@@ -99,8 +99,13 @@ export function createApp() {
   // 3. Apply general rate limiter to all /api routes
   app.use('/api', generalLimiter);
 
-  // 4. Request Parsers
-  app.use(express.json({ limit: '10mb' }));
+  // 4. Request Parsers (capturing raw body for webhook HMAC validation)
+  app.use(express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString('utf8');
+    }
+  }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // 5. Request Logging

@@ -298,11 +298,8 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
       {/* Platform Admin Top Header */}
       <header className="admin-header">
         <div className="admin-brand">
-          <div className="brand-logo" style={{ color: '#ffffff', cursor: 'pointer' }} onClick={() => onNavigate('home')}>
-            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" style={{ width: '28px', height: '28px' }} />
-            <span className="brand-text" style={{ color: '#ffffff', fontSize: '1.15rem', fontWeight: 800 }}>
-              Kreazy <span style={{ color: '#86efac' }}>Admin</span>
-            </span>
+          <div className="brand-logo" style={{ cursor: 'pointer' }} onClick={() => onNavigate('home')} title="KreazyAI">
+            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img" />
           </div>
 
           <span className="admin-badge-super">

@@ -137,19 +137,59 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
           )}
         </div>
 
-        {/* User Profile Menu */}
+        {/* User Profile Capsule (Reference Visual Language) */}
         <div style={{ position: 'relative' }}>
           <div 
-            className="user-profile-menu"
+            className="user-profile-capsule"
             onClick={() => { setProfileOpen(!profileOpen); setNotificationsOpen(false); }}
-            style={{ cursor: 'pointer', padding: '0.35rem' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              padding: '0.3rem 0.75rem 0.3rem 0.35rem',
+              borderRadius: 'var(--radius-capsule)',
+              background: 'rgba(214, 229, 215, 0.08)',
+              border: '1px solid var(--border-subtle)',
+              cursor: 'pointer',
+              backdropFilter: 'blur(16px)',
+              transition: 'all var(--transition-fast)'
+            }}
           >
-            <div className="user-avatar">
+            <div 
+              className="user-avatar"
+              style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--primary-accent)',
+                color: 'var(--accent-text)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '0.78rem'
+              }}
+            >
               {user?.name ? user.name.slice(0, 2).toUpperCase() : (isDemo ? 'MA' : 'ME')}
             </div>
-            <div style={{ display: 'none', lineHeight: 1.2 }} className="desktop-user-info">
-              <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{user?.name || (isDemo ? 'Marcus Aurelius' : 'Store Owner')}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Store Admin</div>
+            <div style={{ lineHeight: 1.2, textAlign: 'left' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                {user?.name || (isDemo ? 'Marcus Vance' : 'Store Owner')}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Store Manager</div>
+            </div>
+            <div style={{
+              marginLeft: '0.35rem',
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(214, 229, 215, 0.06)',
+              color: 'var(--text-muted)'
+            }}>
+              <Settings size={13} />
             </div>
           </div>
 

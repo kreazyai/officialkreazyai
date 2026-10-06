@@ -62,11 +62,11 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
         <div className="auth-header">
           <div
             className="brand-logo"
-            style={{ justifyContent: 'center', marginBottom: '1.25rem', cursor: 'pointer' }}
+            style={{ justifyContent: 'center', marginBottom: '1.5rem', cursor: 'pointer' }}
             onClick={() => onNavigate('home')}
+            title="KreazyAI"
           >
-            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
-            <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
+            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
           </div>
           <h1>Welcome back</h1>
           <p>Sign in to your merchant workspace to manage conversations, sales, and AI agents.</p>

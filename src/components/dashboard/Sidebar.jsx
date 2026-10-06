@@ -76,10 +76,9 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
               }
             }}
             style={{ cursor: 'pointer', textDecoration: 'none' }}
-            title="Kreazy AI Landing Page"
+            title="KreazyAI"
           >
-            <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
-            <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
+            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img" />
           </a>
 
           {onCloseMobile && (
@@ -100,7 +99,7 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
             <span className={`status-dot ${isDemo ? 'active' : ''}`}></span>
             <span style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-              {user?.storeName || (isDemo ? 'Kreazy Flagship Studio' : 'My Store Workspace')}
+              {user?.storeName || (isDemo ? 'Kreazy Flagship Studio' : 'MyRetail Store')}
             </span>
           </div>
           <ChevronDown size={14} color="var(--text-muted)" />

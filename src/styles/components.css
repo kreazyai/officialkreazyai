@@ -4,7 +4,7 @@
 @import './variables.css';
 
 /* ---------------------------------------------------------------------
-   BUTTONS (TACTILE, CONFIDENT, NO EXCESSIVE GLOW)
+   BUTTONS (CAPSULE PILL CONTROLS, CONFIDENT SAGE ACCENTS)
    --------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
@@ -13,7 +13,7 @@
   gap: var(--space-2);
   font-family: var(--font-sans);
   font-weight: 600;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   border: 1px solid transparent;
   transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap;
@@ -30,55 +30,60 @@
 
 /* Button Sizes */
 .btn-sm {
-  padding: 0.42rem 0.85rem;
+  padding: 0.42rem 0.95rem;
   font-size: 0.825rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
 }
 
 .btn-md {
-  padding: 0.62rem 1.25rem;
+  padding: 0.62rem 1.35rem;
   font-size: 0.925rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
 }
 
 .btn-lg {
-  padding: 0.82rem 1.65rem;
+  padding: 0.82rem 1.85rem;
   font-size: 1rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
 }
 
 .btn-icon {
   padding: 0.55rem;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Primary Button: Olive / soft-lime background, dark text */
+/* Primary Button: Sage / soft lime accent with high-contrast dark text */
 .btn-primary {
-  background-color: var(--bright-olive);
-  color: var(--text-inverse);
+  background-color: var(--primary-accent);
+  color: var(--accent-text);
   font-weight: 700;
-  border-color: rgba(245, 244, 236, 0.15);
+  border-color: rgba(189, 211, 148, 0.4);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .btn-primary:hover {
-  background-color: var(--olive-button-hover);
-  color: var(--text-inverse);
+  background-color: var(--accent-hover);
+  color: var(--accent-text);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 14px rgba(189, 211, 148, 0.25);
 }
 
-/* Secondary Button: Transparent, cream border, cream text */
+/* Secondary Button: Smoked glass pill, subtle light border, crisp warm white text */
 .btn-secondary {
-  background-color: transparent;
+  background-color: rgba(214, 229, 215, 0.08);
   color: var(--text-primary);
   border: 1px solid var(--border-medium);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-card);
-  border-color: var(--primary-olive);
-  color: var(--warm-cream);
+  background-color: rgba(214, 229, 215, 0.15);
+  border-color: rgba(232, 240, 231, 0.32);
+  color: var(--text-primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-xs);
 }
@@ -217,8 +222,8 @@
 .form-textarea:focus {
   border-color: var(--bright-olive);
   outline: none;
-  background-color: #1f2d22;
-  box-shadow: 0 0 0 2px rgba(143, 164, 90, 0.25);
+  background-color: rgba(24, 32, 22, 0.95);
+  box-shadow: 0 0 0 3px rgba(114, 176, 52, 0.18), var(--shadow-inset);
 }
 
 .form-select option {
@@ -279,22 +284,22 @@
 }
 
 /* ---------------------------------------------------------------------
-   CARDS & SURFACES (LAYERED DEEP OLIVE SURFACES)
+   CARDS & SURFACES (SMOKED GLASS & NESTED FOREST SURFACES)
    --------------------------------------------------------------------- */
 .card {
   background-color: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-xl);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
   padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card);
   position: relative;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
 }
 
 .card-interactive:hover {
-  border-color: var(--bright-olive);
+  border-color: rgba(232, 240, 231, 0.25);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
   background-color: var(--bg-card-hover);
@@ -303,12 +308,31 @@
 .card-subtle {
   background-color: var(--bg-canvas-alt);
   border-color: var(--border-medium);
+  border-radius: var(--radius-card);
 }
 
 .card-dark {
   background-color: var(--bg-surface);
   border-color: var(--border-medium);
+  border-radius: var(--radius-card);
   color: var(--text-primary);
+}
+
+.card-elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.card-nested {
+  background-color: rgba(16, 26, 22, 0.75);
+  border: 1px solid rgba(232, 240, 231, 0.10);
+  border-radius: var(--radius-nested);
+  padding: var(--space-4);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* ---------------------------------------------------------------------
@@ -333,9 +357,9 @@
 }
 
 .badge-olive {
-  background-color: rgba(102, 122, 62, 0.2);
-  color: var(--soft-olive);
-  border: 1px solid var(--border-medium);
+  background-color: rgba(83, 120, 48, 0.15);
+  color: var(--bright-olive);
+  border: 1px solid rgba(83, 120, 48, 0.3);
 }
 
 .badge-success {
@@ -399,8 +423,8 @@
 }
 
 .status-dot.active {
-  background-color: var(--status-success);
-  box-shadow: 0 0 0 2px rgba(157, 187, 104, 0.3);
+  background-color: var(--vivid-green, #55CC62);
+  box-shadow: 0 0 0 3px rgba(85, 204, 98, 0.25);
 }
 
 .status-dot.pending {
@@ -783,17 +807,35 @@ input:checked+.slider:before {
   justify-content: center;
   padding: var(--space-8) var(--space-4);
   background-color: var(--bg-surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(189, 211, 148, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .auth-card {
   width: 100%;
-  max-width: 460px;
-  background-color: var(--bg-elevated);
+  max-width: 480px;
+  background-color: var(--bg-card);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border: 1px solid var(--border-medium);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-panel);
   padding: var(--space-8);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-panel);
   position: relative;
+  z-index: 1;
 }
 
 .auth-header {

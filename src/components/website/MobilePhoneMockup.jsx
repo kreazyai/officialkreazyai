@@ -5,7 +5,6 @@ import {
   Send, 
   Sparkles, 
   Wifi, 
-  ShieldCheck,
   ChevronRight,
   MessageCircle
 } from 'lucide-react';
@@ -173,18 +172,6 @@ export function MobilePhoneMockup({ activeChannel = 'all', onSelectChannel }) {
 
   return (
     <div className="phone-mockup-frame">
-      {/* Dynamic Island Floating Badge (Desktop/Tablet) */}
-      <div className="dynamic-island-badge">
-        <span className="di-dot"></span>
-        <span>KreazyAI Autonomous Engine • Sub-Second Replies</span>
-      </div>
-
-      {/* Floating Glass Meta Cloud Pill (Desktop/Tablet) */}
-      <div className="meta-verified-glass-pill">
-        <ShieldCheck size={16} color="#22c55e" />
-        <span>Official Meta Cloud API • End-to-End Encrypted</span>
-      </div>
-
       {/* Physical Titanium Phone Chassis */}
       <div className="phone-chassis">
         {/* Exterior physical volume & power buttons on rim */}

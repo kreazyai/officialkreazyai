@@ -20,12 +20,11 @@ export function Footer({ onNavigate }) {
         <div className="footer-grid">
           {/* Brand Col */}
           <div style={{ paddingRight: '1.5rem' }}>
-            <div className="brand-logo" style={{ marginBottom: '0.85rem', cursor: 'pointer' }} onClick={() => handleNav('home')}>
-              <img src="/logo.png" alt="Kreazy AI Logo" className="brand-logo-img" />
-              <span className="brand-text">Kreazy <span className="brand-ai">AI</span></span>
+            <div className="brand-logo" style={{ marginBottom: '1rem', cursor: 'pointer' }} onClick={() => handleNav('home')} title="KreazyAI">
+              <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
             </div>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', maxWidth: '320px', lineHeight: 1.6 }}>
-              Enterprise-grade AI automation platform designed for modern retailers, high-volume merchants, and multichannel business operations.
+              AI sales agent and order automation for businesses selling across Facebook Messenger, Instagram, and WhatsApp.
             </p>
           </div>
 

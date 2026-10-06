@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 import { config } from './env.js';
 import { logger } from '../utils/logger.js';
+import { encryptToken } from '../utils/encryption.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -383,6 +384,50 @@ export function runMigrations(db) {
       last_active_at TEXT
     );
 
+    -- 22. Meta Platform Connections (Official OAuth & Multi-Tenant Isolated)
+    CREATE TABLE IF NOT EXISTS meta_connections (
+      id TEXT PRIMARY KEY,
+      business_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      workspace_id TEXT NOT NULL,
+      platform TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'NOT_CONNECTED',
+      meta_user_id TEXT,
+      business_account_id TEXT,
+      page_id TEXT,
+      page_name TEXT,
+      instagram_account_id TEXT,
+      instagram_username TEXT,
+      whatsapp_business_account_id TEXT,
+      phone_number_id TEXT,
+      display_phone_number TEXT,
+      encrypted_access_token TEXT,
+      token_iv TEXT,
+      token_tag TEXT,
+      token_expires_at TEXT,
+      scopes TEXT DEFAULT '[]',
+      webhook_status TEXT DEFAULT 'INACTIVE',
+      last_webhook_at TEXT,
+      last_sync_at TEXT,
+      last_error TEXT,
+      diagnostics TEXT DEFAULT '{}',
+      auto_reply_enabled INTEGER DEFAULT 1,
+      ai_confidence_threshold REAL DEFAULT 0.75,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(business_id, platform)
+    );
+
+    -- 23. Meta Webhook Raw Ingestion & Deduplication
+    CREATE TABLE IF NOT EXISTS meta_webhook_events (
+      id TEXT PRIMARY KEY,
+      event_id TEXT UNIQUE NOT NULL,
+      platform TEXT NOT NULL,
+      business_id TEXT,
+      payload TEXT NOT NULL,
+      processed INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_user_profiles_user ON user_profiles(user_id);
     CREATE INDEX IF NOT EXISTS idx_business_profiles_business ON business_profiles(business_id);
     CREATE INDEX IF NOT EXISTS idx_kyc_profiles_business ON kyc_profiles(business_id);
@@ -390,10 +435,215 @@ export function runMigrations(db) {
     CREATE INDEX IF NOT EXISTS idx_notification_prefs_user ON notification_preferences(user_id);
     CREATE INDEX IF NOT EXISTS idx_api_keys_business ON api_keys(business_id);
     CREATE INDEX IF NOT EXISTS idx_team_members_business ON team_members(business_id);
+    CREATE INDEX IF NOT EXISTS idx_meta_conn_biz ON meta_connections(business_id);
+    CREATE INDEX IF NOT EXISTS idx_meta_conn_platform ON meta_connections(platform);
+    CREATE INDEX IF NOT EXISTS idx_meta_conn_phone ON meta_connections(phone_number_id);
+    CREATE INDEX IF NOT EXISTS idx_meta_conn_page ON meta_connections(page_id);
+    CREATE INDEX IF NOT EXISTS idx_meta_conn_ig ON meta_connections(instagram_account_id);
+    CREATE INDEX IF NOT EXISTS idx_meta_events_event ON meta_webhook_events(event_id);
   `);
 
-  logger.info('Database schema and performance indexes verified successfully.');
+  // ── Phase 3 Migrations: WhatsApp Production Architecture & Knowledge Engine ──
+  db.exec(`
+    -- Multi-tenant alias view for tenants contract
+    CREATE VIEW IF NOT EXISTS tenants AS
+    SELECT 
+      id, 
+      name AS business_name, 
+      status, 
+      'UTC' AS timezone, 
+      json_object('channels', channels_connected, 'plan', plan) AS settings,
+      created_at,
+      updated_at
+    FROM businesses;
 
+    -- Dedicated WhatsApp Connections Contract
+    CREATE TABLE IF NOT EXISTS whatsapp_connections (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      WABA_id TEXT,
+      phone_number_id TEXT,
+      display_number TEXT,
+      display_phone TEXT,
+      status TEXT NOT NULL DEFAULT 'NOT_CONNECTED',
+      credential_reference TEXT,
+      webhook_status TEXT DEFAULT 'INACTIVE',
+      last_event_at TEXT,
+      last_webhook_event TEXT,
+      last_api_check TEXT,
+      last_error TEXT,
+      diagnostics TEXT DEFAULT '{}',
+      auto_reply_enabled INTEGER DEFAULT 1,
+      ai_confidence_threshold REAL DEFAULT 0.75,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(tenant_id)
+    );
+
+    -- Integration Health & Diagnostics Record
+    CREATE TABLE IF NOT EXISTS integration_health (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      platform TEXT NOT NULL DEFAULT 'WHATSAPP',
+      status TEXT NOT NULL,
+      diagnostics TEXT DEFAULT '{}',
+      checked_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Webhook Events view for idempotency contract
+    CREATE VIEW IF NOT EXISTS webhook_events AS
+    SELECT 
+      id, 
+      event_id, 
+      platform, 
+      business_id AS tenant_id, 
+      payload, 
+      processed, 
+      created_at 
+    FROM meta_webhook_events;
+
+    -- Product Media for Multimodal Catalog Search
+    CREATE TABLE IF NOT EXISTS product_media (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+      media_url TEXT NOT NULL,
+      media_type TEXT DEFAULT 'image',
+      metadata TEXT DEFAULT '{}',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Tenant-scoped FAQs
+    CREATE TABLE IF NOT EXISTS faqs (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      question TEXT NOT NULL,
+      answer TEXT NOT NULL,
+      category TEXT DEFAULT 'General',
+      status TEXT DEFAULT 'ACTIVE',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Tenant-scoped Business Policies
+    CREATE TABLE IF NOT EXISTS policies (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      policy_type TEXT NOT NULL,
+      content TEXT NOT NULL,
+      status TEXT DEFAULT 'ACTIVE',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Tenant Knowledge Items & Embeddings Index
+    CREATE TABLE IF NOT EXISTS knowledge_items (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      source_type TEXT NOT NULL,
+      source_id TEXT,
+      chunk_reference TEXT NOT NULL,
+      embedding_reference TEXT,
+      version INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Tenant-scoped AI Settings & Guardrails
+    CREATE TABLE IF NOT EXISTS ai_settings (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT UNIQUE NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      system_instructions TEXT,
+      tone TEXT DEFAULT 'professional',
+      language_settings TEXT DEFAULT '["bn","en","banglish"]',
+      confidence_threshold REAL DEFAULT 0.75,
+      handoff_rules TEXT DEFAULT '{}',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Indexes for WhatsApp Multi-Tenant Security & Fast Retrieval
+    CREATE INDEX IF NOT EXISTS idx_wa_conn_tenant ON whatsapp_connections(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_wa_conn_phone ON whatsapp_connections(phone_number_id);
+    CREATE INDEX IF NOT EXISTS idx_product_media_tenant ON product_media(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_product_media_prod ON product_media(product_id);
+    CREATE INDEX IF NOT EXISTS idx_faqs_tenant ON faqs(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_knowledge_items_tenant ON knowledge_items(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_ai_settings_tenant ON ai_settings(tenant_id);
+  `);
+
+  // Dynamically backfill/alter columns on existing tables for strict specification compliance
+  try {
+    const productCols = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
+    if (!productCols.includes('tenant_id')) {
+      db.exec("ALTER TABLE products ADD COLUMN tenant_id TEXT;");
+      db.exec("UPDATE products SET tenant_id = business_id WHERE tenant_id IS NULL;");
+    }
+    if (!productCols.includes('description')) {
+      db.exec("ALTER TABLE products ADD COLUMN description TEXT;");
+    }
+    if (!productCols.includes('currency')) {
+      db.exec("ALTER TABLE products ADD COLUMN currency TEXT DEFAULT 'USD';");
+    }
+    if (!productCols.includes('attributes')) {
+      db.exec("ALTER TABLE products ADD COLUMN attributes TEXT DEFAULT '{}';");
+    }
+
+    const customerCols = db.prepare("PRAGMA table_info(customers)").all().map(c => c.name);
+    if (!customerCols.includes('tenant_id')) {
+      db.exec("ALTER TABLE customers ADD COLUMN tenant_id TEXT;");
+      db.exec("UPDATE customers SET tenant_id = business_id WHERE tenant_id IS NULL;");
+    }
+    if (!customerCols.includes('external_customer_id')) {
+      db.exec("ALTER TABLE customers ADD COLUMN external_customer_id TEXT;");
+    }
+
+    const convCols = db.prepare("PRAGMA table_info(conversations)").all().map(c => c.name);
+    if (!convCols.includes('tenant_id')) {
+      db.exec("ALTER TABLE conversations ADD COLUMN tenant_id TEXT;");
+      db.exec("UPDATE conversations SET tenant_id = business_id WHERE tenant_id IS NULL;");
+    }
+    if (!convCols.includes('external_conversation_id')) {
+      db.exec("ALTER TABLE conversations ADD COLUMN external_conversation_id TEXT;");
+    }
+
+    const msgCols = db.prepare("PRAGMA table_info(messages)").all().map(c => c.name);
+    if (!msgCols.includes('tenant_id')) {
+      db.exec("ALTER TABLE messages ADD COLUMN tenant_id TEXT;");
+    }
+    if (!msgCols.includes('direction')) {
+      db.exec("ALTER TABLE messages ADD COLUMN direction TEXT DEFAULT 'INBOUND';");
+    }
+    if (!msgCols.includes('message_type')) {
+      db.exec("ALTER TABLE messages ADD COLUMN message_type TEXT DEFAULT 'text';");
+    }
+    if (!msgCols.includes('media_reference')) {
+      db.exec("ALTER TABLE messages ADD COLUMN media_reference TEXT;");
+    }
+    if (!msgCols.includes('external_message_id')) {
+      db.exec("ALTER TABLE messages ADD COLUMN external_message_id TEXT;");
+    }
+    if (!msgCols.includes('status')) {
+      db.exec("ALTER TABLE messages ADD COLUMN status TEXT DEFAULT 'DELIVERED';");
+    }
+
+    const waCols = db.prepare("PRAGMA table_info(whatsapp_connections)").all().map(c => c.name);
+    if (!waCols.includes('display_phone')) {
+      db.exec("ALTER TABLE whatsapp_connections ADD COLUMN display_phone TEXT;");
+      db.exec("UPDATE whatsapp_connections SET display_phone = display_number WHERE display_phone IS NULL;");
+    }
+    if (!waCols.includes('last_webhook_event')) {
+      db.exec("ALTER TABLE whatsapp_connections ADD COLUMN last_webhook_event TEXT;");
+    }
+    if (!waCols.includes('last_api_check')) {
+      db.exec("ALTER TABLE whatsapp_connections ADD COLUMN last_api_check TEXT;");
+    }
+  } catch (alterErr) {
+    logger.warn('Non-critical schema extension warning:', alterErr.message);
+  }
+
+  logger.info('Database schema and performance indexes verified successfully.');
 }
 
 export function seedInitialData(db) {
@@ -419,6 +669,25 @@ export function seedInitialData(db) {
     'ACTIVE',
     JSON.stringify(['WHATSAPP', 'INSTAGRAM', 'SHOPIFY']),
     12840.50,
+    now,
+    now
+  );
+
+  // 1b. Create Secondary Isolated Tenant Workspace (Multi-Tenant Isolation Validation)
+  const artisanId = 'ws-artisan-02';
+  db.prepare(`
+    INSERT INTO businesses (id, name, slug, owner_name, owner_email, plan, status, channels_connected, total_revenue, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    artisanId,
+    'Copenhagen Botanicals',
+    'copenhagen-botanicals',
+    'Freja Lind',
+    'freja@cphbotanicals.dk',
+    'Starter',
+    'ACTIVE',
+    JSON.stringify(['INSTAGRAM', 'WHATSAPP']),
+    4250.00,
     now,
     now
   );
@@ -512,7 +781,115 @@ export function seedInitialData(db) {
     now
   );
 
-  logger.info('Database seeded with baseline multi-tenant structure and hashed administrator credentials.');
+  // 8. Seed Default Meta Connections & Dedicated WhatsApp Connection for Flagship Workspace
+  ensureMetaConnections(db, flagshipId, flagshipId);
+  ensureWhatsAppConnection(db, flagshipId);
+
+  // 9. Seed Multi-Tenant AI Settings
+  db.prepare(`
+    INSERT OR IGNORE INTO ai_settings (
+      id, tenant_id, system_instructions, tone, language_settings, confidence_threshold, handoff_rules, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    `aisett-${flagshipId}`,
+    flagshipId,
+    'You are Kreazy AI Concierge, assisting shoppers professionally in English, Bangla, and Banglish. Verify live product inventory and store policies before answering.',
+    'professional, courteous, helpful',
+    JSON.stringify(['bn', 'en', 'banglish']),
+    0.75,
+    JSON.stringify({ escalateKeywords: ['agent', 'human', 'manager', 'complaint'], lowConfidenceFallback: 'ESCALATE_TO_HUMAN' }),
+    now,
+    now
+  );
+
+  // 10. Seed Tenant-scoped FAQs
+  const defaultFaqs = [
+    { q: 'What is your return policy?', a: 'Complimentary exchanges and returns within 14 days of delivery on unused items with tags attached.', cat: 'Policies' },
+    { q: 'How long does shipping take and what is the fee?', a: 'Standard shipping takes 2-4 business days ($5 fee, free over $75). Express delivery available.', cat: 'Shipping' },
+    { q: 'What payment methods do you accept?', a: 'We accept Visa, MasterCard, American Express, Apple Pay, bKash, and Cash on Delivery (COD).', cat: 'Payment' },
+    { q: 'How can I track my order?', a: 'Provide your order ID (e.g. order-101) in this chat and our AI will retrieve your real-time fulfillment status.', cat: 'Orders' }
+  ];
+
+  const insertFaq = db.prepare(`
+    INSERT INTO faqs (id, tenant_id, question, answer, category, status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 'ACTIVE', ?, ?)
+  `);
+  defaultFaqs.forEach((f, idx) => {
+    insertFaq.run(`faq-${flagshipId}-${idx + 1}`, flagshipId, f.q, f.a, f.cat, now, now);
+  });
+
+  // 11. Seed Tenant-scoped Policies
+  const defaultPolicies = [
+    { type: 'RETURN_POLICY', content: 'Items in original unworn condition with tags may be returned or exchanged within 14 days of receipt.' },
+    { type: 'SHIPPING_POLICY', content: 'Standard nationwide courier takes 2 to 4 business days. Free shipping applies automatically to orders over $75.' },
+    { type: 'DATA_ISOLATION_POLICY', content: 'All customer conversations, orders, and credentials are strictly multi-tenant isolated and encrypted.' }
+  ];
+
+  const insertPolicy = db.prepare(`
+    INSERT INTO policies (id, tenant_id, policy_type, content, status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?)
+  `);
+  defaultPolicies.forEach((p, idx) => {
+    insertPolicy.run(`pol-${flagshipId}-${idx + 1}`, flagshipId, p.type, p.content, now, now);
+  });
+
+  // 12. Seed flagship WhatsApp connection & Meta channel
+  db.prepare(`
+    INSERT OR REPLACE INTO whatsapp_connections (
+      id, tenant_id, WABA_id, phone_number_id, display_number, status, credential_reference, webhook_status, diagnostics, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, 'CONNECTED', 'meta_conn_vault_flagship', 'ACTIVE', '{"verified":true}', ?, ?)
+  `).run(`waconn-${flagshipId}`, flagshipId, '2983710492817', '109283741', '+1 (555) 839-2041', now, now);
+
+  const seedToken = encryptToken(config.meta.whatsappAccessToken || 'EAAG_mock_seed_token_123');
+  db.prepare(`
+    INSERT OR REPLACE INTO meta_connections (
+      id, business_id, workspace_id, platform, status, phone_number_id, whatsapp_business_account_id, display_phone_number, encrypted_access_token, token_iv, token_tag, auto_reply_enabled, ai_confidence_threshold, diagnostics, created_at, updated_at
+    ) VALUES (?, ?, ?, 'WHATSAPP', 'CONNECTED', '109283741', '2983710492817', '+1 (555) 839-2041', ?, ?, ?, 1, 0.75, '{"verified":true}', ?, ?)
+  `).run(`conn-wa-${flagshipId}`, flagshipId, flagshipId, seedToken.encrypted, seedToken.iv, seedToken.tag, now, now);
+
+  // Initialize secondary tenant empty connection records
+  ensureWhatsAppConnection(db, artisanId);
+  ensureMetaConnections(db, artisanId, artisanId);
+
+  logger.info('Database seeded with baseline multi-tenant structure, WhatsApp connections, FAQs, and policies.');
+}
+
+/**
+ * Ensures dedicated WhatsApp connection record exists for a tenant workspace.
+ */
+export function ensureWhatsAppConnection(db, tenantId) {
+  const id = `waconn-${tenantId}`;
+  try {
+    db.prepare(`
+      INSERT OR IGNORE INTO whatsapp_connections (
+        id, tenant_id, status, webhook_status, diagnostics, created_at, updated_at
+      ) VALUES (?, ?, 'NOT_CONNECTED', 'INACTIVE', '{}', datetime('now'), datetime('now'))
+    `).run(id, tenantId);
+  } catch {
+    // safe fallback
+  }
+}
+
+/**
+ * Ensures baseline connection records exist for a workspace for all 3 Meta channels.
+ */
+export function ensureMetaConnections(db, businessId, workspaceId) {
+  const platforms = ['WHATSAPP', 'INSTAGRAM', 'MESSENGER'];
+  const insertStmt = db.prepare(`
+    INSERT OR IGNORE INTO meta_connections (
+      id, business_id, workspace_id, platform, status,
+      auto_reply_enabled, ai_confidence_threshold, diagnostics, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, 'NOT_CONNECTED', 1, 0.75, '{}', datetime('now'), datetime('now'))
+  `);
+
+  for (const plat of platforms) {
+    const id = `conn-${plat.toLowerCase()}-${businessId}`;
+    try {
+      insertStmt.run(id, businessId, workspaceId || businessId, plat);
+    } catch {
+      // Safe fallback if business does not exist
+    }
+  }
 }
 
 export function closeDatabase() {

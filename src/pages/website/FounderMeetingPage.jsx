@@ -27,7 +27,7 @@ export function FounderMeetingPage({ onNavigate }) {
     businessType: 'Retail & E-commerce',
     monthlyOrders: '500 - 2,000 orders/month',
     preferredDate: '',
-    preferredTime: 'Morning (10:00 AM - 1:00 PM EST)',
+    preferredTime: 'Morning (10:00 AM - 1:00 PM BST / 12:00 AM - 03:00 AM EST)',
     message: ''
   });
 
@@ -212,13 +212,14 @@ export function FounderMeetingPage({ onNavigate }) {
                       onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
                     />
                     <Select
-                      label="Preferred Time Window"
+                      label="Preferred Time Window (BST / EST)"
                       value={formData.preferredTime}
                       onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
                       options={[
-                        { value: 'Morning (10:00 AM - 1:00 PM EST)', label: 'Morning (10:00 AM - 1:00 PM EST)' },
-                        { value: 'Afternoon (1:00 PM - 4:00 PM EST)', label: 'Afternoon (1:00 PM - 4:00 PM EST)' },
-                        { value: 'Late Afternoon (4:00 PM - 7:00 PM EST)', label: 'Late Afternoon (4:00 PM - 7:00 PM EST)' }
+                        { value: 'Morning (10:00 AM - 1:00 PM BST / 12:00 AM - 03:00 AM EST)', label: 'Morning (10:00 AM - 1:00 PM BST / Local)' },
+                        { value: 'Afternoon (2:00 PM - 5:00 PM BST / 04:00 AM - 07:00 AM EST)', label: 'Afternoon (2:00 PM - 5:00 PM BST / Local)' },
+                        { value: 'Evening (6:00 PM - 9:00 PM BST / 08:00 AM - 11:00 AM EST)', label: 'Evening (6:00 PM - 9:00 PM BST / 8-11 AM EST)' },
+                        { value: 'Night (9:00 PM - 11:00 PM BST / 11:00 AM - 01:00 PM EST)', label: 'Night (9:00 PM - 11:00 PM BST / 11 AM - 1 PM EST)' }
                       ]}
                     />
                   </div>

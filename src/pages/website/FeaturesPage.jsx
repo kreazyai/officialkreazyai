@@ -158,17 +158,19 @@ export function FeaturesPage({ onNavigate }) {
         </div>
 
         {/* Filter Tabs */}
-        <div className="features-category-filters">
-          {FEATURE_CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`btn btn-sm ${selectedCategory === cat.id ? 'btn-primary' : 'btn-secondary'}`}
-            >
-              {cat.label}
-            </button>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-10)' }}>
+          <div className="capsule-filter-group">
+            {FEATURE_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`capsule-filter-btn ${selectedCategory === cat.id ? 'active' : ''}`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Features Grid */}

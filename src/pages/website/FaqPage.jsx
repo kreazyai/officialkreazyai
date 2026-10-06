@@ -111,17 +111,19 @@ export function FaqPage() {
         </div>
 
         {/* Category Pills */}
-        <div className="faq-categories">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCat(cat)}
-              className={`btn btn-sm ${selectedCat === cat ? 'btn-primary' : 'btn-secondary'}`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-8)' }}>
+          <div className="capsule-filter-group" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCat(cat)}
+                className={`capsule-filter-btn ${selectedCat === cat ? 'active' : ''}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* FAQ List */}
