@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CheckCircle2, Sparkles, ShieldCheck, Zap, MessageSquare } from 'lucide-react';
 
 export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
-  const [currency, setCurrency] = useState('BDT'); // 'BDT' | 'USD'
+  const [currency, setCurrency] = useState('BDT'); // 'BDT' | 'USD' | 'EUR'
   const [isAnnual, setIsAnnual] = useState(false);
 
   const plans = [
@@ -13,6 +13,8 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
       bdtAnnual: 3999,
       usdMonthly: 49,
       usdAnnual: 39,
+      eurMonthly: 45,
+      eurAnnual: 35,
       teamText: 'Growing teams up to 03 users.',
       isPopular: false,
       ctaText: 'Chat to sales',
@@ -41,6 +43,8 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
       bdtAnnual: 9990,
       usdMonthly: 119,
       usdAnnual: 95,
+      eurMonthly: 109,
+      eurAnnual: 89,
       teamText: 'Growing teams up to 05 users.',
       isPopular: true,
       ctaText: 'Chat to sales',
@@ -68,6 +72,8 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
       bdtAnnual: 20800,
       usdMonthly: 249,
       usdAnnual: 199,
+      eurMonthly: 229,
+      eurAnnual: 185,
       teamText: 'Growing teams up to 10 users.',
       isPopular: false,
       ctaText: 'Chat to sales',
@@ -123,77 +129,38 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
           </p>
 
           {/* Currency & Billing Cycle Toggles Row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-            {/* Currency Pill Switcher */}
-            <div style={{
-              display: 'inline-flex',
-              background: 'var(--mint-soft)',
-              border: '1px solid var(--border)',
-              padding: '3px',
-              borderRadius: '999px',
-              boxShadow: 'var(--shadow-xs)'
-            }}>
-              <button
-                type="button"
-                onClick={() => setCurrency('BDT')}
-                style={{
-                  background: currency === 'BDT' ? 'var(--primary-dark)' : 'transparent',
-                  color: currency === 'BDT' ? '#FFFFFF' : 'var(--text-secondary)',
-                  border: 'none',
-                  borderRadius: '999px',
-                  padding: '6px 16px',
-                  fontSize: '0.825rem',
-                  fontWeight: 750,
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease'
-                }}
-              >
-                🇧🇩 BDT (৳)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrency('USD')}
-                style={{
-                  background: currency === 'USD' ? 'var(--primary-dark)' : 'transparent',
-                  color: currency === 'USD' ? '#FFFFFF' : 'var(--text-secondary)',
-                  border: 'none',
-                  borderRadius: '999px',
-                  padding: '6px 16px',
-                  fontSize: '0.825rem',
-                  fontWeight: 750,
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease'
-                }}
-              >
-                🌐 USD ($)
-              </button>
+          <div className="pricing-controls-row">
+            {/* Currency Selector: BDT | USD | EUR (Pure text, no emojis or symbols) */}
+            <div className="pricing-currency-selector" role="group" aria-label="Select currency">
+              {['BDT', 'USD', 'EUR'].map((curr) => (
+                <button
+                  key={curr}
+                  type="button"
+                  onClick={() => setCurrency(curr)}
+                  className={`pricing-currency-btn ${currency === curr ? 'active' : ''}`}
+                >
+                  {curr}
+                </button>
+              ))}
             </div>
 
-            {/* Billing Cycle Toggle */}
-            <div className="pricing-billing-switch-wrap">
-              <span
-                className={`billing-switch-label ${!isAnnual ? 'active' : ''}`}
+            {/* Mode Button: Monthly / Annual */}
+            <div className="pricing-mode-selector" role="group" aria-label="Select billing cycle">
+              <button
+                type="button"
                 onClick={() => setIsAnnual(false)}
+                className={`pricing-mode-btn ${!isAnnual ? 'active' : ''}`}
               >
                 Monthly
-              </span>
-
-              <label className="switch" aria-label="Toggle annual billing discount">
-                <input
-                  type="checkbox"
-                  checked={isAnnual}
-                  onChange={(e) => setIsAnnual(e.target.checked)}
-                />
-                <span className="slider"></span>
-              </label>
-
-              <span
-                className={`billing-switch-label ${isAnnual ? 'active' : ''}`}
+              </button>
+              <button
+                type="button"
                 onClick={() => setIsAnnual(true)}
+                className={`pricing-mode-btn ${isAnnual ? 'active' : ''}`}
               >
-                Annual
-                <span className="billing-discount-badge">Save 20%</span>
-              </span>
+                <span>Annual</span>
+                <span className="pricing-save-badge">Save 20%</span>
+              </button>
             </div>
           </div>
         </div>
@@ -201,13 +168,17 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
         {/* Pricing Cards Grid (3 Columns) */}
         <div className="pricing-suite-grid">
           {plans.map((p) => {
-            const isBdt = currency === 'BDT';
-            const priceVal = isBdt
-              ? (isAnnual ? p.bdtAnnual : p.bdtMonthly)
-              : (isAnnual ? p.usdAnnual : p.usdMonthly);
-            const priceFormatted = isBdt 
-              ? `৳${priceVal.toLocaleString()}` 
-              : `$${priceVal}`;
+            let priceFormatted = '';
+            if (currency === 'BDT') {
+              const priceVal = isAnnual ? p.bdtAnnual : p.bdtMonthly;
+              priceFormatted = `৳${priceVal.toLocaleString()}`;
+            } else if (currency === 'EUR') {
+              const priceVal = isAnnual ? p.eurAnnual : p.eurMonthly;
+              priceFormatted = `€${priceVal}`;
+            } else {
+              const priceVal = isAnnual ? p.usdAnnual : p.usdMonthly;
+              priceFormatted = `$${priceVal}`;
+            }
             const periodLabel = isAnnual ? 'per month (billed annually)' : 'per month';
 
             return (

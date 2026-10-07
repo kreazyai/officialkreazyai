@@ -33,9 +33,9 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
   };
 
   const navLinks = [
-    { id: 'features', label: 'Solutions' },
-    { id: 'ai-agents', label: 'AI Agents', target: 'features' },
-    { id: 'integrations', label: 'Integrations', target: 'how-it-works' },
+    { id: 'solutions', label: 'Solutions' },
+    { id: 'ai-agents', label: 'AI Agents' },
+    { id: 'integrations', label: 'Integrations' },
     { id: 'how-it-works', label: 'How It Works' },
     { id: 'pricing', label: 'Pricing' },
     { id: 'faq', label: 'Resources' },
@@ -62,18 +62,15 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
 
           {/* Center: Navigation Links */}
           <nav className="nav-links">
-            {navLinks.map((item) => {
-              const targetPage = item.target || item.id;
-              return (
-                <span
-                  key={item.id}
-                  className={`nav-link ${currentPage === targetPage ? 'active' : ''}`}
-                  onClick={() => handleLinkClick(targetPage)}
-                >
-                  {item.label}
-                </span>
-              );
-            })}
+            {navLinks.map((item) => (
+              <span
+                key={item.id}
+                className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
+                onClick={() => handleLinkClick(item.id)}
+              >
+                {item.label}
+              </span>
+            ))}
           </nav>
 
           {/* Right: Log In & Get Started CTA */}

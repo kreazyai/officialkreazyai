@@ -31,10 +31,10 @@ export function Footer({ onNavigate }) {
           <div>
             <h5 className="footer-col-title">Solutions</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('features')}>AI Customer Support</span></li>
-              <li><span onClick={() => handleNav('features')}>Lead Qualification</span></li>
-              <li><span onClick={() => handleNav('features')}>Order Automation</span></li>
-              <li><span onClick={() => handleNav('features')}>Human Handoff</span></li>
+              <li><span onClick={() => handleNav('solutions')}>AI Customer Support</span></li>
+              <li><span onClick={() => handleNav('solutions')}>Lead Qualification</span></li>
+              <li><span onClick={() => handleNav('solutions')}>Order Automation</span></li>
+              <li><span onClick={() => handleNav('solutions')}>Human Handoff</span></li>
             </ul>
           </div>
 
@@ -42,10 +42,10 @@ export function Footer({ onNavigate }) {
           <div>
             <h5 className="footer-col-title">Integrations</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('how-it-works')}>WhatsApp Business</span></li>
-              <li><span onClick={() => handleNav('how-it-works')}>Instagram Direct</span></li>
-              <li><span onClick={() => handleNav('how-it-works')}>Facebook Messenger</span></li>
-              <li><span onClick={() => handleNav('how-it-works')}>Website Live Chat</span></li>
+              <li><span onClick={() => handleNav('integrations')}>WhatsApp Business</span></li>
+              <li><span onClick={() => handleNav('integrations')}>Instagram Direct</span></li>
+              <li><span onClick={() => handleNav('integrations')}>Facebook Messenger</span></li>
+              <li><span onClick={() => handleNav('integrations')}>Website Live Chat</span></li>
             </ul>
           </div>
 

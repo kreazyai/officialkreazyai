@@ -12,6 +12,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 // ─── Website pages (lazy-loaded on first navigation) ─────────────────────────
 const HomePage            = lazy(() => import('./pages/website/HomePage').then(m => ({ default: m.HomePage })));
+const SolutionsPage       = lazy(() => import('./pages/website/SolutionsPage').then(m => ({ default: m.SolutionsPage })));
+const AiAgentsPage        = lazy(() => import('./pages/website/AiAgentsPage').then(m => ({ default: m.AiAgentsPage })));
+const WebsiteIntegrationsPage = lazy(() => import('./pages/website/WebsiteIntegrationsPage').then(m => ({ default: m.WebsiteIntegrationsPage })));
 const HowItWorksPage      = lazy(() => import('./pages/website/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })));
 const FeaturesPage        = lazy(() => import('./pages/website/FeaturesPage').then(m => ({ default: m.FeaturesPage })));
 const PricingPage         = lazy(() => import('./pages/website/PricingPage').then(m => ({ default: m.PricingPage })));
@@ -143,14 +146,16 @@ function getRouteStateFromUrl() {
   if (root === 'onboarding') return { page: 'onboarding', dashboardModule: null, rawPath: pathname };
 
   // Website marketing pages
+  if (root === 'solutions' || root === 'services' || root === 'features') return { page: 'solutions', dashboardModule: null, rawPath: pathname };
+  if (root === 'ai-agents' || root === 'agents') return { page: 'ai-agents', dashboardModule: null, rawPath: pathname };
+  if (root === 'integrations') return { page: 'integrations', dashboardModule: null, rawPath: pathname };
   if (root === 'pricing') return { page: 'pricing', dashboardModule: null, rawPath: pathname };
   if (root === 'about') return { page: 'about', dashboardModule: null, rawPath: pathname };
   if (root === 'contact') return { page: 'contact', dashboardModule: null, rawPath: pathname };
-  if (root === 'services' || root === 'features') return { page: 'features', dashboardModule: null, rawPath: pathname };
   if (root === 'how-it-works') return { page: 'how-it-works', dashboardModule: null, rawPath: pathname };
   if (root === 'book-demo') return { page: 'book-demo', dashboardModule: null, rawPath: pathname };
   if (root === 'founder-meeting') return { page: 'founder-meeting', dashboardModule: null, rawPath: pathname };
-  if (root === 'faq') return { page: 'faq', dashboardModule: null, rawPath: pathname };
+  if (root === 'faq' || root === 'resources') return { page: 'faq', dashboardModule: null, rawPath: pathname };
   if (root === 'legal-privacy') return { page: 'legal-privacy', dashboardModule: null, rawPath: pathname };
   if (root === 'legal-terms') return { page: 'legal-terms', dashboardModule: null, rawPath: pathname };
 
@@ -256,18 +261,23 @@ function AppContent() {
       home: '/',
       admin: '/admin',
       dashboard: '/dashboard/overview',
+      solutions: '/solutions',
+      services: '/solutions',
+      features: '/solutions',
+      'ai-agents': '/ai-agents',
+      agents: '/ai-agents',
+      integrations: '/integrations',
+      'how-it-works': '/how-it-works',
       pricing: '/pricing',
       about: '/about',
       contact: '/contact',
-      services: '/services',
-      features: '/services',
-      'how-it-works': '/how-it-works',
       'book-demo': '/book-demo',
       'founder-meeting': '/founder-meeting',
       login: '/login',
       signup: '/register',
       register: '/register',
       faq: '/faq',
+      resources: '/faq',
       'forgot-password': '/forgot-password',
       onboarding: '/onboarding',
       'legal-privacy': '/legal-privacy',
@@ -447,12 +457,24 @@ function AppContent() {
                 <HomePage onNavigate={handleNavigate} user={user} />
               )}
 
+              {routeState.page === 'solutions' && (
+                <SolutionsPage onNavigate={handleNavigate} />
+              )}
+
+              {routeState.page === 'ai-agents' && (
+                <AiAgentsPage onNavigate={handleNavigate} />
+              )}
+
+              {routeState.page === 'integrations' && (
+                <WebsiteIntegrationsPage onNavigate={handleNavigate} />
+              )}
+
               {routeState.page === 'how-it-works' && (
                 <HowItWorksPage onNavigate={handleNavigate} />
               )}
 
               {(routeState.page === 'features' || routeState.page === 'services') && (
-                <FeaturesPage onNavigate={handleNavigate} />
+                <SolutionsPage onNavigate={handleNavigate} />
               )}
 
               {routeState.page === 'pricing' && (

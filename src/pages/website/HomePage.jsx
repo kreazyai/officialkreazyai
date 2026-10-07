@@ -470,13 +470,7 @@ export function HomePage({ onNavigate, user }) {
         {/* Central Main Composition (Items 1, 9, 10, 4) */}
         <div className="container" style={{ position: 'relative', zIndex: 3 }}>
           <div className="hero-content-wrap">
-            {/* 1. Small Eyebrow Badge */}
-            <div className="hero-macos-eyebrow">
-              <span className="hero-status-beacon" />
-              <span>AI-Powered Autonomous Commerce OS</span>
-            </div>
-
-            {/* 2. Main Headline: Exactly 'More conversations.' and 'Less manual work.' */}
+            {/* Main Headline: Exactly 'More conversations.' and 'Less manual work.' */}
             <h1 className="hero-title">
               <span className="title-line dark">More conversations.</span>
               <span className="title-line green">Less manual work.</span>
