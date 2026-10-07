@@ -212,82 +212,137 @@
 }
 
 /* ---------------------------------------------------------------------
-   HERO SECTION (PDF Page 4 & 5)
-   - Large white/light background
-   - Soft mint-green organic abstract shapes toward edges
-   - Very thin green lines flowing around background
-   - Outlined small graphics with thin dark-green strokes
-   - Eyebrow: AI-Powered Business Automation
-   - Headline: More conversations. Less manual work.
+   HERO SECTION: macOS-INSPIRED AUTONOMOUS AI WORKSPACE
+   Apple/macOS aesthetics + Modern AI Automation + KREAZY Brand Identity
    --------------------------------------------------------------------- */
 .hero-section {
-  padding-top: var(--space-16);
-  padding-bottom: var(--space-16);
+  padding-top: calc(var(--space-16) + 1.25rem);
+  padding-bottom: var(--space-20);
   position: relative;
   text-align: center;
-  background-color: var(--background);
+  background-color: #FFFFFF;
   overflow: hidden;
 }
 
-/* Soft mint-green organic abstract shapes toward edges (PDF Page 4) */
-.hero-abstract-blob-left {
-  position: absolute;
-  top: -100px;
-  left: -120px;
-  width: 520px;
-  height: 520px;
-  border-radius: 58% 42% 65% 35% / 48% 55% 45% 52%;
-  background: radial-gradient(circle at 40% 40%, rgba(221, 247, 233, 0.75) 0%, rgba(239, 251, 245, 0.4) 60%, transparent 80%);
-  pointer-events: none;
-  z-index: 0;
-  animation: floatGentle 14s ease-in-out infinite alternate;
-}
-
-.hero-abstract-blob-right {
+/* Ambient Radial Mint Glows (Outer edges, clean white center) */
+.hero-ambient-glow-left {
   position: absolute;
   top: -80px;
-  right: -100px;
-  width: 580px;
-  height: 580px;
-  border-radius: 42% 58% 35% 65% / 55% 45% 55% 45%;
-  background: radial-gradient(circle at 60% 30%, rgba(174, 235, 203, 0.55) 0%, rgba(239, 251, 245, 0.4) 65%, transparent 80%);
+  left: -120px;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(15, 169, 104, 0.08) 0%, rgba(221, 247, 233, 0.02) 55%, transparent 70%);
   pointer-events: none;
   z-index: 0;
-  animation: floatGentle 16s ease-in-out infinite alternate-reverse;
 }
 
-/* Background Thin Flow Lines & Outlined Graphics (PDF Page 4) */
+.hero-ambient-glow-right {
+  position: absolute;
+  top: -60px;
+  right: -100px;
+  width: 680px;
+  height: 680px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(40, 210, 130, 0.08) 0%, rgba(174, 235, 203, 0.02) 55%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-ambient-glow-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 440px;
+  background: radial-gradient(ellipse at bottom, rgba(15, 169, 104, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Technical CAD Dotted Grid (Masked out from center text) */
+.hero-dotted-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(15, 169, 104, 0.16) 1.2px, transparent 1.2px);
+  background-size: 28px 28px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse 65% 55% at 50% 38%, transparent 40%, black 85%);
+  -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 38%, transparent 40%, black 85%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Background Automation Connection Canvas */
 .hero-bg-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
+  z-index: 1;
 }
 
+/* =====================================================================
+   MAIN COMPOSITION & CENTRAL FOCUS
+   ===================================================================== */
 .hero-content-wrap {
   position: relative;
-  z-index: 1;
-  max-width: 900px;
+  z-index: 3;
+  max-width: 920px;
   margin: 0 auto;
-}
-
-.hero-badge-wrap {
   display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-4);
+  flex-direction: column;
+  align-items: center;
 }
 
+/* macOS Eyebrow Pill */
+.hero-macos-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 169, 104, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 999px;
+  padding: 0.42rem 1.15rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  box-shadow: 0 4px 16px rgba(15, 169, 104, 0.08);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.01em;
+}
+
+.hero-status-beacon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: heroPulseBeacon 2s infinite ease-in-out;
+}
+
+@keyframes heroPulseBeacon {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(15, 169, 104, 0.65);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(15, 169, 104, 0);
+  }
+}
+
+/* Main Headline: Inter Tight, 850-900 weight, -0.055em letter spacing, 0.92 line height */
 .hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.85rem, 6.2vw, 4.65rem);
+  font-size: clamp(3.2rem, 7.2vw, 5.35rem);
   font-weight: 850;
-  line-height: 1.0;
-  letter-spacing: -0.04em;
-  color: var(--primary-dark);
-  margin-bottom: var(--space-4);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+  margin-bottom: 1.5rem;
   text-wrap: balance;
 }
 
@@ -295,315 +350,746 @@
   display: block;
 }
 
-.hero-subtitle {
-  max-width: 680px;
-  margin: 0 auto var(--space-8) auto;
-  font-size: 1.15rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
+.hero-title .title-line.dark {
+  color: var(--primary-dark);
 }
 
+.hero-title .title-line.green {
+  color: var(--green);
+}
+
+/* Supporting Description */
+.hero-subtitle {
+  max-width: 660px;
+  margin: 0 auto 2rem auto;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-weight: 450;
+  text-wrap: balance;
+}
+
+/* CTA Buttons */
 .hero-cta-group {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: var(--space-4);
+  margin-bottom: 2rem;
 }
 
-.hero-channels-caption {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  margin-bottom: var(--space-12);
+.hero-pill-cta {
+  height: 52px;
+  padding: 0 2rem;
+  border-radius: 999px !important;
+  background: var(--primary-dark) !important;
+  color: #FFFFFF !important;
+  font-weight: 750 !important;
+  font-size: 0.98rem !important;
+  border: 1.5px solid rgba(15, 169, 104, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(9, 42, 32, 0.16) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* ---------------------------------------------------------------------
-   HERO VISUAL: AI CONVERSATION WORKFLOW (PDF Page 5)
-   Customer message -> KREAZY AI Agent -> Instant Response -> Lead Qualified -> Human Handoff / CRM
-   Connected with thin curved green lines, white rounded cards, soft shadows
-   --------------------------------------------------------------------- */
-.hero-workflow-wrapper {
-  position: relative;
-  max-width: 1060px;
-  margin: 0 auto;
-  z-index: 1;
+.hero-pill-cta:hover {
+  background: var(--green) !important;
+  border-color: var(--green) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(15, 169, 104, 0.32) !important;
 }
 
-.hero-workflow-card {
-  background: #FFFFFF;
+.hero-pill-cta:hover .cta-arrow-icon {
+  transform: translateX(3px);
+}
+
+.cta-arrow-icon {
+  transition: transform 0.2s ease;
+}
+
+.hero-glass-cta {
+  height: 52px;
+  padding: 0 1.85rem;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: var(--primary-dark) !important;
+  font-weight: 700 !important;
+  font-size: 0.98rem !important;
+  border: 1.5px solid var(--border) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.22s ease !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-glass-cta:hover {
+  background: var(--mint-soft) !important;
+  border-color: var(--green) !important;
+  color: var(--green-dark) !important;
+  transform: translateY(-2px);
+}
+
+.hero-glass-cta:hover .cta-arrow-icon {
+  transform: translateX(3px);
+}
+
+/* =====================================================================
+   CONNECTED PLATFORMS UNDER CTA
+   ===================================================================== */
+.hero-channels-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 16px 48px rgba(9, 42, 32, 0.08), 0 2px 8px rgba(9, 42, 32, 0.03);
-  padding: 2.25rem 2rem;
-  position: relative;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.45rem 1.35rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(9, 42, 32, 0.04);
+  margin-bottom: 3.5rem;
+}
+
+.hero-channel-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-channel-icon-pill {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary-dark);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 169, 104, 0.3);
+  transition: all 0.2s ease;
+}
+
+.hero-channel-item:hover .hero-channel-icon-pill {
+  background: var(--green);
+  border-color: var(--green);
+  transform: scale(1.08);
+}
+
+.hero-channel-label {
+  font-size: 0.825rem;
+  font-weight: 650;
+  color: var(--text-secondary);
+}
+
+.hero-channel-dot {
+  color: var(--border-dark);
+  font-size: 0.75rem;
+}
+
+/* =====================================================================
+   MAIN AI VISUAL: macOS AUTONOMOUS AGENT WINDOW
+   ===================================================================== */
+.hero-macos-agent-window {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  background: rgba(8, 26, 18, 0.96);
+  border: 1.5px solid rgba(15, 169, 104, 0.28);
+  border-radius: 22px;
+  box-shadow: 0 32px 80px -15px rgba(9, 42, 32, 0.28), 0 0 1px rgba(15, 169, 104, 0.4);
   overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.hero-workflow-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--accent-gradient);
+.hero-macos-agent-window:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 38px 90px -12px rgba(9, 42, 32, 0.34), 0 0 1px rgba(15, 169, 104, 0.55);
 }
 
-.hero-workflow-topbar {
+.hero-macos-window-header {
+  background: rgba(4, 15, 10, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
+}
+
+.hero-macos-traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.traffic-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.traffic-red { background: #FF5F56; }
+.traffic-yellow { background: #FFBD2E; }
+.traffic-green { background: #27C93F; }
+
+.hero-macos-window-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.window-brand {
+  color: #FFFFFF;
+}
+
+.window-sep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.window-app {
+  color: rgba(174, 235, 203, 0.9);
+}
+
+.hero-macos-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(15, 169, 104, 0.12);
+  border: 1px solid rgba(15, 169, 104, 0.28);
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+}
+
+.live-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: heroPulseBeacon 1.8s infinite ease-in-out;
+}
+
+.hero-macos-window-body {
+  padding: 1.5rem 1.75rem;
+}
+
+.hero-macos-agent-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.hero-workflow-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--primary);
-  background: var(--mint-soft);
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--green-light);
-}
-
-.hero-workflow-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1.25rem;
-  position: relative;
-  align-items: stretch;
-}
-
-/* Connecting track behind nodes on desktop */
-.hero-workflow-connector-track {
-  position: absolute;
-  top: 44px;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background: linear-gradient(90deg, #D9E9E1 0%, #AEEBCB 50%, #D9E9E1 100%);
-  z-index: 0;
-  pointer-events: none;
-}
-
-@keyframes packetTravel {
-  0% { left: 0%; opacity: 0; transform: scale(0.6); }
-  10% { opacity: 1; transform: scale(1); }
-  90% { opacity: 1; transform: scale(1); }
-  100% { left: 100%; opacity: 0; transform: scale(0.6); }
-}
-
-.hero-workflow-packet {
-  position: absolute;
-  top: -4px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 10px rgba(15, 169, 104, 0.9), 0 0 20px rgba(15, 169, 104, 0.4);
-  animation: packetTravel 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.workflow-node-card {
-  background: #FFFFFF;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 1.4rem 1.1rem;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+.agent-identity {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  cursor: pointer;
-  user-select: none;
+  gap: 0.85rem;
 }
 
-.workflow-node-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--green-light);
-  box-shadow: 0 10px 24px rgba(9, 42, 32, 0.08);
-}
-
-.workflow-node-card.active {
-  background: #FFFFFF;
-  border-color: var(--green);
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(15, 169, 104, 0.16), 0 2px 8px rgba(15, 169, 104, 0.06);
-}
-
-.workflow-node-card.active::after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  width: 24px;
-  height: 3px;
-  background: var(--green);
-  border-radius: 2px;
-}
-
-.workflow-node-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--mint-soft);
-  border: 1px solid var(--green-light);
+.agent-avatar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(15, 169, 104, 0.18);
+  border: 1px solid rgba(15, 169, 104, 0.4);
+  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary);
-  margin-bottom: 0.85rem;
-  transition: all 0.3s ease;
 }
 
-.workflow-node-card.active .workflow-node-icon {
-  background: var(--green);
+.agent-name {
+  font-size: 0.925rem;
+  font-weight: 750;
   color: #FFFFFF;
-  border-color: var(--green);
-  box-shadow: 0 4px 14px rgba(15, 169, 104, 0.35);
-  transform: scale(1.08);
 }
 
-.workflow-node-step {
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--green);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.3rem;
+.agent-role {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-.workflow-node-title {
+.agent-latency-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #AEEBCB;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+}
+
+/* Metric Counters Grid */
+.hero-macos-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.hero-macos-metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1rem 0.85rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.hero-macos-metric-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(15, 169, 104, 0.3);
+}
+
+.hero-macos-metric-card.highlight {
+  background: rgba(15, 169, 104, 0.08);
+  border-color: rgba(15, 169, 104, 0.35);
+}
+
+.hero-macos-metric-card .metric-number {
   font-family: var(--font-heading);
-  font-size: 0.95rem;
-  font-weight: 850;
-  color: var(--primary-dark);
-  line-height: 1.25;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1;
   margin-bottom: 0.4rem;
 }
 
-.workflow-node-desc {
-  font-size: 0.775rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
+.hero-macos-metric-card.highlight .metric-number {
+  color: var(--green);
 }
 
-/* Floating Micro Badges around Hero */
-.hero-floating-badge {
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  background: #FFFFFF;
-  border: 1px solid var(--border);
-  padding: 0.65rem 1.15rem;
-  border-radius: var(--radius-full);
-  box-shadow: 0 12px 32px rgba(9, 42, 32, 0.08), 0 2px 6px rgba(9, 42, 32, 0.04);
-  z-index: 2;
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: var(--primary-dark);
-  pointer-events: none;
+.hero-macos-metric-card .metric-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+  line-height: 1.35;
 }
 
-.hero-floating-badge-left {
-  top: 14%;
-  left: -24px;
-  animation: floatGentle 8s ease-in-out infinite alternate;
-}
-
-.hero-floating-badge-right {
-  bottom: 8%;
-  right: -24px;
-  animation: floatGentle 9s ease-in-out infinite alternate-reverse;
-}
-
-@media (max-width: 1100px) {
-  .hero-floating-badge {
-    display: none;
-  }
-}
-
-/* Live Scenario Preview Strip inside the workflow card */
-.hero-workflow-scenario-bar {
-  margin-top: 2rem;
-  padding: 1.15rem 1.4rem;
-  background: linear-gradient(135deg, #EFFBF5 0%, #FFFFFF 100%);
-  border: 1px solid var(--green-light);
-  border-radius: var(--radius-xl);
+/* Live Event Ticker */
+.hero-macos-event-ticker {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(15, 169, 104, 0.2);
+  border-radius: 10px;
+  padding: 0.65rem 0.95rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-  box-shadow: 0 4px 16px rgba(15, 169, 104, 0.06);
-  animation: fadeInUp 0.3s ease-out;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  overflow: hidden;
 }
 
-.scenario-badge-step {
-  font-size: 0.725rem;
+.ticker-badge {
+  font-size: 0.68rem;
   font-weight: 800;
-  color: #FFFFFF;
-  background: var(--primary);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-  text-transform: uppercase;
+  color: var(--green);
+  background: rgba(15, 169, 104, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
   letter-spacing: 0.04em;
   flex-shrink: 0;
 }
 
-.scenario-text-wrap {
-  flex: 1;
-  text-align: left;
+.ticker-text {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.scenario-heading {
-  font-family: var(--font-heading);
-  font-weight: 850;
-  font-size: 0.95rem;
-  color: var(--primary-dark);
-  margin-bottom: 2px;
-}
-
-.scenario-detail {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.scenario-meta-tag {
+.ticker-time {
+  color: rgba(255, 255, 255, 0.45);
+  font-family: monospace;
   font-size: 0.75rem;
+}
+
+.ticker-channel {
+  color: #AEEBCB;
   font-weight: 700;
-  color: var(--primary);
-  background: #FFFFFF;
-  border: 1px solid var(--border);
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
+}
+
+.ticker-check {
+  color: var(--green);
+  font-weight: 800;
+}
+
+/* =====================================================================
+   FLOATING macOS UI ENVIRONMENT (Left & Right Empty Spaces)
+   ===================================================================== */
+.hero-floating-stage {
+  position: absolute;
+  inset: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-float-widget,
+.hero-float-tile {
+  position: absolute;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1.5px solid rgba(15, 169, 104, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 16px 40px -10px rgba(9, 42, 32, 0.08), 0 0 1px rgba(9, 42, 32, 0.1);
+  text-align: left;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hero-float-widget:hover,
+.hero-float-tile:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 48px -8px rgba(9, 42, 32, 0.12), 0 0 1px rgba(15, 169, 104, 0.4);
+}
+
+/* Left Elements */
+.float-top-left {
+  top: 14%;
+  left: 2%;
+  width: 230px;
+  padding: 1rem 1.15rem;
+  animation: heroFloatSlowA 9s ease-in-out infinite alternate;
+}
+
+.float-mid-left {
+  top: 48%;
+  left: 1.5%;
+  width: 240px;
+  padding: 1.15rem;
+  animation: heroFloatSlowB 11s ease-in-out infinite alternate;
+}
+
+.float-bottom-left {
+  top: 75%;
+  left: 3%;
+  width: 220px;
+  padding: 1rem 1.15rem;
+  animation: heroFloatSlowC 10s ease-in-out infinite alternate;
+}
+
+/* Right Elements */
+.float-top-right {
+  top: 15%;
+  right: 2%;
+  width: 230px;
+  padding: 1rem 1.15rem;
+  animation: heroFloatSlowB 10s ease-in-out infinite alternate-reverse;
+}
+
+.float-mid-right {
+  top: 50%;
+  right: 1.5%;
+  width: 240px;
+  padding: 1.15rem;
+  animation: heroFloatSlowA 12s ease-in-out infinite alternate-reverse;
+}
+
+.float-bottom-right {
+  top: 76%;
+  right: 3%;
+  width: 220px;
+  padding: 1rem 1.15rem;
+  animation: heroFloatSlowC 9s ease-in-out infinite alternate-reverse;
+}
+
+/* Widget Micro Components */
+.widget-header-mini {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.mini-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mini-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.mini-dot.red { background: #FF5F56; }
+.mini-dot.yellow { background: #FFBD2E; }
+.mini-dot.green { background: #27C93F; }
+
+.widget-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.widget-live-status {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: heroPulseBeacon 1.5s infinite;
+}
+
+.widget-metric-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.widget-stat-number {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 850;
+  color: var(--primary-dark);
+  line-height: 1;
+}
+
+.widget-stat-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--mint-soft);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--green-light);
+}
+
+.widget-micro-caption {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.widget-lead-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+.widget-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.widget-icon-circle.green {
+  background: var(--mint-soft);
+  color: var(--green);
+  border: 1px solid var(--green-light);
+}
+
+.widget-icon-circle.dark {
+  background: var(--primary-dark);
+  color: #FFFFFF;
+  border: 1px solid rgba(15, 169, 104, 0.3);
+}
+
+.widget-stat-label {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--primary-dark);
+}
+
+.widget-mini-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.45rem;
+}
+
+.widget-mini-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+}
+
+/* 80px Glass Tile */
+.hero-float-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  position: relative;
+}
+
+.tile-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--mint-soft);
+  border: 1px solid var(--green-light);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tile-svg-icon {
+  color: var(--primary-dark);
+}
+
+.tile-text-wrap {
+  flex: 1;
+}
+
+.tile-title {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  line-height: 1.25;
+}
+
+.tile-subtitle {
+  font-size: 0.75rem;
+  color: var(--green);
+  font-weight: 650;
+  margin-top: 2px;
+}
+
+.tile-badge-corner {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary-dark);
+  color: #FFFFFF;
+  border: 1px solid rgba(15, 169, 104, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+/* Floating Slow Animations */
+@keyframes heroFloatSlowA {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(0.4deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes heroFloatSlowB {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(6px) rotate(-0.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes heroFloatSlowC {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(-0.3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* =====================================================================
+   RESPONSIVE DESIGN (Item 14: Mobile Adaptations)
+   ===================================================================== */
+@media (max-width: 1200px) {
+  .hero-floating-stage {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
-  .hero-workflow-scenario-bar {
+  .hero-section {
+    padding-top: calc(var(--space-12) + 0.5rem);
+    padding-bottom: var(--space-12);
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 9.2vw, 3.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .hero-pill-cta,
+  .hero-glass-cta {
+    width: 100%;
+    max-width: 360px;
+    justify-content: center;
+  }
+
+  .hero-channels-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-channel-dot {
+    display: none;
+  }
+
+  .hero-macos-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .hero-macos-agent-subbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .hero-macos-event-ticker {
+    font-size: 0.75rem;
   }
 }
 

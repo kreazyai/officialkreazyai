@@ -36,6 +36,27 @@ import { Badge } from '../../components/common/Badge';
 import { PricingTiersSection } from '../../components/website/PricingTiersSection';
 import { leadService } from '../../services/api';
 
+/* White monochrome social platform icons for macOS hero environment (Item 3) */
+const WhatsAppIcon = ({ size = 15 }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.12c-1.48 0-2.94-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.1 8.1 0 0 1-1.25-4.35c0-4.49 3.66-8.15 8.16-8.15 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.76c0 4.49-3.66 8.16-8.16 8.16zm4.47-6.11c-.24-.12-1.45-.72-1.68-.8-.23-.08-.39-.12-.56.12-.17.24-.64.8-.78.96-.15.16-.29.18-.54.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.45-1.35-1.69-.15-.24-.02-.37.1-.49.11-.11.24-.29.37-.43.12-.15.16-.24.24-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.16 0-.43.06-.65.3-.23.24-.87.85-.87 2.08 0 1.22.89 2.41 1.01 2.58.12.16 1.76 2.68 4.26 3.76.6.26 1.06.41 1.42.53.6.19 1.15.16 1.58.1.48-.07 1.45-.6 1.66-1.17.2-.57.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28z"/>
+  </svg>
+);
+
+const InstagramIcon = ({ size = 15 }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+  </svg>
+);
+
+const MessengerIcon = ({ size = 15 }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+    <path d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.19 5.43 3.14 7.15.16.14.26.35.26.57l-.07 1.78c-.03.73.74 1.23 1.37.88l1.98-1.09c.17-.1.37-.13.56-.09.89.24 1.83.38 2.8.38 5.64 0 10-4.13 10-9.7S17.64 2 12 2zm1.18 12.98l-2.61-2.78-5.1 2.78 5.61-5.96 2.67 2.78 5.04-2.78-5.61 5.96z"/>
+  </svg>
+);
+
 export function HomePage({ onNavigate, user }) {
 
   // Founder Meeting Form State
@@ -270,146 +291,341 @@ export function HomePage({ onNavigate, user }) {
           - Under CTA: WhatsApp • Instagram • Messenger • Web
           - Hero Visual: 5 rounded floating workflow cards with green curved lines
           ============================================================= */}
+      {/* =============================================================
+          1. HERO SECTION: macOS-INSPIRED AUTONOMOUS AI WORKSPACE
+          Apple/macOS interface aesthetics + AI automation + KREAZY AI branding
+          ============================================================= */}
       <section className="hero-section">
-        {/* Soft mint-green organic abstract shapes toward edges */}
-        <div className="hero-abstract-blob-left" aria-hidden="true" />
-        <div className="hero-abstract-blob-right" aria-hidden="true" />
+        {/* Ambient Radial Mint Glows */}
+        <div className="hero-ambient-glow-left" aria-hidden="true" />
+        <div className="hero-ambient-glow-right" aria-hidden="true" />
+        <div className="hero-ambient-glow-bottom" aria-hidden="true" />
 
-        {/* Decorative thin green workflow lines & outlined icons canvas */}
+        {/* Technical Dotted Grid Overlay */}
+        <div className="hero-dotted-grid-overlay" aria-hidden="true" />
+
+        {/* Decorative thin green workflow lines & automation network canvas (Item 7) */}
         <svg
           className="hero-bg-canvas"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1440 680"
+          viewBox="0 0 1440 760"
           fill="none"
           aria-hidden="true"
         >
-          {/* Subtle curved connection lines */}
+          <defs>
+            <linearGradient id="heroLineGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#AEEBCB" stopOpacity="0.1" />
+              <stop offset="50%" stopColor="#0FA968" stopOpacity="0.38" />
+              <stop offset="100%" stopColor="#AEEBCB" stopOpacity="0.1" />
+            </linearGradient>
+            <linearGradient id="heroLineGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0FA968" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#092A20" stopOpacity="0.08" />
+            </linearGradient>
+          </defs>
+
+          {/* Network Path 1: Left social platforms into KREAZY AI core */}
           <path
-            d="M -40 220 Q 260 120, 480 260 T 960 210 T 1480 320"
-            stroke="#D9E9E1"
+            d="M 60 220 C 220 160, 340 320, 520 280 C 620 260, 680 320, 720 380"
+            stroke="url(#heroLineGrad1)"
             strokeWidth="1.5"
+            strokeDasharray="5 7"
+          />
+          {/* Network Path 2: Cross connecting behind headline */}
+          <path
+            d="M -20 380 C 260 480, 480 340, 720 420 C 960 500, 1180 360, 1460 410"
+            stroke="#0FA968"
+            strokeWidth="1.2"
+            strokeOpacity="0.22"
+          />
+          {/* Network Path 3: Right social platforms into KREAZY AI core */}
+          <path
+            d="M 1380 230 C 1220 170, 1100 310, 920 280 C 820 260, 760 320, 720 380"
+            stroke="url(#heroLineGrad1)"
+            strokeWidth="1.5"
+            strokeDasharray="5 7"
+          />
+          {/* Network Path 4: Central AI core to CRM/Orders bottom outflow */}
+          <path
+            d="M 720 440 C 720 540, 580 580, 480 640"
+            stroke="#AEEBCB"
+            strokeWidth="1.2"
+            strokeOpacity="0.35"
             strokeDasharray="4 6"
           />
           <path
-            d="M 60 480 C 280 430, 420 540, 720 460 C 1020 380, 1220 520, 1500 440"
+            d="M 720 440 C 720 540, 860 580, 960 640"
             stroke="#AEEBCB"
             strokeWidth="1.2"
-            opacity="0.75"
-          />
-          <path
-            d="M 120 160 Q 320 280, 540 180"
-            stroke="#0FA968"
-            strokeWidth="1"
-            strokeDasharray="3 5"
-            opacity="0.45"
+            strokeOpacity="0.35"
+            strokeDasharray="4 6"
           />
 
-          {/* Outlined Graphic Nodes (PDF Page 4) */}
-          {/* Node 1: Chat bubble outline (left) */}
-          <g transform="translate(140, 140)" stroke="#087A4A" strokeWidth="1.5" fill="none" opacity="0.6">
-            <rect x="0" y="0" width="38" height="26" rx="8" />
-            <path d="M 10 26 L 6 32 L 18 26 Z" fill="#DDF7E9" />
-            <circle cx="12" cy="13" r="1.5" fill="#087A4A" />
-            <circle cx="19" cy="13" r="1.5" fill="#087A4A" />
-            <circle cx="26" cy="13" r="1.5" fill="#087A4A" />
-          </g>
-
-          {/* Node 2: Connection node circle (left middle) */}
-          <circle cx="280" cy="380" r="14" fill="#EFFBF5" stroke="#0FA968" strokeWidth="1.5" opacity="0.7" />
-          <circle cx="280" cy="380" r="5" fill="#0FA968" opacity="0.8" />
-
-          {/* Node 3: AI Sparkle (top right) */}
-          <g transform="translate(1260, 130)" stroke="#0FA968" strokeWidth="1.5" fill="none" opacity="0.7">
-            <path d="M 16 0 L 19 12 L 31 15 L 19 18 L 16 30 L 13 18 L 1 15 L 13 12 Z" fill="#DDF7E9" />
-          </g>
-
-          {/* Node 4: Chat bubble outline (right) */}
-          <g transform="translate(1220, 360)" stroke="#087A4A" strokeWidth="1.5" fill="none" opacity="0.6">
-            <rect x="0" y="0" width="36" height="24" rx="7" />
-            <path d="M 24 24 L 28 30 L 16 24 Z" fill="#DDF7E9" />
-            <line x1="8" y1="9" x2="28" y2="9" strokeWidth="1.5" />
-            <line x1="8" y1="15" x2="22" y2="15" strokeWidth="1.5" />
-          </g>
-
-          {/* Node 5: Automation Connection Circle (right top) */}
-          <circle cx="1120" cy="220" r="18" fill="#EFFBF5" stroke="#AEEBCB" strokeWidth="1.5" opacity="0.8" />
-          <circle cx="1120" cy="220" r="6" fill="#087A4A" />
-
-          {/* Node 6: Workflow Arrow (left bottom) */}
-          <g transform="translate(180, 480)" stroke="#0FA968" strokeWidth="1.5" fill="none" opacity="0.6">
-            <circle cx="15" cy="15" r="15" fill="#EFFBF5" />
-            <path d="M 10 15 L 20 15 M 16 11 L 20 15 L 16 19" />
-          </g>
+          {/* Connection Nodes */}
+          <circle cx="280" cy="240" r="4" fill="#0FA968" opacity="0.6" />
+          <circle cx="520" cy="280" r="3" fill="#0FA968" opacity="0.7" />
+          <circle cx="920" cy="280" r="3" fill="#0FA968" opacity="0.7" />
+          <circle cx="1160" cy="250" r="4" fill="#0FA968" opacity="0.6" />
         </svg>
 
-        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Floating macOS UI Environment (Items 2, 5, 6 - Desktop) */}
+        <div className="hero-floating-stage" aria-hidden="true">
+          {/* Top-Left: Response Engine Widget (⚡ 1.2s • Average reply) */}
+          <div className="hero-float-widget float-top-left">
+            <div className="widget-header-mini">
+              <div className="mini-dots">
+                <span className="mini-dot red" />
+                <span className="mini-dot yellow" />
+                <span className="mini-dot green" />
+              </div>
+              <span className="widget-tag">Response Engine</span>
+            </div>
+            <div className="widget-metric-row">
+              <span className="widget-stat-number">⚡ 1.2s</span>
+              <span className="widget-stat-pill">Average reply</span>
+            </div>
+            <div className="widget-micro-caption">Instant customer reply in Bangla &amp; English</div>
+          </div>
+
+          {/* Mid-Left: Instant AI Sales Glass Tile + WhatsApp Node (Items 3, 5) */}
+          <div className="hero-float-tile float-mid-left">
+            <div className="tile-icon-box">
+              <Sparkles size={22} className="tile-svg-icon" />
+            </div>
+            <div className="tile-text-wrap">
+              <div className="tile-title">Autonomous Sales</div>
+              <div className="tile-subtitle">● Active on WhatsApp</div>
+            </div>
+            <div className="tile-badge-corner" title="WhatsApp Connected">
+              <WhatsAppIcon size={13} />
+            </div>
+          </div>
+
+          {/* Bottom-Left: Leads Qualified Micro Card (Item 6) */}
+          <div className="hero-float-widget float-bottom-left">
+            <div className="widget-lead-row">
+              <div className="widget-icon-circle green">
+                <User size={15} />
+              </div>
+              <div>
+                <div className="widget-stat-number">+24</div>
+                <div className="widget-stat-label">Leads qualified</div>
+              </div>
+            </div>
+            <div className="widget-mini-bar">
+              <div className="widget-mini-fill" style={{ width: '84%' }} />
+            </div>
+            <div className="widget-micro-caption">Auto-synced to CRM &amp; catalog</div>
+          </div>
+
+          {/* Top-Right: 24/7 Live Widget (Item 6) */}
+          <div className="hero-float-widget float-top-right">
+            <div className="widget-header-mini">
+              <div className="mini-dots">
+                <span className="mini-dot red" />
+                <span className="mini-dot yellow" />
+                <span className="mini-dot green" />
+              </div>
+              <div className="widget-live-status">
+                <span className="live-dot" />
+                <span>LIVE</span>
+              </div>
+            </div>
+            <div className="widget-metric-row">
+              <span className="widget-stat-number">24/7</span>
+              <span className="widget-stat-pill">Always available</span>
+            </div>
+            <div className="widget-micro-caption">Zero queue delay across channels</div>
+          </div>
+
+          {/* Mid-Right: Order Created Glass Tile + Instagram Node (Items 3, 5) */}
+          <div className="hero-float-tile float-mid-right">
+            <div className="tile-icon-box">
+              <ShoppingBag size={22} className="tile-svg-icon" />
+            </div>
+            <div className="tile-text-wrap">
+              <div className="tile-title">Order Created</div>
+              <div className="tile-subtitle">৳8,450 auto-captured</div>
+            </div>
+            <div className="tile-badge-corner" title="Instagram Connected">
+              <InstagramIcon size={13} />
+            </div>
+          </div>
+
+          {/* Bottom-Right: Human Handoff Micro Card (Item 5, 6) */}
+          <div className="hero-float-widget float-bottom-right">
+            <div className="widget-lead-row">
+              <div className="widget-icon-circle dark">
+                <Headphones size={15} />
+              </div>
+              <div>
+                <div className="widget-stat-number">1 Click</div>
+                <div className="widget-stat-label">Human agent handoff</div>
+              </div>
+            </div>
+            <div className="widget-micro-caption">Seamless moderator transfer</div>
+          </div>
+        </div>
+
+        {/* Central Main Composition (Items 1, 9, 10, 4) */}
+        <div className="container" style={{ position: 'relative', zIndex: 3 }}>
           <div className="hero-content-wrap">
-            {/* Small Eyebrow Badge (PDF Page 4) */}
-            <div className="hero-badge-wrap">
-              <span className="badge badge-mint" style={{ padding: '0.4rem 1rem', fontSize: '0.825rem', letterSpacing: '0.01em' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--green)', display: 'inline-block' }} />
-                AI-Powered Business Automation
-              </span>
+            {/* 1. Small Eyebrow Badge */}
+            <div className="hero-macos-eyebrow">
+              <span className="hero-status-beacon" />
+              <span>AI-Powered Autonomous Commerce OS</span>
             </div>
 
-            {/* Main Headline (PDF Page 4: Short, conversational, 800-900 weight, compact) */}
+            {/* 2. Main Headline: Exactly 'More conversations.' and 'Less manual work.' */}
             <h1 className="hero-title">
-              <span className="title-line">More conversations.</span>
-              <span className="title-line" style={{ color: 'var(--primary)' }}>Less manual work.</span>
+              <span className="title-line dark">More conversations.</span>
+              <span className="title-line green">Less manual work.</span>
             </h1>
 
-            {/* Supporting Text (PDF Page 4) */}
+            {/* 3. Supporting Description */}
             <p className="hero-subtitle">
-              KREAZY AI helps businesses automate customer conversations, support, lead qualification and repetitive tasks — 24/7.
+              KREAZY AI automates customer conversations, support, lead qualification, and order capture across WhatsApp, Instagram, Messenger, and Web — 24/7.
             </p>
 
-            {/* CTA Buttons (PDF Page 5: Pill / rounded 999px) */}
+            {/* 4. CTA Buttons */}
             <div className="hero-cta-group">
               {user ? (
                 <Button
                   variant="primary"
                   size="lg"
+                  className="hero-pill-cta"
                   onClick={() => onNavigate('dashboard')}
-                  iconRight={ArrowRight}
                 >
-                  Open Workspace Dashboard
+                  <span>Open Workspace Dashboard</span>
+                  <ArrowRight size={18} className="cta-arrow-icon" />
                 </Button>
               ) : (
                 <>
                   <Button
                     variant="primary"
                     size="lg"
-                    onClick={() => onNavigate('signup')}
-                    iconRight={ArrowRight}
+                    className="hero-pill-cta"
+                    onClick={() => onNavigate('book-demo')}
                   >
-                    Start Automating
+                    <span>Book a Demo</span>
+                    <ArrowRight size={18} className="cta-arrow-icon" />
                   </Button>
                   <Button
                     variant="secondary"
                     size="lg"
-                    onClick={() => {
-                      const el = document.getElementById('how-it-works-workflow');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
+                    className="hero-glass-cta"
+                    onClick={() => onNavigate('signup')}
                   >
-                    See How It Works →
+                    <span>Start Automating</span>
+                    <ArrowRight size={18} className="cta-arrow-icon" />
                   </Button>
                 </>
               )}
             </div>
 
-            {/* Under the CTA (PDF Page 5) */}
-            <div className="hero-channels-caption">
-              <span>WhatsApp</span>
-              <span>•</span>
-              <span>Instagram</span>
-              <span>•</span>
-              <span>Messenger</span>
-              <span>•</span>
-              <span>Web</span>
+            {/* 5. Connected Platform Indicators (Under CTA - Item 10) */}
+            <div className="hero-channels-row">
+              <div className="hero-channel-item">
+                <span className="hero-channel-icon-pill" title="WhatsApp Business">
+                  <WhatsAppIcon size={14} />
+                </span>
+                <span className="hero-channel-label">WhatsApp</span>
+              </div>
+              <span className="hero-channel-dot">•</span>
+              <div className="hero-channel-item">
+                <span className="hero-channel-icon-pill" title="Instagram Direct">
+                  <InstagramIcon size={14} />
+                </span>
+                <span className="hero-channel-label">Instagram</span>
+              </div>
+              <span className="hero-channel-dot">•</span>
+              <div className="hero-channel-item">
+                <span className="hero-channel-icon-pill" title="Facebook Messenger">
+                  <MessengerIcon size={14} />
+                </span>
+                <span className="hero-channel-label">Messenger</span>
+              </div>
+              <span className="hero-channel-dot">•</span>
+              <div className="hero-channel-item">
+                <span className="hero-channel-icon-pill" title="Web Chat Widget">
+                  <Globe size={14} />
+                </span>
+                <span className="hero-channel-label">Web Chat</span>
+              </div>
+            </div>
+
+            {/* 6. Main AI Visual: macOS Autonomous Agent Window (Item 4) */}
+            <div className="hero-macos-agent-window">
+              {/* macOS Window Header */}
+              <div className="hero-macos-window-header">
+                <div className="hero-macos-traffic-lights">
+                  <span className="traffic-dot traffic-red" />
+                  <span className="traffic-dot traffic-yellow" />
+                  <span className="traffic-dot traffic-green" />
+                </div>
+                <div className="hero-macos-window-title">
+                  <span className="window-brand">KREAZY AI</span>
+                  <span className="window-sep">/</span>
+                  <span className="window-app">Autonomous Agent Workspace</span>
+                </div>
+                <div className="hero-macos-live-badge">
+                  <span className="live-pulse-dot" />
+                  <span>Listening</span>
+                </div>
+              </div>
+
+              {/* macOS Window Body */}
+              <div className="hero-macos-window-body">
+                {/* Agent Identity & Latency Bar */}
+                <div className="hero-macos-agent-subbar">
+                  <div className="agent-identity">
+                    <div className="agent-avatar-icon">
+                      <Bot size={18} />
+                    </div>
+                    <div>
+                      <div className="agent-name">Store Intelligence Agent</div>
+                      <div className="agent-role">Multi-Channel Autonomous Commerce</div>
+                    </div>
+                  </div>
+                  <div className="agent-latency-chip">
+                    <Zap size={13} />
+                    <span>⚡ 1.2s avg response</span>
+                  </div>
+                </div>
+
+                {/* 4 Metric Counters Grid */}
+                <div className="hero-macos-metrics-grid">
+                  <div className="hero-macos-metric-card">
+                    <div className="metric-number">12</div>
+                    <div className="metric-label">conversations handled</div>
+                  </div>
+                  <div className="hero-macos-metric-card">
+                    <div className="metric-number">3</div>
+                    <div className="metric-label">leads qualified</div>
+                  </div>
+                  <div className="hero-macos-metric-card highlight">
+                    <div className="metric-number">2</div>
+                    <div className="metric-label">orders created</div>
+                  </div>
+                  <div className="hero-macos-metric-card">
+                    <div className="metric-number">1</div>
+                    <div className="metric-label">human handoff</div>
+                  </div>
+                </div>
+
+                {/* Live Event Ticker */}
+                <div className="hero-macos-event-ticker">
+                  <span className="ticker-badge">LIVE EVENT</span>
+                  <div className="ticker-text">
+                    <span className="ticker-time">10:42:19</span>
+                    <span className="ticker-channel">WhatsApp</span>
+                    <span className="ticker-desc">Order #KZ-9824 auto-confirmed with address &amp; phone verification</span>
+                    <span className="ticker-check">✓</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
         </div>
       </section>
 
