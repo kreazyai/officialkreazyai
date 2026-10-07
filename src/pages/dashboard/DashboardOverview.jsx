@@ -40,6 +40,26 @@ export function DashboardOverview({ user, onNavigateModule }) {
   const [useZeroState, setUseZeroState] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [activeChannelFilter, setActiveChannelFilter] = useState('all');
+  const [currency, setCurrency] = useState('BDT'); // 'BDT' | 'USD' | 'EUR'
+
+  const getCurrencySign = (c) => {
+    if (c === 'BDT') return '৳';
+    if (c === 'EUR') return '€';
+    return '$';
+  };
+
+  const formatFinancialMetric = (usdBase) => {
+    if (useZeroState) {
+      return `${getCurrencySign(currency)}0`;
+    }
+    if (currency === 'BDT') {
+      return `৳${Math.round(usdBase * 120).toLocaleString()}`;
+    }
+    if (currency === 'EUR') {
+      return `€${Math.round(usdBase * 0.92).toLocaleString()}`;
+    }
+    return `$${usdBase.toLocaleString()}`;
+  };
 
   const toggleTelemetryMode = () => {
     setUseZeroState((prev) => !prev);
@@ -56,75 +76,11 @@ export function DashboardOverview({ user, onNavigateModule }) {
 
   return (
     <div className="dashboard-content">
-      {/* Demo / Telemetry Banner if viewing demo */}
-      {isDemo && !useZeroState && (
-        <div
-          style={{
-            padding: '0.65rem 1.15rem',
-            backgroundColor: 'rgba(143, 164, 90, 0.08)',
-            border: '1px solid rgba(143, 164, 90, 0.25)',
-            borderRadius: '12px',
-            marginBottom: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.75rem'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <Sparkles size={16} color="var(--bright-olive)" />
-            <span style={{ fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-              <strong>Operations Command Center:</strong> Active autonomous telemetry streaming across WhatsApp, Instagram, and Facebook endpoints.
-            </span>
-          </div>
-          <Badge variant="olive">Enterprise Preview</Badge>
-        </div>
-      )}
-
-      {/* Page Title & Primary Command Actions */}
-      <div className="page-title-row" style={{ marginBottom: '1.25rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-            <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-              Store Overview & Automation
-            </h2>
-            <button
-              type="button"
-              onClick={toggleTelemetryMode}
-              className={`status-pill ${useZeroState ? 'standby' : 'ready'}`}
-              style={{ cursor: 'pointer', border: '1px solid rgba(143, 164, 90, 0.35)', background: 'rgba(143, 164, 90, 0.12)' }}
-              title="Click to toggle between empty store state and simulated telemetry preview"
-            >
-              <span className="telemetry-dot"></span>
-              {useZeroState ? 'Live Store (0 Orders / 0 Messages)' : 'Simulated Telemetry Preview'}
-            </button>
-          </div>
-          <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Real-time telemetry across your merchant workspace, connected channels, and AI agents.
-          </p>
-        </div>
-
-        {/* Quick Action Buttons */}
-        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onNavigateModule('ai-assistant')}
-            icon={Bot}
-          >
-            Configure AI Agent
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onNavigateModule('messages')}
-            icon={MessageSquare}
-          >
-            {useZeroState ? 'Open Live Inbox (0)' : 'Open Live Inbox (3)'}
-          </Button>
-        </div>
+      {/* Page Title: strictly only "Dashboard" as requested */}
+      <div className="page-title-row" style={{ marginBottom: '1.5rem' }}>
+        <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 850, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+          Dashboard
+        </h1>
       </div>
 
       {/* ==============================================================
@@ -132,11 +88,11 @@ export function DashboardOverview({ user, onNavigateModule }) {
           ============================================================== */}
       <div className="overview-reference-hero">
         <div className="overview-hero-left">
-          <h1 className="overview-hero-title">
+          <h2 className="overview-hero-title">
             Autonomous<br />Commerce
-          </h1>
+          </h2>
 
-          {/* Circular Progress Gauge (Reference 11% / 94% autonomy) */}
+          {/* Circular Progress Gauge */}
           <div className="overview-circular-gauge">
             <svg width="64" height="64" viewBox="0 0 64 64" style={{ transform: 'rotate(-90deg)' }}>
               <circle
@@ -167,29 +123,46 @@ export function DashboardOverview({ user, onNavigateModule }) {
           </div>
         </div>
 
-        {/* Oversized Tabular Metric Values Matching Reference Geometry */}
-        <div className="overview-metrics-row">
-          <div className="overview-metric-item">
-            <span className="overview-metric-label">Overall balance</span>
-            <div className="overview-metric-number">
-              {useZeroState ? '$0' : '990,815'}
-              <span style={{ fontSize: '0.6em', color: 'var(--text-muted)', marginLeft: '2px' }}>$</span>
+        {/* Financial Metrics in a dedicated Box with Currency Conversion Mode */}
+        <div className="overview-financial-box">
+          <div className="overview-financial-box-header">
+            <span className="overview-financial-box-title">
+              Financial Overview
+            </span>
+            <div className="overview-currency-mode-selector" role="group" aria-label="Select currency mode">
+              {['BDT', 'USD', 'EUR'].map((curr) => (
+                <button
+                  key={curr}
+                  type="button"
+                  onClick={() => setCurrency(curr)}
+                  className={`overview-currency-mode-btn ${currency === curr ? 'active' : ''}`}
+                >
+                  {curr}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="overview-metric-item">
-            <span className="overview-metric-label">Monthly profits</span>
-            <div className="overview-metric-number">
-              {useZeroState ? '$0' : '170,520'}
-              <span style={{ fontSize: '0.6em', color: 'var(--text-muted)', marginLeft: '2px' }}>$</span>
+          <div className="overview-financial-grid">
+            <div className="overview-financial-card">
+              <span className="overview-metric-label">Overall balance</span>
+              <div className="overview-metric-number">
+                {formatFinancialMetric(990815)}
+              </div>
             </div>
-          </div>
 
-          <div className="overview-metric-item">
-            <span className="overview-metric-label">Monthly payments</span>
-            <div className="overview-metric-number">
-              {useZeroState ? '$0' : '64,520'}
-              <span style={{ fontSize: '0.6em', color: 'var(--text-muted)', marginLeft: '2px' }}>$</span>
+            <div className="overview-financial-card">
+              <span className="overview-metric-label">Monthly profits</span>
+              <div className="overview-metric-number">
+                {formatFinancialMetric(170520)}
+              </div>
+            </div>
+
+            <div className="overview-financial-card">
+              <span className="overview-metric-label">Monthly payments</span>
+              <div className="overview-metric-number">
+                {formatFinancialMetric(64520)}
+              </div>
             </div>
           </div>
         </div>
