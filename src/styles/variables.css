@@ -1,132 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
   /* =====================================================================
-     KREAZYAI DESIGN SYSTEM — DEEP FOREST GREEN & SMOKED GLASS AESTHETIC
-     Reference: Dark forest-green canvas, diffused sage lighting, smoked-glass
-     panels, 24-32px rounded cards, capsule controls, warm white typography.
+     KREAZYAI BRAND DESIGN SYSTEM — LIGHT WHITE & MINT ACCENT PALETTE
+     Matches Facebook Cover Visual Identity:
+     White/light grey canvas, soft mint translucent organic shapes, thin green
+     flow lines, dark green primary text, subtle green accents.
      ===================================================================== */
 
-  /* 1. Canvas & Surface Hierarchy */
-  --bg-surface: #101A16;                 /* Main deep forest canvas */
-  --bg-secondary: #18251F;               /* Secondary canvas */
-  --bg-canvas-alt: #18251F;              /* Secondary container alias */
-  --bg-sidebar: #101A16;                 /* Refined dark sidebar / shell */
-  --bg-panel-solid: #22332B;             /* Solid panel fallback */
-  --bg-card: rgba(214, 229, 215, 0.08);  /* Smoked glass surface */
-  --bg-card-solid: #22332B;              /* Solid fallback for cards */
-  --bg-elevated: rgba(214, 229, 215, 0.13); /* Elevated smoked glass */
-  --bg-elevated-solid: #283B32;          /* Elevated solid fallback */
-  --bg-card-hover: rgba(214, 229, 215, 0.12); /* Interactive hover */
-  --bg-subtle: rgba(214, 229, 215, 0.05); /* Extra subtle container */
-  --bg-input: rgba(16, 26, 22, 0.85);    /* Input background */
-  --bg-overlay: rgba(10, 16, 13, 0.88);  /* Full-screen backdrop overlay */
+  /* 1. Core Palette (Specified in PDF) */
+  --background: #F8FAF9;
+  --surface: #FFFFFF;
+  --primary-dark: #092A20;
+  --primary: #087A4A;
+  --green: #0FA968;
+  --green-light: #AEEBCB;
+  --mint: #DDF7E9;
+  --mint-soft: #EFFBF5;
+  --border: #D9E9E1;
+  --text-primary: #09231B;
+  --text-secondary: #52645D;
 
-  /* 2. Restrained Fine Borders */
-  --border-subtle: rgba(232, 240, 231, 0.14); /* Subtle hairline border */
-  --border-medium: rgba(232, 240, 231, 0.22); /* Card & panel border */
-  --border-light: rgba(232, 240, 231, 0.14);  /* Compatibility alias */
-  --border-strong: rgba(232, 240, 231, 0.32); /* Focus & selected border */
-  --border-bright: rgba(189, 211, 148, 0.65); /* Sage accent border */
-  --border-glow: rgba(189, 211, 148, 0.35);   /* Active glow outline */
+  /* 2. Semantic Surface & Canvas Mappings */
+  --bg-surface: var(--background);
+  --bg-secondary: #FFFFFF;
+  --bg-canvas-alt: var(--mint-soft);
+  --bg-sidebar: #FFFFFF;
+  --bg-panel-solid: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-solid: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-elevated-solid: #FFFFFF;
+  --bg-card-hover: var(--mint-soft);
+  --bg-subtle: var(--mint-soft);
+  --bg-input: #FFFFFF;
+  --bg-overlay: rgba(9, 42, 32, 0.45);
 
-  /* 3. Typography Palette */
-  --text-primary: #F3F5EE;                /* Crisp warm off-white */
-  --text-secondary: #B8C5BB;              /* Soft muted green-gray */
-  --text-muted: #7E9285;                  /* Labels, micro-copy, timestamps */
-  --text-placeholder: #5A6D61;            /* Input placeholder */
-  --text-inverse: #142018;                /* Dark text on sage accent buttons */
-  --text-heading: #F3F5EE;                /* Crisp headings */
-  --text-accent: #BDD394;                 /* Sage accent text */
-  --warm-cream: #F3F5EE;                  /* Legacy alias */
+  /* 3. Restrained Borders */
+  --border-subtle: #E6F0EB;
+  --border-medium: var(--border);
+  --border-light: var(--border);
+  --border-strong: var(--green-light);
+  --border-bright: var(--green);
+  --border-glow: rgba(15, 169, 104, 0.2);
 
-  /* 4. Primary Accent & Diffuse Lighting */
-  --primary-accent: #BDD394;              /* Primary sage / soft lime accent */
-  --accent-text: #142018;                 /* High-contrast dark text on accent */
-  --accent-hover: #D0E4AC;                /* Lighter sage on hover */
-  --bright-olive: #BDD394;                /* Compatibility alias */
-  --soft-olive: #BDD394;                  /* Compatibility alias */
-  --primary-olive: #BDD394;               /* Compatibility alias */
-  --olive-button-bg: #BDD394;             /* Button background */
-  --olive-button-hover: #D0E4AC;          /* Button hover */
-  --accent-gradient: linear-gradient(135deg, #BDD394 0%, #A2C478 100%);
-  --accent-glow: rgba(189, 211, 148, 0.25);
-  
-  /* Atmospheric Diffuse Sage Lighting */
-  --diffuse-sage-glow: radial-gradient(circle at 50% 20%, rgba(189, 211, 148, 0.08) 0%, transparent 65%);
-  --diffuse-sage-subtle: radial-gradient(circle at 80% 25%, rgba(189, 211, 148, 0.05) 0%, transparent 50%);
-  --hero-glow: radial-gradient(ellipse at 50% 30%, rgba(189, 211, 148, 0.09) 0%, transparent 70%);
+  /* 4. Text Hierarchy */
+  --text-muted: #7E9285;
+  --text-placeholder: #8FA298;
+  --text-inverse: #FFFFFF;
+  --text-heading: var(--text-primary);
+  --text-accent: var(--primary);
+  --warm-cream: var(--text-primary);
 
-  /* 5. Semantic Feedback Colors */
-  --status-success: #4ADE80;
-  --status-success-bg: rgba(74, 222, 128, 0.12);
-  --status-success-border: rgba(74, 222, 128, 0.30);
-  --status-success-text: #4ADE80;
+  /* 5. Brand Accents & Button Tokens */
+  --primary-accent: var(--green);
+  --accent-text: #FFFFFF;
+  --accent-hover: #087A4A;
+  --bright-olive: var(--green);
+  --soft-olive: var(--primary);
+  --primary-olive: var(--primary);
+  --olive-button-bg: var(--primary-dark);
+  --olive-button-hover: #0F3D30;
+  --accent-gradient: linear-gradient(135deg, #0FA968 0%, #087A4A 100%);
+  --accent-glow: rgba(15, 169, 104, 0.15);
+  --mint-gradient: linear-gradient(135deg, #EFFBF5 0%, #DDF7E9 100%);
 
-  --status-error: #F87171;
-  --danger: #F87171;
-  --status-error-bg: rgba(248, 113, 113, 0.12);
-  --status-error-border: rgba(248, 113, 113, 0.32);
-  --status-error-text: #F87171;
+  /* Atmospheric Soft Mint Diffuse Background Lighting */
+  --diffuse-sage-glow: radial-gradient(circle at 50% 20%, rgba(221, 247, 233, 0.65) 0%, transparent 65%);
+  --diffuse-sage-subtle: radial-gradient(circle at 80% 25%, rgba(174, 235, 203, 0.45) 0%, transparent 50%);
+  --hero-glow: radial-gradient(ellipse at 50% 25%, rgba(221, 247, 233, 0.8) 0%, transparent 70%);
 
-  --status-warning: #FACC15;
-  --status-warning-bg: rgba(250, 204, 21, 0.12);
-  --status-warning-border: rgba(250, 204, 21, 0.32);
-  --status-warning-text: #FACC15;
-  --accent-amber: #FACC15;
+  /* 6. Semantic Feedback Colors */
+  --status-success: #0FA968;
+  --status-success-bg: #EFFBF5;
+  --status-success-border: #AEEBCB;
+  --status-success-text: #087A4A;
 
-  --status-info: #60A5FA;
-  --status-info-bg: rgba(96, 165, 250, 0.12);
-  --status-info-border: rgba(96, 165, 250, 0.32);
-  --status-info-text: #60A5FA;
+  --status-error: #E53935;
+  --danger: #E53935;
+  --status-error-bg: #FEECEB;
+  --status-error-border: #F8B4B4;
+  --status-error-text: #B91C1C;
 
-  /* 6. Channel Specific Colors */
+  --status-warning: #D97706;
+  --status-warning-bg: #FEF3C7;
+  --status-warning-border: #FDE68A;
+  --status-warning-text: #B45309;
+  --accent-amber: #D97706;
+
+  --status-info: #0284C7;
+  --status-info-bg: #E0F2FE;
+  --status-info-border: #BAE6FD;
+  --status-info-text: #0369A1;
+
+  /* 7. Channel Specific Colors */
   --channel-whatsapp: #25D366;
-  --channel-whatsapp-soft: rgba(37, 211, 102, 0.15);
+  --channel-whatsapp-soft: #DCFCE7;
   --channel-instagram: #E1306C;
-  --channel-instagram-soft: rgba(225, 48, 108, 0.15);
+  --channel-instagram-soft: #FCE7F3;
   --channel-facebook: #1877F2;
-  --channel-facebook-soft: rgba(24, 119, 242, 0.15);
+  --channel-facebook-soft: #DBEAFE;
 
-  /* 7. Smoked-Glass Tokens */
-  --glass-bg: rgba(214, 229, 215, 0.08);
-  --glass-bg-subtle: rgba(214, 229, 215, 0.05);
-  --glass-border: rgba(232, 240, 231, 0.14);
-  --glass-blur: blur(24px);
-  --glass-card: rgba(214, 229, 215, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.04);
-  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* 8. Light Card & Glass Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.75);
+  --glass-border: var(--border);
+  --glass-blur: blur(20px);
+  --glass-card: #FFFFFF;
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 30px rgba(9, 42, 32, 0.05), 0 1px 3px rgba(9, 42, 32, 0.03);
 
-  /* 8. Radii (24-32px panels, 12-18px controls, capsule pills) */
+  /* 9. Radii (Specified in PDF Page 9) */
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
-  --radius-panel: 28px;
-  --radius-card: 24px;
-  --radius-nested: 18px;
+  --radius-lg: 16px;          /* small cards: 16px */
+  --radius-xl: 20px;          /* normal cards: 20px */
+  --radius-2xl: 24px;         /* feature cards: 24px */
+  --radius-panel: 32px;       /* major containers: 28-32px */
+  --radius-card: 20px;
+  --radius-nested: 16px;
   --radius-control: 12px;
-  --radius-full: 9999px;
-  --radius-capsule: 9999px;
+  --radius-full: 999px;       /* buttons: 999px */
+  --radius-capsule: 999px;
 
-  /* 9. Typography & Numerical Formatting */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* 10. Typography System (Specified in PDF Page 2) */
+  --font-heading: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Inter', 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* 10. Restrained Transitions & Shadows */
+  /* 11. Restrained Transitions & Soft Shadows */
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-base: 200ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 250ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
-  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.65);
-  --shadow-panel: 0 24px 64px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(232, 240, 231, 0.08) inset;
-  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  --shadow-xs: 0 1px 2px rgba(9, 42, 32, 0.04);
+  --shadow-sm: 0 2px 8px rgba(9, 42, 32, 0.05);
+  --shadow-md: 0 6px 20px rgba(9, 42, 32, 0.06);
+  --shadow-lg: 0 12px 32px rgba(9, 42, 32, 0.08);
+  --shadow-xl: 0 20px 48px rgba(9, 42, 32, 0.10);
+  --shadow-panel: 0 12px 36px rgba(9, 42, 32, 0.06);
+  --shadow-card: 0 4px 20px rgba(9, 42, 32, 0.05);
 
-  /* 11. Spacing Scale */
+  /* 12. Spacing Scale */
   --space-1: 0.25rem;   /* 4px */
   --space-2: 0.5rem;    /* 8px */
   --space-3: 0.75rem;   /* 12px */
@@ -140,11 +157,11 @@
   --space-20: 5rem;     /* 80px */
   --space-24: 6rem;     /* 96px */
 
-  /* 12. Layout Constraints */
+  /* 13. Layout Constraints */
   --sidebar-width: 256px;
   --topbar-height: 64px;
   --container-sm: 768px;
   --container-md: 1024px;
   --container-lg: 1200px;
-  --container-xl: 1360px;
+  --container-xl: 1320px;
 }

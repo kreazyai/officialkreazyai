@@ -1,5 +1,8 @@
 /* =====================================================================
-   GLOBAL BASE STYLES — DEEP OLIVE DARK THEME (#182018)
+   GLOBAL BASE STYLES — KREAZYAI LIGHT & SOFT MINT PALETTE
+   Design System Matching Facebook Cover:
+   White/Light base (#F8FAF9), crisp surface (#FFFFFF), soft mint (#DDF7E9, #EFFBF5),
+   dark green text (#09231B), subtle green accents (#0FA968, #087A4A).
    ===================================================================== */
 @import './variables.css';
 
@@ -14,73 +17,73 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-surface);
+  font-family: var(--font-body);
+  background-color: var(--background);
   background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(189, 211, 148, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 85% 20%, rgba(189, 211, 148, 0.04) 0%, transparent 60%);
+    radial-gradient(circle at 10% 0%, rgba(221, 247, 233, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba(174, 235, 203, 0.35) 0%, transparent 40%),
+    radial-gradient(circle at 50% 60%, rgba(239, 251, 245, 0.5) 0%, transparent 60%);
   background-attachment: fixed;
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   font-weight: 400;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
 }
 
-/* Subtle, calm atmospheric texture */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.022;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-
-/* Typography Hierarchy with Intentional Contrast */
+/* Typography Hierarchy (Specified in PDF: Inter Tight, 700-900, -0.04em) */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-sans);
+  font-family: var(--font-heading);
   color: var(--text-primary);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
+  text-wrap: balance;
+  font-feature-settings: "cv02" 1, "cv03" 1, "cv04" 1;
 }
 
 h1 {
-  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
-  letter-spacing: -0.035em;
-  font-weight: 800;
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+  letter-spacing: -0.04em;
+  font-weight: 850;
+  line-height: 0.98;
 }
 
 h2 {
-  font-size: clamp(1.85rem, 3vw, 2.5rem);
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  font-size: clamp(2rem, 3.8vw, 2.85rem);
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  line-height: 1.05;
 }
 
 h3 {
-  font-size: clamp(1.25rem, 2vw, 1.65rem);
-  letter-spacing: -0.02em;
+  font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+  letter-spacing: -0.03em;
+  font-weight: 750;
+  line-height: 1.15;
 }
 
 h4 {
   font-size: 1.15rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+h5, h6 {
+  font-size: 1rem;
+  font-weight: 700;
   letter-spacing: -0.015em;
+  line-height: 1.3;
 }
 
 p {
   color: var(--text-secondary);
   font-size: 1rem;
-  line-height: 1.65;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 small {
@@ -89,19 +92,19 @@ small {
 }
 
 a {
-  color: var(--soft-olive);
+  color: var(--primary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--warm-cream);
+  color: var(--primary-dark);
 }
 
-/* Text Selection in Soft Olive */
+/* Text Selection in Soft Mint */
 ::selection {
-  background-color: var(--primary-olive);
-  color: var(--warm-cream);
+  background-color: var(--mint);
+  color: var(--primary-dark);
 }
 
 button, input, select, textarea {
@@ -116,7 +119,7 @@ button {
 }
 
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid var(--bright-olive);
+  outline: 2px solid var(--green);
   outline-offset: 2px;
 }
 
@@ -125,23 +128,23 @@ img, svg {
   max-width: 100%;
 }
 
-/* Scrollbars */
+/* Clean Light Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-surface);
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(62, 88, 56, 0.7);
+  background: var(--border);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-olive);
+  background: var(--green-light);
 }
 
 /* Containers */
@@ -195,22 +198,20 @@ img, svg {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0.32rem 0.9rem;
-  background-color: rgba(28, 40, 32, 0.9);
-  border: 1px solid rgba(72, 110, 55, 0.5);
+  padding: 0.35rem 0.95rem;
+  background-color: var(--mint-soft);
+  border: 1px solid var(--border);
   border-radius: var(--radius-full);
-  color: var(--soft-olive);
-  font-size: 0.75rem;
+  color: var(--primary);
+  font-size: 0.775rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Touch & Mobile Optimizations */
 button, a, input, select, textarea, [role="button"] {
-  -webkit-tap-highlight-color: rgba(143, 166, 83, 0.12);
+  -webkit-tap-highlight-color: rgba(15, 169, 104, 0.1);
   touch-action: manipulation;
 }
 
@@ -218,6 +219,26 @@ button, a, input, select, textarea, [role="button"] {
   input, select, textarea,
   .form-input, .form-select, .form-textarea {
     font-size: 16px !important;
+  }
+
+  h1 {
+    font-size: clamp(2.15rem, 7.8vw, 2.85rem);
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    font-weight: 850;
+  }
+
+  h2 {
+    font-size: clamp(1.65rem, 5.2vw, 2.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-weight: 800;
+  }
+
+  h3 {
+    font-size: clamp(1.2rem, 4vw, 1.45rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -249,11 +270,11 @@ html, body, #root, .app-root {
 }
 
 .brand-logo:hover {
-  opacity: 0.92;
+  opacity: 0.9;
 }
 
 .brand-logo-img {
-  height: 40px;
+  height: 22px;
   width: auto;
   max-width: 175px;
   object-fit: contain;
@@ -262,41 +283,40 @@ html, body, #root, .app-root {
   border: none;
   box-shadow: none;
   border-radius: 0;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  image-rendering: auto;
 }
 
 .brand-logo:hover .brand-logo-img {
   transform: translateY(-1px) scale(1.02);
-  filter: drop-shadow(0 0 16px rgba(189, 213, 148, 0.45));
 }
 
 .brand-logo-img.brand-logo-sm {
-  height: 32px;
-  max-width: 140px;
+  height: 18px;
+  max-width: 145px;
 }
 
 .brand-logo-img.brand-logo-md {
-  height: 40px;
+  height: 22px;
   max-width: 175px;
 }
 
 .brand-logo-img.brand-logo-lg {
-  height: 52px;
-  max-width: 230px;
+  height: 26px;
+  max-width: 210px;
 }
 
 .brand-logo-img.brand-logo-xl {
-  height: 64px;
-  max-width: 280px;
+  height: 32px;
+  max-width: 260px;
 }
 
 .brand-text {
-  font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.028em;
-  color: var(--text-primary, #F5F4EC);
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--primary-dark);
   display: inline-flex;
   align-items: baseline;
   line-height: 1;
@@ -304,39 +324,22 @@ html, body, #root, .app-root {
 
 .brand-text .brand-ai,
 .brand-logo span.ai {
-  font-weight: 800;
+  font-weight: 900;
   margin-left: 0.28rem;
-  color: var(--color-accent-lime, #BDD394);
-  filter: drop-shadow(0 0 8px rgba(189, 213, 148, 0.3));
-  letter-spacing: -0.01em;
+  color: var(--green);
+  letter-spacing: -0.02em;
 }
 
 @media (max-width: 640px) {
   .brand-logo-img {
-    height: 34px;
+    height: 18px;
     max-width: 145px;
-  }
-  .brand-logo-img.brand-logo-lg {
-    height: 44px;
-    max-width: 190px;
-  }
-}
-
-@media (max-width: 480px) {
-  .brand-logo-img {
-    height: 30px;
-    max-width: 130px;
-  }
-  .brand-logo-img.brand-logo-lg {
-    height: 40px;
-    max-width: 170px;
   }
 }
 
 /* =====================================================================
-   REFERENCE DESIGN PRIMITIVES: SMOKED GLASS, CAPSULES & METRICS
+   SURFACE CARDS, CAPSULES & METRICS (LIGHT CLEAN AESTHETIC)
    ===================================================================== */
-/* Tabular figures for metrics, financial figures, charts, and tables */
 .tabular-num,
 .metric-val,
 .metric-value,
@@ -349,38 +352,42 @@ html, body, #root, .app-root {
   font-variant-numeric: tabular-nums;
 }
 
-/* Smoked Glass Containers & Panels */
+/* Clean White Surface Cards */
+.card,
 .glass-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-panel);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card:hover,
+.glass-panel:hover {
+  border-color: var(--green-light);
+  box-shadow: var(--shadow-md);
 }
 
 .glass-panel-elevated {
-  background: var(--bg-elevated);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid var(--border-medium);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-nested {
-  background: rgba(16, 26, 22, 0.65);
-  border: 1px solid rgba(232, 240, 231, 0.10);
+  background: var(--mint-soft);
+  border: 1px solid var(--border);
   border-radius: var(--radius-nested);
   transition: all var(--transition-fast);
 }
 
 .card-nested:hover {
-  background: rgba(16, 26, 22, 0.85);
-  border-color: rgba(232, 240, 231, 0.18);
+  background: #E8F8F0;
+  border-color: var(--green-light);
 }
 
-/* Capsule & Pill Primitives */
+/* Capsule & Pill Primitives (PDF: buttons 999px) */
 .capsule-pill {
   display: inline-flex;
   align-items: center;
@@ -393,42 +400,44 @@ html, body, #root, .app-root {
   letter-spacing: -0.01em;
   transition: all var(--transition-fast);
   cursor: pointer;
-  border: 1px solid var(--border-subtle);
-  background: transparent;
+  border: 1px solid var(--border);
+  background: var(--surface);
   color: var(--text-secondary);
 }
 
 .capsule-pill:hover {
-  background: rgba(214, 229, 215, 0.08);
+  background: var(--mint-soft);
   color: var(--text-primary);
-  border-color: var(--border-medium);
+  border-color: var(--green-light);
 }
 
 .capsule-pill.active,
 .capsule-pill-active {
-  background: rgba(243, 245, 238, 0.16);
-  color: var(--text-primary);
-  border-color: rgba(232, 240, 231, 0.28);
-}
-
-.capsule-pill-sage {
-  background: var(--primary-accent);
-  color: var(--accent-text);
-  border-color: rgba(189, 211, 148, 0.5);
+  background: var(--mint);
+  color: var(--primary-dark);
+  border-color: var(--green-light);
   font-weight: 700;
 }
 
-.capsule-pill-sage:hover {
-  background: var(--accent-hover);
-  color: var(--accent-text);
+.capsule-pill-sage {
+  background: var(--primary-dark);
+  color: #FFFFFF;
+  border-color: var(--primary-dark);
+  font-weight: 600;
 }
 
-/* Oversized Metric Typography */
+.capsule-pill-sage:hover {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+/* Metrics & Statistics */
 .oversized-metric {
+  font-family: var(--font-heading);
   font-size: clamp(2.2rem, 4vw, 3.25rem);
-  font-weight: 800;
+  font-weight: 850;
   line-height: 1.05;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   display: inline-flex;
@@ -452,34 +461,18 @@ html, body, #root, .app-root {
   text-transform: capitalize;
 }
 
-/* Capsule Segmented Control (e.g. [ x | v ]) */
-.capsule-toggle {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(16, 26, 22, 0.85);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-capsule);
-  padding: 3px;
-  gap: 2px;
-}
-
-.capsule-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.capsule-toggle-btn.active {
-  background: var(--bg-card-hover);
+/* Form Inputs & Controls */
+input, select, textarea, .form-input, .form-select, .form-textarea {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  padding: 0.65rem 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+input:focus, select:focus, textarea:focus, .form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--green);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(15, 169, 104, 0.15);
+}

@@ -149,7 +149,6 @@ export function FeaturesPage({ onNavigate }) {
       <div className="container">
         {/* Header */}
         <div className="section-header">
-          <span className="eyebrow">Platform Capabilities</span>
           <h1>Comprehensive tools for automated commerce</h1>
           <p>
             Explore every component engineered to automate conversations, drive retail sales,

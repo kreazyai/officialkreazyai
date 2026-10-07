@@ -56,7 +56,7 @@ export function AboutPage({ onNavigate }) {
         <div className="card" style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)', marginTop: 'var(--space-8)' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <span className="eyebrow" style={{ marginBottom: '1rem' }}>Why KreazyAI</span>
-            <h2 style={{ marginBottom: '1.25rem' }}>Engineered for real commercial operations</h2>
+            <h2 style={{ fontSize: 'clamp(1.85rem, 3.2vw, 2.5rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.06, marginBottom: '1.25rem' }}>Engineered for real commercial operations</h2>
             <p style={{ fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
               Most AI chat tools were designed as generic customer service deflectors. They answer basic questions,
               generate canned apologies, and send users to an external website link.

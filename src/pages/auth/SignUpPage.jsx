@@ -77,7 +77,7 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
             onClick={() => onNavigate('home')}
             title="KreazyAI"
           >
-            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
+            <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
           </div>
           <h1>Create your merchant account</h1>
           <p>Start your 14-day free trial. Automate your sales across WhatsApp and Meta.</p>

@@ -252,7 +252,7 @@ export function FounderMeetingPage({ onNavigate }) {
               <CheckCircle2 size={36} />
             </div>
 
-            <h2 style={{ fontSize: '1.85rem', marginBottom: '0.75rem', color: 'var(--olive-950)' }}>
+            <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.08, marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
               Founder Session Confirmed!
             </h2>
 

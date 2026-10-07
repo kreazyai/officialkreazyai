@@ -1,87 +1,104 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { CheckCircle2, Sparkles, ShieldCheck, Zap, MessageSquare } from 'lucide-react';
 
-export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "PRICING PLANS" }) {
+export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
   const [currency, setCurrency] = useState('BDT'); // 'BDT' | 'USD'
   const [isAnnual, setIsAnnual] = useState(false);
 
   const plans = [
     {
       id: 'trial',
-      name: 'Free Trial',
-      bdtMonthly: 0,
-      bdtAnnual: 0,
-      usdMonthly: 0,
-      usdAnnual: 0,
-      periodText: '7 days free • no card needed',
-      teamText: 'Ideal for testing on 1 social channel.',
+      name: 'Trial plan',
+      bdtMonthly: 4999,
+      bdtAnnual: 3999,
+      usdMonthly: 49,
+      usdAnnual: 39,
+      teamText: 'Growing teams up to 03 users.',
       isPopular: false,
-      ctaText: 'Start 7-Day Free Trial',
+      ctaText: 'Chat to sales',
       ctaVariant: 'secondary',
-      limits: '500 AI conversations included',
       features: [
-        '1 Connected Channel (WhatsApp, IG or Messenger)',
-        'Instant AI Replies (< 1.5s response)',
-        'Product & Sizing Q&A from Your Catalog',
-        'Order Details Collection in Chat',
-        'One-Click Human Team Handoff',
-        'Bangla, Banglish & English Understanding',
-        'Unified Web Inbox (1 Team Seat)'
+        '6,600 AI message credits included',
+        'Facebook, Instagram & WhatsApp connected',
+        'Auto-reply to post comments & send private DMs',
+        'Live chat widget for your website or store',
+        'AI understands customer photos & product screenshots',
+        'Voice note understanding in Bangla & English',
+        'Unified shared inbox for all customer chats',
+        'Bangla, Banglish & English conversational replies',
+        'Automatic customer lead capture & contact saving',
+        'In-chat order placement with address & phone check',
+        'Team member handoff & moderator controls (up to 3 users)',
+        'Clear sales & message campaign performance reports',
+        'Promotional broadcast messaging to customers'
+      ]
+    },
+    {
+      id: 'standard',
+      name: 'Standard plan',
+      badge: 'Popular',
+      bdtMonthly: 12500,
+      bdtAnnual: 9990,
+      usdMonthly: 119,
+      usdAnnual: 95,
+      teamText: 'Growing teams up to 05 users.',
+      isPopular: true,
+      ctaText: 'Chat to sales',
+      ctaVariant: 'primary',
+      features: [
+        '18,000 AI message credits included',
+        'Facebook, Instagram & WhatsApp connected',
+        'Auto-reply to post comments & send private DMs',
+        'Live webchat & full website store integration',
+        'Advanced product photo & receipt recognition',
+        'Voice note understanding in Bangla & English',
+        'Unified shared inbox with smart customer tagging',
+        'Bangla, Banglish & English conversational replies',
+        'Automatic customer lead capture & CRM synchronization',
+        'In-chat order placement with live stock & catalog lookup',
+        'Advanced team handoff & moderator permissions (up to 5 users)',
+        'Real-time sales conversion & campaign analytics reports',
+        'Targeted promotional broadcast messaging campaigns'
       ]
     },
     {
       id: 'pro',
-      name: 'Pro Plan',
-      bdtMonthly: 1990,
-      bdtAnnual: 1590,
-      usdMonthly: 19,
-      usdAnnual: 15,
-      periodText: 'per month • billed monthly',
-      teamText: 'Everything needed to turn messages into sales.',
-      isPopular: true,
-      badge: 'Most Popular',
-      ctaText: 'Start Pro Free Trial',
-      ctaVariant: 'primary',
-      limits: '5,000 AI conversations / month',
-      features: [
-        'Facebook, Instagram & WhatsApp (All 3 Connected)',
-        '24/7 Autonomous AI Sales Agent',
-        'Real-time Product Catalog & Stock Lookup',
-        'Automatic Order Creation & Address Verification',
-        'Instant Human Handoff with AI Draft Suggestions',
-        'Bangla, Banglish & English Comprehension',
-        'Track Sales Back to Meta Ads (Meta CAPI)',
-        'Comment-to-DM Sales Triggers',
-        'Up to 3 Team Moderator Seats'
-      ]
-    },
-    {
-      id: 'scale',
-      name: 'Scale & Growth',
-      bdtMonthly: 4990,
-      bdtAnnual: 3990,
-      usdMonthly: 49,
-      usdAnnual: 39,
-      periodText: 'per month • billed monthly',
-      teamText: 'For high-volume merchants with active ad spend.',
+      name: 'Pro plan',
+      bdtMonthly: 26000,
+      bdtAnnual: 20800,
+      usdMonthly: 249,
+      usdAnnual: 199,
+      teamText: 'Growing teams up to 10 users.',
       isPopular: false,
-      ctaText: 'Start Scale Free Trial',
+      ctaText: 'Chat to sales',
       ctaVariant: 'secondary',
-      limits: '20,000 AI conversations / month',
       features: [
-        'Everything in Pro with Unlimited Channels',
-        'Multi-Page & Multi-Account Management',
-        'Shopify & Catalog Real-time Sync',
-        'High-Velocity Order Batch Export',
-        'Custom Brand Tone & Safe Commercial Guardrails',
-        'Meta Ads Campaign Conversion Optimization',
-        'Up to 10 Team Moderator Seats',
-        'Dedicated VIP Onboarding & Support'
+        '40,000 AI message credits included',
+        'Facebook, Instagram & WhatsApp connected',
+        'Priority auto-reply to comments & viral post spikes',
+        'Full website, online store & custom API integration',
+        'Enterprise photo, document & catalog recognition',
+        'High-accuracy voice message transcription & instant answers',
+        'High-capacity omnichannel inbox with automated routing',
+        'Full multilingual understanding with custom brand tone',
+        'Comprehensive lead management & automated follow-ups',
+        'High-volume in-chat order processing & batch export',
+        'Full team role permissions & audit logs (up to 10 users)',
+        'In-depth campaign performance & revenue ROI reports',
+        'High-speed priority broadcast messaging with VIP delivery'
       ]
     }
   ];
 
-  const handlePlanSelect = (planId) => {
+  const handlePlanAction = (planId) => {
+    if (onNavigate) {
+      onNavigate('contact');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleDirectSignUp = (e) => {
+    e.stopPropagation();
     if (onNavigate) {
       onNavigate('signup');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -98,35 +115,35 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "PR
               {eyebrow}
             </span>
           )}
-          <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.85rem' }}>
-            {title || "Simple, Transparent Pricing"}
-          </h2>
+          <h1 style={{ fontSize: 'clamp(2.2rem, 3.8vw, 3rem)', fontWeight: 850, color: 'var(--text-primary)', marginBottom: '0.85rem', letterSpacing: '-0.04em', lineHeight: 1.04 }}>
+            {title || "Simple pricing that pays for itself in captured sales"}
+          </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 1.75rem auto', lineHeight: 1.6 }}>
-            {subtitle || "Everything you need to automate conversations, capture orders, and scale multichannel customer care."}
+            {subtitle || "Choose the plan that fits your growth. Upgrade or adjust anytime as your message volume and team scale."}
           </p>
 
           {/* Currency & Billing Cycle Toggles Row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
             {/* Currency Pill Switcher */}
             <div style={{
               display: 'inline-flex',
-              background: 'rgba(28, 40, 32, 0.85)',
-              border: '1px solid rgba(114, 176, 52, 0.4)',
+              background: 'var(--mint-soft)',
+              border: '1px solid var(--border)',
               padding: '3px',
-              borderRadius: '9999px',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+              borderRadius: '999px',
+              boxShadow: 'var(--shadow-xs)'
             }}>
               <button
                 type="button"
                 onClick={() => setCurrency('BDT')}
                 style={{
-                  background: currency === 'BDT' ? 'var(--bright-olive)' : 'transparent',
-                  color: currency === 'BDT' ? '#0C1410' : 'var(--text-secondary)',
+                  background: currency === 'BDT' ? 'var(--primary-dark)' : 'transparent',
+                  color: currency === 'BDT' ? '#FFFFFF' : 'var(--text-secondary)',
                   border: 'none',
-                  borderRadius: '9999px',
-                  padding: '5px 14px',
+                  borderRadius: '999px',
+                  padding: '6px 16px',
                   fontSize: '0.825rem',
-                  fontWeight: 700,
+                  fontWeight: 750,
                   cursor: 'pointer',
                   transition: 'all 0.18s ease'
                 }}
@@ -137,13 +154,13 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "PR
                 type="button"
                 onClick={() => setCurrency('USD')}
                 style={{
-                  background: currency === 'USD' ? 'var(--bright-olive)' : 'transparent',
-                  color: currency === 'USD' ? '#0C1410' : 'var(--text-secondary)',
+                  background: currency === 'USD' ? 'var(--primary-dark)' : 'transparent',
+                  color: currency === 'USD' ? '#FFFFFF' : 'var(--text-secondary)',
                   border: 'none',
-                  borderRadius: '9999px',
-                  padding: '5px 14px',
+                  borderRadius: '999px',
+                  padding: '6px 16px',
                   fontSize: '0.825rem',
-                  fontWeight: 700,
+                  fontWeight: 750,
                   cursor: 'pointer',
                   transition: 'all 0.18s ease'
                 }}
@@ -188,10 +205,10 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "PR
             const priceVal = isBdt
               ? (isAnnual ? p.bdtAnnual : p.bdtMonthly)
               : (isAnnual ? p.usdAnnual : p.usdMonthly);
-            const priceFormatted = priceVal === 0 
-              ? (isBdt ? '৳0' : '$0') 
-              : (isBdt ? `৳${priceVal.toLocaleString()}` : `$${priceVal}`);
-            const periodLabel = p.id === 'trial' ? '7 days free' : (isAnnual ? 'per month (billed annually)' : 'per month');
+            const priceFormatted = isBdt 
+              ? `৳${priceVal.toLocaleString()}` 
+              : `$${priceVal}`;
+            const periodLabel = isAnnual ? 'per month (billed annually)' : 'per month';
 
             return (
               <div
@@ -212,27 +229,33 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "PR
                     <span className="pricing-suite-price-period">{periodLabel}</span>
                   </div>
 
-                  <div style={{ fontSize: '0.8rem', color: '#72B034', fontWeight: 600, marginTop: '2px', marginBottom: '4px' }}>
-                    {p.limits}
-                  </div>
-
                   <div className="pricing-suite-team-desc">
                     {p.teamText}
                   </div>
 
-                  <button
-                    type="button"
-                    className={`pricing-suite-cta-btn ${p.ctaVariant}`}
-                    onClick={() => handlePlanSelect(p.id)}
-                  >
-                    {p.ctaText}
-                  </button>
+                  <div className="pricing-suite-cta-wrap">
+                    <button
+                      type="button"
+                      className={`pricing-suite-cta-btn ${p.ctaVariant}`}
+                      onClick={() => handlePlanAction(p.id)}
+                    >
+                      <MessageSquare size={16} />
+                      {p.ctaText}
+                    </button>
+                    <span 
+                      className="pricing-suite-secondary-action"
+                      onClick={handleDirectSignUp}
+                      title="Create an account directly"
+                    >
+                      or Start Free Trial &rarr;
+                    </span>
+                  </div>
                 </div>
 
                 {/* Features Divider & Section */}
                 <div className="pricing-suite-features-block">
                   <div className="pricing-suite-features-heading">
-                    WHAT'S INCLUDED
+                    FEATURES
                   </div>
 
                   <ul className="pricing-suite-features-list">

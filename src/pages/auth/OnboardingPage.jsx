@@ -146,7 +146,7 @@ export function OnboardingPage({ onNavigate, user }) {
             style={{ cursor: 'pointer' }}
             title="KreazyAI"
           >
-            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img" />
+            <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img" />
             <span className="onboarding-label" style={{ marginLeft: '0.65rem' }}>Onboarding</span>
           </div>
 

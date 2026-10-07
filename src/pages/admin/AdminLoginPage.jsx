@@ -78,7 +78,7 @@ export function AdminLoginPage({ onLoginSuccess }) {
       }}>
         {/* Top Security Emblem & Brand Logo */}
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
-          <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" style={{ margin: '0 auto 1.25rem auto' }} />
+          <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" style={{ margin: '0 auto 1.25rem auto' }} />
           <div style={{
             width: '54px',
             height: '54px',

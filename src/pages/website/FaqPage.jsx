@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, Search, ArrowRight, MessageSquare, Headphones } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Badge } from '../../components/common/Badge';
+import { Button } from '../../components/common/Button';
 
 const FAQ_ITEMS = [
   {
@@ -73,7 +74,7 @@ const FAQ_ITEMS = [
 
 const CATEGORIES = ['All', 'General', 'AI', 'Integrations', 'Orders', 'Products', 'Security', 'Support', 'Pricing'];
 
-export function FaqPage() {
+export function FaqPage({ onNavigate }) {
   const [selectedCat, setSelectedCat] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [openItems, setOpenItems] = useState({});
@@ -90,18 +91,20 @@ export function FaqPage() {
   });
 
   return (
-    <div style={{ padding: 'var(--space-12) 0 var(--space-20) 0' }}>
+    <div style={{ padding: 'clamp(2.5rem, 5vw, 4rem) 0 clamp(4rem, 8vw, 6rem) 0' }}>
       <div className="container" style={{ maxWidth: '880px' }}>
-        <div className="section-header">
-          <span className="eyebrow">Frequently Answered Questions</span>
-          <h1>Everything you need to know about KreazyAI</h1>
-          <p>
+        {/* Header — "Frequently Answered Questions" eyebrow badge removed as requested */}
+        <div style={{ maxWidth: '780px', margin: '0 auto clamp(2rem, 4vw, 3.25rem) auto', textAlign: 'center' }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(2rem, 4.5vw, 3.25rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.08, color: 'var(--primary-dark)', marginBottom: '1rem' }}>
+            Everything you need to know about KreazyAI
+          </h1>
+          <p style={{ fontSize: 'clamp(1rem, 2vw, 1.15rem)', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
             Learn about our AI architecture, Meta channel connections, order workflows, and safety controls.
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div style={{ position: 'relative', marginBottom: 'var(--space-8)' }}>
+        {/* Search Bar in clean container */}
+        <div style={{ position: 'relative', maxWidth: '680px', margin: '0 auto var(--space-8) auto' }}>
           <Input
             placeholder="Search questions by keyword (e.g. Meta, pricing, handoff, WhatsApp)..."
             value={searchQuery}
@@ -110,7 +113,7 @@ export function FaqPage() {
           />
         </div>
 
-        {/* Category Pills */}
+        {/* Category Filter Pills */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-8)' }}>
           <div className="capsule-filter-group" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
             {CATEGORIES.map(cat => (
@@ -126,13 +129,13 @@ export function FaqPage() {
           </div>
         </div>
 
-        {/* FAQ List */}
-        <div style={{ marginTop: 'var(--space-8)' }}>
+        {/* FAQ List in Distinct Modular Boxes */}
+        <div style={{ marginTop: 'var(--space-6)' }}>
           {filteredFaqs.length > 0 ? (
             filteredFaqs.map((faq, idx) => {
               const isOpen = openItems[idx];
               return (
-                <div key={idx} className={`faq-item ${isOpen ? 'open' : ''}`}>
+                <div key={idx} className={`faq-box ${isOpen ? 'open' : ''}`}>
                   <button
                     type="button"
                     className="faq-trigger"
@@ -140,21 +143,15 @@ export function FaqPage() {
                     aria-expanded={isOpen}
                   >
                     <span>{faq.q}</span>
-                    <ChevronDown 
-                      size={18} 
-                      style={{ 
-                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
-                        transition: 'transform 0.2s ease',
-                        flexShrink: 0,
-                        marginLeft: '0.5rem'
-                      }} 
-                    />
+                    <div className="faq-trigger-icon">
+                      <ChevronDown size={18} />
+                    </div>
                   </button>
                   {isOpen && (
                     <div className="faq-answer">
                       <p>{faq.a}</p>
-                      <div style={{ marginTop: '0.75rem' }}>
-                        <Badge variant="olive">{faq.category}</Badge>
+                      <div style={{ marginTop: '0.85rem' }}>
+                        <Badge variant="mint">{faq.category}</Badge>
                       </div>
                     </div>
                   )}
@@ -162,11 +159,34 @@ export function FaqPage() {
               );
             })
           ) : (
-            <div className="state-box">
-              <h4>No matching questions found</h4>
-              <p>Try searching for a different keyword or choose another category.</p>
+            <div className="state-box" style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '16px', padding: '3rem 2rem', textAlign: 'center' }}>
+              <h4 style={{ fontFamily: 'var(--font-heading)', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>No matching questions found</h4>
+              <p style={{ color: 'var(--text-secondary)' }}>Try searching for a different keyword or choose another category.</p>
             </div>
           )}
+        </div>
+
+        {/* Still Have Questions Box */}
+        <div style={{
+          marginTop: 'clamp(3rem, 6vw, 4.5rem)',
+          background: '#FFFFFF',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-2xl)',
+          padding: 'clamp(2rem, 4vw, 3rem) 2rem',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(9, 42, 32, 0.05)'
+        }}>
+          <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.45rem', fontWeight: 800, color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>
+            Still have questions?
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '520px', margin: '0 auto 1.5rem auto', lineHeight: 1.6 }}>
+            Can't find what you're looking for? Our solutions team is available to walk you through our platform.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Button variant="primary" onClick={() => onNavigate && onNavigate('book-demo')} iconRight={ArrowRight}>
+              Book a 1-on-1 Demo
+            </Button>
+          </div>
         </div>
       </div>
     </div>

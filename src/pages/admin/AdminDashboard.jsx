@@ -299,7 +299,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
       <header className="admin-header">
         <div className="admin-brand">
           <div className="brand-logo" style={{ cursor: 'pointer' }} onClick={() => onNavigate('home')} title="KreazyAI">
-            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img" />
+            <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img" />
           </div>
 
           <span className="admin-badge-super">

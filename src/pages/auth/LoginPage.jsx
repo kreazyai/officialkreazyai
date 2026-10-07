@@ -66,7 +66,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             onClick={() => onNavigate('home')}
             title="KreazyAI"
           >
-            <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
+            <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
           </div>
           <h1>Welcome back</h1>
           <p>Sign in to your merchant workspace to manage conversations, sales, and AI agents.</p>

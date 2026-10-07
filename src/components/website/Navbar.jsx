@@ -33,11 +33,12 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
   };
 
   const navLinks = [
-    { id: 'home', label: 'Product' },
     { id: 'features', label: 'Solutions' },
+    { id: 'ai-agents', label: 'AI Agents', target: 'features' },
+    { id: 'integrations', label: 'Integrations', target: 'how-it-works' },
     { id: 'how-it-works', label: 'How It Works' },
     { id: 'pricing', label: 'Pricing' },
-    { id: 'about', label: 'About' },
+    { id: 'faq', label: 'Resources' },
   ];
 
   return (
@@ -48,30 +49,34 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
           <div
             className="brand-logo"
             onClick={() => handleLinkClick('home')}
-            style={{ cursor: 'pointer' }}
-            title="KreazyAI"
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            title="KREAZY AI"
           >
             <img
-              src="/logo.png"
-              alt="KreazyAI"
+              src="/logo-dark.svg"
+              alt="KREAZY AI"
               className="brand-logo-img"
+              style={{ height: '22px', width: 'auto', objectFit: 'contain' }}
             />
           </div>
 
           {/* Center: Navigation Links */}
           <nav className="nav-links">
-            {navLinks.map((item) => (
-              <span
-                key={item.id}
-                className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
-                onClick={() => handleLinkClick(item.id)}
-              >
-                {item.label}
-              </span>
-            ))}
+            {navLinks.map((item) => {
+              const targetPage = item.target || item.id;
+              return (
+                <span
+                  key={item.id}
+                  className={`nav-link ${currentPage === targetPage ? 'active' : ''}`}
+                  onClick={() => handleLinkClick(targetPage)}
+                >
+                  {item.label}
+                </span>
+              );
+            })}
           </nav>
 
-          {/* Right: Log In, Sign Up & Book a Demo */}
+          {/* Right: Log In & Get Started CTA */}
           <div className="nav-actions">
             {user ? (
               <>
@@ -90,7 +95,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   onClick={() => {
                     if (onLogout) onLogout();
                   }}
-                  style={{ color: '#f87171' }}
+                  style={{ color: 'var(--danger)' }}
                 >
                   Sign Out
                 </Button>
@@ -112,16 +117,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   className="nav-btn-signup"
                   onClick={() => handleLinkClick('signup')}
                 >
-                  Start Free
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="nav-btn-demo"
-                  onClick={() => handleLinkClick('book-demo')}
-                >
-                  Book a Demo
+                  Get Started
                 </Button>
               </>
             )}

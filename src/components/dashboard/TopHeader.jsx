@@ -147,11 +147,10 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               alignItems: 'center',
               gap: '0.65rem',
               padding: '0.3rem 0.75rem 0.3rem 0.35rem',
-              borderRadius: 'var(--radius-capsule)',
-              background: 'rgba(214, 229, 215, 0.08)',
-              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--mint-soft)',
+              border: '1px solid var(--border)',
               cursor: 'pointer',
-              backdropFilter: 'blur(16px)',
               transition: 'all var(--transition-fast)'
             }}
           >
@@ -161,8 +160,8 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                 width: '30px',
                 height: '30px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--primary-accent)',
-                color: 'var(--accent-text)',
+                backgroundColor: 'var(--primary-dark)',
+                color: '#FFFFFF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -173,10 +172,10 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               {user?.name ? user.name.slice(0, 2).toUpperCase() : (isDemo ? 'MA' : 'ME')}
             </div>
             <div style={{ lineHeight: 1.2, textAlign: 'left' }}>
-              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--primary-dark)' }}>
                 {user?.name || (isDemo ? 'Marcus Vance' : 'Store Owner')}
               </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Store Manager</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Store Manager</div>
             </div>
             <div style={{
               marginLeft: '0.35rem',
@@ -186,8 +185,9 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(214, 229, 215, 0.06)',
-              color: 'var(--text-muted)'
+              background: '#FFFFFF',
+              border: '1px solid var(--border)',
+              color: 'var(--text-secondary)'
             }}>
               <Settings size={13} />
             </div>

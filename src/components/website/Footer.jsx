@@ -6,74 +6,81 @@ export function Footer({ onNavigate }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleFounderMeetingScroll = () => {
-    onNavigate('home');
-    setTimeout(() => {
-      const el = document.getElementById('founder-meeting');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
-
   return (
     <footer className="site-footer">
       <div className="container">
         <div className="footer-grid">
           {/* Brand Col */}
-          <div style={{ paddingRight: '1.5rem' }}>
+          <div className="footer-brand-col">
             <div className="brand-logo" style={{ marginBottom: '1rem', cursor: 'pointer' }} onClick={() => handleNav('home')} title="KreazyAI">
-              <img src="/logo.png" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
+              <img src="/logo-white.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
             </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', maxWidth: '320px', lineHeight: 1.6 }}>
-              AI sales agent and order automation for businesses selling across Facebook Messenger, Instagram, and WhatsApp.
+            <p className="footer-brand-desc">
+              Smart automation for your business. Transform conversations across WhatsApp, Instagram, Messenger, and Web into sales automatically — 24/7.
             </p>
+            <div className="footer-social-links">
+              <a href="https://facebook.com/kreazyai" target="_blank" rel="noopener noreferrer">Facebook</a>
+              <span>•</span>
+              <a href="https://instagram.com/kreazyai" target="_blank" rel="noopener noreferrer">Instagram</a>
+              <span>•</span>
+              <a href="https://linkedin.com/company/kreazyai" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
           </div>
 
-          {/* Product & Solutions */}
+          {/* Solutions Col */}
           <div>
-            <h5 className="footer-col-title">Platform</h5>
+            <h5 className="footer-col-title">Solutions</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('home')}>Product</span></li>
-              <li><span onClick={() => handleNav('features')}>Solutions</span></li>
-              <li><span onClick={() => handleNav('how-it-works')}>How It Works</span></li>
-              <li><span onClick={() => handleNav('pricing')}>Pricing</span></li>
+              <li><span onClick={() => handleNav('features')}>AI Customer Support</span></li>
+              <li><span onClick={() => handleNav('features')}>Lead Qualification</span></li>
+              <li><span onClick={() => handleNav('features')}>Order Automation</span></li>
+              <li><span onClick={() => handleNav('features')}>Human Handoff</span></li>
             </ul>
           </div>
 
-          {/* Engage & Meetings */}
+          {/* Integrations Col */}
           <div>
-            <h5 className="footer-col-title">Engage</h5>
+            <h5 className="footer-col-title">Integrations</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('book-demo')}>Book a Demo</span></li>
-              <li><span onClick={handleFounderMeetingScroll}>Founder Meeting</span></li>
-              <li><span onClick={() => handleNav('about')}>About</span></li>
-              <li><span onClick={() => handleNav('contact')}>Contact</span></li>
+              <li><span onClick={() => handleNav('how-it-works')}>WhatsApp Business</span></li>
+              <li><span onClick={() => handleNav('how-it-works')}>Instagram Direct</span></li>
+              <li><span onClick={() => handleNav('how-it-works')}>Facebook Messenger</span></li>
+              <li><span onClick={() => handleNav('how-it-works')}>Website Live Chat</span></li>
             </ul>
           </div>
 
-          {/* Governance & Social */}
+          {/* Company & Resources */}
           <div>
-            <h5 className="footer-col-title">Legal & Social</h5>
+            <h5 className="footer-col-title">Company</h5>
             <ul className="footer-links-list">
+              <li><span onClick={() => handleNav('about')}>About Us</span></li>
+              <li><span onClick={() => handleNav('founder-meeting')}>Founder Consultation</span></li>
+              <li><span onClick={() => handleNav('book-demo')}>Schedule Demo</span></li>
+              <li><span onClick={() => handleNav('contact')}>Contact Team</span></li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h5 className="footer-col-title">Resources</h5>
+            <ul className="footer-links-list">
+              <li><span onClick={() => handleNav('pricing')}>Pricing Plans</span></li>
+              <li><span onClick={() => handleNav('faq')}>FAQ & Guides</span></li>
               <li><span onClick={() => handleNav('legal-privacy')}>Privacy Policy</span></li>
               <li><span onClick={() => handleNav('legal-terms')}>Terms of Service</span></li>
-              <li style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>Facebook</a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>Instagram</a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>LinkedIn</a>
-              </li>
             </ul>
           </div>
         </div>
 
         {/* Footer Bottom Row */}
         <div className="footer-bottom">
-          <div>
-            © {new Date().getFullYear()} KreazyAI Technologies Inc. All rights reserved.
+          <div className="footer-copyright">
+            © {new Date().getFullYear()} KREAZY AI Technologies Inc. All rights reserved. • kreazyai.com
           </div>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <span style={{ cursor: 'pointer' }} onClick={() => handleNav('legal-privacy')}>Privacy</span>
-            <span style={{ cursor: 'pointer' }} onClick={() => handleNav('legal-terms')}>Terms</span>
-            <span style={{ cursor: 'pointer' }} onClick={() => handleNav('contact')}>Contact</span>
+          <div className="footer-bottom-links">
+            <span onClick={() => handleNav('legal-privacy')}>Privacy</span>
+            <span onClick={() => handleNav('legal-terms')}>Terms</span>
+            <span onClick={() => handleNav('contact')}>Security</span>
           </div>
         </div>
       </div>
