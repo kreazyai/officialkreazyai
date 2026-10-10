@@ -9,8 +9,10 @@ import {
   Camera,
   Users,
   HelpCircle,
-  Zap
+  Zap,
+  AlertCircle
 } from 'lucide-react';
+import { aiConfigService } from '../../services/api.js';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    KNOWLEDGE BASE — canned smart replies for integration-related topics
@@ -123,26 +125,55 @@ export function AiAssistantPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     const trimmed = text?.trim() || input.trim();
     if (!trimmed || thinking) return;
 
     setInput('');
     setShowSuggestions(false);
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now(), sender: 'user', text: trimmed, time: new Date() },
-    ]);
-
+    const userMsg = { id: Date.now(), sender: 'user', text: trimmed, time: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
     setThinking(true);
-    setTimeout(() => {
-      const reply = getReply(trimmed);
+
+    try {
+      const history = messages
+        .filter((m) => !m.isError)
+        .slice(-6)
+        .map((m) => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.text,
+        }));
+
+      const res = await aiConfigService.chat(trimmed, { history });
+      const replyText = res?.reply || res?.data?.reply || res?.suggestion || 'No response received.';
+      const provider = res?.provider || res?.data?.provider || '';
+
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, sender: 'bot', text: reply, time: new Date() },
+        {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: replyText,
+          time: new Date(),
+          provider,
+        },
       ]);
+    } catch (err) {
+      console.error('AI Chat Error:', err);
+      const errMsg = err?.message || 'Failed to communicate with AI service.';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: 'bot',
+          isError: true,
+          text: `⚠️ **Error:** ${errMsg}`,
+          time: new Date(),
+        },
+      ]);
+    } finally {
       setThinking(false);
-    }, 800 + Math.random() * 600);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -274,17 +305,17 @@ export function AiAssistantPage() {
                   width: '34px',
                   height: '34px',
                   borderRadius: '50%',
-                  background: 'rgba(189, 213, 148, 0.15)',
-                  border: '1px solid rgba(189, 213, 148, 0.25)',
+                  background: msg.isError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(189, 213, 148, 0.15)',
+                  border: msg.isError ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid rgba(189, 213, 148, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
                   marginBottom: '18px',
-                  color: 'var(--color-accent-lime)',
+                  color: msg.isError ? '#f87171' : 'var(--color-accent-lime)',
                 }}
               >
-                <Bot size={16} />
+                {msg.isError ? <AlertCircle size={16} /> : <Bot size={16} />}
               </div>
             )}
 
@@ -294,14 +325,18 @@ export function AiAssistantPage() {
                   padding: '0.9rem 1.25rem',
                   borderRadius: msg.sender === 'user' ? '22px 22px 4px 22px' : '22px 22px 22px 4px',
                   background:
-                    msg.sender === 'user'
+                    msg.isError
+                      ? 'rgba(239, 68, 68, 0.12)'
+                      : msg.sender === 'user'
                       ? 'rgba(189, 213, 148, 0.18)'
                       : 'rgba(214, 229, 215, 0.08)',
-                  color: 'var(--text-primary)',
+                  color: msg.isError ? '#fca5a5' : 'var(--text-primary)',
                   fontSize: '0.9rem',
                   lineHeight: 1.6,
                   border:
-                    msg.sender === 'user'
+                    msg.isError
+                      ? '1px solid rgba(239, 68, 68, 0.35)'
+                      : msg.sender === 'user'
                       ? '1px solid rgba(189, 213, 148, 0.35)'
                       : '1px solid var(--border-subtle)',
                   backdropFilter: 'blur(12px)',
@@ -310,9 +345,16 @@ export function AiAssistantPage() {
               >
                 <MiniMarkdown text={msg.text} />
               </div>
-              <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', padding: '0 4px', fontVariantNumeric: 'tabular-nums' }}>
-                {formatTime(msg.time)}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 4px' }}>
+                <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>
+                  {formatTime(msg.time)}
+                </span>
+                {msg.provider && (
+                  <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em', background: 'rgba(255, 255, 255, 0.06)', padding: '1px 5px', borderRadius: '4px', color: 'var(--text-muted)' }}>
+                    {msg.provider}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}

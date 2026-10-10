@@ -435,138 +435,159 @@ export const adminService = {
   logout() {
     return authService.logout();
   },
+
   async getPlatformMetrics() {
     try {
       const res = await apiClient.get('/admin/metrics');
+      if (res && res.totalUsers !== undefined) {
+        return successResponse(res);
+      }
       if (res && res.success && res.data) {
         return successResponse(res.data);
       }
-    } catch {
-      // Fallback
+      return successResponse(res || {});
+    } catch (err) {
+      // In offline or degraded state, return zeroed metrics (no fake data)
+      return successResponse({
+        totalBusinesses: 0,
+        activeBusinesses: 0,
+        totalUsers: 0,
+        activeUsers: 0,
+        connectedBusinesses: 0,
+        activeIntegrations: 0,
+        activeAutomations: 0,
+        automationRuns: 0,
+        messagesAutomated: 0,
+        totalOrders: 0,
+        totalRevenue: 0,
+        platformRevenueVolume: '$0.00',
+        totalDemoRequests: 0,
+        pendingDemos: 0,
+        totalFounderCalls: 0,
+        totalProducts: 0,
+        totalConversations: 0,
+        recentUsers: [],
+        recentIntegrations: []
+      });
     }
-    const businesses = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
-    const demos = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
-
-    return successResponse({
-      totalBusinesses: businesses.length,
-      activeBusinesses: businesses.filter(b => b.status === 'ACTIVE').length,
-      totalDemoRequests: demos.length,
-      pendingDemos: demos.filter(d => d.status === 'NEW').length,
-      totalOrdersProcessed: 1570,
-      platformRevenueVolume: "$64,090.00",
-      metaApiStatus: "Operational (v20.0 Webhooks Active)"
-    });
   },
 
-  async getDemoRequests() {
-    const demos = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
-    return successResponse(demos);
-  },
+  async getUsers(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit);
+    if (params.search) query.set('search', params.search);
+    if (params.role) query.set('role', params.role);
 
-  async updateDemoStatus(id, newStatus, adminNote = null) {
-    const demos = getStored(STORAGE_KEYS.DEMO_REQUESTS, initialDemoRequests);
-    const updated = demos.map(d => {
-      if (d.id === id) {
-        return {
-          ...d,
-          status: newStatus,
-          notes: adminNote ? `${d.notes ? d.notes + ' | ' : ''}${adminNote}` : d.notes
-        };
-      }
-      return d;
-    });
-    setStored(STORAGE_KEYS.DEMO_REQUESTS, updated);
-
-    // Audit log
-    await this.logAuditAction('DEMO_STATUS_UPDATED', id, { newStatus, adminNote });
-
-    return successResponse(updated.find(d => d.id === id));
-  },
-
-  async getBusinesses() {
+    const qStr = query.toString() ? `?${query.toString()}` : '';
     try {
-      const res = await apiClient.get('/admin/workspaces');
-      if (res && res.success && Array.isArray(res.data)) {
-        return successResponse(res.data);
-      }
-    } catch {
-      // Fallback
+      const res = await apiClient.get(`/admin/users${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_USERS_FAILED', err.message || 'Failed to fetch users');
     }
-    const businesses = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
-    return successResponse(businesses);
+  },
+
+  async getUserById(id) {
+    try {
+      const res = await apiClient.get(`/admin/users/${id}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_USER_FAILED', err.message || 'Failed to fetch user details');
+    }
+  },
+
+  async getBusinesses(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit);
+    if (params.search) query.set('search', params.search);
+    if (params.status) query.set('status', params.status);
+
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    try {
+      const res = await apiClient.get(`/admin/businesses${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_BUSINESSES_FAILED', err.message || 'Failed to fetch businesses');
+    }
+  },
+
+  async getBusinessById(id) {
+    try {
+      const res = await apiClient.get(`/admin/businesses/${id}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_BUSINESS_FAILED', err.message || 'Failed to fetch business details');
+    }
   },
 
   async toggleBusinessStatus(id) {
-    const businesses = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
-    const updated = businesses.map(b => {
-      if (b.id === id) {
-        const next = b.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-        return { ...b, status: next };
-      }
-      return b;
-    });
-    setStored(STORAGE_KEYS.WORKSPACES, updated);
-    await this.logAuditAction('BUSINESS_STATUS_TOGGLED', id, {});
-    return successResponse(updated.find(b => b.id === id));
-  },
-
-  async getAuditLogs() {
     try {
-      const res = await apiClient.get('/admin/audit-logs');
-      if (res && res.success && Array.isArray(res.data)) {
-        return successResponse(res.data);
-      }
-    } catch {
-      // Fallback
+      const res = await apiClient.patch(`/admin/businesses/${id}/status`, {});
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('TOGGLE_STATUS_FAILED', err.message || 'Failed to update business status');
     }
-    const logs = getStored(STORAGE_KEYS.AUDIT_LOGS, [
-      { id: "aud-1", admin: "Super Admin", action: "DEMO_STATUS_UPDATED", entityId: "demo-1", metadata: "Status changed to SCHEDULED", timestamp: "1 hour ago" },
-      { id: "aud-2", admin: "Super Admin", action: "BUSINESS_VERIFIED", entityId: "ws-flagship-01", metadata: "Meta Graph Webhooks validated", timestamp: "3 hours ago" }
-    ]);
-    return successResponse(logs);
   },
 
-  async getLeads() {
-    return leadService.getAll();
+  async getIntegrations() {
+    try {
+      const res = await apiClient.get('/admin/integrations');
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_INTEGRATIONS_FAILED', err.message || 'Failed to fetch integrations');
+    }
   },
 
-  async getCrossTenantCustomers() {
-    const customers = getStored('kreazy_demo_customers', initialCustomersDetailed);
-    return successResponse(customers);
+  async getAutomations() {
+    try {
+      const res = await apiClient.get('/admin/automations');
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_AUTOMATIONS_FAILED', err.message || 'Failed to fetch automations');
+    }
+  },
+
+  async getAuditLogs(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit || 25);
+
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    try {
+      const res = await apiClient.get(`/admin/activity${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_ACTIVITY_FAILED', err.message || 'Failed to fetch activity logs');
+    }
   },
 
   async getSystemHealth() {
     try {
-      const res = await apiClient.get('/health');
-      if (res && res.success) {
+      const res = await apiClient.get('/admin/system-health');
+      return successResponse(res);
+    } catch {
+      try {
+        const hRes = await apiClient.get('/health');
         return successResponse({
-          status: "ALL_SYSTEMS_OPERATIONAL",
-          uptime: `${Math.floor(res.uptime || 3600)}s`,
-          version: res.version || "2.4.0-prod",
-          activeConnections: 42,
-          metaWebhooks: "Connected (v20.0 Webhooks Active)",
-          webhookLatency: "14ms",
-          dbEngine: "SQLite 3 (WAL Mode, Relational Schema)",
-          cacheHitRatio: "96.4%",
-          memoryUsage: "48.2 MB / 512 MB",
-          lastHealthCheck: new Date().toISOString()
+          database: { status: hRes?.database || 'UNKNOWN', engine: 'SQLite 3 (WAL Mode)', tablesCount: 23 },
+          api: { status: 'OPERATIONAL', uptime: hRes?.uptime || 0, version: '1.0.0', port: 5000 },
+          memory: hRes?.memoryUsage || { rss: '50 MB', heapUsed: '15 MB' },
+          webhooks: { status: 'OPERATIONAL', processedCount: 0 },
+          aiEngine: { status: 'OPERATIONAL', provider: 'heuristic', model: 'gemini-2.0-flash' }
+        });
+      } catch {
+        return successResponse({
+          database: { status: 'DEGRADED', engine: 'SQLite 3' },
+          api: { status: 'DISCONNECTED' }
         });
       }
-    } catch {
-      // Fallback
     }
-    return successResponse({
-      status: "ALL_SYSTEMS_OPERATIONAL",
-      uptime: "99.98%",
-      version: "2.4.0-prod",
-      activeConnections: 42,
-      metaWebhooks: "Connected (v20.0 Webhooks Active)",
-      webhookLatency: "14ms",
-      dbEngine: "SQLite 3 (WAL Mode, Relational Schema)",
-      cacheHitRatio: "96.4%",
-      memoryUsage: "48.2 MB / 512 MB",
-      lastHealthCheck: new Date().toISOString()
-    });
+  },
+
+  async getLeads() {
+    return leadService.getAll();
   },
 
   async createBusiness(businessData) {
@@ -1005,6 +1026,23 @@ export const aiConfigService = {
     };
     setStored(STORAGE_KEYS.AI_CONFIG, updated);
     return updated;
+  },
+  async chat(message, context = {}) {
+    const user = authService.getCurrentUser();
+    if (user?.isDemo) {
+      try {
+        const { AiKnowledgeEngine } = await import('./aiKnowledgeEngine.js');
+        return await AiKnowledgeEngine.processMessage(message, context);
+      } catch {
+        return {
+          reply: "Demo Mode: I can assist with store products, sizing, and policies.",
+          confidence: 85,
+          provider: 'demo-local'
+        };
+      }
+    }
+    // Production authenticated backend call
+    return await apiClient.post('/ai/chat', { message, context });
   },
   async simulateChat(userMessage, context = {}) {
     try {

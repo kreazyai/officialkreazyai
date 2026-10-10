@@ -149,12 +149,40 @@ apiRouter.use('/webhooks', metaRouter); // alias for backward compatibility
 // =====================================================================
 const adminRouter = Router();
 adminRouter.use(authenticate, requireSuperAdmin);
+
+// Core Statistical Metrics & Telemetry
 adminRouter.get('/metrics', adminController.getMetrics);
+adminRouter.get('/stats', adminController.getMetrics);
+
+// Real User Management
+adminRouter.get('/users', adminController.getUsers);
+adminRouter.get('/users/:id', adminController.getUserById);
+
+// Real Business / Workspace Management
+adminRouter.get('/businesses', adminController.getAllWorkspaces);
+adminRouter.get('/businesses/:id', adminController.getBusinessById);
+adminRouter.patch('/businesses/:id/status', adminController.toggleBusinessStatus);
 adminRouter.get('/workspaces', adminController.getAllWorkspaces);
+
+// Integrations Status & Overview
+adminRouter.get('/integrations', adminController.getIntegrations);
+
+// Automation Workflows
+adminRouter.get('/automations', adminController.getAutomations);
+
+// Real Activity & Audit Stream
+adminRouter.get('/activity', adminController.getAuditLogs);
+adminRouter.get('/audit-logs', adminController.getAuditLogs);
+
+// System Health
+adminRouter.get('/system-health', adminController.getSystemHealth);
+adminRouter.get('/health', adminController.getSystemHealth);
+
+// Public Demo & Lead Intake Management
 adminRouter.get('/leads', adminController.getAllLeads);
 adminRouter.patch('/leads/:id/status', adminController.updateLeadStatus);
 adminRouter.delete('/leads/:id', adminController.deleteLead);
-adminRouter.get('/audit-logs', adminController.getAuditLogs);
+
 apiRouter.use('/admin', adminRouter);
 
 // =====================================================================

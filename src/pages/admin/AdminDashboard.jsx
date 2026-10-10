@@ -1,1505 +1,1755 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  ShieldAlert,
-  ShieldCheck,
-  Building2,
-  Calendar,
+  LayoutDashboard,
   Users,
-  TrendingUp,
-  FileText,
-  CheckCircle2,
-  Clock,
-  Search,
-  Filter,
-  Download,
-  ExternalLink,
-  Edit,
-  AlertTriangle,
-  ArrowUpRight,
-  LogOut,
-  RefreshCw,
-  Video,
-  Activity,
-  Server,
-  Zap,
-  MessageSquare,
+  Building2,
   Network,
   Cpu,
-  Database,
-  Radio,
-  Sparkles,
-  Plus,
-  Check,
-  X,
-  Phone,
-  Mail,
-  Globe,
+  Activity,
   SlidersHorizontal,
+  LogOut,
+  Search,
+  RefreshCw,
   ChevronRight,
-  Info
+  ChevronLeft,
+  X,
+  CheckCircle2,
+  ArrowRight,
+  MessageSquare,
+  Zap,
+  Radio,
+  UserCheck,
+  Menu
 } from 'lucide-react';
-import { Badge } from '../../components/common/Badge';
-import { Button } from '../../components/common/Button';
-import { Modal } from '../../components/common/Modal';
-import { adminService, leadService } from '../../services/api';
+import { adminService } from '../../services/api';
 import '../../styles/admin.css';
 
 export function AdminDashboard({ user, onNavigate, onLogout }) {
-  // Authorization Verification:
-  const isAuthorized = user && (user.is_super_admin === true || user.role === 'SUPER_ADMIN');
-
-  const [activeTab, setActiveTab] = useState('overview'); // overview | demos | founder-meetings | businesses | customers | integrations | system | audit
-  const [metrics, setMetrics] = useState(null);
-  const [demoRequests, setDemoRequests] = useState([]);
-  const [businesses, setBusinesses] = useState([]);
-  const [auditLogs, setAuditLogs] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [systemHealth, setSystemHealth] = useState(null);
-  const [pingLatency, setPingLatency] = useState(null);
-  const [isPinging, setIsPinging] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'users' | 'businesses' | 'integrations' | 'automations' | 'activity' | 'settings'
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Toast notification state
+  // Core Data States from Real Database
+  const [metrics, setMetrics] = useState(null);
+  const [usersList, setUsersList] = useState([]);
+  const [usersPagination, setUsersPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 1 });
+  const [businessesList, setBusinessesList] = useState([]);
+  const [businessesPagination, setBusinessesPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 1 });
+  const [integrationsData, setIntegrationsData] = useState({ summary: {}, connections: [] });
+  const [automationsData, setAutomationsData] = useState({ workflows: [], totalRuns: 0 });
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [activityPagination, setActivityPagination] = useState({ total: 0, page: 1, limit: 25, totalPages: 1 });
+  const [systemHealth, setSystemHealth] = useState(null);
+
+  // Search & Filter States
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('ALL');
+  const [businessSearch, setBusinessSearch] = useState('');
+  const [businessStatusFilter, setBusinessStatusFilter] = useState('ALL');
+  const [activitySearch, setActivitySearch] = useState('');
+
+  // Modals & Details Drawers
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserDetail, setSelectedUserDetail] = useState(null);
+  const [loadingUserDetail, setLoadingUserDetail] = useState(false);
+
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [selectedBusinessDetail, setSelectedBusinessDetail] = useState(null);
+  const [loadingBusinessDetail, setLoadingBusinessDetail] = useState(false);
+
+  // Toast feedback
   const [toastMessage, setToastMessage] = useState(null);
 
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3200);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Modals state
-  const [selectedDemo, setSelectedDemo] = useState(null);
-  const [adminNoteInput, setAdminNoteInput] = useState('');
-  const [showProvisionModal, setShowProvisionModal] = useState(false);
-  const [showManualLeadModal, setShowManualLeadModal] = useState(false);
-
-  // Filters & Search
-  const [demoStatusFilter, setDemoStatusFilter] = useState('ALL');
-  const [demoSearch, setDemoSearch] = useState('');
-  const [businessSearch, setBusinessSearch] = useState('');
-  const [customerSearch, setCustomerSearch] = useState('');
-  const [customerChannelFilter, setCustomerChannelFilter] = useState('ALL');
-
-  // New Business Form State
-  const [newBizForm, setNewBizForm] = useState({
-    name: '',
-    owner_name: '',
-    owner_email: '',
-    plan: 'Growth',
-    channels: ['WHATSAPP', 'INSTAGRAM']
-  });
-
-  // Manual Lead Form State
-  const [newLeadForm, setNewLeadForm] = useState({
-    full_name: '',
-    business_name: '',
-    email: '',
-    phone: '',
-    request_type: 'DEMO',
-    message: ''
-  });
-
-  const loadAdminData = async () => {
-    setIsSyncing(true);
+  // 1. Fetch Real Metrics
+  const loadMetrics = async () => {
     try {
-      const metRes = await adminService.getPlatformMetrics();
-      if (metRes.success) setMetrics(metRes.data);
-
-      const leads = await leadService.getAll();
-      setDemoRequests(leads);
-
-      const busRes = await adminService.getBusinesses();
-      if (busRes.success) setBusinesses(busRes.data);
-
-      const audRes = await adminService.getAuditLogs();
-      if (audRes.success) setAuditLogs(audRes.data);
-
-      const custRes = await adminService.getCrossTenantCustomers();
-      if (custRes.success) setCustomers(custRes.data);
-
-      const sysRes = await adminService.getSystemHealth();
-      if (sysRes.success) setSystemHealth(sysRes.data);
-    } finally {
-      setTimeout(() => setIsSyncing(false), 400);
+      const res = await adminService.getPlatformMetrics();
+      if (res && res.success) {
+        setMetrics(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load metrics:', err);
     }
+  };
+
+  // 2. Fetch Real Users
+  const loadUsers = async (page = 1) => {
+    try {
+      const res = await adminService.getUsers({
+        page,
+        limit: 10,
+        search: userSearch,
+        role: userRoleFilter
+      });
+      if (res && res.success && res.data) {
+        setUsersList(res.data.users || []);
+        setUsersPagination(res.data.pagination || { total: 0, page: 1, limit: 10, totalPages: 1 });
+      }
+    } catch (err) {
+      console.error('Failed to load users:', err);
+    }
+  };
+
+  // 3. Fetch Real Businesses
+  const loadBusinesses = async (page = 1) => {
+    try {
+      const res = await adminService.getBusinesses({
+        page,
+        limit: 10,
+        search: businessSearch,
+        status: businessStatusFilter
+      });
+      if (res && res.success && res.data) {
+        setBusinessesList(res.data.businesses || []);
+        setBusinessesPagination(res.data.pagination || { total: 0, page: 1, limit: 10, totalPages: 1 });
+      }
+    } catch (err) {
+      console.error('Failed to load businesses:', err);
+    }
+  };
+
+  // 4. Fetch Real Integrations
+  const loadIntegrations = async () => {
+    try {
+      const res = await adminService.getIntegrations();
+      if (res && res.success && res.data) {
+        setIntegrationsData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load integrations:', err);
+    }
+  };
+
+  // 5. Fetch Real Automations
+  const loadAutomations = async () => {
+    try {
+      const res = await adminService.getAutomations();
+      if (res && res.success && res.data) {
+        setAutomationsData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load automations:', err);
+    }
+  };
+
+  // 6. Fetch Real Activity
+  const loadActivity = async (page = 1) => {
+    try {
+      const res = await adminService.getAuditLogs({ page, limit: 25 });
+      if (res && res.success && res.data) {
+        setActivityLogs(res.data.logs || []);
+        setActivityPagination(res.data.pagination || { total: 0, page: 1, limit: 25, totalPages: 1 });
+      }
+    } catch (err) {
+      console.error('Failed to load activity:', err);
+    }
+  };
+
+  // 7. Fetch Real System Health
+  const loadSystemHealth = async () => {
+    try {
+      const res = await adminService.getSystemHealth();
+      if (res && res.success && res.data) {
+        setSystemHealth(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load system health:', err);
+    }
+  };
+
+  // Comprehensive Refresh
+  const refreshAllData = async () => {
+    setIsSyncing(true);
+    await Promise.all([
+      loadMetrics(),
+      loadUsers(usersPagination.page),
+      loadBusinesses(businessesPagination.page),
+      loadIntegrations(),
+      loadAutomations(),
+      loadActivity(activityPagination.page),
+      loadSystemHealth()
+    ]);
+    setIsSyncing(false);
+    showToast('Platform data synchronized from database');
   };
 
   useEffect(() => {
-    if (isAuthorized) {
-      loadAdminData();
+    refreshAllData();
+  }, []);
+
+  // Debounced search for users
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadUsers(1);
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [userSearch, userRoleFilter]);
+
+  // Debounced search for businesses
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadBusinesses(1);
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [businessSearch, businessStatusFilter]);
+
+  // Open User Detail
+  const handleOpenUserDetail = async (userItem) => {
+    setSelectedUser(userItem);
+    setLoadingUserDetail(true);
+    try {
+      const res = await adminService.getUserById(userItem.id);
+      if (res && res.success && res.data) {
+        setSelectedUserDetail(res.data);
+      } else {
+        setSelectedUserDetail({ user: userItem, business: null, integrations: [], automation: null, recentActivity: [] });
+      }
+    } catch {
+      setSelectedUserDetail({ user: userItem, business: null, integrations: [], automation: null, recentActivity: [] });
+    } finally {
+      setLoadingUserDetail(false);
     }
-  }, [isAuthorized]);
+  };
 
-  // Handle Demo Status Update
-  const handleUpdateDemoStatus = async (id, status) => {
-    await leadService.updateStatus(id, status, adminNoteInput.trim() || null);
-    setAdminNoteInput('');
-    loadAdminData();
-    if (selectedDemo) {
-      setSelectedDemo(prev => ({ ...prev, status }));
+  // Open Business Detail
+  const handleOpenBusinessDetail = async (bizItem) => {
+    setSelectedBusiness(bizItem);
+    setLoadingBusinessDetail(true);
+    try {
+      const res = await adminService.getBusinessById(bizItem.id);
+      if (res && res.success && res.data) {
+        setSelectedBusinessDetail(res.data);
+      } else {
+        setSelectedBusinessDetail({ business: bizItem, teamMembers: [], connections: [], aiConfig: null, stats: {} });
+      }
+    } catch {
+      setSelectedBusinessDetail({ business: bizItem, teamMembers: [], connections: [], aiConfig: null, stats: {} });
+    } finally {
+      setLoadingBusinessDetail(false);
     }
-    showToast(`✓ Lead status updated to ${status}`);
   };
 
-  // Handle Business Suspension / Activation
-  const handleToggleBusinessStatus = async (id) => {
-    await adminService.toggleBusinessStatus(id);
-    loadAdminData();
-    showToast(`✓ Workspace status updated.`);
+  // Toggle Business Status
+  const handleToggleBusinessStatus = async (bizId) => {
+    try {
+      const res = await adminService.toggleBusinessStatus(bizId);
+      if (res && res.success) {
+        showToast('Workspace status updated');
+        loadBusinesses(businessesPagination.page);
+        loadMetrics();
+        if (selectedBusinessDetail && selectedBusinessDetail.business.id === bizId) {
+          setSelectedBusinessDetail(prev => ({
+            ...prev,
+            business: { ...prev.business, status: res.data.status }
+          }));
+        }
+      }
+    } catch {
+      showToast('Failed to toggle status');
+    }
   };
 
-  // Export Demo Bookings / Leads to CSV
-  const handleExportDemos = () => {
-    const targetLeads = activeTab === 'founder-meetings'
-      ? filteredDemos.filter(d => d.request_type === 'FOUNDER_MEETING' || d.id?.startsWith('founder'))
-      : filteredDemos;
-
-    const csvData = leadService.exportCSV(targetLeads);
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kreazy_admin_export_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast(`✓ CSV export downloaded (${targetLeads.length} records)`);
+  // Format date helper
+  const formatDate = (isoString) => {
+    if (!isoString) return '—';
+    try {
+      const d = new Date(isoString);
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch {
+      return isoString;
+    }
   };
 
-  // Test Ping Meta Webhook
-  const handlePingWebhooks = () => {
-    setIsPinging(true);
-    setTimeout(() => {
-      const lat = `${Math.floor(10 + Math.random() * 8)}ms`;
-      setPingLatency(lat);
-      setIsPinging(false);
-      showToast(`✓ Meta Webhook ping completed in ${lat}`);
-    }, 450);
+  const formatDateTime = (isoString) => {
+    if (!isoString) return '—';
+    try {
+      const d = new Date(isoString);
+      return d.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return isoString;
+    }
   };
 
-  // Handle Provisioning New Business
-  const handleCreateBusiness = (e) => {
-    e.preventDefault();
-    if (!newBizForm.name.trim() || !newBizForm.owner_email.trim()) return;
-
-    const newBiz = {
-      id: `ws-${Date.now().toString().slice(-6)}`,
-      name: newBizForm.name.trim(),
-      slug: newBizForm.name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-'),
-      owner_name: newBizForm.owner_name.trim() || 'Store Owner',
-      owner_email: newBizForm.owner_email.trim(),
-      plan: newBizForm.plan,
-      status: 'ACTIVE',
-      channels_connected: newBizForm.channels,
-      total_customers: 0,
-      total_orders: 0,
-      total_revenue: '$0.00',
-      created_at: new Date().toISOString().split('T')[0]
-    };
-
-    setBusinesses(prev => [newBiz, ...prev]);
-    setShowProvisionModal(false);
-    setNewBizForm({ name: '', owner_name: '', owner_email: '', plan: 'Growth', channels: ['WHATSAPP', 'INSTAGRAM'] });
-    showToast(`✓ Workspace "${newBiz.name}" provisioned successfully`);
-  };
-
-  // Handle Create Manual Lead
-  const handleCreateManualLead = async (e) => {
-    e.preventDefault();
-    if (!newLeadForm.full_name.trim() || !newLeadForm.business_name.trim()) return;
-
-    const leadPayload = {
-      full_name: newLeadForm.full_name.trim(),
-      business_name: newLeadForm.business_name.trim(),
-      email: newLeadForm.email.trim(),
-      phone: newLeadForm.phone.trim(),
-      request_type: newLeadForm.request_type,
-      message: newLeadForm.message.trim(),
-      status: 'NEW'
-    };
-
-    await leadService.submit(leadPayload);
-    await loadAdminData();
-    setShowManualLeadModal(false);
-    setNewLeadForm({ full_name: '', business_name: '', email: '', phone: '', request_type: 'DEMO', message: '' });
-    showToast(`✓ Lead for "${leadPayload.business_name}" created`);
-  };
-
-  // -------------------------------------------------------------------
-  // 403 FORBIDDEN / UNAUTHORIZED STATE
-  // -------------------------------------------------------------------
-  if (!isAuthorized) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f1611', padding: 'var(--space-6)' }}>
-        <div className="admin-card" style={{ maxWidth: '520px', textAlign: 'center', padding: 'var(--space-10)', border: '1px solid rgba(239, 68, 68, 0.4)' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
-            <ShieldAlert size={32} />
-          </div>
-          <h2 style={{ fontSize: '1.6rem', color: '#fca5a5', marginBottom: '0.5rem' }}>403 Forbidden: Platform Admin Area</h2>
-          <p style={{ fontSize: '0.925rem', color: '#94a3b8', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-            You do not possess the required <code>SUPER_ADMIN</code> platform credentials to access the KreazyAI administrative control center. This incident has been logged.
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-            <button className="btn btn-secondary" onClick={() => onNavigate('dashboard')}>
-              Back to Merchant Workspace
-            </button>
-            <button className="btn btn-primary" onClick={() => onNavigate('home')}>
-              Return to Home Page
-            </button>
-          </div>
-        </div>
-      </div>
+  // Filtered activity logs client-side search
+  const filteredActivity = useMemo(() => {
+    if (!activitySearch.trim()) return activityLogs;
+    const q = activitySearch.toLowerCase();
+    return activityLogs.filter(a =>
+      (a.action || '').toLowerCase().includes(q) ||
+      (a.actor_email || '').toLowerCase().includes(q) ||
+      (a.resource || '').toLowerCase().includes(q)
     );
-  }
+  }, [activityLogs, activitySearch]);
 
-  // Filtered Leads / Demos
-  const filteredDemos = demoRequests.filter(d => {
-    const matchesStatus = demoStatusFilter === 'ALL' || d.status === demoStatusFilter;
-    const nameMatch = (d.full_name || '').toLowerCase().includes(demoSearch.toLowerCase());
-    const bizMatch = (d.business_name || '').toLowerCase().includes(demoSearch.toLowerCase());
-    const emailMatch = (d.email || '').toLowerCase().includes(demoSearch.toLowerCase());
-    return matchesStatus && (nameMatch || bizMatch || emailMatch);
-  });
-
-  const founderMeetings = filteredDemos.filter(d => d.request_type === 'FOUNDER_MEETING' || d.id?.startsWith('founder'));
-
-  // Filtered Businesses
-  const filteredBusinesses = businesses.filter(b => {
-    const search = businessSearch.toLowerCase();
-    return (b.name || '').toLowerCase().includes(search) || 
-           (b.owner_name || '').toLowerCase().includes(search) || 
-           (b.owner_email || '').toLowerCase().includes(search);
-  });
-
-  // Filtered Customers
-  const filteredCustomers = customers.filter(c => {
-    const matchesChannel = customerChannelFilter === 'ALL' || c.preferred_channel === customerChannelFilter;
-    const search = customerSearch.toLowerCase();
-    const matchesSearch = (c.full_name || '').toLowerCase().includes(search) || 
-                          (c.email || '').toLowerCase().includes(search) || 
-                          (c.phone || '').includes(search);
-    return matchesChannel && matchesSearch;
-  });
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'users', label: 'Users', icon: Users, badge: metrics?.totalUsers },
+    { id: 'businesses', label: 'Businesses', icon: Building2, badge: metrics?.totalBusinesses },
+    { id: 'integrations', label: 'Integrations', icon: Network, badge: metrics?.activeIntegrations },
+    { id: 'automations', label: 'Automations', icon: Cpu, badge: metrics?.activeAutomations },
+    { id: 'activity', label: 'Activity', icon: Activity },
+    { id: 'settings', label: 'Settings', icon: SlidersHorizontal }
+  ];
 
   return (
-    <div className="admin-layout">
-
-      {/* Floating Toast Notification */}
+    <div className="mac-admin-root">
+      {/* Toast Notification */}
       {toastMessage && (
-        <div className="admin-toast">
-          <CheckCircle2 size={18} color="#22c55e" />
+        <div className="mac-admin-toast" role="status">
+          <CheckCircle2 size={16} />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Platform Admin Top Header */}
-      <header className="admin-header">
-        <div className="admin-brand">
-          <div className="brand-logo" style={{ cursor: 'pointer' }} onClick={() => onNavigate('home')} title="KreazyAI">
-            <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img" />
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="mac-sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ==============================================================
+          LEFT SIDEBAR (MacOS SaaS Navigation)
+          ============================================================== */}
+      <aside className={`mac-admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        {/* Sidebar Brand Header */}
+        <div className="mac-sidebar-header">
+          <div className="mac-brand-block">
+            <img src="/logo-dark.svg" alt="KREAZY AI" className="mac-sidebar-logo" />
+            <div className="mac-brand-titles">
+              <span className="mac-brand-name">KREAZY AI</span>
+              <span className="mac-brand-badge">ADMIN CONTROL</span>
+            </div>
           </div>
-
-          <span className="admin-badge-super">
-            <ShieldCheck size={13} /> Super Admin
-          </span>
-
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#94a3b8' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 6px #22c55e' }}></span>
-            Meta Webhooks Active (v20.0)
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <button 
-            type="button" 
-            onClick={() => onNavigate('dashboard')} 
-            className="admin-tab-btn" 
-            style={{ border: '1px solid rgba(255, 255, 255, 0.1)', color: '#cbd5e1' }}
+          <button
+            type="button"
+            className="mac-sidebar-close-btn"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
           >
-            <span>Merchant View</span>
-            <ArrowUpRight size={13} />
-          </button>
-          <button 
-            type="button" 
-            onClick={onLogout} 
-            className="admin-tab-btn" 
-            style={{ border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5' }}
-          >
-            <LogOut size={13} />
-            <span>Sign Out</span>
+            <X size={18} />
           </button>
         </div>
-      </header>
 
-      {/* Admin Content Area */}
-      <div style={{ maxWidth: '1380px', width: '100%', margin: '0 auto', padding: '1.75rem 1.5rem', flexGrow: 1 }}>
+        {/* Navigation Items */}
+        <nav className="mac-sidebar-nav" aria-label="Admin Navigation">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setSidebarOpen(false);
+                }}
+                className={`mac-nav-item ${isActive ? 'active' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <div className="mac-nav-item-content">
+                  <Icon size={18} className="mac-nav-icon" />
+                  <span className="mac-nav-label">{item.label}</span>
+                </div>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="mac-nav-pill">{item.badge}</span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-        {/* Navigation Tabs Bar */}
-        <div className="admin-tab-bar-wrap">
-          <div className="admin-nav-tabs">
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-              onClick={() => setActiveTab('overview')}
-            >
-              <Activity size={14} />
-              <span>Overview</span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'demos' ? 'active' : ''}`}
-              onClick={() => setActiveTab('demos')}
-            >
-              <Users size={14} />
-              <span>Leads & Demos</span>
-              <span className="admin-tab-count">
-                {demoRequests.filter(d => d.status === 'NEW').length} New
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'founder-meetings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('founder-meetings')}
-            >
-              <Video size={14} />
-              <span>Founder Calls</span>
-              <span className="admin-tab-count">{founderMeetings.length}</span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'businesses' ? 'active' : ''}`}
-              onClick={() => setActiveTab('businesses')}
-            >
-              <Building2 size={14} />
-              <span>Businesses</span>
-              <span className="admin-tab-count">{businesses.length}</span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'customers' ? 'active' : ''}`}
-              onClick={() => setActiveTab('customers')}
-            >
-              <MessageSquare size={14} />
-              <span>Global Customers</span>
-              <span className="admin-tab-count">{customers.length}</span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'integrations' ? 'active' : ''}`}
-              onClick={() => setActiveTab('integrations')}
-            >
-              <Network size={14} />
-              <span>Meta APIs</span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'system' ? 'active' : ''}`}
-              onClick={() => setActiveTab('system')}
-            >
-              <Cpu size={14} />
-              <span>System Health</span>
-            </button>
-
-            <button
-              type="button"
-              className={`admin-tab-btn ${activeTab === 'audit' ? 'active' : ''}`}
-              onClick={() => setActiveTab('audit')}
-            >
-              <FileText size={14} />
-              <span>Audit Trail</span>
-            </button>
+        {/* Sidebar Footer with Admin Profile & Logout */}
+        <div className="mac-sidebar-footer">
+          <div className="mac-admin-profile-pill">
+            <div className="mac-admin-avatar">
+              {(user?.name || user?.email || 'A').slice(0, 1).toUpperCase()}
+            </div>
+            <div className="mac-admin-info">
+              <span className="mac-admin-name">{user?.name || 'Super Admin'}</span>
+              <span className="mac-admin-email">{user?.email || 'admin@kreazyai.com'}</span>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <button
-              type="button"
-              onClick={() => setShowProvisionModal(true)}
-              className="admin-tab-btn"
-              style={{
-                background: 'rgba(34, 197, 94, 0.15)',
-                border: '1px solid rgba(34, 197, 94, 0.35)',
-                color: '#86efac'
-              }}
-            >
-              <Plus size={14} />
-              <span>Provision Workspace</span>
-            </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="mac-logout-btn"
+            title="Log out of Admin Portal"
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
 
+      {/* ==============================================================
+          MAIN CONTENT AREA
+          ============================================================== */}
+      <div className="mac-admin-main">
+        {/* Top Navigation Bar */}
+        <header className="mac-topbar">
+          <div className="mac-topbar-left">
             <button
               type="button"
-              onClick={loadAdminData}
+              className="mac-mobile-menu-btn"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar navigation"
+            >
+              <Menu size={20} />
+            </button>
+            <h1 className="mac-topbar-title">
+              {navItems.find(i => i.id === activeTab)?.label || 'Dashboard'}
+            </h1>
+          </div>
+
+          <div className="mac-topbar-right">
+            {/* Real System Status Pill */}
+            <div className="mac-system-status-pill">
+              <span className="mac-status-indicator-dot online" />
+              <span>Database Active</span>
+            </div>
+
+            {/* Live Synchronize Button */}
+            <button
+              type="button"
+              onClick={refreshAllData}
               disabled={isSyncing}
-              className="admin-tab-btn"
-              style={{
-                background: '#141d16',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#cbd5e1'
-              }}
+              className={`mac-sync-btn ${isSyncing ? 'syncing' : ''}`}
+              title="Synchronize real data from SQLite database"
             >
-              <RefreshCw size={14} className={isSyncing ? 'spin-anim' : ''} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+              <RefreshCw size={15} />
+              <span className="mac-sync-text">{isSyncing ? 'Syncing...' : 'Sync Live'}</span>
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* -------------------------------------------------------------
-            TAB 1: PLATFORM OVERVIEW METRICS & COMMAND CENTER
-            ------------------------------------------------------------- */}
-        {activeTab === 'overview' && (
-          <div>
-            {/* KPI Cards */}
-            <div className="admin-metrics-grid">
-              <div className="admin-metric-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('businesses')}>
-                <div className="admin-metric-head">
-                  <span className="admin-metric-label">Registered Businesses</span>
-                  <div className="admin-metric-icon-wrap">
-                    <Building2 size={16} />
+        {/* View Router */}
+        <main className="mac-admin-content-body">
+          {/* ==========================================================
+              1. OVERVIEW VIEW
+              ========================================================== */}
+          {activeTab === 'overview' && (
+            <div className="mac-view-container">
+              {/* Statistical Metric Cards Grid */}
+              <div className="mac-metrics-grid">
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">TOTAL USERS</span>
+                    <Users size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.totalUsers).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Real registered database accounts
                   </div>
                 </div>
-                <div className="admin-metric-val">{metrics ? metrics.totalBusinesses : '3'}</div>
-                <span className="admin-metric-pill success">
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
-                  {metrics ? `${metrics.activeBusinesses} Active Workspaces` : '2 Active Workspaces'}
-                </span>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">ACTIVE USERS</span>
+                    <UserCheck size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.activeUsers).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Active sessions & recent activity
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">BUSINESSES</span>
+                    <Building2 size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.totalBusinesses).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Total merchant tenant workspaces
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">CONNECTED BUSINESSES</span>
+                    <Radio size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.connectedBusinesses).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Workspaces with connected channels
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">ACTIVE INTEGRATIONS</span>
+                    <Network size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.activeIntegrations).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Live Meta & WhatsApp connections
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">ACTIVE AUTOMATIONS</span>
+                    <Cpu size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.activeAutomations).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Stores with enabled AI auto-reply
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">AUTOMATION RUNS</span>
+                    <Zap size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.automationRuns).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Total autonomous AI executions
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">MESSAGES AUTOMATED</span>
+                    <MessageSquare size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    {metrics ? Number(metrics.messagesAutomated).toLocaleString() : '—'}
+                  </div>
+                  <div className="mac-metric-sub">
+                    Customer conversations handled
+                  </div>
+                </div>
               </div>
 
-              <div className="admin-metric-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('demos')}>
-                <div className="admin-metric-head">
-                  <span className="admin-metric-label">Inquiries & Demos</span>
-                  <div className="admin-metric-icon-wrap" style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24' }}>
-                    <Users size={16} />
-                  </div>
-                </div>
-                <div className="admin-metric-val">{demoRequests.length || '3'}</div>
-                <span className="admin-metric-pill amber">
-                  <Clock size={11} />
-                  {demoRequests.filter(d => d.status === 'NEW').length || '1'} Pending Review
-                </span>
-              </div>
-
-              <div className="admin-metric-card">
-                <div className="admin-metric-head">
-                  <span className="admin-metric-label">Processed Orders</span>
-                  <div className="admin-metric-icon-wrap">
-                    <TrendingUp size={16} />
-                  </div>
-                </div>
-                <div className="admin-metric-val">{metrics ? metrics.totalOrdersProcessed : '1,570'}</div>
-                <span className="admin-metric-pill success">
-                  <Zap size={11} />
-                  {metrics ? metrics.platformRevenueVolume : '$64,090.00 GMV'}
-                </span>
-              </div>
-
-              <div className="admin-metric-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('integrations')}>
-                <div className="admin-metric-head">
-                  <span className="admin-metric-label">Meta Cloud Health</span>
-                  <div className="admin-metric-icon-wrap" style={{ backgroundColor: 'rgba(34, 197, 94, 0.15)', color: '#4ade80' }}>
-                    <Radio size={16} />
-                  </div>
-                </div>
-                <div className="admin-metric-val" style={{ color: '#86efac' }}>99.98%</div>
-                <span className="admin-metric-pill success">
-                  <CheckCircle2 size={11} />
-                  {metrics ? metrics.metaApiStatus : 'Operational (v20.0 Webhooks)'}
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Actions Strip */}
-            <div className="admin-quick-actions">
-              <button 
-                type="button" 
-                onClick={handleExportDemos} 
-                className="admin-quick-btn"
-              >
-                <div className="admin-quick-icon">
-                  <Download size={18} />
-                </div>
-                <div>
-                  <div>Export All Leads</div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Generate CSV file</span>
-                </div>
-              </button>
-
-              <button 
-                type="button" 
-                onClick={handlePingWebhooks} 
-                className="admin-quick-btn"
-              >
-                <div className="admin-quick-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#60a5fa' }}>
-                  <Zap size={18} />
-                </div>
-                <div>
-                  <div>Test Meta Latency</div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Round-trip ping</span>
-                </div>
-              </button>
-
-              <button 
-                type="button" 
-                onClick={() => setShowProvisionModal(true)} 
-                className="admin-quick-btn"
-              >
-                <div className="admin-quick-icon" style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', color: '#c084fc' }}>
-                  <Building2 size={18} />
-                </div>
-                <div>
-                  <div>Provision Tenant</div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>New store workspace</span>
-                </div>
-              </button>
-
-              <button 
-                type="button" 
-                onClick={() => setShowManualLeadModal(true)} 
-                className="admin-quick-btn"
-              >
-                <div className="admin-quick-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24' }}>
-                  <Plus size={18} />
-                </div>
-                <div>
-                  <div>Record Manual Lead</div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Phone / In-person lead</span>
-                </div>
-              </button>
-            </div>
-
-            {/* Overview Split Grid */}
-            <div className="admin-split-grid">
-              
-              {/* Left Column: Recent Leads */}
-              <div className="admin-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                  <div>
-                    <h3 className="admin-card-title">Recent Lead Inquiries Awaiting Review</h3>
-                    <p className="admin-card-sub" style={{ margin: 0 }}>High-intent inquiries from Book a Demo & Contact forms.</p>
-                  </div>
-                  <button 
-                    type="button" 
-                    onClick={() => setActiveTab('demos')}
-                    className="admin-tab-btn"
-                    style={{ fontSize: '0.78rem', color: '#86efac' }}
-                  >
-                    View All ({demoRequests.length}) →
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {demoRequests.slice(0, 4).map(d => (
-                    <div 
-                      key={d.id} 
-                      style={{ 
-                        padding: '0.85rem 1rem', 
-                        backgroundColor: '#101712', 
-                        border: '1px solid rgba(255, 255, 255, 0.06)', 
-                        borderRadius: '12px', 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center',
-                        transition: 'border-color 0.2s ease'
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 700, color: '#F1F5F3', fontSize: '0.9rem' }}>
-                          {d.business_name} <span style={{ color: '#94a3b8', fontWeight: 400 }}>({d.full_name})</span>
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '3px' }}>
-                          Type: <span style={{ color: '#86efac' }}>{d.request_type || 'DEMO'}</span> • {d.created_at}
-                        </div>
+              {/* Two Column Layout: Recent Users & Recent Integrations */}
+              <div className="mac-overview-two-col">
+                {/* Recent Users Window */}
+                <div className="mac-panel-card">
+                  <div className="mac-panel-header">
+                    <div className="mac-panel-header-left">
+                      <div className="mac-mini-traffic" aria-hidden="true">
+                        <span className="mac-traffic-dot mac-dot-close" />
+                        <span className="mac-traffic-dot mac-dot-minimize" />
+                        <span className="mac-traffic-dot mac-dot-maximize" />
                       </div>
+                      <span className="mac-panel-title">Recent User Registrations</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('users')}
+                      className="mac-link-btn"
+                    >
+                      <span>View All Users</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <select
-                          className="admin-inline-select"
-                          value={d.status}
-                          onChange={(e) => handleUpdateDemoStatus(d.id, e.target.value)}
-                        >
-                          <option value="NEW">NEW</option>
-                          <option value="CONTACTED">CONTACTED</option>
-                          <option value="SCHEDULED">SCHEDULED</option>
-                          <option value="QUALIFIED">QUALIFIED</option>
-                          <option value="CONVERTED">CONVERTED</option>
-                        </select>
+                  <div className="mac-panel-body">
+                    {metrics?.recentUsers && metrics.recentUsers.length > 0 ? (
+                      <div className="mac-table-responsive">
+                        <table className="mac-table">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Email</th>
+                              <th>Business</th>
+                              <th>Signed Up</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {metrics.recentUsers.map((u) => (
+                              <tr key={u.id}>
+                                <td>
+                                  <div className="mac-table-user">
+                                    <div className="mac-table-avatar">
+                                      {(u.name || u.email || 'U').slice(0, 1).toUpperCase()}
+                                    </div>
+                                    <span className="mac-table-name">{u.name || 'Unnamed'}</span>
+                                  </div>
+                                </td>
+                                <td className="mac-table-secondary">{u.email}</td>
+                                <td>
+                                  <span className="mac-badge-neutral">{u.business_name || 'No Business'}</span>
+                                </td>
+                                <td className="mac-table-secondary">{formatDate(u.created_at)}</td>
+                                <td>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenUserDetail(u)}
+                                    className="mac-btn-xs"
+                                  >
+                                    Inspect
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="mac-empty-state">
+                        <Users size={32} className="mac-empty-icon" />
+                        <p className="mac-empty-title">No users have signed up yet.</p>
+                        <p className="mac-empty-desc">New merchant registrations will appear here in real time.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                        <button 
-                          type="button" 
-                          onClick={() => { setSelectedDemo(d); setActiveTab('demos'); }}
-                          className="admin-tab-btn"
-                          style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.3rem 0.65rem', fontSize: '0.75rem' }}
+                {/* Recent Integrations Window */}
+                <div className="mac-panel-card">
+                  <div className="mac-panel-header">
+                    <div className="mac-panel-header-left">
+                      <div className="mac-mini-traffic" aria-hidden="true">
+                        <span className="mac-traffic-dot mac-dot-close" />
+                        <span className="mac-traffic-dot mac-dot-minimize" />
+                        <span className="mac-traffic-dot mac-dot-maximize" />
+                      </div>
+                      <span className="mac-panel-title">Active Platform Integrations</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('integrations')}
+                      className="mac-link-btn"
+                    >
+                      <span>All Integrations</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
+
+                  <div className="mac-panel-body">
+                    {integrationsData.connections && integrationsData.connections.length > 0 ? (
+                      <div className="mac-connections-stack">
+                        {integrationsData.connections.slice(0, 4).map((c) => (
+                          <div key={c.id} className="mac-mini-connection-row">
+                            <div className="mac-mini-conn-info">
+                              <span className={`mac-status-dot ${c.health}`} />
+                              <div>
+                                <span className="mac-mini-conn-title">{c.platform}</span>
+                                <span className="mac-mini-conn-biz">{c.businessName}</span>
+                              </div>
+                            </div>
+                            <div className="mac-mini-conn-right">
+                              <span className={`mac-status-badge ${c.health}`}>
+                                {c.status}
+                              </span>
+                              <span className="mac-mini-conn-time">{c.lastSync}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mac-empty-state">
+                        <Network size={32} className="mac-empty-icon" />
+                        <p className="mac-empty-title">No integrations connected yet.</p>
+                        <p className="mac-empty-desc">When merchants connect WhatsApp or Instagram, active channels appear here.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              2. USERS MANAGEMENT VIEW
+              ========================================================== */}
+          {activeTab === 'users' && (
+            <div className="mac-view-container">
+              {/* Search & Filter Bar */}
+              <div className="mac-filter-bar">
+                <div className="mac-search-input-box">
+                  <Search size={16} className="mac-search-icon" />
+                  <input
+                    type="text"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    placeholder="Search users by name, email, or store..."
+                    className="mac-filter-input"
+                  />
+                  {userSearch && (
+                    <button type="button" onClick={() => setUserSearch('')} className="mac-clear-btn">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="mac-filter-select-group">
+                  <label htmlFor="user-role-select" className="mac-filter-label">Role:</label>
+                  <select
+                    id="user-role-select"
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                    className="mac-filter-select"
+                  >
+                    <option value="ALL">All Roles</option>
+                    <option value="OWNER">Owner</option>
+                    <option value="MEMBER">Member</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Users Table */}
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">
+                      User Accounts ({usersPagination.total} Total)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mac-panel-body">
+                  {usersList.length > 0 ? (
+                    <div className="mac-table-responsive">
+                      <table className="mac-table">
+                        <thead>
+                          <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Business</th>
+                            <th>Signup Date</th>
+                            <th>Status</th>
+                            <th>Integrations</th>
+                            <th>Automations</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {usersList.map((u) => (
+                            <tr key={u.id}>
+                              <td>
+                                <div className="mac-table-user">
+                                  <div className="mac-table-avatar">
+                                    {(u.name || u.email || 'U').slice(0, 1).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <span className="mac-table-name">{u.name || 'Unnamed'}</span>
+                                    <span className="mac-table-sub">{u.role}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="mac-table-secondary">{u.email}</td>
+                              <td>
+                                <span className="mac-badge-neutral">{u.business}</span>
+                              </td>
+                              <td className="mac-table-secondary">{formatDate(u.signupDate)}</td>
+                              <td>
+                                <span className={`mac-status-badge ${u.accountStatus === 'ACTIVE' ? 'healthy' : 'failed'}`}>
+                                  {u.accountStatus}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="mac-badge-count">{u.integrationsCount} Active</span>
+                              </td>
+                              <td>
+                                <span className={`mac-status-badge ${u.automationStatus === 'ACTIVE' ? 'healthy' : 'inactive'}`}>
+                                  {u.automationStatus}
+                                </span>
+                              </td>
+                              <td className="mac-table-secondary">{formatDate(u.lastActive)}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenUserDetail(u)}
+                                  className="mac-btn-xs"
+                                >
+                                  View Details
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="mac-empty-state">
+                      <Users size={32} className="mac-empty-icon" />
+                      <p className="mac-empty-title">No users found.</p>
+                      <p className="mac-empty-desc">Try modifying your search or filter criteria.</p>
+                    </div>
+                  )}
+
+                  {/* Pagination Controls */}
+                  {usersPagination.totalPages > 1 && (
+                    <div className="mac-pagination-bar">
+                      <span className="mac-pagination-text">
+                        Page {usersPagination.page} of {usersPagination.totalPages}
+                      </span>
+                      <div className="mac-pagination-btns">
+                        <button
+                          type="button"
+                          disabled={usersPagination.page <= 1}
+                          onClick={() => loadUsers(usersPagination.page - 1)}
+                          className="mac-page-btn"
                         >
-                          Inspect
+                          <ChevronLeft size={16} />
+                          <span>Previous</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={usersPagination.page >= usersPagination.totalPages}
+                          onClick={() => loadUsers(usersPagination.page + 1)}
+                          className="mac-page-btn"
+                        >
+                          <span>Next</span>
+                          <ChevronRight size={16} />
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right Column: Meta Diagnostics */}
-              <div className="admin-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                  <div>
-                    <h3 className="admin-card-title">Meta Platform API Diagnostics</h3>
-                    <p className="admin-card-sub" style={{ margin: 0 }}>Live health telemetry of official Meta Graph endpoints.</p>
-                  </div>
-                  <span className="admin-badge admin-badge-success">
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
-                    All Systems Normal
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div className="diag-row">
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#F1F5F3' }}>WhatsApp Cloud API (v20.0)</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Webhook ingestion: Sub-second</div>
-                    </div>
-                    <span className="diag-status-badge">
-                      <CheckCircle2 size={13} /> HEALTHY (12ms)
-                    </span>
-                  </div>
-
-                  <div className="diag-row">
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#F1F5F3' }}>Instagram Graph Webhooks</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Direct message packet drop rate</div>
-                    </div>
-                    <span className="diag-status-badge">
-                      <CheckCircle2 size={13} /> CONNECTED (0 drops)
-                    </span>
-                  </div>
-
-                  <div className="diag-row">
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#F1F5F3' }}>Facebook Messenger Ingest</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Page events & lead sync</div>
-                    </div>
-                    <span className="diag-status-badge">
-                      <CheckCircle2 size={13} /> LISTENING
-                    </span>
-                  </div>
-
-                  <div className="diag-row">
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#F1F5F3' }}>AI Knowledge Engine Pipeline</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Vector embeddings & policy grounding</div>
-                    </div>
-                    <span className="diag-status-badge">
-                      <CheckCircle2 size={13} /> ONLINE (v2.4 Engine)
-                    </span>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* -------------------------------------------------------------
-            TAB 2: LEADS & DEMO BOOKINGS
-            ------------------------------------------------------------- */}
-        {(activeTab === 'demos' || activeTab === 'founder-meetings') && (
-          <div>
-            <div className="admin-section-header">
-              <div>
-                <h2 className="admin-section-title">
-                  {activeTab === 'founder-meetings' ? 'Founder Strategy Calls Pipeline' : 'Prospect Leads & Demo Requests'}
-                </h2>
-                <p className="admin-section-desc">
-                  Review and transition lead statuses from contact submissions, website demo requests, and scheduled calls.
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowManualLeadModal(true)}
-                  className="admin-tab-btn"
-                  style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#86efac' }}
-                >
-                  <Plus size={14} />
-                  <span>Record Lead</span>
-                </button>
-
-                <button 
-                  type="button" 
-                  onClick={handleExportDemos} 
-                  className="admin-tab-btn"
-                  style={{ background: '#101712', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#F1F5F3' }}
-                >
-                  <Download size={14} />
-                  <span>Export CSV</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Filter and Search Bar */}
-            <div className="admin-filter-bar">
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flexGrow: 1 }}>
-                <div style={{ position: 'relative', minWidth: '280px', flexGrow: 1 }}>
-                  <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#64748b' }} />
+          {/* ==========================================================
+              3. BUSINESSES MANAGEMENT VIEW
+              ========================================================== */}
+          {activeTab === 'businesses' && (
+            <div className="mac-view-container">
+              {/* Filter Bar */}
+              <div className="mac-filter-bar">
+                <div className="mac-search-input-box">
+                  <Search size={16} className="mac-search-icon" />
                   <input
                     type="text"
-                    className="admin-input-dark"
-                    style={{ paddingLeft: '2.25rem', width: '100%' }}
-                    placeholder="Search prospect name, brand, email or phone..."
-                    value={demoSearch}
-                    onChange={(e) => setDemoSearch(e.target.value)}
+                    value={businessSearch}
+                    onChange={(e) => setBusinessSearch(e.target.value)}
+                    placeholder="Search businesses by name, slug, or owner..."
+                    className="mac-filter-input"
                   />
+                  {businessSearch && (
+                    <button type="button" onClick={() => setBusinessSearch('')} className="mac-clear-btn">
+                      <X size={14} />
+                    </button>
+                  )}
                 </div>
 
-                <select
-                  className="admin-input-dark"
-                  style={{ width: '160px', cursor: 'pointer' }}
-                  value={demoStatusFilter}
-                  onChange={(e) => setDemoStatusFilter(e.target.value)}
-                >
-                  <option value="ALL">Status: All</option>
-                  <option value="NEW">NEW</option>
-                  <option value="CONTACTED">CONTACTED</option>
-                  <option value="SCHEDULED">SCHEDULED</option>
-                  <option value="QUALIFIED">QUALIFIED</option>
-                  <option value="CONVERTED">CONVERTED</option>
-                  <option value="CANCELLED">CANCELLED</option>
-                </select>
+                <div className="mac-filter-select-group">
+                  <label htmlFor="business-status-select" className="mac-filter-label">Status:</label>
+                  <select
+                    id="business-status-select"
+                    value={businessStatusFilter}
+                    onChange={(e) => setBusinessStatusFilter(e.target.value)}
+                    className="mac-filter-select"
+                  >
+                    <option value="ALL">All Statuses</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="SUSPENDED">Suspended</option>
+                  </select>
+                </div>
               </div>
 
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                Showing <strong>{(activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).length}</strong> leads
-              </div>
-            </div>
-
-            {/* Data Table */}
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Prospect</th>
-                    <th>Business Name</th>
-                    <th>Contact Info</th>
-                    <th>Volume / Specs</th>
-                    <th>Status Transition</th>
-                    <th>Date Received</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).length === 0 ? (
-                    <tr>
-                      <td colSpan={8}>
-                        <div className="admin-empty-state">
-                          <Info size={28} style={{ margin: '0 auto 0.5rem auto', color: '#64748b' }} />
-                          <div>No leads matching your search criteria.</div>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    (activeTab === 'founder-meetings' ? founderMeetings : filteredDemos).map(d => (
-                      <tr key={d.id}>
-                        <td>
-                          <span className={`admin-badge ${d.request_type === 'FOUNDER_MEETING' ? 'admin-badge-olive' : 'admin-badge-default'}`}>
-                            {d.request_type === 'FOUNDER_MEETING' ? 'Founder Call' : d.request_type === 'CONTACT_INQUIRY' ? 'Inquiry' : 'Demo'}
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{d.full_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{d.email}</div>
-                        </td>
-                        <td>
-                          <strong style={{ color: '#F1F5F3' }}>{d.business_name}</strong>
-                          {d.website && (
-                            <div style={{ fontSize: '0.75rem' }}>
-                              <a href={d.website} target="_blank" rel="noreferrer" style={{ color: '#86efac', textDecoration: 'none' }}>
-                                {d.website}
-                              </a>
-                            </div>
-                          )}
-                        </td>
-                        <td>
-                          <div style={{ color: '#cbd5e1' }}>{d.phone || 'No phone'}</div>
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{d.monthly_order_volume || d.monthlyOrders || 'Standard'}</div>
-                        </td>
-                        <td>
-                          <select
-                            className="admin-inline-select"
-                            value={d.status}
-                            onChange={(e) => handleUpdateDemoStatus(d.id, e.target.value)}
-                          >
-                            <option value="NEW">NEW</option>
-                            <option value="CONTACTED">CONTACTED</option>
-                            <option value="SCHEDULED">SCHEDULED</option>
-                            <option value="QUALIFIED">QUALIFIED</option>
-                            <option value="CONVERTED">CONVERTED</option>
-                            <option value="CANCELLED">CANCELLED</option>
-                          </select>
-                        </td>
-                        <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{d.created_at}</td>
-                        <td>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedDemo(d)}
-                            className="admin-tab-btn"
-                            style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.3rem 0.7rem', fontSize: '0.75rem' }}
-                          >
-                            Manage
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* DEMO / LEAD DETAIL & STATUS MODAL */}
-            {selectedDemo && (
-              <Modal
-                isOpen={!!selectedDemo}
-                onClose={() => setSelectedDemo(null)}
-                title={`Manage Lead: ${selectedDemo.business_name}`}
-                maxWidth="600px"
-                footer={(
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '0.825rem', fontWeight: 600, color: '#cbd5e1' }}>Transition Status:</span>
-                      <select
-                        className="admin-input-dark"
-                        style={{ width: '150px', padding: '0.35rem 0.6rem', fontSize: '0.825rem' }}
-                        value={selectedDemo.status}
-                        onChange={(e) => handleUpdateDemoStatus(selectedDemo.id, e.target.value)}
-                      >
-                        <option value="NEW">NEW</option>
-                        <option value="CONTACTED">CONTACTED</option>
-                        <option value="SCHEDULED">SCHEDULED</option>
-                        <option value="QUALIFIED">QUALIFIED</option>
-                        <option value="CONVERTED">CONVERTED</option>
-                        <option value="CANCELLED">CANCELLED</option>
-                      </select>
+              {/* Businesses Table */}
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
                     </div>
+                    <span className="mac-panel-title">
+                      Workspaces & Businesses ({businessesPagination.total} Total)
+                    </span>
+                  </div>
+                </div>
 
-                    <button 
-                      type="button" 
-                      onClick={() => setSelectedDemo(null)}
-                      className="admin-tab-btn"
-                      style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3' }}
-                    >
-                      Close
-                    </button>
+                <div className="mac-panel-body">
+                  {businessesList.length > 0 ? (
+                    <div className="mac-table-responsive">
+                      <table className="mac-table">
+                        <thead>
+                          <tr>
+                            <th>Business</th>
+                            <th>Owner</th>
+                            <th>Members</th>
+                            <th>Connected Integrations</th>
+                            <th>Automations</th>
+                            <th>Revenue</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {businessesList.map((b) => (
+                            <tr key={b.id}>
+                              <td>
+                                <div>
+                                  <span className="mac-table-name">{b.name}</span>
+                                  <span className="mac-table-sub">{b.slug}</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div>
+                                  <span className="mac-table-name">{b.ownerName || '—'}</span>
+                                  <span className="mac-table-sub">{b.ownerEmail}</span>
+                                </div>
+                              </td>
+                              <td className="mac-table-secondary">{b.membersCount}</td>
+                              <td>
+                                <span className="mac-badge-count">{b.connectedIntegrationsCount} Connected</span>
+                              </td>
+                              <td>
+                                <span className={`mac-status-badge ${b.activeAutomations === 'Enabled' ? 'healthy' : 'inactive'}`}>
+                                  {b.activeAutomations}
+                                </span>
+                              </td>
+                              <td className="mac-table-secondary">
+                                ${Number(b.totalRevenue || 0).toLocaleString()}
+                              </td>
+                              <td>
+                                <span className={`mac-status-badge ${b.status === 'ACTIVE' ? 'healthy' : 'failed'}`}>
+                                  {b.status}
+                                </span>
+                              </td>
+                              <td className="mac-table-secondary">{formatDate(b.createdAt)}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenBusinessDetail(b)}
+                                    className="mac-btn-xs"
+                                  >
+                                    Inspect
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleBusinessStatus(b.id)}
+                                    className="mac-btn-xs mac-btn-outline"
+                                  >
+                                    {b.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="mac-empty-state">
+                      <Building2 size={32} className="mac-empty-icon" />
+                      <p className="mac-empty-title">No businesses found.</p>
+                      <p className="mac-empty-desc">Create or onboard merchant businesses to view records.</p>
+                    </div>
+                  )}
+
+                  {/* Pagination */}
+                  {businessesPagination.totalPages > 1 && (
+                    <div className="mac-pagination-bar">
+                      <span className="mac-pagination-text">
+                        Page {businessesPagination.page} of {businessesPagination.totalPages}
+                      </span>
+                      <div className="mac-pagination-btns">
+                        <button
+                          type="button"
+                          disabled={businessesPagination.page <= 1}
+                          onClick={() => loadBusinesses(businessesPagination.page - 1)}
+                          className="mac-page-btn"
+                        >
+                          <ChevronLeft size={16} />
+                          <span>Previous</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={businessesPagination.page >= businessesPagination.totalPages}
+                          onClick={() => loadBusinesses(businessesPagination.page + 1)}
+                          className="mac-page-btn"
+                        >
+                          <span>Next</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              4. INTEGRATIONS VIEW (MacOS Mini Windows)
+              ========================================================== */}
+          {activeTab === 'integrations' && (
+            <div className="mac-view-container">
+              {/* Channel Stats Overview */}
+              <div className="mac-channels-overview-grid">
+                {Object.entries(integrationsData.summary || {}).map(([key, item]) => (
+                  <div key={key} className="mac-channel-card">
+                    <div className="mac-channel-header">
+                      <span className="mac-channel-title">{item.name}</span>
+                      <span className={`mac-status-dot ${item.status === 'CONNECTED' ? 'healthy' : 'inactive'}`} />
+                    </div>
+                    <div className="mac-channel-metric-row">
+                      <div className="mac-channel-stat">
+                        <span className="mac-stat-num">{item.connected || 0}</span>
+                        <span className="mac-stat-label">Connected</span>
+                      </div>
+                      <div className="mac-channel-stat">
+                        <span className="mac-stat-num">{item.active || 0}</span>
+                        <span className="mac-stat-label">Active</span>
+                      </div>
+                      <div className="mac-channel-stat">
+                        <span className="mac-stat-num">{item.failed || 0}</span>
+                        <span className="mac-stat-label">Attention</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mini MacOS Windows for Each Real Connection */}
+              <div className="mac-connections-section">
+                <h2 className="mac-section-heading">Connected Merchant Channels</h2>
+                {integrationsData.connections && integrationsData.connections.length > 0 ? (
+                  <div className="mac-mini-windows-grid">
+                    {integrationsData.connections.map((conn) => (
+                      <div key={conn.id} className="mac-mini-window-card">
+                        {/* Mini Window Top Bar */}
+                        <div className="mac-mini-window-titlebar">
+                          <div className="mac-mini-traffic" aria-hidden="true">
+                            <span className="mac-traffic-dot mac-dot-close" />
+                            <span className="mac-traffic-dot mac-dot-minimize" />
+                            <span className="mac-traffic-dot mac-dot-maximize" />
+                          </div>
+                          <span className="mac-mini-window-title">
+                            {conn.platform} Connection
+                          </span>
+                        </div>
+
+                        {/* Mini Window Content */}
+                        <div className="mac-mini-window-body">
+                          <div className="mac-card-data-row">
+                            <span className="mac-data-key">STATUS</span>
+                            <div className="mac-data-status-wrapper">
+                              <span className={`mac-status-dot ${conn.health}`} />
+                              <span className="mac-data-val-bold">{conn.status}</span>
+                            </div>
+                          </div>
+
+                          <div className="mac-card-data-row">
+                            <span className="mac-data-key">BUSINESS</span>
+                            <span className="mac-data-val">{conn.businessName}</span>
+                          </div>
+
+                          <div className="mac-card-data-row">
+                            <span className="mac-data-key">ENDPOINT</span>
+                            <span className="mac-data-val-mono">{conn.identifier}</span>
+                          </div>
+
+                          <div className="mac-card-data-row">
+                            <span className="mac-data-key">CONNECTED</span>
+                            <span className="mac-data-val">{formatDate(conn.connectedAt)}</span>
+                          </div>
+
+                          <div className="mac-card-data-row">
+                            <span className="mac-data-key">LAST SYNC</span>
+                            <span className="mac-data-val">{conn.lastSync}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mac-panel-card">
+                    <div className="mac-empty-state">
+                      <Network size={36} className="mac-empty-icon" />
+                      <p className="mac-empty-title">No integrations connected yet.</p>
+                      <p className="mac-empty-desc">Merchant connection requests across WhatsApp and Meta will be logged here.</p>
+                    </div>
                   </div>
                 )}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', fontSize: '0.875rem', color: '#F1F5F3' }}>
-                  <div style={{ padding: '1rem', backgroundColor: '#101712', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px' }}>
-                    <div style={{ marginBottom: '4px' }}><strong>Contact:</strong> {selectedDemo.full_name} ({selectedDemo.email} • {selectedDemo.phone || 'N/A'})</div>
-                    <div style={{ marginBottom: '4px' }}><strong>Website:</strong> {selectedDemo.website || 'N/A'}</div>
-                    <div><strong>Type:</strong> <span style={{ color: '#86efac' }}>{selectedDemo.request_type || 'DEMO'}</span></div>
-                  </div>
+              </div>
+            </div>
+          )}
 
-                  <div>
-                    <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', color: '#94a3b8' }}>Prospect Inquiry / Notes:</label>
-                    <div style={{ padding: '0.85rem 1rem', backgroundColor: '#0d140e', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: '3px solid #22c55e', borderRadius: '8px', fontStyle: 'italic', color: '#cbd5e1' }}>
-                      "{selectedDemo.message || selectedDemo.notes || 'No message provided.'}"
+          {/* ==========================================================
+              5. AUTOMATIONS VIEW (Visual Nodes Component)
+              ========================================================== */}
+          {activeTab === 'automations' && (
+            <div className="mac-view-container">
+              {/* Visual Workflow Canvas Header */}
+              <div className="mac-panel-card" style={{ marginBottom: '1.5rem' }}>
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">Kreazy AI Autonomous Commerce Architecture</span>
+                  </div>
+                  <span className="mac-badge-count">{automationsData.totalRuns} Total AI Executions</span>
+                </div>
+
+                <div className="mac-panel-body">
+                  <p className="mac-canvas-subtitle">
+                    End-to-end multi-agent execution pipeline: Inbound chat trigger, deterministic intent detection, catalog search, autonomous commerce order dispatch, and human handoff.
+                  </p>
+
+                  {/* MacOS-like Workflow Visual Nodes */}
+                  <div className="mac-workflow-canvas">
+                    {/* Node 1 */}
+                    <div className="mac-workflow-node">
+                      <div className="mac-node-titlebar">
+                        <div className="mac-mini-traffic" aria-hidden="true">
+                          <span className="mac-traffic-dot mac-dot-close" />
+                          <span className="mac-traffic-dot mac-dot-minimize" />
+                          <span className="mac-traffic-dot mac-dot-maximize" />
+                        </div>
+                        <span className="mac-node-header-title">Trigger</span>
+                      </div>
+                      <div className="mac-node-body">
+                        <span className="mac-node-event">WhatsApp / Social Message</span>
+                        <span className="mac-node-status">Status: Active</span>
+                      </div>
+                    </div>
+
+                    {/* Connector Arrow */}
+                    <div className="mac-workflow-connector">
+                      <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                        <path d="M0 10H26M26 10L18 3M26 10L18 17" stroke="var(--primary-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+
+                    {/* Node 2 */}
+                    <div className="mac-workflow-node">
+                      <div className="mac-node-titlebar">
+                        <div className="mac-mini-traffic" aria-hidden="true">
+                          <span className="mac-traffic-dot mac-dot-close" />
+                          <span className="mac-traffic-dot mac-dot-minimize" />
+                          <span className="mac-traffic-dot mac-dot-maximize" />
+                        </div>
+                        <span className="mac-node-header-title">AI Concierge</span>
+                      </div>
+                      <div className="mac-node-body">
+                        <span className="mac-node-event">Intent Reasoning</span>
+                        <span className="mac-node-status">Confidence: &gt;94%</span>
+                      </div>
+                    </div>
+
+                    {/* Connector Arrow */}
+                    <div className="mac-workflow-connector">
+                      <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                        <path d="M0 10H26M26 10L18 3M26 10L18 17" stroke="var(--primary-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+
+                    {/* Node 3 */}
+                    <div className="mac-workflow-node">
+                      <div className="mac-node-titlebar">
+                        <div className="mac-mini-traffic" aria-hidden="true">
+                          <span className="mac-traffic-dot mac-dot-close" />
+                          <span className="mac-traffic-dot mac-dot-minimize" />
+                          <span className="mac-traffic-dot mac-dot-maximize" />
+                        </div>
+                        <span className="mac-node-header-title">Commerce Engine</span>
+                      </div>
+                      <div className="mac-node-body">
+                        <span className="mac-node-event">Catalog &amp; Order Capture</span>
+                        <span className="mac-node-status">Fulfillment: Automated</span>
+                      </div>
+                    </div>
+
+                    {/* Connector Arrow */}
+                    <div className="mac-workflow-connector">
+                      <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                        <path d="M0 10H26M26 10L18 3M26 10L18 17" stroke="var(--primary-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+
+                    {/* Node 4 */}
+                    <div className="mac-workflow-node">
+                      <div className="mac-node-titlebar">
+                        <div className="mac-mini-traffic" aria-hidden="true">
+                          <span className="mac-traffic-dot mac-dot-close" />
+                          <span className="mac-traffic-dot mac-dot-minimize" />
+                          <span className="mac-traffic-dot mac-dot-maximize" />
+                        </div>
+                        <span className="mac-node-header-title">Handoff Guard</span>
+                      </div>
+                      <div className="mac-node-body">
+                        <span className="mac-node-event">Human Escalation Alert</span>
+                        <span className="mac-node-status">Latency: Instant</span>
+                      </div>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <div>
-                    <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', color: '#94a3b8' }}>Administrative Follow-up Notes:</label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <input
-                        type="text"
-                        className="admin-input-dark"
-                        style={{ flexGrow: 1 }}
-                        placeholder="Add note (e.g. Scheduled demo for Friday)..."
-                        value={adminNoteInput}
-                        onChange={(e) => setAdminNoteInput(e.target.value)}
-                      />
-                      <button 
-                        type="button" 
-                        onClick={() => handleUpdateDemoStatus(selectedDemo.id, selectedDemo.status)}
-                        className="admin-tab-btn"
-                        style={{ background: '#22c55e', color: '#062b14', fontWeight: 700 }}
+              {/* Workflows List from Real Database */}
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">
+                      Active Business Workflows ({automationsData.workflows?.length || 0})
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mac-panel-body">
+                  {automationsData.workflows && automationsData.workflows.length > 0 ? (
+                    <div className="mac-table-responsive">
+                      <table className="mac-table">
+                        <thead>
+                          <tr>
+                            <th>Workflow Name</th>
+                            <th>Business</th>
+                            <th>Trigger</th>
+                            <th>Status</th>
+                            <th>Executions</th>
+                            <th>Last Run</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {automationsData.workflows.map((wf) => (
+                            <tr key={wf.id}>
+                              <td>
+                                <span className="mac-table-name">{wf.name}</span>
+                              </td>
+                              <td className="mac-table-secondary">{wf.businessName}</td>
+                              <td className="mac-table-secondary">{wf.trigger}</td>
+                              <td>
+                                <span className={`mac-status-badge ${wf.status === 'ACTIVE' ? 'healthy' : 'inactive'}`}>
+                                  {wf.status}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="mac-badge-count">{wf.runs} Runs</span>
+                              </td>
+                              <td className="mac-table-secondary">{formatDateTime(wf.lastRun)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="mac-empty-state">
+                      <Cpu size={32} className="mac-empty-icon" />
+                      <p className="mac-empty-title">No automations have been created yet.</p>
+                      <p className="mac-empty-desc">Configured business automations will appear here.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              6. ACTIVITY VIEW (Real Audit Log Stream)
+              ========================================================== */}
+          {activeTab === 'activity' && (
+            <div className="mac-view-container">
+              <div className="mac-filter-bar">
+                <div className="mac-search-input-box">
+                  <Search size={16} className="mac-search-icon" />
+                  <input
+                    type="text"
+                    value={activitySearch}
+                    onChange={(e) => setActivitySearch(e.target.value)}
+                    placeholder="Search activity stream by action, actor, or resource..."
+                    className="mac-filter-input"
+                  />
+                  {activitySearch && (
+                    <button type="button" onClick={() => setActivitySearch('')} className="mac-clear-btn">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">
+                      System Activity Stream ({activityPagination.total} Events)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mac-panel-body">
+                  {filteredActivity.length > 0 ? (
+                    <div className="mac-table-responsive">
+                      <table className="mac-table">
+                        <thead>
+                          <tr>
+                            <th>Action</th>
+                            <th>Actor</th>
+                            <th>Resource</th>
+                            <th>Details</th>
+                            <th>Timestamp</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredActivity.map((log) => (
+                            <tr key={log.id}>
+                              <td>
+                                <span className="mac-badge-action">{log.action}</span>
+                              </td>
+                              <td className="mac-table-secondary">{log.actor_email || 'System'}</td>
+                              <td className="mac-table-secondary">{log.resource || '—'}</td>
+                              <td className="mac-table-secondary" style={{ maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {JSON.stringify(log.details || {})}
+                              </td>
+                              <td className="mac-table-secondary">{formatDateTime(log.created_at)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="mac-empty-state">
+                      <Activity size={32} className="mac-empty-icon" />
+                      <p className="mac-empty-title">No activity recorded yet.</p>
+                      <p className="mac-empty-desc">Administrative and merchant events will stream here.</p>
+                    </div>
+                  )}
+
+                  {/* Pagination */}
+                  {activityPagination.totalPages > 1 && (
+                    <div className="mac-pagination-bar">
+                      <span className="mac-pagination-text">
+                        Page {activityPagination.page} of {activityPagination.totalPages}
+                      </span>
+                      <div className="mac-pagination-btns">
+                        <button
+                          type="button"
+                          disabled={activityPagination.page <= 1}
+                          onClick={() => loadActivity(activityPagination.page - 1)}
+                          className="mac-page-btn"
+                        >
+                          <ChevronLeft size={16} />
+                          <span>Previous</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={activityPagination.page >= activityPagination.totalPages}
+                          onClick={() => loadActivity(activityPagination.page + 1)}
+                          className="mac-page-btn"
+                        >
+                          <span>Next</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              7. SETTINGS & SYSTEM HEALTH VIEW
+              ========================================================== */}
+          {activeTab === 'settings' && (
+            <div className="mac-view-container">
+              <div className="mac-settings-two-col">
+                {/* Administrator Profile Card */}
+                <div className="mac-panel-card">
+                  <div className="mac-panel-header">
+                    <div className="mac-panel-header-left">
+                      <div className="mac-mini-traffic" aria-hidden="true">
+                        <span className="mac-traffic-dot mac-dot-close" />
+                        <span className="mac-traffic-dot mac-dot-minimize" />
+                        <span className="mac-traffic-dot mac-dot-maximize" />
+                      </div>
+                      <span className="mac-panel-title">Administrator Profile</span>
+                    </div>
+                  </div>
+                  <div className="mac-panel-body">
+                    <div className="mac-profile-display-row">
+                      <div className="mac-profile-large-avatar">
+                        {(user?.name || user?.email || 'A').slice(0, 1).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="mac-profile-name">{user?.name || 'Administrator'}</h3>
+                        <p className="mac-profile-email">{user?.email || 'admin@kreazyai.com'}</p>
+                        <span className="mac-badge-super-tag">SUPER ADMIN</span>
+                      </div>
+                    </div>
+
+                    <div className="mac-settings-data-list">
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">User ID</span>
+                        <span className="mac-data-item-val-mono">{user?.id || 'usr-dev-superadmin'}</span>
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Role Permissions</span>
+                        <span className="mac-data-item-val">Global Super Admin (Read / Write / Delete)</span>
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Authentication Session</span>
+                        <span className="mac-data-item-val">JWT Server-Signed Token Active</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                      <button
+                        type="button"
+                        onClick={onLogout}
+                        className="mac-logout-action-btn"
                       >
-                        Save Note
+                        <LogOut size={16} />
+                        <span>Sign Out of Administrator Session</span>
                       </button>
                     </div>
                   </div>
                 </div>
-              </Modal>
-            )}
-          </div>
-        )}
 
-        {/* -------------------------------------------------------------
-            TAB 4: REGISTERED BUSINESSES
-            ------------------------------------------------------------- */}
-        {activeTab === 'businesses' && (
-          <div>
-            <div className="admin-section-header">
-              <div>
-                <h2 className="admin-section-title">Registered Brand Workspaces</h2>
-                <p className="admin-section-desc">Manage multi-tenant merchant organizations, service plans, and active connected channels.</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowProvisionModal(true)}
-                className="admin-tab-btn"
-                style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#86efac' }}
-              >
-                <Plus size={14} />
-                <span>Provision New Workspace</span>
-              </button>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="admin-filter-bar">
-              <div style={{ position: 'relative', width: '320px' }}>
-                <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#64748b' }} />
-                <input
-                  type="text"
-                  className="admin-input-dark"
-                  style={{ paddingLeft: '2.25rem', width: '100%' }}
-                  placeholder="Search workspace name or owner..."
-                  value={businessSearch}
-                  onChange={(e) => setBusinessSearch(e.target.value)}
-                />
-              </div>
-
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                Total Active Workspaces: <strong>{filteredBusinesses.filter(b => b.status === 'ACTIVE').length}</strong>
-              </div>
-            </div>
-
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Workspace Name</th>
-                    <th>Account Owner</th>
-                    <th>Active Plan</th>
-                    <th>Status</th>
-                    <th>Channels Connected</th>
-                    <th>Total Customers</th>
-                    <th>Total Orders</th>
-                    <th>Total Converted GMV</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBusinesses.map(b => (
-                    <tr key={b.id}>
-                      <td>
-                        <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {b.id}</div>
-                      </td>
-                      <td>
-                        <div style={{ color: '#cbd5e1' }}>{b.owner_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{b.owner_email}</div>
-                      </td>
-                      <td>
-                        <span className="admin-badge admin-badge-olive">{b.plan}</span>
-                      </td>
-                      <td>
-                        <span className={`admin-badge ${b.status === 'ACTIVE' ? 'admin-badge-success' : 'admin-badge-danger'}`}>
-                          {b.status}
+                {/* System Infrastructure Telemetry Card */}
+                <div className="mac-panel-card">
+                  <div className="mac-panel-header">
+                    <div className="mac-panel-header-left">
+                      <div className="mac-mini-traffic" aria-hidden="true">
+                        <span className="mac-traffic-dot mac-dot-close" />
+                        <span className="mac-traffic-dot mac-dot-minimize" />
+                        <span className="mac-traffic-dot mac-dot-maximize" />
+                      </div>
+                      <span className="mac-panel-title">System Infrastructure Status</span>
+                    </div>
+                  </div>
+                  <div className="mac-panel-body">
+                    <div className="mac-settings-data-list">
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Database Engine</span>
+                        <span className="mac-data-item-val">
+                          {systemHealth?.database?.engine || 'SQLite 3 (WAL Mode)'}
                         </span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                          {b.channels_connected?.map(ch => (
-                            <span key={ch} className="admin-badge admin-badge-default" style={{ fontSize: '0.7rem' }}>
-                              {ch}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.total_customers}</td>
-                      <td style={{ fontWeight: 700, color: '#F1F5F3' }}>{b.total_orders}</td>
-                      <td style={{ fontWeight: 800, color: '#86efac' }}>{b.total_revenue}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="admin-tab-btn"
-                          style={{
-                            background: b.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(34, 197, 94, 0.12)',
-                            borderColor: b.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.35)' : 'rgba(34, 197, 94, 0.35)',
-                            color: b.status === 'ACTIVE' ? '#fca5a5' : '#86efac',
-                            padding: '0.3rem 0.7rem',
-                            fontSize: '0.75rem'
-                          }}
-                          onClick={() => handleToggleBusinessStatus(b.id)}
-                        >
-                          {b.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* -------------------------------------------------------------
-            TAB 5: GLOBAL CROSS-TENANT CUSTOMERS CRM
-            ------------------------------------------------------------- */}
-        {activeTab === 'customers' && (
-          <div>
-            <div className="admin-section-header">
-              <div>
-                <h2 className="admin-section-title">Global Cross-Tenant Customers CRM</h2>
-                <p className="admin-section-desc">Unified cross-channel registry of customer profiles, purchase totals, and primary messaging channels.</p>
-              </div>
-
-              <div style={{ fontSize: '0.85rem', color: '#86efac', fontWeight: 600 }}>
-                {filteredCustomers.length} Verified Shoppers
-              </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="admin-filter-bar">
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flexGrow: 1 }}>
-                <div style={{ position: 'relative', width: '300px' }}>
-                  <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#64748b' }} />
-                  <input
-                    type="text"
-                    className="admin-input-dark"
-                    style={{ paddingLeft: '2.25rem', width: '100%' }}
-                    placeholder="Search customer name, email, or phone..."
-                    value={customerSearch}
-                    onChange={(e) => setCustomerSearch(e.target.value)}
-                  />
-                </div>
-
-                <select
-                  className="admin-input-dark"
-                  style={{ width: '180px', cursor: 'pointer' }}
-                  value={customerChannelFilter}
-                  onChange={(e) => setCustomerChannelFilter(e.target.value)}
-                >
-                  <option value="ALL">Channel: All</option>
-                  <option value="WHATSAPP">WhatsApp</option>
-                  <option value="INSTAGRAM">Instagram</option>
-                  <option value="MESSENGER">Messenger</option>
-                  <option value="SHOPIFY">Shopify</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Customer Name</th>
-                    <th>Primary Channel</th>
-                    <th>Status / Tier</th>
-                    <th>Total Orders</th>
-                    <th>Lifetime Spend</th>
-                    <th>Verified Phone / WhatsApp</th>
-                    <th>Last Active</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCustomers.map(c => (
-                    <tr key={c.id}>
-                      <td>
-                        <div style={{ fontWeight: 700, color: '#F1F5F3' }}>{c.full_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{c.email}</div>
-                      </td>
-                      <td>
-                        <span className="admin-badge admin-badge-olive">{c.preferred_channel}</span>
-                      </td>
-                      <td>
-                        <span className={`admin-badge ${c.customer_type === 'VIP' ? 'admin-badge-success' : 'admin-badge-default'}`}>
-                          {c.customer_type}
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Database Status</span>
+                        <span className="mac-data-item-val">
+                          <span className="mac-status-dot healthy" />
+                          {systemHealth?.database?.status || 'HEALTHY'}
                         </span>
-                      </td>
-                      <td style={{ fontWeight: 600, color: '#F1F5F3' }}>{c.total_orders} orders</td>
-                      <td style={{ fontWeight: 800, color: '#86efac' }}>${c.total_spent?.toFixed(2)}</td>
-                      <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#cbd5e1' }}>{c.phone}</td>
-                      <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.last_activity_at}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* -------------------------------------------------------------
-            TAB 6: META APIS & INTEGRATIONS
-            ------------------------------------------------------------- */}
-        {activeTab === 'integrations' && (
-          <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <h3 className="admin-card-title">Meta Platform API Connectivity</h3>
-                <p className="admin-card-sub" style={{ margin: 0 }}>
-                  Official Meta Cloud API status for WhatsApp Business, Instagram Direct, and Facebook Webhooks.
-                </p>
-              </div>
-              <button 
-                type="button" 
-                onClick={handlePingWebhooks} 
-                disabled={isPinging}
-                className="admin-tab-btn"
-                style={{ background: 'rgba(34, 197, 94, 0.15)', borderColor: 'rgba(34, 197, 94, 0.4)', color: '#86efac' }}
-              >
-                <Zap size={14} />
-                <span>{isPinging ? 'Pinging Webhooks...' : 'Test Webhook Latency'}</span>
-              </button>
-            </div>
-
-            {pingLatency && (
-              <div style={{ padding: '0.85rem 1.25rem', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#86efac', borderRadius: '10px', marginBottom: '1.25rem', border: '1px solid rgba(34, 197, 94, 0.35)', fontSize: '0.85rem' }}>
-                ✓ Live Handshake Confirmed: Meta Graph API round-trip latency: <strong>{pingLatency}</strong>. Webhook endpoints operational.
-              </div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
-              <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', backgroundColor: '#101712' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                  <strong style={{ color: '#F1F5F3', fontSize: '0.95rem' }}>WhatsApp Cloud API</strong>
-                  <span className="admin-badge admin-badge-success">OPERATIONAL</span>
-                </div>
-                <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Graph v20.0 direct messaging webhook stream. Rate limit: 250 msgs/sec.
-                </p>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '92%' }}></div>
-                </div>
-              </div>
-
-              <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', backgroundColor: '#101712' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                  <strong style={{ color: '#F1F5F3', fontSize: '0.95rem' }}>Instagram Direct Webhook</strong>
-                  <span className="admin-badge admin-badge-success">OPERATIONAL</span>
-                </div>
-                <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Direct Message Ingestion & Media Attachments verified without rate-limit drops.
-                </p>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '96%' }}></div>
-                </div>
-              </div>
-
-              <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', backgroundColor: '#101712' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                  <strong style={{ color: '#F1F5F3', fontSize: '0.95rem' }}>Meta Commerce Catalog Sync</strong>
-                  <span className="admin-badge admin-badge-success">ACTIVE</span>
-                </div>
-                <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                  Real-time SKU stock synchronization pipeline operational with Shopify sync.
-                </p>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '88%' }}></div>
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Server Uptime</span>
+                        <span className="mac-data-item-val">
+                          {systemHealth?.api?.uptime ? `${Math.floor(systemHealth.api.uptime)} seconds` : 'Active'}
+                        </span>
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Memory Consumption</span>
+                        <span className="mac-data-item-val">
+                          {systemHealth?.memory?.rss || '54 MB'}
+                        </span>
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">AI Provider Engine</span>
+                        <span className="mac-data-item-val">
+                          {systemHealth?.aiEngine?.provider || 'heuristic (deterministic fallback)'}
+                        </span>
+                      </div>
+                      <div className="mac-data-item">
+                        <span className="mac-data-item-key">Meta Webhooks Status</span>
+                        <span className="mac-data-item-val">
+                          Operational (Graph API v21.0)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* -------------------------------------------------------------
-            TAB 7: SYSTEM HEALTH & INFRASTRUCTURE
-            ------------------------------------------------------------- */}
-        {activeTab === 'system' && systemHealth && (
-          <div className="admin-card">
-            <h3 className="admin-card-title">Platform Infrastructure & Telemetry Health</h3>
-            <p className="admin-card-sub">
-              Real-time operational parameters of the KreazyAI SaaS deployment.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Engine Status</div>
-                <strong style={{ color: '#86efac', fontSize: '1.15rem' }}>{systemHealth.status}</strong>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '100%' }}></div>
-                </div>
-              </div>
-
-              <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>SLA Uptime</div>
-                <strong style={{ color: '#F1F5F3', fontSize: '1.15rem' }}>{systemHealth.uptime}</strong>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '99.98%' }}></div>
-                </div>
-              </div>
-
-              <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Cache Hit Ratio</div>
-                <strong style={{ color: '#86efac', fontSize: '1.15rem' }}>{systemHealth.cacheHitRatio}</strong>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '94.2%' }}></div>
-                </div>
-              </div>
-
-              <div style={{ padding: '1.15rem', backgroundColor: '#101712', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '4px' }}>Memory Usage</div>
-                <strong style={{ color: '#F1F5F3', fontSize: '1.15rem' }}>{systemHealth.memoryUsage}</strong>
-                <div className="admin-gauge-track">
-                  <div className="admin-gauge-fill" style={{ width: '28%' }}></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="admin-terminal-log">
-              <div style={{ color: '#22c55e', fontWeight: 700, marginBottom: '6px' }}>[SYSTEM DIAGNOSTICS LOG]</div>
-              <div>Timestamp: {systemHealth.lastHealthCheck}</div>
-              <div>Database Engine: {systemHealth.dbEngine} (WAL Mode Active, Synchronous Normal)</div>
-              <div>Webhook Latency: {systemHealth.webhookLatency}</div>
-              <div>Runtime Environment: Production Ready • Node.js v25.2.1 • Vite Engine Active</div>
-            </div>
-          </div>
-        )}
-
-        {/* -------------------------------------------------------------
-            TAB 8: PLATFORM AUDIT LOG
-            ------------------------------------------------------------- */}
-        {activeTab === 'audit' && (
-          <div className="admin-card">
-            <h3 className="admin-card-title">Administrative Audit Log</h3>
-            <p className="admin-card-sub">
-              Immutable record of sensitive actions performed by platform administrators and automated engines.
-            </p>
-
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Log ID</th>
-                    <th>Administrator</th>
-                    <th>Action</th>
-                    <th>Entity Identifier</th>
-                    <th>Event Metadata</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {auditLogs.map(log => (
-                    <tr key={log.id}>
-                      <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.78rem', color: '#64748b' }}>{log.id}</td>
-                      <td><strong style={{ color: '#F1F5F3' }}>{log.admin}</strong></td>
-                      <td><span className="admin-badge admin-badge-olive">{log.action}</span></td>
-                      <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#cbd5e1' }}>{log.entityId}</td>
-                      <td style={{ fontSize: '0.825rem', color: '#94a3b8' }}>{log.metadata}</td>
-                      <td style={{ fontSize: '0.78rem', color: '#64748b' }}>{log.timestamp}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
+          )}
+        </main>
       </div>
 
-      {/* PROVISION WORKSPACE MODAL */}
-      {showProvisionModal && (
-        <Modal
-          isOpen={showProvisionModal}
-          onClose={() => setShowProvisionModal(false)}
-          title="Provision New Merchant Workspace"
-          maxWidth="540px"
-        >
-          <form onSubmit={handleCreateBusiness} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: '#F1F5F3' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Store / Brand Name *</label>
-              <input
-                type="text"
-                required
-                className="admin-input-dark"
-                style={{ width: '100%' }}
-                placeholder="e.g. Zurich Silk Boutique"
-                value={newBizForm.name}
-                onChange={(e) => setNewBizForm({ ...newBizForm, name: e.target.value })}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Owner Name</label>
-                <input
-                  type="text"
-                  className="admin-input-dark"
-                  style={{ width: '100%' }}
-                  placeholder="e.g. Helena Vance"
-                  value={newBizForm.owner_name}
-                  onChange={(e) => setNewBizForm({ ...newBizForm, owner_name: e.target.value })}
-                />
+      {/* ==============================================================
+          USER DETAILS DRAWER / MODAL (MacOS Window Style)
+          ============================================================== */}
+      {selectedUser && (
+        <div className="mac-modal-backdrop" onClick={() => setSelectedUser(null)}>
+          <div className="mac-modal-window" onClick={(e) => e.stopPropagation()} role="dialog">
+            {/* Window Header */}
+            <div className="mac-modal-titlebar">
+              <div className="mac-mini-traffic" aria-hidden="true">
+                <span className="mac-traffic-dot mac-dot-close" onClick={() => setSelectedUser(null)} style={{ cursor: 'pointer' }} />
+                <span className="mac-traffic-dot mac-dot-minimize" />
+                <span className="mac-traffic-dot mac-dot-maximize" />
               </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Owner Email *</label>
-                <input
-                  type="email"
-                  required
-                  className="admin-input-dark"
-                  style={{ width: '100%' }}
-                  placeholder="helena@zurichsilk.com"
-                  value={newBizForm.owner_email}
-                  onChange={(e) => setNewBizForm({ ...newBizForm, owner_email: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Service Plan</label>
-              <select
-                className="admin-input-dark"
-                style={{ width: '100%' }}
-                value={newBizForm.plan}
-                onChange={(e) => setNewBizForm({ ...newBizForm, plan: e.target.value })}
+              <span className="mac-modal-title-text">
+                User Details: {selectedUser.name || selectedUser.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedUser(null)}
+                className="mac-modal-close-icon"
               >
-                <option value="Starter">Starter ($49/mo)</option>
-                <option value="Growth">Growth ($149/mo)</option>
-                <option value="Enterprise">Enterprise ($399/mo)</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
-              <button 
-                type="button" 
-                onClick={() => setShowProvisionModal(false)}
-                className="admin-tab-btn"
-                style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3' }}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                className="admin-tab-btn"
-                style={{ background: '#22c55e', color: '#062b14', fontWeight: 700 }}
-              >
-                Provision Workspace
+                <X size={16} />
               </button>
             </div>
-          </form>
-        </Modal>
+
+            {/* Window Body */}
+            <div className="mac-modal-body">
+              {loadingUserDetail ? (
+                <div className="mac-modal-loading">
+                  <div className="mac-admin-spinner" />
+                  <span>Loading user records...</span>
+                </div>
+              ) : (
+                <div className="mac-modal-content-stack">
+                  {/* Basic Information */}
+                  <div className="mac-modal-section">
+                    <h4 className="mac-modal-section-title">Identity &amp; Credentials</h4>
+                    <div className="mac-modal-data-grid">
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">User ID:</span>
+                        <span className="mac-data-content-mono">{selectedUserDetail?.user?.id}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Full Name:</span>
+                        <span className="mac-data-content">{selectedUserDetail?.user?.name || '—'}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Email:</span>
+                        <span className="mac-data-content">{selectedUserDetail?.user?.email}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Role:</span>
+                        <span className="mac-data-content">{selectedUserDetail?.user?.role}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Signed Up:</span>
+                        <span className="mac-data-content">{formatDate(selectedUserDetail?.user?.createdAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Business Workspace */}
+                  {selectedUserDetail?.business && (
+                    <div className="mac-modal-section">
+                      <h4 className="mac-modal-section-title">Associated Merchant Workspace</h4>
+                      <div className="mac-modal-data-grid">
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">Store Name:</span>
+                          <span className="mac-data-content">{selectedUserDetail.business.name}</span>
+                        </div>
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">Slug:</span>
+                          <span className="mac-data-content-mono">{selectedUserDetail.business.slug}</span>
+                        </div>
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">Plan:</span>
+                          <span className="mac-data-content">{selectedUserDetail.business.plan}</span>
+                        </div>
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">Status:</span>
+                          <span className="mac-data-content">{selectedUserDetail.business.status}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Connected Integrations */}
+                  <div className="mac-modal-section">
+                    <h4 className="mac-modal-section-title">Connected Channel Integrations</h4>
+                    {selectedUserDetail?.integrations && selectedUserDetail.integrations.length > 0 ? (
+                      <div className="mac-modal-integrations-list">
+                        {selectedUserDetail.integrations.map((i, idx) => (
+                          <div key={idx} className="mac-modal-integration-pill">
+                            <span className={`mac-status-dot ${i.status === 'CONNECTED' ? 'healthy' : 'inactive'}`} />
+                            <span className="mac-integ-name">{i.platform}</span>
+                            <span className="mac-integ-id">{i.identifier}</span>
+                            <span className="mac-integ-sync">Sync: {i.lastSync || 'Active'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mac-modal-empty-note">No channels connected yet for this account.</p>
+                    )}
+                  </div>
+
+                  {/* Automations */}
+                  {selectedUserDetail?.automation && (
+                    <div className="mac-modal-section">
+                      <h4 className="mac-modal-section-title">Automation &amp; AI Configuration</h4>
+                      <div className="mac-modal-data-grid">
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">AI Assistant:</span>
+                          <span className="mac-data-content">{selectedUserDetail.automation.assistantName}</span>
+                        </div>
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">Auto-Reply:</span>
+                          <span className="mac-data-content">
+                            {selectedUserDetail.automation.autoReplyEnabled ? 'Enabled' : 'Disabled'}
+                          </span>
+                        </div>
+                        <div className="mac-data-pair">
+                          <span className="mac-data-label">Brand Voice:</span>
+                          <span className="mac-data-content">{selectedUserDetail.automation.brandVoice}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* RECORD MANUAL LEAD MODAL */}
-      {showManualLeadModal && (
-        <Modal
-          isOpen={showManualLeadModal}
-          onClose={() => setShowManualLeadModal(false)}
-          title="Record Manual Lead / Call"
-          maxWidth="540px"
-        >
-          <form onSubmit={handleCreateManualLead} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: '#F1F5F3' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Prospect Name *</label>
-                <input
-                  type="text"
-                  required
-                  className="admin-input-dark"
-                  style={{ width: '100%' }}
-                  placeholder="e.g. Thomas Cole"
-                  value={newLeadForm.full_name}
-                  onChange={(e) => setNewLeadForm({ ...newLeadForm, full_name: e.target.value })}
-                />
+      {/* ==============================================================
+          BUSINESS DETAILS DRAWER / MODAL (MacOS Window Style)
+          ============================================================== */}
+      {selectedBusiness && (
+        <div className="mac-modal-backdrop" onClick={() => setSelectedBusiness(null)}>
+          <div className="mac-modal-window" onClick={(e) => e.stopPropagation()} role="dialog">
+            <div className="mac-modal-titlebar">
+              <div className="mac-mini-traffic" aria-hidden="true">
+                <span className="mac-traffic-dot mac-dot-close" onClick={() => setSelectedBusiness(null)} style={{ cursor: 'pointer' }} />
+                <span className="mac-traffic-dot mac-dot-minimize" />
+                <span className="mac-traffic-dot mac-dot-maximize" />
               </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Brand / Company *</label>
-                <input
-                  type="text"
-                  required
-                  className="admin-input-dark"
-                  style={{ width: '100%' }}
-                  placeholder="Cole Leather Goods"
-                  value={newLeadForm.business_name}
-                  onChange={(e) => setNewLeadForm({ ...newLeadForm, business_name: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Email</label>
-                <input
-                  type="email"
-                  className="admin-input-dark"
-                  style={{ width: '100%' }}
-                  placeholder="thomas@cole.com"
-                  value={newLeadForm.email}
-                  onChange={(e) => setNewLeadForm({ ...newLeadForm, email: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Phone / WhatsApp</label>
-                <input
-                  type="text"
-                  className="admin-input-dark"
-                  style={{ width: '100%' }}
-                  placeholder="+1 (555) 019-2831"
-                  value={newLeadForm.phone}
-                  onChange={(e) => setNewLeadForm({ ...newLeadForm, phone: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Lead Category</label>
-              <select
-                className="admin-input-dark"
-                style={{ width: '100%' }}
-                value={newLeadForm.request_type}
-                onChange={(e) => setNewLeadForm({ ...newLeadForm, request_type: e.target.value })}
+              <span className="mac-modal-title-text">
+                Workspace: {selectedBusiness.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedBusiness(null)}
+                className="mac-modal-close-icon"
               >
-                <option value="DEMO">Demo Request</option>
-                <option value="FOUNDER_MEETING">Founder Strategy Call</option>
-                <option value="CONTACT_INQUIRY">General Inquiry</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Call Notes / Inquiry</label>
-              <textarea
-                className="admin-input-dark"
-                rows={3}
-                style={{ width: '100%', resize: 'none' }}
-                placeholder="Inquired about high-volume Instagram automation for upcoming Black Friday sale..."
-                value={newLeadForm.message}
-                onChange={(e) => setNewLeadForm({ ...newLeadForm, message: e.target.value })}
-              ></textarea>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
-              <button 
-                type="button" 
-                onClick={() => setShowManualLeadModal(false)}
-                className="admin-tab-btn"
-                style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#F1F5F3' }}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                className="admin-tab-btn"
-                style={{ background: '#22c55e', color: '#062b14', fontWeight: 700 }}
-              >
-                Save Record
+                <X size={16} />
               </button>
             </div>
-          </form>
-        </Modal>
+
+            <div className="mac-modal-body">
+              {loadingBusinessDetail ? (
+                <div className="mac-modal-loading">
+                  <div className="mac-admin-spinner" />
+                  <span>Loading workspace records...</span>
+                </div>
+              ) : (
+                <div className="mac-modal-content-stack">
+                  <div className="mac-modal-section">
+                    <h4 className="mac-modal-section-title">Business Profile</h4>
+                    <div className="mac-modal-data-grid">
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">ID:</span>
+                        <span className="mac-data-content-mono">{selectedBusinessDetail?.business?.id}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Store Name:</span>
+                        <span className="mac-data-content">{selectedBusinessDetail?.business?.name}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Slug:</span>
+                        <span className="mac-data-content-mono">{selectedBusinessDetail?.business?.slug}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Owner:</span>
+                        <span className="mac-data-content">
+                          {selectedBusinessDetail?.business?.owner_name} ({selectedBusinessDetail?.business?.owner_email})
+                        </span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Status:</span>
+                        <span className="mac-data-content">{selectedBusinessDetail?.business?.status}</span>
+                      </div>
+                      <div className="mac-data-pair">
+                        <span className="mac-data-label">Total Volume:</span>
+                        <span className="mac-data-content">
+                          ${Number(selectedBusinessDetail?.business?.total_revenue || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Team Members */}
+                  <div className="mac-modal-section">
+                    <h4 className="mac-modal-section-title">Team Members</h4>
+                    {selectedBusinessDetail?.teamMembers && selectedBusinessDetail.teamMembers.length > 0 ? (
+                      <div className="mac-modal-data-grid">
+                        {selectedBusinessDetail.teamMembers.map((m) => (
+                          <div key={m.id} className="mac-data-pair">
+                            <span className="mac-data-label">{m.role}:</span>
+                            <span className="mac-data-content">{m.name} ({m.email})</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mac-modal-empty-note">Owner only (No additional team members invited).</p>
+                    )}
+                  </div>
+
+                  {/* Connected Integrations */}
+                  <div className="mac-modal-section">
+                    <h4 className="mac-modal-section-title">Connected Meta Channels</h4>
+                    {selectedBusinessDetail?.connections && selectedBusinessDetail.connections.length > 0 ? (
+                      <div className="mac-modal-integrations-list">
+                        {selectedBusinessDetail.connections.map((c, idx) => (
+                          <div key={idx} className="mac-modal-integration-pill">
+                            <span className={`mac-status-dot ${c.status === 'CONNECTED' ? 'healthy' : 'inactive'}`} />
+                            <span className="mac-integ-name">{c.platform}</span>
+                            <span className="mac-integ-id">{c.page_name || c.display_phone_number || 'Connected'}</span>
+                            <span className="mac-integ-sync">Sync: {c.last_sync_at || 'Active'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mac-modal-empty-note">No active channels connected.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
-
     </div>
   );
 }

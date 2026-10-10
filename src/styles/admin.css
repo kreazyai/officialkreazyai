@@ -1,616 +1,1711 @@
 /* =====================================================================
-   KREAZYAI ADMIN DASHBOARD DESIGN SYSTEM — DEEP FOREST GREEN & SMOKED GLASS
+   KREAZYAI MACOS-INSPIRED ADMIN SYSTEM DESIGN TOKENS & STYLING
+   Apple Desktop SaaS Visual Language • No Emojis • CSS Window Geometry
    ===================================================================== */
-@import './variables.css';
 
-.admin-layout {
+/* ─── 1. Login Gate (MacOS Desktop Window) ────────────────────────── */
+.mac-admin-login-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  background: #f5f5f7;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(143, 164, 90, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #fafafc 0%, #edf0f2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  color: #1d1d1f;
+  box-sizing: border-box;
+}
+
+.mac-admin-window {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 24px 60px -15px rgba(0, 0, 0, 0.12),
+    0 4px 16px -2px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  animation: macWindowEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes macWindowEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* macOS Window Title Bar */
+.mac-window-titlebar {
+  height: 44px;
+  background: #fbfbfd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  user-select: none;
+}
+
+.mac-window-traffic-lights,
+.mac-mini-traffic {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mac-traffic-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+.mac-dot-close {
+  background-color: #ff5f56;
+  border: 1px solid #e0443e;
+}
+
+.mac-dot-minimize {
+  background-color: #ffbd2e;
+  border: 1px solid #dea123;
+}
+
+.mac-dot-maximize {
+  background-color: #27c93f;
+  border: 1px solid #1aab29;
+}
+
+.mac-window-title-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6e6e73;
+  letter-spacing: -0.01em;
+}
+
+.mac-window-traffic-spacer {
+  width: 48px;
+}
+
+/* Login Window Body */
+.mac-window-body {
+  padding: 36px 36px 40px 36px;
+}
+
+.mac-login-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.mac-login-logo {
+  height: 28px;
+  width: auto;
+  margin: 0 auto 16px auto;
+  display: block;
+}
+
+.mac-login-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: #111813;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.mac-login-error {
+  padding: 10px 14px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mac-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mac-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mac-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a3c;
+  letter-spacing: -0.01em;
+}
+
+.mac-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mac-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #8e8e93;
+  pointer-events: none;
+}
+
+.mac-input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  font-size: 14px;
+  color: #1d1d1f;
+  background-color: #fbfbfd;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.mac-input:focus {
+  background-color: #ffffff;
+  border-color: #8fa45a;
+  box-shadow: 0 0 0 3px rgba(143, 164, 90, 0.2);
+}
+
+.mac-input-password {
+  padding-right: 42px;
+}
+
+.mac-password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 6px;
+  color: #8e8e93;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.mac-password-toggle:hover {
+  color: #1d1d1f;
+}
+
+.mac-form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.mac-remember-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6e6e73;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mac-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #1b2b1f;
+  cursor: pointer;
+}
+
+.mac-signin-btn {
+  width: 100%;
+  padding: 11px 18px;
+  background-color: #162419;
+  color: #ffffff;
+  border: 1px solid #0f1911;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-top: 8px;
+}
+
+.mac-signin-btn:hover:not(:disabled) {
+  background-color: #1f3324;
+  box-shadow: 0 4px 12px rgba(22, 36, 25, 0.25);
+  transform: translateY(-1px);
+}
+
+.mac-signin-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* ─── 2. Admin Dashboard Layout ──────────────────────────────────── */
+.mac-admin-root {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  background-color: var(--bg-surface);
-  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(189, 211, 148, 0.08) 0%, transparent 70%);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  background-color: #f7f8fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  color: #1d1d1f;
+  box-sizing: border-box;
 }
 
-/* Header */
-.admin-header {
-  min-height: 64px;
-  background: rgba(16, 26, 22, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border-subtle);
+.mac-admin-loading-screen {
+  min-height: 100vh;
+  width: 100%;
+  background: #f5f5f7;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.75rem;
+  justify-content: center;
+  gap: 14px;
+  color: #6e6e73;
+  font-size: 14px;
+}
+
+.mac-admin-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(143, 164, 90, 0.25);
+  border-top-color: #1b2b1f;
+  border-radius: 50%;
+  animation: macSpin 0.7s linear infinite;
+}
+
+@keyframes macSpin {
+  to { transform: rotate(360deg); }
+}
+
+.mac-admin-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #162419;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: macToastIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes macToastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sidebar */
+.mac-admin-sidebar {
+  width: 260px;
+  background-color: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
   position: sticky;
   top: 0;
-  z-index: 50;
-  gap: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  height: 100vh;
+  z-index: 40;
 }
 
-.admin-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.admin-badge-super {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0.25rem 0.85rem;
-  border-radius: var(--radius-capsule);
-  background: rgba(189, 211, 148, 0.15);
-  border: 1px solid rgba(189, 211, 148, 0.35);
-  color: var(--primary-accent);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-/* Navigation Tab Bar */
-.admin-tab-bar-wrap {
+.mac-sidebar-header {
+  height: 64px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.75rem;
-  gap: 1rem;
-  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.admin-nav-tabs {
+.mac-brand-block {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  background: rgba(214, 229, 215, 0.04);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-capsule);
-  padding: 4px;
-  overflow-x: auto;
-  max-width: 100%;
+  gap: 10px;
 }
 
-.admin-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 1.15rem;
-  border-radius: var(--radius-capsule);
-  font-size: 0.825rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: transparent;
-  border: 1px solid transparent;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all var(--transition-fast);
+.mac-sidebar-logo {
+  height: 24px;
+  width: auto;
 }
 
-.admin-tab-btn:hover {
-  color: var(--text-primary);
-  background: rgba(214, 229, 215, 0.08);
-}
-
-.admin-tab-btn.active {
-  background: rgba(243, 245, 238, 0.16);
-  color: var(--text-primary);
-  border-color: rgba(232, 240, 231, 0.22);
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-.admin-tab-count {
-  font-size: 0.7rem;
-  padding: 0.1rem 0.45rem;
-  border-radius: var(--radius-capsule);
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.admin-tab-btn.active .admin-tab-count {
-  background: rgba(189, 211, 148, 0.25);
-  color: var(--primary-accent);
-}
-
-/* KPI Metrics Grid */
-.admin-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 1.75rem;
-}
-
-.admin-metric-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: 1.5rem;
+.mac-brand-titles {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-shadow: var(--shadow-card);
-  transition: transform var(--transition-base), border-color var(--transition-base);
 }
 
-.admin-metric-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-medium);
+.mac-brand-name {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #111813;
+  line-height: 1.1;
 }
 
-.admin-metric-head {
+.mac-brand-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #6e8445;
+}
+
+.mac-sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #6e6e73;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.mac-sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.mac-nav-item {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.65rem;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #555558;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.14s ease;
+  text-align: left;
 }
 
-.admin-metric-label {
-  font-size: 0.8rem;
+.mac-nav-item-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mac-nav-icon {
+  color: #8e8e93;
+  transition: color 0.14s ease;
+}
+
+.mac-nav-item:hover {
+  background-color: #f2f2f5;
+  color: #1d1d1f;
+}
+
+.mac-nav-item:hover .mac-nav-icon {
+  color: #1d1d1f;
+}
+
+.mac-nav-item.active {
+  background-color: #162419;
+  color: #ffffff;
   font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
 }
 
-.admin-metric-icon-wrap {
+.mac-nav-item.active .mac-nav-icon {
+  color: #b5ce7e;
+}
+
+.mac-nav-pill {
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: #f0f0f3;
+  color: #3a3a3c;
+}
+
+.mac-nav-item.active .mac-nav-pill {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.mac-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mac-admin-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background-color: #f9f9fb;
+}
+
+.mac-admin-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(189, 211, 148, 0.15);
-  color: var(--primary-accent);
+  background: #1b2b1f;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.admin-metric-val {
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1.1;
-  margin-bottom: 0.5rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
+.mac-admin-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.admin-metric-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.75rem;
+.mac-admin-name {
+  font-size: 12.5px;
   font-weight: 600;
-  padding: 0.2rem 0.65rem;
-  border-radius: var(--radius-capsule);
-  width: fit-content;
+  color: #1d1d1f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.admin-metric-pill.success {
-  background: var(--status-success-bg);
-  color: var(--status-success);
-  border: 1px solid var(--status-success-border);
+.mac-admin-email {
+  font-size: 11px;
+  color: #8e8e93;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.admin-metric-pill.amber {
-  background: var(--status-warning-bg);
-  color: var(--status-warning);
-  border: 1px solid var(--status-warning-border);
+.mac-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  color: #b91c1c;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-/* Dashboard Panel / Card */
-.admin-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-panel);
-  padding: 1.75rem;
-  box-shadow: var(--shadow-panel);
+.mac-logout-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
 }
 
-.admin-card-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
+/* Main Area */
+.mac-admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.admin-card-sub {
-  font-size: 0.825rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.25rem 0;
-}
-
-/* Diagnostics Rows */
-.diag-row {
+/* Topbar */
+.mac-topbar {
+  height: 64px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.15rem;
-  background: rgba(16, 26, 22, 0.75);
-  border: 1px solid rgba(232, 240, 231, 0.10);
-  border-radius: var(--radius-nested);
-  font-size: 0.85rem;
-  transition: all var(--transition-fast);
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
-.diag-row:hover {
-  border-color: rgba(232, 240, 231, 0.20);
-  background: rgba(16, 26, 22, 0.90);
+.mac-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.diag-status-badge {
+.mac-mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  padding: 6px;
+  color: #3a3a3c;
+  cursor: pointer;
+}
+
+.mac-topbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.mac-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mac-system-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background-color: #f0f7f1;
+  border: 1px solid #d1e7d4;
+  color: #1d6a2f;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mac-status-indicator-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #27c93f;
+}
+
+.mac-sync-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-weight: 700;
-  color: var(--status-success);
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
-}
-
-/* Data Tables */
-.admin-table-container {
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--bg-card);
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 0.85rem;
-}
-
-.admin-table th {
-  background: rgba(16, 26, 22, 0.85);
-  color: var(--text-muted);
+  padding: 6px 14px;
+  background-color: #ffffff;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 12.5px;
   font-weight: 600;
-  padding: 0.85rem 1.15rem;
-  border-bottom: 1px solid var(--border-subtle);
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
+  color: #3a3a3c;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.admin-table td {
-  padding: 0.95rem 1.15rem;
-  border-bottom: 1px solid rgba(232, 240, 231, 0.07);
-  color: var(--text-primary);
-  vertical-align: middle;
+.mac-sync-btn:hover {
+  background-color: #f5f5f7;
+  border-color: #b0b0b5;
 }
 
-.admin-table tr:hover td {
-  background: rgba(214, 229, 215, 0.04);
+.mac-sync-btn.syncing svg {
+  animation: macSpin 0.7s linear infinite;
 }
 
-.admin-table tr:last-child td {
-  border-bottom: none;
+/* Content Body */
+.mac-admin-content-body {
+  padding: 28px;
+  flex: 1;
 }
 
-/* Status Badges */
-.admin-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0.2rem 0.65rem;
-  border-radius: var(--radius-capsule);
-  font-size: 0.72rem;
-  font-weight: 700;
+.mac-view-container {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.admin-badge-success {
-  background: var(--status-success-bg);
-  color: var(--status-success);
-  border: 1px solid var(--status-success-border);
+/* ─── 3. Metric Cards Grid ───────────────────────────────────────── */
+.mac-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
-.admin-badge-warning {
-  background: var(--status-warning-bg);
-  color: var(--status-warning);
-  border: 1px solid var(--status-warning-border);
-}
-
-.admin-badge-danger {
-  background: var(--status-error-bg);
-  color: var(--status-error);
-  border: 1px solid var(--status-error-border);
-}
-
-.admin-badge-olive {
-  background: rgba(189, 211, 148, 0.15);
-  color: var(--primary-accent);
-  border: 1px solid rgba(189, 211, 148, 0.35);
-}
-
-.admin-badge-default {
-  background: rgba(214, 229, 215, 0.08);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
-}
-
-/* Filter Bar */
-.admin-filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1rem 1.25rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  margin-bottom: 1.25rem;
-}
-
-.admin-input-dark {
-  background: var(--bg-input);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-control);
-  color: var(--text-primary);
-  padding: 0.5rem 0.85rem;
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.admin-input-dark:focus {
-  border-color: var(--primary-accent);
-}
-
-/* Terminal Log */
-.admin-terminal-log {
-  background: #080d09;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.25rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.8rem;
-  color: #86efac;
-  line-height: 1.7;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .admin-metrics-grid {
+@media (max-width: 1200px) {
+  .mac-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 640px) {
-  .admin-metrics-grid {
-    grid-template-columns: 1fr;
-  }
-  .admin-header {
-    padding: 0.75rem 1rem;
-  }
-}
-
-.spin-anim {
-  animation: adminSpin 1s linear infinite;
-}
-
-@keyframes adminSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Split Grid for Overview */
-.admin-split-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-@media (max-width: 960px) {
-  .admin-split-grid {
+  .mac-metrics-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Quick Actions Bar */
-.admin-quick-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+.mac-metric-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.admin-quick-btn {
+.mac-metric-card:hover {
+  border-color: rgba(143, 164, 90, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.mac-metric-top {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.15rem;
-  background: #141d16;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: #F1F5F3;
-  font-size: 0.85rem;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.mac-metric-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #6e6e73;
+}
+
+.mac-metric-icon {
+  color: #8fa45a;
+}
+
+.mac-metric-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #111813;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.mac-metric-sub {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+/* ─── 4. Panels & Tables (MacOS Windows) ─────────────────────────── */
+.mac-overview-two-col {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .mac-overview-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mac-panel-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.mac-panel-header {
+  height: 48px;
+  background: #fbfbfd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+}
+
+.mac-panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mac-panel-title {
+  font-size: 13.5px;
   font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+
+.mac-link-btn {
+  background: none;
+  border: none;
+  color: #276738;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+}
+
+.mac-link-btn:hover {
+  text-decoration: underline;
+}
+
+.mac-panel-body {
+  padding: 16px 18px;
+}
+
+/* Responsive Table */
+.mac-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mac-table {
+  width: 100%;
+  border-collapse: collapse;
   text-align: left;
+  font-size: 13px;
 }
 
-.admin-quick-btn:hover {
-  background: #1a271d;
-  border-color: rgba(34, 197, 94, 0.35);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+.mac-table th {
+  padding: 10px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6e6e73;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #fafafc;
 }
 
-.admin-quick-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: rgba(34, 197, 94, 0.12);
-  color: #86efac;
+.mac-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: #1d1d1f;
+  vertical-align: middle;
+}
+
+.mac-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mac-table tr:hover td {
+  background-color: #f9f9fb;
+}
+
+.mac-table-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mac-table-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e5e5ea;
+  color: #3a3a3c;
+  font-size: 12px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-@media (max-width: 960px) {
-  .admin-quick-actions {
+.mac-table-name {
+  font-weight: 600;
+  color: #111813;
+  display: block;
+}
+
+.mac-table-sub {
+  font-size: 11.5px;
+  color: #8e8e93;
+  display: block;
+}
+
+.mac-table-secondary {
+  color: #555558;
+}
+
+.mac-btn-xs {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #162419;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.mac-btn-xs:hover {
+  background-color: #243828;
+}
+
+.mac-btn-outline {
+  background-color: transparent;
+  color: #3a3a3c;
+  border: 1px solid #d2d2d7;
+}
+
+.mac-btn-outline:hover {
+  background-color: #f2f2f5;
+  color: #1d1d1f;
+}
+
+/* Badges & Dots */
+.mac-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mac-status-dot.healthy {
+  background-color: #27c93f;
+  box-shadow: 0 0 0 2px rgba(39, 201, 63, 0.2);
+}
+
+.mac-status-dot.failed {
+  background-color: #ff5f56;
+  box-shadow: 0 0 0 2px rgba(255, 95, 86, 0.2);
+}
+
+.mac-status-dot.inactive {
+  background-color: #c7c7cc;
+}
+
+.mac-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.mac-status-badge.healthy {
+  background-color: #eaf6ec;
+  color: #1b632c;
+}
+
+.mac-status-badge.failed {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.mac-status-badge.inactive {
+  background-color: #f2f2f5;
+  color: #6e6e73;
+}
+
+.mac-badge-neutral {
+  display: inline-flex;
+  padding: 2px 8px;
+  background: #f2f2f5;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #3a3a3c;
+}
+
+.mac-badge-count {
+  display: inline-flex;
+  padding: 3px 9px;
+  background: #f5f5f7;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #48484a;
+}
+
+.mac-badge-action {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1f3d23;
+  background: #eef5ef;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+/* Empty State */
+.mac-empty-state {
+  text-align: center;
+  padding: 36px 20px;
+}
+
+.mac-empty-icon {
+  color: #c7c7cc;
+  margin-bottom: 12px;
+}
+
+.mac-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3a3a3c;
+  margin: 0 0 6px 0;
+}
+
+.mac-empty-desc {
+  font-size: 13px;
+  color: #8e8e93;
+  margin: 0;
+}
+
+/* Filter Bar */
+.mac-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.mac-search-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 320px;
+  max-width: 480px;
+  flex: 1;
+}
+
+.mac-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #8e8e93;
+  pointer-events: none;
+}
+
+.mac-filter-input {
+  width: 100%;
+  padding: 8px 32px 8px 36px;
+  background: #ffffff;
+  border: 1px solid #d2d2d7;
+  border-radius: 9px;
+  font-size: 13.5px;
+  color: #1d1d1f;
+  outline: none;
+}
+
+.mac-filter-input:focus {
+  border-color: #8fa45a;
+  box-shadow: 0 0 0 2px rgba(143, 164, 90, 0.2);
+}
+
+.mac-clear-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #8e8e93;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.mac-filter-select-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mac-filter-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #6e6e73;
+}
+
+.mac-filter-select {
+  padding: 7px 12px;
+  background: #ffffff;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1d1d1f;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Pagination Bar */
+.mac-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mac-pagination-text {
+  font-size: 12.5px;
+  color: #6e6e73;
+}
+
+.mac-pagination-btns {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.mac-page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: #ffffff;
+  border: 1px solid #d2d2d7;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3a3a3c;
+  cursor: pointer;
+}
+
+.mac-page-btn:hover:not(:disabled) {
+  background: #f2f2f5;
+}
+
+.mac-page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ─── 5. Integrations Mini Windows ───────────────────────────────── */
+.mac-channels-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1100px) {
+  .mac-channels-overview-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 540px) {
-  .admin-quick-actions {
+@media (max-width: 600px) {
+  .mac-channels-overview-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Section Context Header */
-.admin-section-header {
+.mac-channel-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.mac-channel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 12px;
 }
 
-.admin-section-title {
-  font-size: 1.3rem;
+.mac-channel-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.mac-channel-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mac-channel-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.mac-stat-num {
+  font-size: 18px;
   font-weight: 800;
-  color: #F1F5F3;
+  color: #111813;
+}
+
+.mac-stat-label {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+.mac-section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.01em;
+}
+
+.mac-mini-windows-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 1024px) {
+  .mac-mini-windows-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .mac-mini-windows-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mac-mini-window-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.mac-mini-window-titlebar {
+  height: 36px;
+  background: #fbfbfd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.mac-mini-window-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #48484a;
+}
+
+.mac-mini-window-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mac-card-data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.mac-data-key {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #8e8e93;
+  letter-spacing: 0.04em;
+}
+
+.mac-data-val {
+  color: #1d1d1f;
+  font-weight: 500;
+}
+
+.mac-data-val-bold {
+  color: #111813;
+  font-weight: 700;
+}
+
+.mac-data-val-mono {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  color: #3a3a3c;
+  font-size: 11.5px;
+}
+
+.mac-data-status-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mac-mini-connection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.mac-mini-connection-row:last-child {
+  border-bottom: none;
+}
+
+.mac-mini-conn-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mac-mini-conn-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111813;
+  display: block;
+}
+
+.mac-mini-conn-biz {
+  font-size: 11.5px;
+  color: #8e8e93;
+  display: block;
+}
+
+.mac-mini-conn-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.mac-mini-conn-time {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+/* ─── 6. Workflow Visual Nodes ───────────────────────────────────── */
+.mac-canvas-subtitle {
+  font-size: 13px;
+  color: #6e6e73;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.mac-workflow-canvas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px;
+  background: #fafafc;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  overflow-x: auto;
+  gap: 12px;
+}
+
+.mac-workflow-node {
+  width: 190px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.mac-node-titlebar {
+  height: 32px;
+  background: #fbfbfd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.mac-node-header-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #48484a;
+}
+
+.mac-node-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mac-node-event {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111813;
+}
+
+.mac-node-status {
+  font-size: 11px;
+  color: #276738;
+  font-weight: 500;
+}
+
+.mac-workflow-connector {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── 7. Settings View & Telemetry ───────────────────────────────── */
+.mac-settings-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .mac-settings-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mac-profile-display-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.mac-profile-large-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #162419;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mac-profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111813;
   margin: 0 0 4px 0;
 }
 
-.admin-section-desc {
-  font-size: 0.85rem;
-  color: #94a3b8;
+.mac-profile-email {
+  font-size: 13px;
+  color: #6e6e73;
+  margin: 0 0 6px 0;
+}
+
+.mac-badge-super-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #eaf6ec;
+  border: 1px solid #b5ce7e;
+  color: #162419;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.mac-settings-data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mac-data-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 13px;
+}
+
+.mac-data-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.mac-data-item-key {
+  color: #6e6e73;
+  font-weight: 500;
+}
+
+.mac-data-item-val {
+  font-weight: 600;
+  color: #1d1d1f;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mac-data-item-val-mono {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #1d1d1f;
+}
+
+.mac-logout-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mac-logout-action-btn:hover {
+  background: #fef2f2;
+}
+
+/* ─── 8. Modals / Drawers (MacOS Window Style) ─────────────────────── */
+.mac-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 200;
+  animation: macFadeIn 0.2s ease;
+}
+
+@keyframes macFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mac-modal-window {
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: macWindowEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mac-modal-titlebar {
+  height: 44px;
+  background: #fbfbfd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.mac-modal-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a3c;
+}
+
+.mac-modal-close-icon {
+  background: none;
+  border: none;
+  color: #8e8e93;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.mac-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.mac-modal-loading {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #6e6e73;
+}
+
+.mac-modal-content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mac-modal-section {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mac-modal-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.mac-modal-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 12px 0;
+}
+
+.mac-modal-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+
+@media (max-width: 500px) {
+  .mac-modal-data-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mac-data-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mac-data-label {
+  font-size: 11px;
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+.mac-data-content {
+  font-size: 13px;
+  color: #111813;
+  font-weight: 600;
+}
+
+.mac-data-content-mono {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #111813;
+}
+
+.mac-modal-integrations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mac-modal-integration-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f9f9fb;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  font-size: 12.5px;
+}
+
+.mac-integ-name {
+  font-weight: 700;
+  color: #111813;
+}
+
+.mac-integ-id {
+  color: #6e6e73;
+  flex: 1;
+}
+
+.mac-integ-sync {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+.mac-modal-empty-note {
+  font-size: 12.5px;
+  color: #8e8e93;
   margin: 0;
 }
 
-/* Inline Status Dropdown in Table */
-.admin-inline-select {
-  background: #0d140e;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  color: #86efac;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  outline: none;
-}
-
-.admin-inline-select:focus {
-  border-color: #22c55e;
-}
-
-/* Progress / Telemetry Bar */
-.admin-gauge-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-top: 0.5rem;
-}
-
-.admin-gauge-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #22c55e 0%, #86efac 100%);
-  border-radius: 9999px;
-  transition: width 0.4s ease;
-}
-
-/* Toast Notification */
-.admin-toast {
-  position: fixed;
-  bottom: 1.75rem;
-  right: 1.75rem;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.25rem;
-  background: rgba(16, 28, 19, 0.96);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(34, 197, 94, 0.45);
-  border-radius: 12px;
-  color: #F1F5F3;
-  font-size: 0.85rem;
-  font-weight: 600;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 20px rgba(34, 197, 94, 0.15);
-  animation: toastSlideIn 0.25s ease-out;
-}
-
-@keyframes toastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+/* ─── 9. Responsive Adaptations ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .mac-admin-sidebar {
+    position: fixed;
+    left: -270px;
+    top: 0;
+    bottom: 0;
+    transition: left 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .mac-admin-sidebar.open {
+    left: 0;
+  }
+
+  .mac-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+    z-index: 35;
+  }
+
+  .mac-sidebar-close-btn {
+    display: block;
+  }
+
+  .mac-mobile-menu-btn {
+    display: block;
   }
 }
 
-/* Empty State */
-.admin-empty-state {
-  padding: 3rem 1.5rem;
-  text-align: center;
-  color: #94a3b8;
-}
-
-/* ---------------------------------------------------------------------
-   RESPONSIVE QUERIES FOR ADMIN PORTAL
-   --------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .admin-header {
-    padding: 0.65rem 1rem;
-    min-height: 56px;
-    gap: 0.5rem;
+  .mac-topbar {
+    padding: 0 16px;
   }
 
-  .admin-brand {
-    gap: 0.5rem;
+  .mac-admin-content-body {
+    padding: 16px;
   }
 
-  /* Hide verbose meta webhook status text on mobile */
-  .admin-brand > span:not(.admin-badge-super) {
+  .mac-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mac-search-input-box {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .mac-sync-text {
     display: none;
   }
-
-  .admin-badge-super {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-  }
-
-  .admin-tab-bar-wrap {
-    margin-bottom: 1.25rem;
-  }
-
-  .admin-tab-bar {
-    overflow-x: auto;
-    white-space: nowrap;
-    padding-bottom: 0.35rem;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-  }
-
-  .admin-content {
-    padding: 1rem 0.75rem 2rem;
-  }
 }
-
-

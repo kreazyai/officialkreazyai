@@ -31,7 +31,10 @@ export const config = {
     provider: process.env.AI_PROVIDER || 'heuristic',
     geminiKey: process.env.GEMINI_API_KEY || '',
     openAiKey: process.env.OPENAI_API_KEY || '',
-    modelName: process.env.AI_MODEL_NAME || 'gemini-2.0-flash'
+    modelName: process.env.AI_MODEL_NAME || 'gemini-2.0-flash',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    ollamaModel: process.env.OLLAMA_MODEL || 'qwen2.5:1.5b',
+    ollamaTimeoutMs: parseInt(process.env.OLLAMA_TIMEOUT_MS || '120000', 10)
   },
 
   meta: {

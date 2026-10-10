@@ -1,12 +1,17 @@
 import { getDatabase } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { aiService } from '../services/aiService.js';
+import { config } from '../config/env.js';
 
 export const aiController = {
   async chat(req, res, next) {
     try {
       const { message, context = {} } = req.body;
-      const businessId = req.businessId;
+      const businessId = req.businessId || (req.user?.is_super_admin ? (req.headers['x-workspace-id'] || 'ws-flagship-01') : null);
+
+      if (!businessId) {
+        return errorResponse(res, 'Authentication required: business workspace context not found.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
 
       if (!message || !message.trim()) {
         return errorResponse(res, 'Message text is required.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
@@ -15,6 +20,15 @@ export const aiController = {
       const result = await aiService.processMessage(businessId, message.trim(), context);
       return successResponse(res, result);
     } catch (err) {
+      if (config.ai.provider === 'ollama') {
+        return errorResponse(
+          res,
+          err.message || 'Ollama AI generation failed.',
+          API_ERROR_CODES.INTERNAL_ERROR,
+          HTTP_STATUS.BAD_GATEWAY,
+          { provider: 'ollama', error: err.message }
+        );
+      }
       next(err);
     }
   },

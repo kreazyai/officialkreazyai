@@ -38,6 +38,7 @@ export function getDatabase(dbPath = null) {
 
   runMigrations(db);
   seedInitialData(db);
+  ensureSuperAdmin(db);
 
   dbInstance = db;
   return dbInstance;
@@ -58,6 +59,8 @@ export function runMigrations(db) {
       status TEXT DEFAULT 'ACTIVE',
       channels_connected TEXT DEFAULT '[]',
       total_revenue REAL DEFAULT 0.0,
+      ai_credits_used INTEGER DEFAULT 0,
+      ai_credits_limit INTEGER DEFAULT 1000,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -249,8 +252,21 @@ export function runMigrations(db) {
     CREATE INDEX IF NOT EXISTS idx_conversations_business ON conversations(business_id);
     CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id);
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-    CREATE INDEX IF NOT EXISTS idx_audit_business ON audit_logs(business_id);
   `);
+
+  try {
+    const tableInfo = db.prepare("PRAGMA table_info(businesses)").all();
+    const hasAiCreditsUsed = tableInfo.some(col => col.name === 'ai_credits_used');
+    const hasAiCreditsLimit = tableInfo.some(col => col.name === 'ai_credits_limit');
+    if (!hasAiCreditsUsed) {
+      db.exec("ALTER TABLE businesses ADD COLUMN ai_credits_used INTEGER DEFAULT 0");
+    }
+    if (!hasAiCreditsLimit) {
+      db.exec("ALTER TABLE businesses ADD COLUMN ai_credits_limit INTEGER DEFAULT 1000");
+    }
+  } catch (migErr) {
+    logger.warn('Migration check for businesses credit columns:', migErr.message);
+  }
 
   // ── Phase 2 Migrations: Settings, KYC, Profile tables ──────────────────────
   db.exec(`
@@ -892,6 +908,61 @@ export function ensureMetaConnections(db, businessId, workspaceId) {
   }
 }
 
+export function ensureSuperAdmin(db) {
+  try {
+    const adminEmail = (config.auth?.superAdminEmail || 'admin@kreazyai.com').trim().toLowerCase();
+    const adminPassword = config.auth?.superAdminPassword || 'KreazyAI_Admin_2026!';
+    const now = new Date().toISOString();
+
+    const targetAdmins = [
+      {
+        id: 'usr-dev-superadmin',
+        email: 'admin@kreazyai.com',
+        name: 'Kreazy Super Administrator',
+        password: 'KreazyAI_Admin_2026!'
+      },
+      {
+        id: 'usr-superadmin',
+        email: 'kreazyai@gmail.com',
+        name: 'Kreazy Platform Administrator',
+        password: '12kreazyai12@'
+      }
+    ];
+
+    if (adminEmail && adminEmail !== 'admin@kreazyai.com' && adminEmail !== 'kreazyai@gmail.com') {
+      targetAdmins.push({
+        id: 'usr-env-superadmin',
+        email: adminEmail,
+        name: 'Kreazy System Administrator',
+        password: adminPassword
+      });
+    }
+
+    for (const target of targetAdmins) {
+      const existing = db.prepare('SELECT id, password_hash, role, is_super_admin FROM users WHERE email = ?').get(target.email);
+      const hash = bcrypt.hashSync(target.password, 10);
+      if (!existing) {
+        const idCollision = db.prepare('SELECT id FROM users WHERE id = ?').get(target.id);
+        const finalId = idCollision ? `${target.id}-${Date.now()}` : target.id;
+        db.prepare(`
+          INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+          VALUES (?, null, ?, ?, ?, 'SUPER_ADMIN', 1, ?, ?)
+        `).run(finalId, target.email, hash, target.name, now, now);
+        logger.info(`Seeded development super-admin account: ${target.email}`);
+      } else {
+        // Ensure credentials and permissions are synchronized
+        db.prepare(`
+          UPDATE users 
+          SET role = 'SUPER_ADMIN', is_super_admin = 1, password_hash = ?, updated_at = ?
+          WHERE email = ?
+        `).run(hash, now, target.email);
+      }
+    }
+  } catch (err) {
+    logger.warn('Failed to ensure super admin account:', err.message);
+  }
+}
+
 export function closeDatabase() {
   if (dbInstance) {
     try {
@@ -902,4 +973,5 @@ export function closeDatabase() {
     dbInstance = null;
   }
 }
+
 
