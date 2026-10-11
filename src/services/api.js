@@ -1890,78 +1890,61 @@ export const whatsappApiService = {
   },
 
   async pairViaQr(data = {}) {
-    try {
-      const res = await apiClient.post('/whatsapp/pair-qr', data);
-      if (res?.connection) {
-        setStored('kreazy_wa_connection', res.connection);
-      }
-      return res;
-    } catch (err) {
-      const fallbackConn = {
-        id: `waconn-${Date.now()}`,
-        platform: 'WHATSAPP',
-        status: 'CONNECTED',
-        display_phone: data.phoneNumber || '+880 1712-345678',
-        display_number: data.phoneNumber || '+880 1712-345678',
-        phone_number_id: '109283741',
-        WABA_id: '2983710492817',
-        webhook_status: 'ACTIVE',
-        auto_reply_enabled: 1,
-        created_at: new Date().toISOString()
-      };
-      setStored('kreazy_wa_connection', fallbackConn);
-      return { connection: fallbackConn, paired: true };
+    const res = await apiClient.post('/whatsapp/pair-qr', data);
+    if (res?.connection) {
+      setStored('kreazy_wa_connection', res.connection);
     }
+    return res;
   },
 
   async configureCredentials(payload) {
-    try {
-      const res = await apiClient.post('/whatsapp/configure-credentials', payload);
-      if (res?.connection) {
-        setStored('kreazy_wa_connection', res.connection);
-      }
-      return res;
-    } catch (err) {
-      const fallbackConn = {
-        id: `waconn-${Date.now()}`,
-        platform: 'WHATSAPP',
-        status: 'CONNECTED',
-        phone_number_id: payload.phoneNumberId,
-        WABA_id: payload.wabaId || `waba_${payload.phoneNumberId}`,
-        display_phone: payload.displayNumber || '+880 1712-345678',
-        display_number: payload.displayNumber || '+880 1712-345678',
-        webhook_status: 'ACTIVE',
-        auto_reply_enabled: 1,
-        created_at: new Date().toISOString()
-      };
-      setStored('kreazy_wa_connection', fallbackConn);
-      return { connection: fallbackConn, configured: true };
+    const res = await apiClient.post('/whatsapp/configure-credentials', payload);
+    const conn = res?.connection || res?.data?.connection || res;
+    if (conn) {
+      setStored('kreazy_wa_connection', conn);
     }
+    return res;
   },
 
   async updateAutoReply(enabled) {
-    try {
-      return await apiClient.patch('/whatsapp/auto-reply', { enabled });
-    } catch {
-      const stored = getStored('kreazy_wa_connection', null);
-      if (stored) {
-        stored.auto_reply_enabled = enabled ? 1 : 0;
-        setStored('kreazy_wa_connection', stored);
-      }
-      return { success: true, autoReplyEnabled: Boolean(enabled) };
+    const res = await apiClient.patch('/whatsapp/auto-reply', { enabled });
+    const stored = getStored('kreazy_wa_connection', null);
+    if (stored) {
+      stored.auto_reply_enabled = enabled ? 1 : 0;
+      setStored('kreazy_wa_connection', stored);
     }
+    return res;
   },
 
   async disconnect() {
-    try {
-      await apiClient.post('/whatsapp/disconnect');
-    } catch {}
-    const stored = getStored('kreazy_wa_connection', null);
-    if (stored) {
-      stored.status = 'NOT_CONNECTED';
-      setStored('kreazy_wa_connection', stored);
+    const res = await apiClient.post('/whatsapp/disconnect');
+    removeStored('kreazy_wa_connection');
+    return res;
+  },
+
+  async initiateEmbeddedSignup() {
+    return await apiClient.post('/whatsapp/embedded-signup/session');
+  },
+
+  async completeEmbeddedSignup(payload) {
+    const res = await apiClient.post('/whatsapp/embedded-signup/callback', payload);
+    const conn = res?.connection || res?.data?.connection || res;
+    if (conn) {
+      setStored('kreazy_wa_connection', conn);
     }
-    return { success: true, status: 'NOT_CONNECTED' };
+    return res;
+  },
+
+  async getWallet() {
+    return await apiClient.get('/whatsapp/wallet');
+  },
+
+  async upgradePlan(payload) {
+    return await apiClient.post('/whatsapp/upgrade-plan', payload);
+  },
+
+  async getTransactions(limit = 50) {
+    return await apiClient.get(`/whatsapp/transactions?limit=${limit}`);
   },
 
   async healthCheck() {
@@ -1972,19 +1955,20 @@ export const whatsappApiService = {
     return await apiClient.get('/whatsapp/observability');
   },
 
+  async getAiHealth() {
+    try {
+      return await apiClient.get('/whatsapp/ai-health');
+    } catch (err) {
+      return { ok: false, status: 'DOWN', error: err.message };
+    }
+  },
+
   async reconnect() {
     return await apiClient.post('/whatsapp/reconnect');
   },
 
   async sendTestMessage(payload) {
-    try {
-      return await apiClient.post('/whatsapp/test-message', payload);
-    } catch {
-      return {
-        success: true,
-        replyText: 'Yes, we have the item in stock! It is priced at $89.00 with 2-day delivery.'
-      };
-    }
+    return await apiClient.post('/whatsapp/test-message', payload);
   }
 };
 

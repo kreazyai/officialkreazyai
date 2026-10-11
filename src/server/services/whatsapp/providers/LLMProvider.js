@@ -69,62 +69,45 @@ export class LocalLLMProvider extends LLMProvider {
   }
 }
 
+import { whatsappAiService } from '../whatsappAiService.js';
+
 /**
- * Google Gemini Cloud LLM Provider
+ * Local Ollama Qwen3 LLM Provider
+ * Grounded in local Ollama runtime without any paid cloud AI APIs.
  */
-export class GeminiLLMProvider extends LLMProvider {
-  constructor(apiKey = config.ai.geminiKey) {
-    super();
-    this.apiKey = apiKey;
-  }
+export class OllamaQwenLLMProvider extends LLMProvider {
+  async generateResponse({ prompt, systemPrompt, context = {}, conversationId = 'default_conv' }) {
+    logger.info('[OllamaQwenLLMProvider] Invoking local Ollama Qwen3 runtime');
 
-  async generateResponse({ prompt, systemPrompt, context = {}, temperature = 0.2 }) {
-    if (!this.apiKey) {
-      logger.warn('[GeminiLLMProvider] No Gemini API key found, delegating to LocalLLMProvider');
-      const fallback = new LocalLLMProvider();
-      return fallback.generateResponse({ prompt, systemPrompt, context });
-    }
-
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`;
-      const fullSystem = `${systemPrompt || ''}\n\n[AUTHORITATIVE TENANT DATA]\n${JSON.stringify(context, null, 2)}`;
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            { role: 'user', parts: [{ text: `${fullSystem}\n\nUser Question: ${prompt}` }] }
-          ],
-          generationConfig: { temperature, maxOutputTokens: 500 }
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        throw new Error(data.error?.message || `Gemini API returned status ${res.status}`);
+    const result = await whatsappAiService.generateCustomerReply({
+      businessId: context.businessId || context.tenantId || 'ws-flagship-01',
+      conversationId,
+      customerMessage: prompt,
+      knowledge: {
+        products: context.matchedProduct ? [context.matchedProduct] : [],
+        faqs: context.matchedFaq ? [context.matchedFaq] : [],
+        policies: context.matchedPolicy ? [context.matchedPolicy] : []
       }
+    });
 
-      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (result.success && result.replyText) {
       return {
-        text: generatedText || "Thank you for contacting us. How may we assist you?",
+        text: result.replyText,
         confidence: 0.96,
-        provider: 'gemini-cloud'
+        provider: `ollama-${result.model}`
       };
-    } catch (err) {
-      logger.warn(`[GeminiLLMProvider] Error: ${err.message}. Falling back to LocalLLMProvider.`);
-      const fallback = new LocalLLMProvider();
-      return fallback.generateResponse({ prompt, systemPrompt, context });
     }
+
+    // Graceful fallback to local authoritative handler
+    const fallback = new LocalLLMProvider();
+    return fallback.generateResponse({ prompt, systemPrompt, context });
   }
 }
 
 /**
- * Factory helper to get configured LLM provider
+ * Factory helper to get configured LLM provider (Defaults strictly to local Ollama Qwen3)
  */
 export function getLLMProvider() {
-  if (config.ai.geminiKey && config.ai.provider !== 'local') {
-    return new GeminiLLMProvider(config.ai.geminiKey);
-  }
-  return new LocalLLMProvider();
+  return new OllamaQwenLLMProvider();
 }
+

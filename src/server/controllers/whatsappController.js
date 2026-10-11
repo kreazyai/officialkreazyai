@@ -2,20 +2,29 @@ import { successResponse, errorResponse, HTTP_STATUS } from '../utils/response.j
 import { whatsappConnectionService } from '../services/whatsapp/whatsappConnectionService.js';
 import { metaAuthService } from '../services/meta/metaAuthService.js';
 import { whatsappPipeline } from '../services/whatsapp/whatsappPipeline.js';
+import { whatsappService } from '../services/meta/whatsappService.js';
+import { whatsappAiService } from '../services/whatsapp/whatsappAiService.js';
+import { metaConnectionService } from '../services/meta/metaConnectionService.js';
+import { metaEmbeddedSignupService } from '../services/meta/metaEmbeddedSignupService.js';
+import { creditWalletService } from '../services/billing/creditWalletService.js';
 import { config } from '../config/env.js';
 
 export const whatsappController = {
   /**
    * GET /api/v1/whatsapp/connection
-   * Returns sanitized WhatsApp connection metadata, webhook health, and status
+   * Returns sanitized WhatsApp connection metadata, webhook health, Ollama AI model status, and credit wallet
    */
   async getConnection(req, res, next) {
     try {
       const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
       const connection = whatsappConnectionService.getConnection(tenantId);
+      const aiHealth = await whatsappAiService.checkHealth();
+      const wallet = creditWalletService.getWallet(tenantId);
 
       return successResponse(res, {
         connection,
+        aiHealth,
+        wallet,
         webhookUrl: `${req.protocol}://${req.get('host')}/api/v1/meta/webhook`,
         webhookVerifyConfigured: Boolean(config.meta.verifyToken),
         isConfigured: connection?.status === 'CONNECTED'
@@ -95,18 +104,31 @@ export const whatsappController = {
       const { phoneNumberId, wabaId, accessToken, displayNumber } = req.body || {};
 
       if (!phoneNumberId || !accessToken) {
-        return errorResponse(res, 'Phone Number ID and Access Token are required', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
+        return errorResponse(res, 'Phone Number ID and Permanent Access Token are required', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
       }
 
+      // Live verification check against Meta Graph API
+      const liveCheck = await whatsappService.verifyPhoneNumberConnectivity(phoneNumberId, accessToken);
+      if (!liveCheck.success) {
+        return errorResponse(res, `Meta Cloud API verification failed: ${liveCheck.error}`, liveCheck.isExpired ? 'TOKEN_EXPIRED' : 'VERIFICATION_FAILED', HTTP_STATUS.BAD_REQUEST, {
+          errorCode: liveCheck.errorCode,
+          errorSubcode: liveCheck.errorSubcode,
+          errorType: liveCheck.errorType,
+          fbtraceId: liveCheck.fbtraceId,
+          isExpired: liveCheck.isExpired
+        });
+      }
+
+      const verifiedDisplayNumber = liveCheck.displayPhoneNumber || displayNumber || '+880 1712-345678';
       const connection = whatsappConnectionService.saveConnection(tenantId, {
         phoneNumberId,
         wabaId: wabaId || `waba_${phoneNumberId}`,
         accessToken,
-        displayNumber: displayNumber || '+880 1712-345678'
+        displayNumber: verifiedDisplayNumber
       });
 
-      return successResponse(res, { connection, configured: true }, HTTP_STATUS.OK, {
-        message: 'WhatsApp credentials saved & encrypted successfully'
+      return successResponse(res, { connection, configured: true, verifiedName: liveCheck.verifiedName }, HTTP_STATUS.OK, {
+        message: 'WhatsApp Cloud API verified & credentials stored securely'
       });
     } catch (err) {
       next(err);
@@ -157,7 +179,8 @@ export const whatsappController = {
 
   /**
    * POST /api/v1/whatsapp/test-message
-   * Runs the full end-to-end messaging pipeline in test mode without exposing secrets
+   * Runs the full end-to-end messaging pipeline with Ollama Qwen3, with optional live dispatch.
+   * Separates dashboard AI simulation from real Meta Cloud API live delivery.
    */
   async testMessage(req, res, next) {
     try {
@@ -165,33 +188,103 @@ export const whatsappController = {
       const {
         messageText = 'Do you have this shirt in XL?',
         senderPhone = '+1 (555) 928-1029',
-        senderName = 'Sarah Jenkins (Test Customer)',
-        attachments = []
+        senderName = 'Test Customer',
+        attachments = [],
+        sendLiveToPhone = false,
+        recipientPhone = null
       } = req.body || {};
 
+      // If live delivery requested, strictly validate real non-placeholder phone number
+      if (sendLiveToPhone) {
+        if (!recipientPhone) {
+          return errorResponse(res, 'Recipient phone number is required for live WhatsApp message delivery', 'MISSING_RECIPIENT', HTTP_STATUS.BAD_REQUEST);
+        }
+
+        const { isPlaceholderPhoneNumber } = await import('../services/meta/whatsappService.js');
+        if (isPlaceholderPhoneNumber(recipientPhone)) {
+          return errorResponse(res, 'Cannot send live WhatsApp message to placeholder phone number. Please enter an authorized real recipient phone number in E.164 format (e.g. +8801712345678).', 'PLACEHOLDER_RECIPIENT_REJECTED', HTTP_STATUS.BAD_REQUEST);
+        }
+
+        const conn = whatsappConnectionService.getConnectionWithToken(tenantId);
+        if (!conn || !conn.decryptedAccessToken || !conn.phone_number_id) {
+          return errorResponse(res, 'WhatsApp channel credentials not configured. Please link your Meta account first.', 'NOT_CONFIGURED', HTTP_STATUS.BAD_REQUEST);
+        }
+
+        if (conn.status === 'REAUTH_REQUIRED') {
+          return errorResponse(res, `WhatsApp channel requires reauthorization: ${conn.last_error || 'Token expired (Code 190 / Subcode 463)'}.`, 'REAUTH_REQUIRED', HTTP_STATUS.UNAUTHORIZED);
+        }
+
+        // Live send flow
+        const cleanRecipient = recipientPhone.replace(/[^0-9]/g, '');
+        const liveDispatchResult = await whatsappService.sendTextMessage(
+          conn.phone_number_id,
+          conn.decryptedAccessToken,
+          cleanRecipient,
+          messageText
+        );
+
+        if (!liveDispatchResult.success) {
+          return errorResponse(res, `Live WhatsApp delivery failed: ${liveDispatchResult.error}`, 'DELIVERY_FAILED', HTTP_STATUS.BAD_REQUEST, {
+            errorCode: liveDispatchResult.errorCode,
+            errorSubcode: liveDispatchResult.errorSubcode,
+            errorType: liveDispatchResult.errorType,
+            fbtraceId: liveDispatchResult.fbtraceId
+          });
+        }
+
+        return successResponse(res, {
+          liveDelivery: true,
+          recipientPhone: cleanRecipient,
+          messageId: liveDispatchResult.messageId,
+          attempts: liveDispatchResult.attempts
+        }, HTTP_STATUS.OK, {
+          message: `Live WhatsApp message dispatched successfully via Meta Cloud API (Message ID: ${liveDispatchResult.messageId})`
+        });
+      }
+
+      // Default: Dashboard AI Simulation Mode (runs local Ollama AI reasoning without outbound dispatch or credit deduction)
       const testEvent = {
         platform: 'WHATSAPP',
         businessId: tenantId,
         workspaceId: tenantId,
-        externalConversationId: `wa_conv_test_${Date.now()}`,
-        externalMessageId: `mid_wa_test_${Date.now()}`,
+        externalConversationId: `wa_conv_sim_${Date.now()}`,
+        externalMessageId: `mid_wa_sim_${Date.now()}`,
         messageText,
         attachments,
+        isSimulated: true,
         sender: {
           id: senderPhone,
           name: senderName,
           phone: senderPhone
         },
         recipient: { id: 'phone_test_recip' },
-        metadata: { isTestMode: true }
+        metadata: { isTestMode: true, isSimulatedTest: true }
       };
 
       const result = await whatsappPipeline.processInboundMessage(testEvent);
 
       return successResponse(res, {
         testEvent,
-        result
-      }, HTTP_STATUS.OK, { message: 'Test message processed through complete WhatsApp pipeline' });
+        result: {
+          ...result,
+          isSimulation: true
+        }
+      }, HTTP_STATUS.OK, {
+        message: 'AI reply preview synthesized via local Ollama knowledge pipeline (Simulation Mode)'
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * GET /api/v1/whatsapp/ai-health
+   * Live health check for local Ollama AI runtime
+   */
+  async getAiHealth(req, res, next) {
+    try {
+      const aiHealth = await whatsappAiService.checkHealth();
+      return successResponse(res, aiHealth);
     } catch (err) {
       next(err);
     }
@@ -247,5 +340,103 @@ export const whatsappController = {
    */
   async reconnect(req, res, next) {
     return whatsappController.connect(req, res, next);
+  },
+
+  /**
+   * POST /api/v1/whatsapp/embedded-signup/session
+   * Initiates official Meta Embedded Signup onboarding session with CSRF state token
+   */
+  async initiateEmbeddedSignup(req, res, next) {
+    try {
+      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const session = metaEmbeddedSignupService.initiateSession(tenantId);
+      return successResponse(res, session, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * POST /api/v1/whatsapp/embedded-signup/callback
+   * Exchanges authorization code, subscribes WABA, verifies connectivity, and completes onboarding
+   */
+  async completeEmbeddedSignup(req, res, next) {
+    try {
+      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const { code, stateToken, sessionInfo, isCancelled } = req.body || {};
+
+      const result = await metaEmbeddedSignupService.completeOnboarding(tenantId, {
+        code,
+        stateToken,
+        sessionInfo,
+        isCancelled: Boolean(isCancelled)
+      });
+
+      if (!result.success) {
+        return errorResponse(res, result.message || 'Onboarding incomplete', 'ONBOARDING_CANCELLED', HTTP_STATUS.BAD_REQUEST, {
+          reason: result.reason
+        });
+      }
+
+      return successResponse(res, result, HTTP_STATUS.OK, {
+        message: 'WhatsApp Business account successfully linked via Meta Embedded Signup'
+      });
+    } catch (err) {
+      if (err.statusCode === 409) {
+        return errorResponse(res, err.message, err.code || 'PHONE_NUMBER_OWNERSHIP_CONFLICT', HTTP_STATUS.CONFLICT);
+      }
+      next(err);
+    }
+  },
+
+  /**
+   * GET /api/v1/whatsapp/wallet
+   * Returns current AI credit wallet, trial status, and usage statistics
+   */
+  async getWallet(req, res, next) {
+    try {
+      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const wallet = creditWalletService.getWallet(tenantId);
+      return successResponse(res, wallet, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * POST /api/v1/whatsapp/upgrade-plan
+   * Upgrades tenant to an existing paid plan (trial, standard, pro) and activates credits
+   */
+  async upgradePlan(req, res, next) {
+    try {
+      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const { planId, billingCycle = 'MONTHLY', provider = 'INTERNAL' } = req.body || {};
+
+      if (!planId) {
+        return errorResponse(res, 'planId is required (trial, standard, or pro)', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
+      }
+
+      const result = creditWalletService.upgradeSubscription(tenantId, planId, billingCycle, provider);
+      return successResponse(res, result, HTTP_STATUS.OK, {
+        message: `Plan successfully upgraded to ${result.plan}`
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * GET /api/v1/whatsapp/transactions
+   * Returns immutable credit transaction ledger for audit and billing transparency
+   */
+  async getTransactions(req, res, next) {
+    try {
+      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const limit = parseInt(req.query.limit || '50', 10);
+      const transactions = creditWalletService.getTransactions(tenantId, limit);
+      return successResponse(res, { transactions }, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
   }
 };

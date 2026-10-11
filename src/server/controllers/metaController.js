@@ -334,9 +334,12 @@ export const metaController = {
 
       // 3. Normalize heterogeneous Meta payload
       const normalizedEvents = metaWebhookService.normalizeWebhookPayload(req.body);
+      logger.info(`[WEBHOOK RECEIVED] Received Meta Webhook payload with ${normalizedEvents.length} event(s)`);
 
       // 4. Process each normalized event
       for (const ev of normalizedEvents) {
+        logger.info(`[WEBHOOK EVENT] Processing incoming ${ev.platform} message ${ev.externalMessageId} for tenant: ${ev.businessId || 'UNRESOLVED'}`);
+
         // Deduplicate
         const isFresh = metaWebhookService.deduplicateEvent(
           ev.externalMessageId,
@@ -344,10 +347,25 @@ export const metaController = {
           ev.businessId,
           ev
         );
-        if (!isFresh) continue;
+        if (!isFresh) {
+          logger.info(`[WEBHOOK DUPLICATE] Event ${ev.externalMessageId} was already handled or is in-flight. Skipping.`);
+          continue;
+        }
 
-        // Pass to Rule-First, AI-Second Engine
-        await metaAutoReplyEngine.processIncomingMessage(ev);
+        try {
+          // Pass to Rule-First, AI-Second Engine
+          const result = await metaAutoReplyEngine.processIncomingMessage(ev);
+          metaWebhookService.markEventProcessed(ev.externalMessageId, true);
+
+          if (result?.replied) {
+            logger.info(`[WEBHOOK REPLY SENT] Auto-reply dispatched for ${ev.externalMessageId} (Intent: ${result.intent || 'RESOLVED'}, Lang: ${result.language || 'N/A'})`);
+          } else {
+            logger.info(`[WEBHOOK NO REPLY] Message ${ev.externalMessageId} completed without outbound dispatch (${result?.reason || 'No reply generated'})`);
+          }
+        } catch (procErr) {
+          metaWebhookService.markEventProcessed(ev.externalMessageId, false);
+          logger.error(`[WEBHOOK REPLY FAILED] Error processing event ${ev.externalMessageId}:`, procErr);
+        }
       }
     } catch (err) {
       logger.error('Error in Meta webhook ingestion processing:', err);

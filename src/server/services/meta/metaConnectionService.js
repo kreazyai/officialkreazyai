@@ -286,7 +286,24 @@ export const metaConnectionService = {
     }
 
     // Step 4: Messaging Capability Validation
-    diagnostics.messagingReady = true;
+    if (plat === 'WHATSAPP' && conn.phone_number_id && diagnostics.credentialsValid) {
+      const phoneCheck = await whatsappService.verifyPhoneNumberConnectivity(conn.phone_number_id, token);
+      if (!phoneCheck.success) {
+        diagnostics.messagingReady = false;
+        if (phoneCheck.isExpired || phoneCheck.isInvalidToken) {
+          diagnostics.credentialsValid = false;
+        }
+        diagnostics.issues.push({
+          step: 'Messaging Capability Validation',
+          code: phoneCheck.isExpired ? 'TOKEN_EXPIRED' : 'PHONE_VERIFY_FAILED',
+          message: `WhatsApp API check failed: ${phoneCheck.error}`
+        });
+      } else {
+        diagnostics.messagingReady = true;
+      }
+    } else {
+      diagnostics.messagingReady = Boolean(diagnostics.credentialsValid);
+    }
 
     // Step 5: Permission Validation
     const grantedScopes = inspection.scopes || [];
@@ -329,6 +346,24 @@ export const metaConnectionService = {
       businessId,
       plat
     );
+
+    if (plat === 'WHATSAPP') {
+      try {
+        db.prepare(`
+          UPDATE whatsapp_connections SET
+            status = ?,
+            last_error = ?,
+            diagnostics = ?,
+            updated_at = datetime('now')
+          WHERE tenant_id = ?
+        `).run(
+          newStatus,
+          primaryError,
+          JSON.stringify(diagnostics),
+          businessId
+        );
+      } catch {}
+    }
 
     const checks = [
       {

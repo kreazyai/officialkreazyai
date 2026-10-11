@@ -40,28 +40,40 @@ export const metaWebhookService = {
   },
 
   /**
-   * Deduplicate incoming webhook event.
-   * If already seen, returns false. If new, stores and returns true.
+   * Deduplicate incoming webhook event at the gateway stage.
+   * - If event is genuinely new: records it as in-flight (processed = 0) and returns true.
+   * - If event was already successfully processed (processed = 1): returns false (drops duplicate).
+   * - If event is currently in-flight (processed = 0): returns false (prevents concurrent race).
+   * - If event failed previously (processed = -1): resets to in-flight (processed = 0) and returns true (allows retry).
    * @param {string} eventId 
    * @param {string} platform 
    * @param {string} businessId 
    * @param {object} payload 
-   * @returns {boolean} True if event is fresh; False if duplicate
+   * @returns {boolean} True if event should be processed; False if duplicate
    */
   deduplicateEvent(eventId, platform, businessId, payload) {
     if (!eventId) return true;
     const db = getDatabase();
 
     try {
-      const existing = db.prepare('SELECT id FROM meta_webhook_events WHERE event_id = ?').get(eventId);
+      const existing = db.prepare('SELECT id, processed FROM meta_webhook_events WHERE event_id = ?').get(eventId);
       if (existing) {
-        logger.info(`Duplicate Meta Webhook event dropped: ${eventId}`);
-        return false;
+        if (existing.processed === 1) {
+          logger.info(`[WEBHOOK DUPLICATE] Meta Webhook event already processed: ${eventId}`);
+          return false;
+        } else if (existing.processed === 0) {
+          logger.info(`[WEBHOOK IN-FLIGHT] Meta Webhook event currently in-flight: ${eventId}`);
+          return false;
+        } else if (existing.processed === -1) {
+          logger.info(`[WEBHOOK RETRY] Retrying previously failed Meta Webhook event: ${eventId}`);
+          db.prepare("UPDATE meta_webhook_events SET processed = 0, created_at = datetime('now') WHERE event_id = ?").run(eventId);
+          return true;
+        }
       }
 
       db.prepare(`
         INSERT INTO meta_webhook_events (id, event_id, platform, business_id, payload, processed, created_at)
-        VALUES (?, ?, ?, ?, ?, 1, datetime('now'))
+        VALUES (?, ?, ?, ?, ?, 0, datetime('now'))
       `).run(
         `evt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         eventId,
@@ -78,24 +90,70 @@ export const metaWebhookService = {
   },
 
   /**
-   * Helper check for duplicate event IDs.
-   * Returns true if event is already recorded (duplicate), false if fresh.
+   * Updates processed state for a webhook event (1 = success, -1 = failed, 0 = in-flight)
+   */
+  markEventProcessed(eventId, success = true) {
+    if (!eventId) return;
+    try {
+      const db = getDatabase();
+      db.prepare('UPDATE meta_webhook_events SET processed = ? WHERE event_id = ?').run(
+        success ? 1 : -1,
+        eventId
+      );
+    } catch (err) {
+      logger.warn(`Failed to update webhook event processed status for ${eventId}:`, err.message);
+    }
+  },
+
+  /**
+   * Helper check for duplicate message IDs at the pipeline stage.
+   * Returns true if message is already recorded and completed (duplicate), false if fresh.
+   * - Checks if message already exists in messages table as INBOUND (persisted).
+   * - Checks if event already marked as completed (processed = 1) in meta_webhook_events.
+   * - Permits in-flight messages (processed = 0) created by gateway to proceed through pipeline.
    */
   isDuplicateEvent(eventId) {
     if (!eventId) return false;
     const db = getDatabase();
     try {
-      const existing = db.prepare('SELECT id FROM meta_webhook_events WHERE event_id = ?').get(eventId);
-      if (existing) {
-        logger.info(`Duplicate Meta Webhook event dropped: ${eventId}`);
+      // 1. Check if the inbound message was already persisted in the messages table
+      const msgExists = db.prepare(`
+        SELECT id FROM messages 
+        WHERE external_message_id = ? AND direction = 'INBOUND'
+        LIMIT 1
+      `).get(eventId);
+      if (msgExists) {
+        logger.info(`[PIPELINE DUPLICATE] Message already recorded in messages table: ${eventId}`);
         return true;
       }
+
+      // 2. Check meta_webhook_events:
+      const existing = db.prepare(`
+        SELECT id, processed FROM meta_webhook_events 
+        WHERE event_id = ?
+        LIMIT 1
+      `).get(eventId);
+
+      if (existing) {
+        if (existing.processed === 1) {
+          logger.info(`[PIPELINE DUPLICATE] Webhook event already marked processed=1: ${eventId}`);
+          return true;
+        }
+        // If processed === 0 or -1, this is an in-flight execution or retry initiated by the gateway.
+        // It must NOT be dropped as a duplicate.
+        return false;
+      }
+
+      // 3. If no record exists at all in meta_webhook_events (e.g. called directly without gateway ingestion):
+      // Record this event as processed so subsequent standalone checks recognize it as a duplicate (idempotency protection)
       db.prepare(`
         INSERT INTO meta_webhook_events (id, event_id, platform, business_id, payload, processed, created_at)
         VALUES (?, ?, 'WHATSAPP', 'ws-flagship-01', '{}', 1, datetime('now'))
       `).run(`evt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, eventId);
+
       return false;
     } catch (err) {
+      logger.warn('isDuplicateEvent check error:', err.message);
       return false;
     }
   },
@@ -119,7 +177,7 @@ export const metaWebhookService = {
         try {
           row = db.prepare(`
             SELECT tenant_id AS business_id, tenant_id AS workspace_id FROM whatsapp_connections 
-            WHERE (phone_number_id = ? OR WABA_id = ?) AND status = 'CONNECTED'
+            WHERE (phone_number_id = ? OR WABA_id = ?) AND status != 'NOT_CONNECTED'
             LIMIT 1
           `).get(assetId, assetId);
         } catch {
@@ -129,25 +187,26 @@ export const metaWebhookService = {
         if (!row) {
           row = db.prepare(`
             SELECT business_id, workspace_id FROM meta_connections 
-            WHERE (phone_number_id = ? OR whatsapp_business_account_id = ?) AND status = 'CONNECTED'
+            WHERE (phone_number_id = ? OR whatsapp_business_account_id = ?) AND status != 'NOT_CONNECTED'
             LIMIT 1
           `).get(assetId, assetId);
         }
       } else if (platform === 'INSTAGRAM') {
         row = db.prepare(`
           SELECT business_id, workspace_id FROM meta_connections 
-          WHERE (instagram_account_id = ? OR page_id = ?) AND status = 'CONNECTED'
+          WHERE (instagram_account_id = ? OR page_id = ?) AND status != 'NOT_CONNECTED'
           LIMIT 1
         `).get(assetId, assetId);
       } else if (platform === 'MESSENGER') {
         row = db.prepare(`
           SELECT business_id, workspace_id FROM meta_connections 
-          WHERE page_id = ? AND status = 'CONNECTED'
+          WHERE page_id = ? AND status != 'NOT_CONNECTED'
           LIMIT 1
         `).get(assetId);
       }
 
       if (row) {
+        logger.info(`[TENANT RESOLVED] Mapped ${platform} asset "${assetId}" to tenant: ${row.business_id}`);
         return { businessId: row.business_id, workspaceId: row.workspace_id || row.business_id };
       }
     } catch (err) {
@@ -155,7 +214,7 @@ export const metaWebhookService = {
     }
 
     // STRICT MULTI-TENANT ISOLATION: Never guess or fall back to a default tenant
-    logger.warn(`Tenant mapping missing for asset ID "${assetId}" on ${platform}. Rejecting safely.`);
+    logger.warn(`[TENANT RESOLUTION FAILED] Tenant mapping missing for asset ID "${assetId}" on ${platform}. Rejecting safely.`);
     return null;
   },
 
@@ -179,6 +238,26 @@ export const metaWebhookService = {
           const val = change.value || {};
           const phoneNumberId = val.metadata?.phone_number_id || wabaId;
           const tenant = this.resolveTenant('WHATSAPP', phoneNumberId);
+
+          // ── Handle Real Meta Delivery & Read Callbacks ──────────────────
+          if (val.statuses && Array.isArray(val.statuses)) {
+            const db = getDatabase();
+            for (const statusObj of val.statuses) {
+              const msgId = statusObj.id;
+              const deliveryStatus = (statusObj.status || '').toUpperCase();
+              if (msgId && deliveryStatus) {
+                try {
+                  db.prepare(`
+                    UPDATE messages SET status = ?
+                    WHERE external_message_id = ? OR id = ?
+                  `).run(deliveryStatus, msgId, msgId);
+                  logger.info(`[META WEBHOOK] Updated message ${msgId} delivery status to ${deliveryStatus}`);
+                } catch (dbErr) {
+                  logger.warn(`Failed to update message status for ${msgId}:`, dbErr.message);
+                }
+              }
+            }
+          }
 
           const contacts = val.contacts || [];
           const contactMap = {};

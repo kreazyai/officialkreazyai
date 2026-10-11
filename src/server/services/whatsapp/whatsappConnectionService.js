@@ -3,8 +3,54 @@ import { logger } from '../../utils/logger.js';
 import { metaTokenService } from '../meta/metaTokenService.js';
 import { whatsappService } from '../meta/whatsappService.js';
 import { metaConnectionService } from '../meta/metaConnectionService.js';
+import { whatsappAiService } from './whatsappAiService.js';
 
 export const whatsappConnectionService = {
+  /**
+   * Retrieves connection with decrypted access token for tenant.
+   * Multi-Tenant Isolation: Strictly queries records for tenantId. Never falls back to another tenant or mock token.
+   */
+  getConnectionWithToken(tenantId) {
+    if (!tenantId) return null;
+    const db = getDatabase();
+
+    // 1. Check meta_connections
+    const metaConn = metaConnectionService.getConnectionWithToken(tenantId, 'WHATSAPP');
+    if (metaConn && metaConn.decryptedAccessToken) {
+      return metaConn;
+    }
+
+    // 2. Check dedicated whatsapp_connections table
+    try {
+      const waRow = db.prepare('SELECT * FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+      if (waRow && waRow.credential_reference) {
+        let cred = null;
+        try {
+          cred = JSON.parse(waRow.credential_reference);
+        } catch {}
+
+        if (cred && cred.cipher && cred.iv && cred.tag) {
+          const token = metaTokenService.decrypt(cred.cipher, cred.iv, cred.tag);
+          if (token) {
+            return {
+              ...waRow,
+              business_id: tenantId,
+              whatsapp_business_account_id: waRow.WABA_id,
+              phone_number_id: waRow.phone_number_id,
+              display_phone_number: waRow.display_number,
+              decryptedAccessToken: token,
+              auto_reply_enabled: waRow.auto_reply_enabled !== undefined ? waRow.auto_reply_enabled : 1
+            };
+          }
+        }
+      }
+    } catch (e) {
+      logger.warn(`Error resolving dedicated WhatsApp token for ${tenantId}:`, e.message);
+    }
+
+    return null;
+  },
+
   /**
    * Retrieves sanitized WhatsApp connection details for a tenant.
    * STRICT SECURITY: Never returns access tokens, encryption keys, or IVs!
@@ -29,7 +75,11 @@ export const whatsappConnectionService = {
     // Fall back to meta_connections WHATSAPP record if whatsapp_connections is empty or unpopulated
     if (!row || row.status === 'NOT_CONNECTED') {
       const metaWa = metaConnectionService.getConnections(tenantId).find(c => c.platform === 'WHATSAPP');
-      if (metaWa && metaWa.status === 'CONNECTED') {
+      if (metaWa && metaWa.status !== 'NOT_CONNECTED') {
+        let parsedMetaDiag = {};
+        try {
+          parsedMetaDiag = typeof metaWa.diagnostics === 'string' ? JSON.parse(metaWa.diagnostics) : (metaWa.diagnostics || {});
+        } catch {}
         return {
           id: metaWa.id,
           tenant_id: tenantId,
@@ -40,7 +90,7 @@ export const whatsappConnectionService = {
           webhook_status: metaWa.webhook_status,
           last_event_at: metaWa.last_webhook_at,
           last_error: metaWa.last_error,
-          diagnostics: metaWa.diagnostics,
+          diagnostics: parsedMetaDiag,
           auto_reply_enabled: metaWa.auto_reply_enabled,
           ai_confidence_threshold: metaWa.ai_confidence_threshold,
           created_at: metaWa.created_at,
@@ -261,17 +311,46 @@ export const whatsappConnectionService = {
    * Verifies credentials, phone identity, and outbound messaging readiness.
    */
   async runHealthCheck(tenantId) {
-    const conn = metaConnectionService.getConnectionWithToken(tenantId, 'WHATSAPP');
+    const conn = this.getConnectionWithToken(tenantId);
     const waDetails = this.getConnection(tenantId);
+    const waAiHealth = await whatsappAiService.checkHealth();
 
-    const isSuccess = Boolean(conn && conn.status === 'CONNECTED' && conn.decryptedAccessToken);
+    let metaApiConnectivity = { ok: false, error: null };
+    if (conn && conn.decryptedAccessToken && conn.phone_number_id) {
+      const liveCheck = await whatsappService.verifyPhoneNumberConnectivity(conn.phone_number_id, conn.decryptedAccessToken);
+      metaApiConnectivity = {
+        ok: liveCheck.success,
+        error: liveCheck.error || null,
+        errorCode: liveCheck.errorCode || null,
+        errorSubcode: liveCheck.errorSubcode || null,
+        errorType: liveCheck.errorType || null,
+        fbtraceId: liveCheck.fbtraceId || null,
+        isExpired: liveCheck.isExpired || false,
+        isInvalidToken: liveCheck.isInvalidToken || false,
+        qualityRating: liveCheck.qualityRating || null,
+        verifiedName: liveCheck.verifiedName || null
+      };
+    } else {
+      metaApiConnectivity.error = 'Credentials not configured';
+    }
+
+    const isSuccess = Boolean(conn && conn.decryptedAccessToken && metaApiConnectivity.ok);
+    const newStatus = isSuccess
+      ? 'CONNECTED'
+      : (metaApiConnectivity.isExpired || metaApiConnectivity.isInvalidToken
+          ? 'REAUTH_REQUIRED'
+          : (conn?.decryptedAccessToken ? 'CONNECTION_ERROR' : 'NOT_CONNECTED'));
+
+    const primaryError = metaApiConnectivity.error || null;
 
     const checkResult = {
       success: isSuccess,
       tenantId,
-      status: conn ? conn.status : 'NOT_CONNECTED',
+      status: newStatus,
       phoneIdentity: {
-        displayNumber: waDetails?.display_number || conn?.display_phone_number || 'None linked',
+        displayNumber: metaApiConnectivity.verifiedName
+          ? `${metaApiConnectivity.verifiedName} (${waDetails?.display_number || conn?.display_phone_number || ''})`
+          : (waDetails?.display_number || conn?.display_phone_number || 'None linked'),
         phoneNumberId: waDetails?.phone_number_id || conn?.phone_number_id || null,
         wabaId: waDetails?.WABA_id || conn?.whatsapp_business_account_id || null
       },
@@ -280,27 +359,48 @@ export const whatsappConnectionService = {
         lastReceivedEvent: waDetails?.last_event_at || conn?.last_webhook_at || null,
         version: 'v21.0 Cloud API'
       },
-      outboundMessagingReady: Boolean(conn && conn.decryptedAccessToken && conn.phone_number_id),
+      aiHealth: {
+        status: waAiHealth.status,
+        model: waAiHealth.model,
+        ok: waAiHealth.ok,
+        queue: waAiHealth.queue
+      },
+      outboundMessagingReady: isSuccess,
       diagnostics: {
-        credentialsValid: Boolean(conn?.decryptedAccessToken),
+        credentialsValid: isSuccess,
+        metaApiConnected: metaApiConnectivity.ok,
+        metaApiError: metaApiConnectivity.error,
+        errorCode: metaApiConnectivity.errorCode,
+        errorSubcode: metaApiConnectivity.errorSubcode,
+        errorType: metaApiConnectivity.errorType,
+        isExpired: metaApiConnectivity.isExpired,
+        aiModelStatus: waAiHealth.status,
+        aiModel: waAiHealth.model,
+        aiOk: waAiHealth.ok,
         phoneConfigured: Boolean(conn?.phone_number_id),
         phoneNumberId: waDetails?.phone_number_id || conn?.phone_number_id || null,
         webhookActive: Boolean(conn?.webhook_status === 'ACTIVE' || waDetails?.webhook_status === 'ACTIVE'),
-        messagingReady: Boolean(conn && conn.decryptedAccessToken && conn.phone_number_id),
-        permissionsGranted: Boolean(conn?.decryptedAccessToken)
+        messagingReady: isSuccess,
+        permissionsGranted: isSuccess
       },
       checkedAt: new Date().toISOString(),
       testedAt: new Date().toISOString()
     };
 
-    // Update last_api_check on connection record
+    // Update connection records in both tables
     try {
       const db = getDatabase();
       db.prepare(`
         UPDATE whatsapp_connections 
-        SET last_api_check = datetime('now'), updated_at = datetime('now')
+        SET status = ?, last_error = ?, diagnostics = ?, last_api_check = datetime('now'), updated_at = datetime('now')
         WHERE tenant_id = ?
-      `).run(tenantId);
+      `).run(newStatus, primaryError, JSON.stringify(checkResult.diagnostics), tenantId);
+
+      db.prepare(`
+        UPDATE meta_connections 
+        SET status = ?, last_error = ?, diagnostics = ?, updated_at = datetime('now')
+        WHERE business_id = ? AND platform = 'WHATSAPP'
+      `).run(newStatus, primaryError, JSON.stringify(checkResult.diagnostics), tenantId);
 
       // Record in integration_health table
       db.prepare(`

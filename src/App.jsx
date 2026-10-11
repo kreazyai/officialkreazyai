@@ -125,6 +125,7 @@ function getRouteStateFromUrl() {
       return {
         page: 'dashboard',
         dashboardModule: sub,
+        subRoute: segments[2] ? segments[2].toLowerCase() : null,
         shouldRedirectToOverview: false,
         rawPath: pathname
       };
@@ -386,7 +387,12 @@ function AppContent() {
               )}
 
               {currentDashboardModule === 'integrations' && (
-                <IntegrationsPage />
+                <IntegrationsPage
+                  subRoute={routeState.subRoute}
+                  onNavigateSubRoute={(sub) => {
+                    navigateTo(sub ? `/dashboard/integrations/${sub}` : '/dashboard/integrations');
+                  }}
+                />
               )}
 
               {currentDashboardModule === 'ai-assistant' && (

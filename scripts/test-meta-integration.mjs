@@ -138,11 +138,37 @@ async function runSuite() {
       assert(metaWebhookService.verifySignature(rawJson, validHmac, testSecret) === true, 'Signature verifier accepts genuine HMAC');
       assert(metaWebhookService.verifySignature(rawJson, invalidHmac, testSecret) === false, 'Signature verifier rejects forged HMAC');
 
-      // Test Deduplication
+      // Test Deduplication Lifecycle: First-Time, In-Flight Pipeline, Repeated Delivery, & Failure Retry
       const isFreshFirst = metaWebhookService.deduplicateEvent(testEventId, 'WHATSAPP', 'ws-flagship-01', samplePayload);
-      assert(isFreshFirst === true, 'First incoming message is marked fresh');
+      assert(isFreshFirst === true, 'First incoming message is marked fresh at gateway (processed=0)');
+      
+      // Crucial: Pipeline stage must NOT reject the in-flight event as a duplicate of itself
+      const pipelineRejectedInFlight = metaWebhookService.isDuplicateEvent(testEventId);
+      assert(pipelineRejectedInFlight === false, 'Pipeline permits in-flight message to proceed without self-duplicate rejection');
+
+      // Gateway marks event completed once processing finishes
+      metaWebhookService.markEventProcessed(testEventId, true);
+
+      // Repeated delivery of completed message must be dropped
       const isFreshDuplicate = metaWebhookService.deduplicateEvent(testEventId, 'WHATSAPP', 'ws-flagship-01', samplePayload);
-      assert(isFreshDuplicate === false, 'Duplicate incoming message is recognized and dropped');
+      assert(isFreshDuplicate === false, 'Duplicate incoming message is recognized and dropped at gateway (processed=1)');
+      const pipelineRejectedCompleted = metaWebhookService.isDuplicateEvent(testEventId);
+      assert(pipelineRejectedCompleted === true, 'Pipeline drops duplicate completed message');
+
+      // Failure followed by legitimate retry test
+      const failRetryEventId = `mid.test.fail_retry.${Date.now()}`;
+      const firstAttempt = metaWebhookService.deduplicateEvent(failRetryEventId, 'WHATSAPP', 'ws-flagship-01', samplePayload);
+      assert(firstAttempt === true, 'First attempt of retryable message is marked fresh');
+      // Processing throws / fails
+      metaWebhookService.markEventProcessed(failRetryEventId, false);
+      // Legitimate retry from Meta arrives
+      const retryAttempt = metaWebhookService.deduplicateEvent(failRetryEventId, 'WHATSAPP', 'ws-flagship-01', samplePayload);
+      assert(retryAttempt === true, 'Legitimate retry following a failure is accepted for re-processing');
+      const pipelineAllowedRetry = metaWebhookService.isDuplicateEvent(failRetryEventId);
+      assert(pipelineAllowedRetry === false, 'Pipeline permits retried message to proceed');
+      metaWebhookService.markEventProcessed(failRetryEventId, true);
+      const postSuccessDuplicate = metaWebhookService.deduplicateEvent(failRetryEventId, 'WHATSAPP', 'ws-flagship-01', samplePayload);
+      assert(postSuccessDuplicate === false, 'Post-success duplicate is dropped firmly');
 
       // ─────────────────────────────────────────────────────────────
       // 5. HETEROGENEOUS PAYLOAD NORMALIZATION
@@ -368,6 +394,71 @@ async function runSuite() {
         console.log(`     Step ${step.step}: ${step.title} -> ${step.detail}`);
       }
       assert(typeof simData.data.replyText === 'string', 'Generated customer reply');
+
+      // ─────────────────────────────────────────────────────────────
+      // 11. END-TO-END HTTP POST WEBHOOK INGESTION & AUTO-REPLY FLOW
+      // ─────────────────────────────────────────────────────────────
+      console.log('\n11. Testing End-to-End HTTP POST /api/v1/meta/webhook Flow...');
+      const e2eEventId = `wamid.test.e2e.${Date.now()}`;
+      const e2ePayload = {
+        object: 'whatsapp_business_account',
+        entry: [{
+          id: 'waba_99182',
+          changes: [{
+            field: 'messages',
+            value: {
+              metadata: { phone_number_id: 'phone_10928374' },
+              contacts: [{ wa_id: '1555019283', profile: { name: 'E2E Shopper' } }],
+              messages: [{
+                id: e2eEventId,
+                from: '1555019283',
+                timestamp: Math.floor(Date.now() / 1000).toString(),
+                type: 'text',
+                text: { body: 'What is your return policy?' }
+              }]
+            }
+          }]
+        }]
+      };
+
+      const e2eBody = JSON.stringify(e2ePayload);
+      const e2eHmac = config.meta.appSecret 
+        ? 'sha256=' + crypto.createHmac('sha256', config.meta.appSecret).update(e2eBody).digest('hex')
+        : undefined;
+
+      // 1st delivery: Fresh message
+      const e2eRes1 = await fetch(`http://localhost:${PORT}/api/v1/meta/webhook`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-forwarded-for': '157.240.231.17',
+          'cf-connecting-ip': '157.240.231.17',
+          ...(e2eHmac ? { 'x-hub-signature-256': e2eHmac } : {})
+        },
+        body: e2eBody
+      });
+      assert(e2eRes1.status === 200, 'HTTP POST Webhook returns 200 immediately for first delivery');
+
+      // Wait a moment for background processing to complete
+      await new Promise(r => setTimeout(r, 600));
+
+      // Verify that the inbound message was saved in DB
+      const dbInstance = getDatabase();
+      const savedInMsg = dbInstance.prepare('SELECT id, text, status FROM messages WHERE external_message_id = ?').get(e2eEventId);
+      assert(Boolean(savedInMsg), 'Inbound message successfully persisted in messages table (not dropped as self-duplicate)');
+
+      // 2nd delivery: Duplicate message delivery from Meta
+      const e2eRes2 = await fetch(`http://localhost:${PORT}/api/v1/meta/webhook`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-forwarded-for': '157.240.231.17',
+          'cf-connecting-ip': '157.240.231.17',
+          ...(e2eHmac ? { 'x-hub-signature-256': e2eHmac } : {})
+        },
+        body: e2eBody
+      });
+      assert(e2eRes2.status === 200, 'HTTP POST Webhook returns 200 ACK for duplicate delivery without error');
 
       console.log('\n================================================================');
       console.log(`TEST SUMMARY: ${testsPassed} PASSED, ${testsFailed} FAILED`);

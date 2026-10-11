@@ -230,19 +230,36 @@ export const knowledgeService = {
 
     // 3. Case B: Text-to-Product query
     const qLower = (queryText || '').toLowerCase();
+    const commonColors = [
+      'black', 'white', 'red', 'blue', 'green', 'yellow', 'brown', 'pink',
+      'grey', 'gray', 'purple', 'orange', 'navy', 'beige', 'khaki',
+      'কালো', 'সাদা', 'লাল', 'নীল', 'সবুজ', 'হলুদ'
+    ];
+    const requestedColors = commonColors.filter(c => qLower.includes(c));
+
     for (const prod of products) {
       const prodName = prod.name.toLowerCase();
       const sku = (prod.sku || '').toLowerCase();
+      const prodText = `${prodName} ${prod.description || ''} ${prod.ai_knowledge || ''} ${prod.category || ''} ${prod.variants || ''}`.toLowerCase();
+
+      // If user specified a color, product MUST have that color
+      if (requestedColors.length > 0) {
+        const hasColor = requestedColors.some(c => prodText.includes(c));
+        if (!hasColor) {
+          continue; // Color mismatch - do NOT false-match
+        }
+      }
 
       const isNameMatch = qLower.includes(prodName) || (prodName.length > 5 && qLower.includes(prodName.slice(0, 8)));
       const isSkuMatch = sku && qLower.includes(sku);
-      const isKeywordMatch =
-        (qLower.includes('shirt') && prodName.includes('overshirt')) ||
+      const isSpecificMatch =
+        (qLower.includes('linen') && prodName.includes('linen')) ||
         (qLower.includes('trouser') && prodName.includes('trouser')) ||
         (qLower.includes('mockneck') && prodName.includes('mockneck')) ||
-        (qLower.includes('crossbody') && prodName.includes('crossbody'));
+        (qLower.includes('crossbody') && prodName.includes('crossbody')) ||
+        (qLower.includes('cardigan') && prodName.includes('cardigan'));
 
-      if (isNameMatch || isSkuMatch || isKeywordMatch) {
+      if (isNameMatch || isSkuMatch || isSpecificMatch) {
         // Authoritative record verification
         const authoritative = db.prepare('SELECT price, stock, status FROM products WHERE id = ?').get(prod.id);
         prod.price = authoritative.price;
@@ -252,7 +269,7 @@ export const knowledgeService = {
           matched: true,
           product: prod,
           confidence: isSkuMatch ? 0.99 : (isNameMatch ? 0.96 : 0.88),
-          reason: isSkuMatch ? 'Exact SKU Match' : 'Catalog Name/Keyword Match'
+          reason: isSkuMatch ? 'Exact SKU Match' : 'Catalog Name Match'
         };
       }
     }

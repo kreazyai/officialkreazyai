@@ -587,6 +587,90 @@ export function runMigrations(db) {
     CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_knowledge_items_tenant ON knowledge_items(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_ai_settings_tenant ON ai_settings(tenant_id);
+
+    -- ── Phase 4 Migrations: Meta Embedded Signup, 7-Day Trial Wallet & Immutable Ledger ──
+    -- 24. WhatsApp Onboarding Sessions
+    CREATE TABLE IF NOT EXISTS whatsapp_onboarding_sessions (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      state_token TEXT UNIQUE NOT NULL,
+      status TEXT DEFAULT 'INITIATED',
+      waba_id TEXT,
+      phone_number_id TEXT,
+      error_message TEXT,
+      expires_at TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 25. AI Credit Wallets (7-Day Trial & Paid Allowances)
+    CREATE TABLE IF NOT EXISTS ai_credit_wallets (
+      tenant_id TEXT PRIMARY KEY REFERENCES businesses(id) ON DELETE CASCADE,
+      trial_started_at TEXT NOT NULL,
+      trial_expires_at TEXT NOT NULL,
+      trial_credits_granted INTEGER DEFAULT 125,
+      credits_balance INTEGER DEFAULT 125,
+      credits_reserved INTEGER DEFAULT 0,
+      credits_used INTEGER DEFAULT 0,
+      successful_replies_count INTEGER DEFAULT 0,
+      subscription_tier TEXT DEFAULT 'FREE_TRIAL',
+      subscription_status TEXT DEFAULT 'TRIAL_ACTIVE',
+      monthly_credit_allowance INTEGER DEFAULT 0,
+      subscription_renews_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 26. Immutable Credit Transactions Ledger
+    CREATE TABLE IF NOT EXISTS credit_transactions (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      amount INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      balance_after INTEGER NOT NULL,
+      reference_id TEXT,
+      description TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 27. Subscriptions (Pricing Plans)
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT UNIQUE NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      plan_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'ACTIVE',
+      credits_allowance INTEGER NOT NULL,
+      billing_cycle TEXT DEFAULT 'MONTHLY',
+      currency TEXT DEFAULT 'USD',
+      amount REAL DEFAULT 0.0,
+      current_period_start TEXT NOT NULL,
+      current_period_end TEXT NOT NULL,
+      cancel_at_period_end INTEGER DEFAULT 0,
+      payment_provider TEXT DEFAULT 'INTERNAL',
+      external_subscription_id TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 28. Payment Events (Idempotent Webhook Processing)
+    CREATE TABLE IF NOT EXISTS payment_events (
+      id TEXT PRIMARY KEY,
+      event_id TEXT UNIQUE NOT NULL,
+      provider TEXT NOT NULL,
+      event_type TEXT NOT NULL,
+      tenant_id TEXT,
+      payload TEXT NOT NULL,
+      processed INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_onboarding_sessions_state ON whatsapp_onboarding_sessions(state_token);
+    CREATE INDEX IF NOT EXISTS idx_onboarding_sessions_tenant ON whatsapp_onboarding_sessions(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_credit_wallets_tenant ON ai_credit_wallets(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_credit_tx_tenant ON credit_transactions(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_credit_tx_ref ON credit_transactions(reference_id);
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_tenant ON subscriptions(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_payment_events_id ON payment_events(event_id);
   `);
 
   // Dynamically backfill/alter columns on existing tables for strict specification compliance
@@ -867,6 +951,10 @@ export function seedInitialData(db) {
   ensureWhatsAppConnection(db, artisanId);
   ensureMetaConnections(db, artisanId, artisanId);
 
+  // Initialize 7-Day Free Trial Wallets (125 credits each)
+  ensureCreditWallet(db, flagshipId, now);
+  ensureCreditWallet(db, artisanId, now);
+
   logger.info('Database seeded with baseline multi-tenant structure, WhatsApp connections, FAQs, and policies.');
 }
 
@@ -883,6 +971,48 @@ export function ensureWhatsAppConnection(db, tenantId) {
     `).run(id, tenantId);
   } catch {
     // safe fallback
+  }
+}
+
+/**
+ * Ensures a 7-Day Free Trial AI Credit Wallet exists for a tenant.
+ * Grants 125 trial credits with a 7-day expiration from account creation.
+ */
+export function ensureCreditWallet(db, tenantId, createdAt = null) {
+  if (!tenantId) return null;
+  const existing = db.prepare('SELECT * FROM ai_credit_wallets WHERE tenant_id = ?').get(tenantId);
+  if (existing) return existing;
+
+  const now = new Date();
+  const startTime = createdAt ? new Date(createdAt) : now;
+  const expiresTime = new Date(startTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const nowIso = now.toISOString();
+  const startIso = startTime.toISOString();
+  const expiresIso = expiresTime.toISOString();
+  const isExpired = now.getTime() > expiresTime.getTime();
+  const status = isExpired ? 'TRIAL_EXPIRED' : 'TRIAL_ACTIVE';
+
+  try {
+    db.prepare(`
+      INSERT OR IGNORE INTO ai_credit_wallets (
+        tenant_id, trial_started_at, trial_expires_at, trial_credits_granted,
+        credits_balance, credits_reserved, credits_used, successful_replies_count,
+        subscription_tier, subscription_status, monthly_credit_allowance,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, 125, 125, 0, 0, 0, 'FREE_TRIAL', ?, 0, ?, ?)
+    `).run(tenantId, startIso, expiresIso, status, nowIso, nowIso);
+
+    // Initial trial grant entry in transaction ledger
+    db.prepare(`
+      INSERT OR IGNORE INTO credit_transactions (
+        id, tenant_id, amount, type, balance_after, reference_id, description, created_at
+      ) VALUES (?, ?, 125, 'TRIAL_GRANT', 125, 'TRIAL_INITIAL', 'Welcome 7-Day Free Trial: 125 AI Credits (25 replies max)', ?)
+    `).run(`ctx-grant-${tenantId}-${Date.now()}`, tenantId, nowIso);
+
+    return db.prepare('SELECT * FROM ai_credit_wallets WHERE tenant_id = ?').get(tenantId);
+  } catch (err) {
+    logger.warn(`Failed to initialize credit wallet for tenant ${tenantId}:`, err.message);
+    return null;
   }
 }
 

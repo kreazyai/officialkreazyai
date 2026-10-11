@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getDatabase } from '../config/database.js';
+import { getDatabase, ensureCreditWallet } from '../config/database.js';
 import { config } from '../config/env.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
@@ -111,6 +111,9 @@ export const authController = {
           JSON.stringify({ storeName, plan }),
           now
         );
+
+        // Initialize 7-Day Free Trial AI Credit Wallet (125 credits, 5 credits/reply)
+        ensureCreditWallet(db, businessId, now);
       });
 
       registerTransaction();

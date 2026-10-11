@@ -1,0 +1,851 @@
+/* =====================================================================
+   KREAZYAI MACOS-INSPIRED INTEGRATIONS DESIGN SYSTEM
+   Apple-grade visual refinement, SF Pro typography, frosted glass cards,
+   subtle shadows, high text contrast, 22px rounded corners.
+   ===================================================================== */
+
+.macos-integrations-wrapper {
+  min-height: 100%;
+  width: 100%;
+  background-color: #F8FAF9;
+  background-image: radial-gradient(1200px 600px at 50% -10%, rgba(221, 247, 233, 0.45) 0%, rgba(248, 250, 249, 0) 100%);
+  color: #17212B;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 2.25rem 2rem 4rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .macos-integrations-wrapper {
+    padding: 1.5rem 1rem 3rem;
+  }
+}
+
+.macos-integrations-container {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   1. PAGE HEADER & BREADCRUMB
+   ───────────────────────────────────────────────────────────────── */
+.macos-header {
+  margin-bottom: 2rem;
+}
+
+.macos-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #64748B;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.macos-breadcrumb-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.15s ease;
+}
+
+.macos-breadcrumb-btn:hover {
+  color: #087A4A;
+}
+
+.macos-breadcrumb-separator {
+  color: #CBD5E1;
+  font-weight: 400;
+  user-select: none;
+}
+
+.macos-breadcrumb-current {
+  color: #17212B;
+  font-weight: 600;
+}
+
+.macos-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #17212B;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.25;
+}
+
+.macos-subtitle {
+  font-size: 0.9375rem;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   2. THREE-CARD GRID (MAIN INTEGRATIONS OVERVIEW)
+   ───────────────────────────────────────────────────────────────── */
+.macos-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .macos-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.macos-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 22px;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 8px 24px -4px rgba(0, 0, 0, 0.04);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  min-height: 250px;
+  box-sizing: border-box;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.macos-card-interactive {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.macos-card-interactive:hover {
+  transform: translateY(-3px);
+  border-color: rgba(37, 211, 102, 0.35);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.03),
+    0 14px 28px -4px rgba(37, 211, 102, 0.08),
+    0 0 0 1px rgba(37, 211, 102, 0.15);
+}
+
+.macos-card-disabled {
+  cursor: default;
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 0, 0, 0.04);
+  opacity: 0.78;
+}
+
+.macos-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.macos-brand-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.macos-card-content {
+  flex: 1;
+}
+
+.macos-card-heading {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  color: #17212B;
+  margin: 0 0 0.35rem 0;
+  letter-spacing: -0.015em;
+}
+
+.macos-card-desc {
+  font-size: 0.875rem;
+  color: #64748B;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.macos-card-bottom {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.macos-card-action-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #087A4A;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: transform 0.15s ease;
+}
+
+.macos-card-interactive:hover .macos-card-action-text {
+  transform: translateX(2px);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   3. STATUS INDICATORS & BADGES
+   ───────────────────────────────────────────────────────────────── */
+.macos-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.macos-status-pill.connected {
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.macos-status-pill.reauth {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.macos-status-pill.disconnected {
+  background-color: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+.macos-status-pill.coming-soon {
+  background-color: #F8FAFC;
+  color: #94A3B8;
+  border: 1px solid #E2E8F0;
+}
+
+.macos-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.macos-status-pill.connected .macos-status-dot {
+  background-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.macos-status-pill.reauth .macos-status-dot {
+  background-color: #F59E0B;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.macos-status-pill.disconnected .macos-status-dot {
+  background-color: #94A3B8;
+}
+
+.macos-status-pill.coming-soon .macos-status-dot {
+  background-color: #CBD5E1;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   4. WHATSAPP AUTOMATION SECTIONS
+   ───────────────────────────────────────────────────────────────── */
+.macos-sections-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.macos-section-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 22px;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 8px 24px -4px rgba(0, 0, 0, 0.04);
+  padding: 1.75rem 2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .macos-section-card {
+    padding: 1.35rem 1.25rem;
+    border-radius: 18px;
+  }
+}
+
+/* SECTION A: WhatsApp Connection Card */
+.macos-conn-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.macos-conn-identity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.macos-conn-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #17212B;
+  margin: 0 0 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.macos-conn-meta {
+  font-size: 0.875rem;
+  color: #64748B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.macos-conn-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* SECTION B: AI Credit Balance Minimal Strip */
+.macos-credit-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 1.15rem 1.75rem;
+}
+
+.macos-credit-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.macos-credit-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: 0.9375rem;
+  color: #17212B;
+}
+
+.macos-credit-metric-val {
+  font-weight: 700;
+  color: #17212B;
+  letter-spacing: -0.01em;
+}
+
+.macos-credit-metric-lbl {
+  font-size: 0.8125rem;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.macos-credit-divider {
+  width: 1px;
+  height: 16px;
+  background-color: #E2E8F0;
+}
+
+.macos-credit-cost-hint {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  margin-left: 0.25rem;
+}
+
+.macos-upgrade-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #087A4A;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+.macos-upgrade-link:hover {
+  color: #0FA968;
+  text-decoration: underline;
+}
+
+/* SECTION C: AI Auto-Reply Switch Card */
+.macos-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.macos-setting-text {
+  flex: 1;
+}
+
+.macos-setting-heading {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #17212B;
+  margin: 0 0 0.25rem 0;
+}
+
+.macos-setting-desc {
+  font-size: 0.875rem;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* macOS Functional Toggle Switch */
+.macos-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.macos-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.macos-toggle-track {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #E2E8F0;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 34px;
+}
+
+.macos-toggle-track:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #FFFFFF;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+.macos-toggle-switch input:checked + .macos-toggle-track {
+  background-color: #10B981;
+}
+
+.macos-toggle-switch input:focus-visible + .macos-toggle-track {
+  outline: 2px solid #10B981;
+  outline-offset: 2px;
+}
+
+.macos-toggle-switch input:checked + .macos-toggle-track:before {
+  transform: translateX(20px);
+}
+
+/* SECTION D: Test AI Card */
+.macos-test-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.macos-test-input-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .macos-test-input-group {
+    flex-direction: column;
+  }
+}
+
+.macos-input {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #17212B;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.macos-input:focus {
+  border-color: #087A4A;
+  box-shadow: 0 0 0 3px rgba(8, 122, 74, 0.12);
+}
+
+.macos-input::placeholder {
+  color: #94A3B8;
+}
+
+.macos-btn-primary {
+  background: #087A4A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(8, 122, 74, 0.2);
+  white-space: nowrap;
+}
+
+.macos-btn-primary:hover:not(:disabled) {
+  background: #06633b;
+  box-shadow: 0 2px 4px rgba(8, 122, 74, 0.3);
+}
+
+.macos-btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.macos-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.macos-btn-whatsapp {
+  background: #25D366;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.25);
+  white-space: nowrap;
+}
+
+.macos-btn-whatsapp:hover:not(:disabled) {
+  background: #20bd5a;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.35);
+}
+
+.macos-btn-whatsapp:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.macos-btn-secondary {
+  background: #FFFFFF;
+  color: #17212B;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  white-space: nowrap;
+}
+
+.macos-btn-secondary:hover:not(:disabled) {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+.macos-btn-danger-ghost {
+  background: transparent;
+  color: #DC2626;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.macos-btn-danger-ghost:hover:not(:disabled) {
+  background: #FEF2F2;
+}
+
+/* AI Preview Bubble */
+.macos-ai-preview-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: macosFadeIn 0.25s ease-out;
+}
+
+@keyframes macosFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.macos-ai-preview-text {
+  font-size: 0.9375rem;
+  color: #1E293B;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.macos-ai-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: #64748B;
+  border-top: 1px solid #EDF2F7;
+  padding-top: 0.6rem;
+}
+
+.macos-simulation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #087A4A;
+  font-weight: 600;
+}
+
+/* SECTION E: Connection Health */
+.macos-health-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.5rem 1rem;
+}
+
+.macos-health-toggle-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748B;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  background: #FFFFFF;
+}
+
+.macos-health-toggle-btn:hover {
+  color: #17212B;
+  border-color: #CBD5E1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.macos-diagnostics-drawer {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: macosFadeIn 0.2s ease-out;
+}
+
+.macos-diag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  padding: 4px 0;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.macos-diag-item:last-child {
+  border-bottom: none;
+}
+
+.macos-diag-label {
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.macos-diag-val {
+  font-weight: 600;
+  color: #17212B;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   5. UPGRADE MODAL (MACOS SHEET STYLE)
+   ───────────────────────────────────────────────────────────────── */
+.macos-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: macosModalFade 0.2s ease-out;
+}
+
+@keyframes macosModalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.macos-modal-sheet {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+  max-width: 720px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+  box-sizing: border-box;
+  animation: macosModalSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes macosModalSlide {
+  from { transform: scale(0.97) translateY(8px); }
+  to { transform: scale(1) translateY(0); }
+}
+
+.macos-modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: #F1F5F9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.macos-modal-close:hover {
+  background: #E2E8F0;
+  color: #17212B;
+}
+
+.macos-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .macos-plans-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.macos-plan-card {
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #FFFFFF;
+  transition: all 0.15s ease;
+}
+
+.macos-plan-card.popular {
+  border-color: #087A4A;
+  box-shadow: 0 4px 14px rgba(8, 122, 74, 0.08);
+  position: relative;
+}
+
+.macos-plan-tag {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: #087A4A;
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

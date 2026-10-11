@@ -1,13 +1,38 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { config } from '../config/env.js';
 import { getDatabase } from '../config/database.js';
 import { apiRouter } from '../routes/apiRoutes.js';
 import { errorHandler, notFoundHandler } from '../middleware/errorHandler.js';
 import { successResponse, errorResponse, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
+
+// ─── Reverse-Proxy Client IP Resolution ───────────────────────────────────────
+
+/**
+ * Safely resolves the true client IP behind Cloudflare Tunnel (local reverse proxy).
+ * - When the request arrives through the trusted local proxy hop (loopback: 127.0.0.1, ::1),
+ *   it utilizes the Cloudflare authenticated 'cf-connecting-ip' header if present.
+ * - Otherwise, it falls back to Express req.ip (which respects 'trust proxy: loopback').
+ * - Protects against external IP spoofing by only honoring cf-connecting-ip when socket is loopback.
+ */
+export function getClientIp(req) {
+  const remoteAddr = req.socket?.remoteAddress;
+  const isLoopback = remoteAddr === '127.0.0.1' || 
+                     remoteAddr === '::1' || 
+                     remoteAddr === '::ffff:127.0.0.1';
+
+  if (isLoopback) {
+    const cfIp = req.headers['cf-connecting-ip'];
+    if (cfIp && typeof cfIp === 'string') {
+      return cfIp.trim();
+    }
+  }
+
+  return req.ip;
+}
 
 // ─── Rate Limiter Definitions ─────────────────────────────────────────────────
 
@@ -17,6 +42,7 @@ const generalLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
   message: {
     success: false,
     error: {
@@ -24,7 +50,12 @@ const generalLimiter = rateLimit({
       message: 'Too many requests — please try again in a few minutes.'
     }
   },
-  skip: (req) => req.originalUrl === '/api/health' || req.originalUrl === '/api/health/db'
+  skip: (req) => 
+    req.originalUrl === '/api/health' || 
+    req.originalUrl === '/api/health/db' || 
+    req.originalUrl.includes('/webhook') || 
+    req.originalUrl.startsWith('/api/v1/meta') ||
+    req.originalUrl.startsWith('/api/meta')
 });
 
 /** Strict limit for auth endpoints: 10 attempts / 15-minute window per IP */
@@ -33,6 +64,7 @@ const authLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
   message: {
     success: false,
     error: {
@@ -48,6 +80,7 @@ const leadLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
   message: {
     success: false,
     error: {
@@ -61,6 +94,10 @@ const leadLimiter = rateLimit({
 
 export function createApp() {
   const app = express();
+
+  // 0. Trust only the local Cloudflare Tunnel reverse-proxy hop (loopback: 127.0.0.1, ::1)
+  // Prevents trusting arbitrary external proxies while accurately trusting the local tunnel
+  app.set('trust proxy', 'loopback');
 
   // 1. Security Headers via Helmet (OWASP A05:2021 hardening)
   app.use(helmet({
