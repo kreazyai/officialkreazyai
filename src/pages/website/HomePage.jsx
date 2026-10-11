@@ -470,7 +470,14 @@ export function HomePage({ onNavigate, user }) {
         {/* Central Main Composition (Items 1, 9, 10, 4) */}
         <div className="container" style={{ position: 'relative', zIndex: 3 }}>
           <div className="hero-content-wrap">
-            {/* Main Headline: Exactly 'More conversations.' and 'Less manual work.' */}
+            {/* 1. Small Announcement Badge above Headline */}
+            <div className="hero-announcement-badge">
+              <span className="hero-status-beacon" />
+              <span className="badge-text">AI-Powered Business Automation</span>
+              <ArrowRight size={13} className="badge-arrow" />
+            </div>
+
+            {/* 2. Main Headline: Exactly 'More conversations.' and 'Less manual work.' */}
             <h1 className="hero-title">
               <span className="title-line dark">More conversations.</span>
               <span className="title-line green">Less manual work.</span>
@@ -517,7 +524,7 @@ export function HomePage({ onNavigate, user }) {
               )}
             </div>
 
-            {/* 5. Connected Platform Indicators (Under CTA - Item 10) */}
+            {/* 5. Connected Platform Indicators (Under CTA) */}
             <div className="hero-channels-row">
               <div className="hero-channel-item">
                 <span className="hero-channel-icon-pill" title="WhatsApp Business">
@@ -548,30 +555,30 @@ export function HomePage({ onNavigate, user }) {
               </div>
             </div>
 
-            {/* 6. Main AI Visual: macOS Autonomous Agent Window (Item 4) */}
-            <div className="hero-macos-agent-window">
-              {/* macOS Window Header */}
-              <div className="hero-macos-window-header">
-                <div className="hero-macos-traffic-lights">
+            {/* 6. Main AI Visual: Premium Modern SaaS Product Mockup Card */}
+            <div className="hero-product-preview-card">
+              {/* Product Window Header */}
+              <div className="preview-card-header">
+                <div className="preview-traffic-dots">
                   <span className="traffic-dot traffic-red" />
                   <span className="traffic-dot traffic-yellow" />
                   <span className="traffic-dot traffic-green" />
                 </div>
-                <div className="hero-macos-window-title">
+                <div className="preview-window-pill">
                   <span className="window-brand">KREAZY AI</span>
                   <span className="window-sep">/</span>
                   <span className="window-app">Autonomous Agent Workspace</span>
                 </div>
-                <div className="hero-macos-live-badge">
+                <div className="preview-live-badge">
                   <span className="live-pulse-dot" />
-                  <span>Listening</span>
+                  <span>Listening · 4 Channels Active</span>
                 </div>
               </div>
 
-              {/* macOS Window Body */}
-              <div className="hero-macos-window-body">
-                {/* Agent Identity & Latency Bar */}
-                <div className="hero-macos-agent-subbar">
+              {/* Product Window Body */}
+              <div className="preview-card-body">
+                {/* Agent Identity & Telemetry Bar */}
+                <div className="preview-agent-subbar">
                   <div className="agent-identity">
                     <div className="agent-avatar-icon">
                       <Bot size={18} />
@@ -581,34 +588,79 @@ export function HomePage({ onNavigate, user }) {
                       <div className="agent-role">Multi-Channel Autonomous Commerce</div>
                     </div>
                   </div>
-                  <div className="agent-latency-chip">
-                    <Zap size={13} />
-                    <span>⚡ 1.2s avg response</span>
+                  <div className="agent-telemetry-strip">
+                    <div className="agent-latency-chip">
+                      <Zap size={13} />
+                      <span>⚡ 1.2s avg response</span>
+                    </div>
+                    <div className="agent-accuracy-chip">
+                      <CheckCircle2 size={13} />
+                      <span>99.8% AI accuracy</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* 4 Metric Counters Grid */}
-                <div className="hero-macos-metrics-grid">
-                  <div className="hero-macos-metric-card">
+                <div className="preview-metrics-grid">
+                  <div className="preview-metric-card">
                     <div className="metric-number">12</div>
                     <div className="metric-label">conversations handled</div>
                   </div>
-                  <div className="hero-macos-metric-card">
+                  <div className="preview-metric-card">
                     <div className="metric-number">3</div>
                     <div className="metric-label">leads qualified</div>
                   </div>
-                  <div className="hero-macos-metric-card highlight">
+                  <div className="preview-metric-card highlight">
                     <div className="metric-number">2</div>
                     <div className="metric-label">orders created</div>
                   </div>
-                  <div className="hero-macos-metric-card">
+                  <div className="preview-metric-card">
                     <div className="metric-number">1</div>
                     <div className="metric-label">human handoff</div>
                   </div>
                 </div>
 
+                {/* Conversational Automation Stream Preview */}
+                <div className="preview-conversation-stream">
+                  {/* Customer Inbound Bubble */}
+                  <div className="stream-message customer">
+                    <div className="message-header">
+                      <span className="customer-avatar">SM</span>
+                      <span className="customer-name">Sarah M.</span>
+                      <span className="channel-tag">
+                        <WhatsAppIcon size={12} />
+                        WhatsApp
+                      </span>
+                      <span className="message-time">10:42 AM</span>
+                    </div>
+                    <div className="message-body">
+                      Hi! Do you have the Artisan Linen Overshirt in size L? How long for delivery to Dhaka?
+                    </div>
+                  </div>
+
+                  {/* Autonomous Kreazy AI Outbound Bubble */}
+                  <div className="stream-message ai">
+                    <div className="message-header">
+                      <div className="ai-agent-indicator">
+                        <Bot size={12} />
+                        <span>Kreazy AI Agent</span>
+                      </div>
+                      <span className="response-speed-pill">⚡ 0.8s automated reply</span>
+                      <span className="message-time">10:42 AM</span>
+                    </div>
+                    <div className="message-body">
+                      Yes! The Artisan Linen Overshirt in Large is in stock (৳3,450). Standard delivery inside Dhaka arrives within 24-48 hours. Would you like me to reserve one or confirm your order?
+                    </div>
+                    <div className="message-chips-row">
+                      <span className="message-chip success">✓ Catalog Synced</span>
+                      <span className="message-chip">Stock: 4 Available</span>
+                      <span className="message-chip">Cash on Delivery Eligible</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Live Event Ticker */}
-                <div className="hero-macos-event-ticker">
+                <div className="preview-event-ticker">
                   <span className="ticker-badge">LIVE EVENT</span>
                   <div className="ticker-text">
                     <span className="ticker-time">10:42:19</span>
