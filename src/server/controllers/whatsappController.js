@@ -8,6 +8,7 @@ import { metaConnectionService } from '../services/meta/metaConnectionService.js
 import { metaEmbeddedSignupService } from '../services/meta/metaEmbeddedSignupService.js';
 import { creditWalletService } from '../services/billing/creditWalletService.js';
 import { config } from '../config/env.js';
+import { logger } from '../utils/logger.js';
 
 export const whatsappController = {
   /**
@@ -246,7 +247,7 @@ export const whatsappController = {
               metadata: { isTestMode: true, isSimulatedTest: true }
             };
 
-            const aiResult = await whatsappPipeline.processInboundEvent(simEvent);
+            const aiResult = await whatsappPipeline.processInboundMessage(simEvent);
             if (aiResult?.replyText) {
               textToSend = aiResult.replyText;
               aiMetadata = {

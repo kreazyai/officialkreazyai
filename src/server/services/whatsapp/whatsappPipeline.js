@@ -639,5 +639,12 @@ export const whatsappPipeline = {
     }
 
     return { intent: WHATSAPP_INTENTS.OTHER, confidence: 0.70 };
+  },
+
+  /**
+   * Alias for processInboundMessage
+   */
+  processInboundEvent(inboundEvent) {
+    return this.processInboundMessage(inboundEvent);
   }
 };
