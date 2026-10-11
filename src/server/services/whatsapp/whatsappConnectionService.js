@@ -4,6 +4,7 @@ import { metaTokenService } from '../meta/metaTokenService.js';
 import { whatsappService } from '../meta/whatsappService.js';
 import { metaConnectionService } from '../meta/metaConnectionService.js';
 import { whatsappAiService } from './whatsappAiService.js';
+import { config } from '../../config/env.js';
 
 export const whatsappConnectionService = {
   /**
@@ -17,6 +18,14 @@ export const whatsappConnectionService = {
     // 1. Check meta_connections
     const metaConn = metaConnectionService.getConnectionWithToken(tenantId, 'WHATSAPP');
     if (metaConn && metaConn.decryptedAccessToken) {
+      if ((metaConn.decryptedAccessToken.startsWith('EAAG_mock') || !metaConn.decryptedAccessToken) && config.whatsapp?.accessToken) {
+        return {
+          ...metaConn,
+          phone_number_id: config.whatsapp.phoneNumberId || metaConn.phone_number_id,
+          whatsapp_business_account_id: config.whatsapp.wabaId || metaConn.whatsapp_business_account_id,
+          decryptedAccessToken: config.whatsapp.accessToken
+        };
+      }
       return metaConn;
     }
 
@@ -32,6 +41,17 @@ export const whatsappConnectionService = {
         if (cred && cred.cipher && cred.iv && cred.tag) {
           const token = metaTokenService.decrypt(cred.cipher, cred.iv, cred.tag);
           if (token) {
+            if (token.startsWith('EAAG_mock') && config.whatsapp?.accessToken) {
+              return {
+                ...waRow,
+                business_id: tenantId,
+                whatsapp_business_account_id: config.whatsapp.wabaId || waRow.WABA_id,
+                phone_number_id: config.whatsapp.phoneNumberId || waRow.phone_number_id,
+                display_phone_number: waRow.display_number,
+                decryptedAccessToken: config.whatsapp.accessToken,
+                auto_reply_enabled: waRow.auto_reply_enabled !== undefined ? waRow.auto_reply_enabled : 1
+              };
+            }
             return {
               ...waRow,
               business_id: tenantId,
@@ -46,6 +66,18 @@ export const whatsappConnectionService = {
       }
     } catch (e) {
       logger.warn(`Error resolving dedicated WhatsApp token for ${tenantId}:`, e.message);
+    }
+
+    // 3. Check environment configuration
+    if (config.whatsapp?.accessToken && config.whatsapp?.phoneNumberId) {
+      return {
+        business_id: tenantId,
+        whatsapp_business_account_id: config.whatsapp.wabaId || 'waba_env',
+        phone_number_id: config.whatsapp.phoneNumberId,
+        display_phone_number: '+1 (555) 839-2041',
+        decryptedAccessToken: config.whatsapp.accessToken,
+        auto_reply_enabled: 1
+      };
     }
 
     return null;

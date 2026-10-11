@@ -9,7 +9,8 @@ import {
   AlertCircle,
   Sparkles,
   X,
-  RefreshCw
+  RefreshCw,
+  KeyRound
 } from 'lucide-react';
 import { WhatsAppIcon } from '../../../components/integrations/BrandIcons';
 import { whatsappApiService } from '../../../services/api';
@@ -59,11 +60,25 @@ export function WhatsAppIntegrationPage({ onBack }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
-  // Interactive AI Simulation Test
+  // Interactive Live Phone AI Test
+  const [recipientPhone, setRecipientPhone] = useState(() => {
+    return localStorage.getItem('kreazy_user_phone') || '';
+  });
   const [testQuestion, setTestQuestion] = useState('Do you have this shirt in XL?');
   const [testReply, setTestReply] = useState(null);
   const [testMetadata, setTestMetadata] = useState(null);
   const [testSending, setTestSending] = useState(false);
+  const [liveDispatchResult, setLiveDispatchResult] = useState(null);
+
+  // Manual Meta Credentials Configuration Modal
+  const [showCredsModal, setShowCredsModal] = useState(false);
+  const [credsSubmitting, setCredsSubmitting] = useState(false);
+  const [credsForm, setCredsForm] = useState({
+    accessToken: '',
+    phoneNumberId: '1407171145805154',
+    wabaId: '1735308764198811',
+    displayNumber: '+1 (555) 839-2041'
+  });
 
   // Connection Health Check & Diagnostics
   const [healthChecking, setHealthChecking] = useState(false);
@@ -240,33 +255,92 @@ export function WhatsAppIntegrationPage({ onBack }) {
     }
   };
 
-  // ── 5. AI Simulation Test ──────────────────────────────────────────────────
-  const handleTestAi = async () => {
+  // ── 5. Real Phone WhatsApp Dispatch Pipeline ──────────────────────────────
+  const handleSendLiveToPhone = async () => {
     if (!testQuestion.trim()) return;
+    if (!recipientPhone.trim()) {
+      setErrorNotice('Please enter your WhatsApp phone number to receive this message on your device.');
+      return;
+    }
+
     setTestSending(true);
     setTestReply(null);
     setTestMetadata(null);
+    setLiveDispatchResult(null);
     setErrorNotice(null);
+
+    // Persist phone for user convenience
+    localStorage.setItem('kreazy_user_phone', recipientPhone.trim());
 
     try {
       const res = await whatsappApiService.sendTestMessage({
         messageText: testQuestion.trim(),
-        isSimulation: true
+        recipientPhone: recipientPhone.trim(),
+        sendLiveToPhone: true,
+        sendAiReply: true
       });
 
-      const reply = res?.data?.result?.replyText || res?.result?.replyText || res?.replyText || 'No reply synthesized.';
-      const model = res?.data?.result?.aiModel || res?.result?.aiModel || 'Ollama qwen3:1.7b';
-      const durationMs = res?.data?.result?.executionTimeMs || res?.result?.executionTimeMs || 2500;
+      const resData = res?.data || res;
+      const textSent = resData?.textSent || resData?.replyText || 'Message dispatched to your phone.';
+      const messageId = resData?.messageId || null;
+      const aiMeta = resData?.aiMetadata || null;
 
-      setTestReply(reply);
-      setTestMetadata({
-        model,
-        durationSeconds: (durationMs / 1000).toFixed(1)
+      setTestReply(textSent);
+      setLiveDispatchResult({
+        success: true,
+        recipientPhone: recipientPhone.trim(),
+        messageId,
+        aiMeta
       });
+      setNotice(`AI reply successfully delivered directly to your WhatsApp (${recipientPhone.trim()})!`);
+      await fetchDetails();
     } catch (err) {
-      setTestReply(`Simulation error: ${err.message}`);
+      console.error('Send to phone error:', err);
+      const errMsg = err?.response?.data?.error?.message || err?.message || 'Failed to dispatch WhatsApp message to phone.';
+      const isMock = err?.response?.data?.error?.details?.isMockToken;
+
+      setErrorNotice(errMsg);
+      setLiveDispatchResult({
+        success: false,
+        error: errMsg,
+        isMockToken: Boolean(isMock)
+      });
+
+      if (isMock) {
+        setShowCredsModal(true);
+      }
     } finally {
       setTestSending(false);
+    }
+  };
+
+  // ── 5b. Manual Meta Cloud API Credentials Configuration ─────────────────────
+  const handleSaveCredentials = async (e) => {
+    if (e) e.preventDefault();
+    if (!credsForm.accessToken.trim() || !credsForm.phoneNumberId.trim()) {
+      setErrorNotice('Access Token and Phone Number ID are required.');
+      return;
+    }
+
+    setCredsSubmitting(true);
+    setErrorNotice(null);
+
+    try {
+      await whatsappApiService.configureCredentials({
+        accessToken: credsForm.accessToken.trim(),
+        phoneNumberId: credsForm.phoneNumberId.trim(),
+        wabaId: credsForm.wabaId.trim() || undefined,
+        displayNumber: credsForm.displayNumber.trim() || undefined
+      });
+
+      setShowCredsModal(false);
+      setNotice('Meta Cloud API credentials verified & linked successfully! You can now send live messages to your phone.');
+      await fetchDetails();
+    } catch (err) {
+      const errMsg = err?.response?.data?.error?.message || err?.message || 'Verification failed';
+      setErrorNotice(`Meta API verification failed: ${errMsg}`);
+    } finally {
+      setCredsSubmitting(false);
     }
   };
 
@@ -445,6 +519,16 @@ export function WhatsAppIntegrationPage({ onBack }) {
 
               {/* Actions Area */}
               <div className="macos-conn-actions">
+                <button
+                  type="button"
+                  className="macos-btn-secondary"
+                  onClick={() => setShowCredsModal(true)}
+                  title="Configure Meta Cloud API Access Token and Phone Number ID"
+                >
+                  <KeyRound size={14} />
+                  Configure Token
+                </button>
+
                 {!isConnected && !isReauth && (
                   <button
                     type="button"
@@ -581,66 +665,189 @@ export function WhatsAppIntegrationPage({ onBack }) {
           </section>
 
           {/* ─────────────────────────────────────────────────────────────
-              SECTION D — TEST AI REPLY CARD
+              SECTION D — SEND AI MESSAGE DIRECTLY TO YOUR PHONE
               ───────────────────────────────────────────────────────────── */}
-          <section className="macos-section-card" aria-labelledby="test-ai-heading">
+          <section className="macos-section-card" aria-labelledby="live-phone-heading">
             <div className="macos-test-box">
               <div>
-                <h2 id="test-ai-heading" className="macos-setting-heading">
-                  Test AI Reply
+                <h2 id="live-phone-heading" className="macos-setting-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Smartphone size={18} color="#087A4A" />
+                  Send AI Message Directly to Your Phone
                 </h2>
-                <p className="macos-setting-desc" style={{ marginBottom: '1rem' }}>
-                  Ask a sample customer question to preview the AI auto-reply.
+                <p className="macos-setting-desc" style={{ marginBottom: '1.25rem' }}>
+                  Enter your mobile WhatsApp number. When you test a question, KreazyAI generates an AI response and delivers it directly to your WhatsApp.
                 </p>
               </div>
 
-              <div className="macos-test-input-group">
-                <input
-                  type="text"
-                  className="macos-input"
-                  value={testQuestion}
-                  onChange={(e) => setTestQuestion(e.target.value)}
-                  placeholder="Ask a sample customer question..."
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !testSending) {
-                      e.preventDefault();
-                      handleTestAi();
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  className="macos-btn-primary"
-                  onClick={handleTestAi}
-                  disabled={testSending || !testQuestion.trim()}
-                >
-                  {testSending ? (
-                    <>
-                      <Loader2 size={15} className="animate-spin" />
-                      Testing...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={15} />
-                      Test AI
-                    </>
-                  )}
-                </button>
+              {/* Phone Number Input */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Your WhatsApp Phone Number</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#64748B' }}>(Include country code, e.g. +88017... or +1...)</span>
+                </label>
+                <div style={{ maxWidth: '380px' }}>
+                  <input
+                    type="tel"
+                    className="macos-input"
+                    value={recipientPhone}
+                    onChange={(e) => {
+                      setRecipientPhone(e.target.value);
+                      localStorage.setItem('kreazy_user_phone', e.target.value);
+                    }}
+                    placeholder="+8801712345678"
+                    style={{ width: '100%', fontFamily: 'inherit' }}
+                  />
+                </div>
               </div>
 
-              {/* Clean Answer Preview */}
-              {testReply && (
-                <div className="macos-ai-preview-box">
-                  <p className="macos-ai-preview-text">{testReply}</p>
-                  <div className="macos-ai-preview-footer">
+              {/* Customer Inquiry Input & Send Button */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#334155' }}>
+                  Sample Customer Question
+                </label>
+                <div className="macos-test-input-group">
+                  <input
+                    type="text"
+                    className="macos-input"
+                    value={testQuestion}
+                    onChange={(e) => setTestQuestion(e.target.value)}
+                    placeholder="e.g. Do you have this shirt in XL?"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !testSending) {
+                        e.preventDefault();
+                        handleSendLiveToPhone();
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="macos-btn-primary"
+                    onClick={handleSendLiveToPhone}
+                    disabled={testSending || !testQuestion.trim() || !recipientPhone.trim()}
+                    style={{ minWidth: '190px' }}
+                  >
+                    {testSending ? (
+                      <>
+                        <Loader2 size={15} className="animate-spin" />
+                        Sending to Phone...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={15} />
+                        Send to My WhatsApp
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Quick Sample Prompts */}
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', marginTop: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Quick questions:</span>
+                  {[
+                    'Do you have this shirt in XL?',
+                    'What is your return policy?',
+                    'How long does delivery take?'
+                  ].map((sample) => (
+                    <button
+                      key={sample}
+                      type="button"
+                      onClick={() => setTestQuestion(sample)}
+                      style={{
+                        background: '#F8FAFC',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '6px',
+                        padding: '2px 8px',
+                        fontSize: '0.75rem',
+                        color: '#475569',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {sample}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Delivery Result */}
+              {liveDispatchResult?.success && (
+                <div
+                  style={{
+                    backgroundColor: '#F0FDF4',
+                    border: '1px solid #BBF7D0',
+                    borderRadius: '16px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    animation: 'macosFadeIn 0.25s ease-out'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle2 size={18} color="#16A34A" />
+                      <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#166534' }}>
+                        Delivered directly to {liveDispatchResult.recipientPhone} on WhatsApp
+                      </span>
+                    </div>
+                    {liveDispatchResult.messageId && (
+                      <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#15803D', background: '#DCFCE7', padding: '2px 8px', borderRadius: '6px' }}>
+                        ID: {liveDispatchResult.messageId}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ background: '#FFFFFF', border: '1px solid #DCFCE7', borderRadius: '12px', padding: '12px 14px' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>
+                      AI Response Sent to Your Phone:
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.9375rem', color: '#1F2937', lineHeight: 1.5 }}>
+                      {testReply}
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#15803D' }}>
                     <span>
-                      Model: <strong>{testMetadata?.model || 'Ollama qwen3:1.7b'}</strong>
-                      {testMetadata?.durationSeconds && ` · ${testMetadata.durationSeconds}s`}
+                      Model: <strong>{liveDispatchResult.aiMeta?.model || 'qwen3:1.7b'}</strong>
+                      {liveDispatchResult.aiMeta?.executionTimeMs && ` · ${(liveDispatchResult.aiMeta.executionTimeMs / 1000).toFixed(1)}s`}
                     </span>
-                    <span className="macos-simulation-badge">
-                      <Sparkles size={13} />
-                      Simulation preview · Not sent to WhatsApp
+                    <span style={{ fontWeight: 600 }}>Official Meta Cloud API Live Send</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery Failure Card */}
+              {liveDispatchResult?.success === false && (
+                <div
+                  style={{
+                    backgroundColor: '#FEF2F2',
+                    border: '1px solid #FECACA',
+                    borderRadius: '16px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    animation: 'macosFadeIn 0.25s ease-out'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertCircle size={18} color="#DC2626" />
+                    <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#991B1B' }}>
+                      Message could not be delivered to phone
                     </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: '#B91C1C', lineHeight: 1.4 }}>
+                    {liveDispatchResult.error}
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="macos-btn-secondary"
+                      onClick={() => setShowCredsModal(true)}
+                      style={{ fontSize: '0.8125rem' }}
+                    >
+                      <KeyRound size={13} />
+                      Configure Meta Cloud API Token
+                    </button>
                   </div>
                 </div>
               )}
@@ -846,6 +1053,129 @@ export function WhatsAppIntegrationPage({ onBack }) {
             <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#94A3B8' }}>
               Credits activate immediately upon plan selection. Cancel anytime.
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          MODAL: CONFIGURE META CLOUD API CREDENTIALS
+          ───────────────────────────────────────────────────────────── */}
+      {showCredsModal && (
+        <div className="macos-modal-backdrop" onClick={() => setShowCredsModal(false)}>
+          <div
+            className="macos-modal-sheet"
+            style={{ maxWidth: '540px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="macos-modal-close"
+              onClick={() => setShowCredsModal(false)}
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0.75rem' }}>
+              <div style={{ background: '#ECFDF5', padding: '10px', borderRadius: '12px', display: 'flex' }}>
+                <KeyRound size={22} color="#087A4A" />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 2px 0', color: '#17212B' }}>
+                  Meta Cloud API Credentials
+                </h3>
+                <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
+                  Enter your Meta credentials to deliver live WhatsApp messages to your real phone.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveCredentials} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                  Meta Access Token <span style={{ color: '#DC2626' }}>*</span>
+                </label>
+                <textarea
+                  className="macos-input"
+                  rows={3}
+                  placeholder="Paste your Meta System User Token or Temporary Access Token (starts with EAA...)"
+                  value={credsForm.accessToken}
+                  onChange={(e) => setCredsForm({ ...credsForm, accessToken: e.target.value })}
+                  style={{ width: '100%', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.75rem' }}
+                  required
+                />
+                <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                  From Meta App Dashboard → WhatsApp → API Setup, or System Users in Meta Business Manager.
+                </span>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                  Phone Number ID <span style={{ color: '#DC2626' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  className="macos-input"
+                  placeholder="e.g. 1407171145805154"
+                  value={credsForm.phoneNumberId}
+                  onChange={(e) => setCredsForm({ ...credsForm, phoneNumberId: e.target.value })}
+                  style={{ width: '100%' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                  WhatsApp Business Account ID (WABA ID)
+                </label>
+                <input
+                  type="text"
+                  className="macos-input"
+                  placeholder="e.g. 1735308764198811"
+                  value={credsForm.wabaId}
+                  onChange={(e) => setCredsForm({ ...credsForm, wabaId: e.target.value })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                  Display Phone Number
+                </label>
+                <input
+                  type="text"
+                  className="macos-input"
+                  placeholder="e.g. +1 (555) 839-2041"
+                  value={credsForm.displayNumber}
+                  onChange={(e) => setCredsForm({ ...credsForm, displayNumber: e.target.value })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  className="macos-btn-secondary"
+                  onClick={() => setShowCredsModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="macos-btn-primary"
+                  disabled={credsSubmitting || !credsForm.accessToken.trim() || !credsForm.phoneNumberId.trim()}
+                >
+                  {credsSubmitting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Verifying with Meta...
+                    </>
+                  ) : (
+                    'Save & Verify Credentials'
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

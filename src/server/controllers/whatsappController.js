@@ -214,13 +214,57 @@ export const whatsappController = {
           return errorResponse(res, `WhatsApp channel requires reauthorization: ${conn.last_error || 'Token expired (Code 190 / Subcode 463)'}.`, 'REAUTH_REQUIRED', HTTP_STATUS.UNAUTHORIZED);
         }
 
+        if (conn.decryptedAccessToken.startsWith('EAAG_mock') || conn.decryptedAccessToken === 'simulated_wa_token') {
+          return errorResponse(
+            res,
+            'To receive messages directly on your phone, please enter your real Meta WhatsApp Cloud API Access Token and Phone Number ID using the "Configure Credentials" button above. Simulated tokens cannot dispatch to physical devices.',
+            'MOCK_TOKEN_CANNOT_DELIVER_LIVE',
+            HTTP_STATUS.BAD_REQUEST,
+            { isMockToken: true, phoneNumberId: conn.phone_number_id, wabaId: conn.whatsapp_business_account_id }
+          );
+        }
+
         // Live send flow
         const cleanRecipient = recipientPhone.replace(/[^0-9]/g, '');
+        let textToSend = messageText;
+        let aiMetadata = null;
+
+        // If sendAiReply is requested (default true for test message), synthesize reply through Ollama first
+        if (req.body.sendAiReply !== false) {
+          try {
+            const simEvent = {
+              platform: 'WHATSAPP',
+              businessId: tenantId,
+              workspaceId: tenantId,
+              externalConversationId: `wa_conv_live_${Date.now()}`,
+              externalMessageId: `mid_wa_live_${Date.now()}`,
+              messageText,
+              attachments,
+              isSimulated: true,
+              sender: { id: cleanRecipient, name: senderName, phone: cleanRecipient },
+              recipient: { id: conn.phone_number_id },
+              metadata: { isTestMode: true, isSimulatedTest: true }
+            };
+
+            const aiResult = await whatsappPipeline.processInboundEvent(simEvent);
+            if (aiResult?.replyText) {
+              textToSend = aiResult.replyText;
+              aiMetadata = {
+                model: aiResult.aiModel || 'qwen3:1.7b',
+                intent: aiResult.intent,
+                executionTimeMs: aiResult.executionTimeMs
+              };
+            }
+          } catch (aiErr) {
+            logger.warn(`[TEST MESSAGE] AI synthesis fallback: ${aiErr.message}`);
+          }
+        }
+
         const liveDispatchResult = await whatsappService.sendTextMessage(
           conn.phone_number_id,
           conn.decryptedAccessToken,
           cleanRecipient,
-          messageText
+          textToSend
         );
 
         if (!liveDispatchResult.success) {
@@ -228,7 +272,8 @@ export const whatsappController = {
             errorCode: liveDispatchResult.errorCode,
             errorSubcode: liveDispatchResult.errorSubcode,
             errorType: liveDispatchResult.errorType,
-            fbtraceId: liveDispatchResult.fbtraceId
+            fbtraceId: liveDispatchResult.fbtraceId,
+            textAttempted: textToSend
           });
         }
 
@@ -236,6 +281,8 @@ export const whatsappController = {
           liveDelivery: true,
           recipientPhone: cleanRecipient,
           messageId: liveDispatchResult.messageId,
+          textSent: textToSend,
+          aiMetadata,
           attempts: liveDispatchResult.attempts
         }, HTTP_STATUS.OK, {
           message: `Live WhatsApp message dispatched successfully via Meta Cloud API (Message ID: ${liveDispatchResult.messageId})`
