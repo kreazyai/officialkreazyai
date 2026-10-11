@@ -130,7 +130,16 @@ export function createApp() {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-hub-signature-256']
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'x-hub-signature-256',
+      'x-workspace-id',
+      'X-Workspace-Id',
+      'x-tenant-id',
+      'X-Tenant-Id'
+    ]
   }));
 
   // 3. Apply general rate limiter to all /api routes

@@ -123,10 +123,29 @@ class ApiClient {
     };
 
     try {
-      const response = await fetch(url, {
-        ...options,
-        headers
-      });
+      let response;
+      try {
+        response = await fetch(url, {
+          ...options,
+          headers
+        });
+      } catch (fetchErr) {
+        // If relative /api/v1 fetch fails (e.g. Vite dev proxy timeout), fall back to direct backend on port 5000
+        if (typeof window !== 'undefined' && !url.startsWith('http://localhost:5000') && !url.startsWith('http://127.0.0.1:5000')) {
+          const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+          const directUrl = `http://localhost:5000/api/v1${cleanEndpoint}`;
+          try {
+            response = await fetch(directUrl, {
+              ...options,
+              headers
+            });
+          } catch {
+            throw fetchErr;
+          }
+        } else {
+          throw fetchErr;
+        }
+      }
 
       const json = await response.json().catch(() => null);
 
