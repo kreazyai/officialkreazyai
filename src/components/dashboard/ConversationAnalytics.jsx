@@ -129,8 +129,8 @@ export function ConversationAnalytics({
           </div>
           <div
             className={`convo-stat-box ${hoveredSeg === 'ai' ? 'active-seg' : ''}`}
-            onMouseEnter={() => setHoverSeg('ai')}
-            onMouseLeave={() => setHoverSeg(null)}
+            onMouseEnter={() => setHoveredSeg('ai')}
+            onMouseLeave={() => setHoveredSeg(null)}
           >
             <div className="stat-label-with-dot">
               <span className="legend-dot" style={{ backgroundColor: '#8FA45A' }}></span>
@@ -142,8 +142,8 @@ export function ConversationAnalytics({
           </div>
           <div
             className={`convo-stat-box ${hoveredSeg === 'human' ? 'active-seg' : ''}`}
-            onMouseEnter={() => setHoverSeg('human')}
-            onMouseLeave={() => setHoverSeg(null)}
+            onMouseEnter={() => setHoveredSeg('human')}
+            onMouseLeave={() => setHoveredSeg(null)}
           >
             <div className="stat-label-with-dot">
               <span className="legend-dot" style={{ backgroundColor: '#D6A85C' }}></span>

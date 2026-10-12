@@ -76,9 +76,9 @@ export function DashboardOverview({ user, onNavigateModule }) {
 
   return (
     <div className="dashboard-content">
-      {/* Page Title: strictly only "Dashboard" as requested */}
-      <div className="page-title-row" style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 850, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+      {/* Page Title */}
+      <div className="page-title-row">
+        <h1 className="dashboard-main-heading">
           Dashboard
         </h1>
       </div>
@@ -193,7 +193,7 @@ export function DashboardOverview({ user, onNavigateModule }) {
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div className="capsule-actions-group">
           <button
             type="button"
             className="capsule-action-btn"
