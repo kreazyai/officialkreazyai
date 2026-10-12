@@ -1458,24 +1458,26 @@ input:checked+.slider:before {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: var(--border-medium);
+  background: var(--border-medium, #D9E9E1);
   border-radius: 100px;
-  transition: background 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-subtle, #E6F0EB);
 }
 .slider::before {
   content: '';
   position: absolute;
   width: 18px;
   height: 18px;
-  left: 3px;
-  top: 3px;
-  background: #fff;
+  left: 2px;
+  top: 2px;
+  background: #ffffff;
   border-radius: 50%;
-  transition: transform 0.2s ease;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 .switch input:checked + .slider {
-  background: var(--olive-700);
+  background: var(--primary, #087A4A);
+  border-color: var(--primary, #087A4A);
 }
 .switch input:checked + .slider::before {
   transform: translateX(18px);

@@ -61,6 +61,20 @@
   --primary-olive: var(--primary);
   --olive-button-bg: var(--primary-dark);
   --olive-button-hover: #0F3D30;
+  
+  /* Olive Scale (Brand Forest Green to Soft Mint Palette) */
+  --olive-50: #EFFBF5;
+  --olive-100: #DDF7E9;
+  --olive-200: #C2F0D5;
+  --olive-300: #AEEBCB;
+  --olive-400: #38C182;
+  --olive-500: #0FA968;
+  --olive-600: #0C935A;
+  --olive-700: #087A4A;
+  --olive-800: #07623B;
+  --olive-900: #092A20;
+  --olive-950: #051A14;
+
   --accent-gradient: linear-gradient(135deg, #0FA968 0%, #087A4A 100%);
   --accent-glow: rgba(15, 169, 104, 0.15);
   --mint-gradient: linear-gradient(135deg, #EFFBF5 0%, #DDF7E9 100%);

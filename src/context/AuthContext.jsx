@@ -104,6 +104,18 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const updateUser = useCallback((updatedFields) => {
+    setUser(prev => {
+      const merged = { ...(prev || {}), ...updatedFields };
+      try {
+        localStorage.setItem('kreazy_auth_user', JSON.stringify(merged));
+      } catch (err) {
+        console.warn('Storage sync failed:', err);
+      }
+      return merged;
+    });
+  }, []);
+
   const value = {
     user,
     authStatus,
@@ -113,7 +125,8 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     register,
     logout,
-    refreshUser
+    refreshUser,
+    updateUser
   };
 
   return (

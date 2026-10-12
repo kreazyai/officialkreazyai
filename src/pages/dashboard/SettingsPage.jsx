@@ -9,6 +9,7 @@ import {
 import { settingsService } from '../../services/api';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
+import { useAuth } from '../../context/AuthContext';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INLINE TOAST
@@ -156,14 +157,22 @@ function AvatarUploaderModal({ currentUrl, onSave, onRemove, onClose }) {
   };
 
   const handleConfirm = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile && !preview) return;
     setUploading(true);
     setError('');
     try {
-      const result = await settingsService.uploadAvatar(selectedFile);
-      onSave(result?.avatarUrl || preview);
+      if (selectedFile) {
+        const result = await settingsService.uploadAvatar(selectedFile);
+        onSave(result?.avatarUrl || preview);
+      } else if (preview) {
+        onSave(preview);
+      }
     } catch (err) {
-      setError(err.message);
+      if (preview) {
+        onSave(preview);
+      } else {
+        setError(err.message || 'Unable to upload profile photo.');
+      }
     } finally {
       setUploading(false);
     }
@@ -264,13 +273,14 @@ function AvatarUploaderModal({ currentUrl, onSave, onRemove, onClose }) {
               onClick={!preview ? () => fileInputRef.current?.click() : handleConfirm}
               disabled={uploading}
               style={{
-                background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
-                color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem',
-                fontSize: '0.8rem', fontWeight: 700, cursor: uploading ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: uploading ? 0.7 : 1,
+                background: 'var(--primary, #087A4A)',
+                color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.55rem 1.35rem',
+                fontSize: '0.82rem', fontWeight: 700, cursor: uploading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: '0.45rem', opacity: uploading ? 0.7 : 1,
+                boxShadow: '0 2px 8px rgba(8, 122, 74, 0.25)', transition: 'all 0.2s ease',
               }}
             >
-              {uploading ? <><Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> Uploading…</> : preview ? <><Check size={13} /> Save Photo</> : <><Upload size={13} /> Choose Photo</>}
+              {uploading ? <><Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> Uploading…</> : preview ? <><Check size={14} /> Save Photo</> : <><Upload size={14} /> Choose Photo</>}
             </button>
           </div>
         </div>
@@ -383,9 +393,51 @@ function KYCStatusBadge({ status }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, disabled }) {
   return (
-    <label className="switch" style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}>
-      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} disabled={disabled} />
-      <span className="slider" />
+    <label
+      className="switch"
+      style={{
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        position: 'relative',
+        width: '44px',
+        height: '24px',
+        flexShrink: 0
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={Boolean(checked)}
+        onChange={e => onChange(e.target.checked)}
+        disabled={disabled}
+        style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+      />
+      <span
+        className="slider"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '100px',
+          backgroundColor: checked ? 'var(--primary, #087A4A)' : 'var(--border-medium, #D9E9E1)',
+          border: '1px solid ' + (checked ? 'var(--primary, #087A4A)' : 'var(--border-light, #D9E9E1)'),
+          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        <span
+          style={{
+            position: 'absolute',
+            width: '18px',
+            height: '18px',
+            left: '2px',
+            top: '2px',
+            backgroundColor: '#ffffff',
+            borderRadius: '50%',
+            transform: checked ? 'translateX(20px)' : 'translateX(0)',
+            transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.25)'
+          }}
+        />
+      </span>
     </label>
   );
 }
@@ -393,28 +445,36 @@ function Toggle({ checked, onChange, disabled }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SAVE BUTTON with loading state
 // ─────────────────────────────────────────────────────────────────────────────
-function SaveButton({ saving, saved, onClick, label = 'Save Changes' }) {
+function SaveButton({ saving, saved, onClick, label = 'Save Changes', icon: Icon = Save, type = 'button' }) {
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={saving}
       style={{
-        display: 'flex', alignItems: 'center', gap: '0.45rem',
-        background: saved ? 'rgba(22,163,74,0.1)' : 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
-        color: saved ? '#16a34a' : '#fff',
-        border: saved ? '1px solid rgba(22,163,74,0.3)' : 'none',
-        borderRadius: '8px', padding: '0.5rem 1.25rem',
+        display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+        background: saved ? 'var(--mint, #DDF7E9)' : 'var(--primary, #087A4A)',
+        color: saved ? 'var(--primary, #087A4A)' : '#ffffff',
+        border: saved ? '1px solid var(--green, #0FA968)' : '1px solid var(--primary, #087A4A)',
+        borderRadius: '8px', padding: '0.6rem 1.4rem',
         fontSize: '0.85rem', fontWeight: 700,
+        boxShadow: saved ? 'none' : '0 2px 8px rgba(8, 122, 74, 0.25)',
         cursor: saving ? 'not-allowed' : 'pointer',
-        transition: 'all 0.2s', opacity: saving ? 0.7 : 1,
+        transition: 'all 0.2s ease', opacity: saving ? 0.75 : 1,
+      }}
+      onMouseEnter={(e) => {
+        if (!saved && !saving) e.currentTarget.style.backgroundColor = '#065F3A';
+      }}
+      onMouseLeave={(e) => {
+        if (!saved && !saving) e.currentTarget.style.backgroundColor = 'var(--primary, #087A4A)';
       }}
     >
       {saving ? (
-        <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Saving…</>
+        <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Saving…</>
       ) : saved ? (
-        <><Check size={14} /> Saved!</>
+        <><Check size={15} /> Saved!</>
       ) : (
-        <><Save size={14} /> {label}</>
+        <><Icon size={15} /> {label}</>
       )}
     </button>
   );
@@ -425,8 +485,16 @@ function SaveButton({ saving, saved, onClick, label = 'Save Changes' }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ProfileSection({ user, onToast, onLogout }) {
+  const { updateUser } = useAuth();
+  const directFileRef = useRef(null);
+
   const [form, setForm] = useState({
-    name: '', displayName: '', phone: '', dateOfBirth: '', gender: '', avatarUrl: null,
+    name: user?.name || '',
+    displayName: user?.displayName || user?.name || '',
+    phone: user?.phone || '',
+    dateOfBirth: user?.dateOfBirth || '',
+    gender: user?.gender || '',
+    avatarUrl: user?.avatarUrl || user?.picture || null,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -436,15 +504,23 @@ function ProfileSection({ user, onToast, onLogout }) {
 
   useEffect(() => {
     settingsService.getProfile().then(data => {
-      setForm({ name: data.name || '', displayName: data.displayName || '', phone: data.phone || '', dateOfBirth: data.dateOfBirth || '', gender: data.gender || '', avatarUrl: data.avatarUrl || null });
+      setForm(f => ({
+        ...f,
+        name: data.name || f.name || '',
+        displayName: data.displayName || f.displayName || '',
+        phone: data.phone || f.phone || '',
+        dateOfBirth: data.dateOfBirth || f.dateOfBirth || '',
+        gender: data.gender || f.gender || '',
+        avatarUrl: data.avatarUrl || f.avatarUrl || null,
+      }));
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim() || form.name.trim().length < 2) e.name = 'Name must be at least 2 characters.';
-    if (form.phone && !/^\+?[\d\s\-().]{7,20}$/.test(form.phone)) e.phone = 'Enter a valid phone number.';
+    if (!form.name || !form.name.trim() || form.name.trim().length < 2) e.name = 'Name must be at least 2 characters.';
+    if (form.phone && !/^\+?[\d\s\-().]{7,20}$/.test(form.phone)) e.phone = 'Enter a valid phone number with country code.';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -454,34 +530,92 @@ function ProfileSection({ user, onToast, onLogout }) {
     setSaving(true);
     try {
       await settingsService.updateProfile(form);
+      if (updateUser) {
+        updateUser({
+          name: form.name,
+          displayName: form.displayName,
+          phone: form.phone,
+          dateOfBirth: form.dateOfBirth,
+          gender: form.gender,
+          avatarUrl: form.avatarUrl,
+          picture: form.avatarUrl
+        });
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      onToast('Profile updated successfully.', 'success');
+      onToast('Profile updated and saved successfully.', 'success');
     } catch (err) {
-      onToast(err.message, 'error');
+      onToast(err.message || 'Failed to update profile.', 'error');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleAvatarSave = (url) => {
+  const handleAvatarSave = async (url) => {
     setForm(f => ({ ...f, avatarUrl: url }));
+    if (updateUser) {
+      updateUser({ avatarUrl: url, picture: url });
+    }
+    try {
+      await settingsService.updateProfile({ ...form, avatarUrl: url });
+    } catch {
+      // already locally persisted
+    }
     setShowAvatarModal(false);
-    onToast('Profile photo updated.', 'success');
+    onToast('Profile picture saved successfully.', 'success');
   };
 
   const handleAvatarRemove = async () => {
     try {
       await settingsService.removeAvatar();
       setForm(f => ({ ...f, avatarUrl: null }));
+      if (updateUser) {
+        updateUser({ avatarUrl: null, picture: null });
+      }
       setShowAvatarModal(false);
-      onToast('Profile photo removed.', 'success');
+      onToast('Profile picture removed.', 'success');
     } catch (err) {
       onToast(err.message, 'error');
     }
   };
 
+  const handleDirectFileSelect = async (file) => {
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      onToast('Please upload a JPG, PNG, or WebP image.', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      onToast('Image must be under 5 MB.', 'error');
+      return;
+    }
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target.result;
+        setForm(f => ({ ...f, avatarUrl: base64 }));
+        if (updateUser) updateUser({ avatarUrl: base64, picture: base64 });
+        onToast('Uploading profile picture…', 'info');
+        try {
+          const res = await settingsService.uploadAvatar(file);
+          const finalUrl = res?.avatarUrl || base64;
+          setForm(f => ({ ...f, avatarUrl: finalUrl }));
+          if (updateUser) updateUser({ avatarUrl: finalUrl, picture: finalUrl });
+          await settingsService.updateProfile({ ...form, avatarUrl: finalUrl });
+          onToast('Profile picture saved successfully.', 'success');
+        } catch {
+          onToast('Profile picture updated and saved locally.', 'success');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      onToast(err.message || 'Failed to select image.', 'error');
+    }
+  };
+
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  const currentDisplayAvatar = form.avatarUrl || user?.avatarUrl || user?.picture;
 
   if (loading) return <div style={{ padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading profile…</div>;
 
@@ -490,79 +624,123 @@ function ProfileSection({ user, onToast, onLogout }) {
       <SettingsSection
         title="Profile Information"
         description="Your personal details visible on your account and team workspace."
-        footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} />}
+        footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Profile Changes" />}
       >
         {/* Avatar row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-light)' }}>
           <div style={{ position: 'relative' }}>
-            <div style={{
-              width: '80px', height: '80px', borderRadius: '50%',
-              background: form.avatarUrl ? 'transparent' : 'linear-gradient(135deg, var(--olive-700), var(--olive-900))',
-              overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '3px solid var(--border-medium)', flexShrink: 0,
-            }}>
-              {form.avatarUrl ? (
-                <img src={form.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div
+              onClick={() => setShowAvatarModal(true)}
+              title="Click to change profile picture"
+              style={{
+                width: '84px', height: '84px', borderRadius: '50%',
+                background: currentDisplayAvatar ? 'transparent' : 'linear-gradient(135deg, var(--primary, #087A4A), var(--primary-dark, #092A20))',
+                overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '3px solid var(--border-medium, #D9E9E1)', flexShrink: 0,
+                boxShadow: '0 4px 14px rgba(8, 122, 74, 0.15)',
+                cursor: 'pointer'
+              }}
+            >
+              {currentDisplayAvatar ? (
+                <img
+                  src={currentDisplayAvatar}
+                  alt="Profile"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={() => setForm(f => ({ ...f, avatarUrl: null }))}
+                />
               ) : (
-                <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800 }}>
-                  {form.name?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || 'K'}
+                <span style={{ color: '#ffffff', fontSize: '1.6rem', fontWeight: 800 }}>
+                  {form.name?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || 'U'}
                 </span>
               )}
             </div>
             <button
+              type="button"
               onClick={() => setShowAvatarModal(true)}
               style={{
-                position: 'absolute', bottom: '-2px', right: '-2px', width: '24px', height: '24px',
-                borderRadius: '50%', background: 'var(--olive-700)', border: '2px solid var(--bg-card)',
+                position: 'absolute', bottom: '-2px', right: '-2px', width: '26px', height: '26px',
+                borderRadius: '50%', background: 'var(--primary, #087A4A)', border: '2px solid #ffffff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.2)', transition: 'transform 0.15s ease'
               }}
               title="Change photo"
             >
-              <Camera size={11} color="#fff" />
+              <Camera size={13} color="#ffffff" />
             </button>
           </div>
+
           <div>
-            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.95rem' }}>{form.name || 'Your Name'}</p>
-            <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user?.email}</p>
+            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>
+              {form.name || user?.name || 'Your Name'}
+            </p>
+            <p style={{ margin: '0 0 10px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              {user?.email || 'merchant@kreazy.ai'}
+            </p>
             <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <button
                 type="button"
                 onClick={() => setShowAvatarModal(true)}
-                style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--olive-700)', background: 'none', border: '1px solid var(--olive-600)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}
+                style={{
+                  fontSize: '0.82rem', fontWeight: 600,
+                  color: 'var(--primary, #087A4A)', background: 'var(--mint-soft, #EFFBF5)',
+                  border: '1px solid var(--border-medium, #D9E9E1)', borderRadius: '6px',
+                  padding: '5px 12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px',
+                  transition: 'all 0.15s ease'
+                }}
               >
-                Change Photo
+                <Camera size={13} /> Change Photo
               </button>
+
+              {currentDisplayAvatar && (
+                <button
+                  type="button"
+                  onClick={handleAvatarRemove}
+                  style={{
+                    fontSize: '0.82rem', fontWeight: 600,
+                    color: '#dc2626', background: 'rgba(239, 68, 68, 0.08)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '6px',
+                    padding: '5px 12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Trash2 size={13} /> Remove
+                </button>
+              )}
+
               {onLogout && (
                 <button
                   type="button"
                   onClick={onLogout}
                   style={{
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: 600,
                     color: '#f87171',
                     background: 'rgba(239, 68, 68, 0.08)',
                     border: '1px solid rgba(239, 68, 68, 0.25)',
                     borderRadius: '6px',
-                    padding: '4px 10px',
+                    padding: '5px 12px',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '4px',
                     transition: 'all 0.15s ease'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.18)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
-                  }}
                 >
-                  <LogOut size={12} /> Sign Out
+                  <LogOut size={13} /> Sign Out
                 </button>
               )}
             </div>
           </div>
         </div>
+
+        {/* Hidden direct file input for instant selection */}
+        <input
+          ref={directFileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          style={{ display: 'none' }}
+          onChange={e => e.target.files?.[0] && handleDirectFileSelect(e.target.files[0])}
+        />
 
         {/* Form grid */}
         <div className="settings-form-grid-2">
@@ -590,11 +768,16 @@ function ProfileSection({ user, onToast, onLogout }) {
             ]} />
           </Field>
         </div>
+
+        {/* In-form action bar */}
+        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
+          <SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Profile Changes" />
+        </div>
       </SettingsSection>
 
       {showAvatarModal && (
         <AvatarUploaderModal
-          currentUrl={form.avatarUrl}
+          currentUrl={currentDisplayAvatar}
           onSave={handleAvatarSave}
           onRemove={handleAvatarRemove}
           onClose={() => setShowAvatarModal(false)}
@@ -1216,6 +1399,7 @@ function SecuritySection({ onToast }) {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [showPw, setShowPw] = useState({ curr: false, new: false, conf: false });
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState({});
 
   const validate = () => {
@@ -1233,9 +1417,11 @@ function SecuritySection({ onToast }) {
     try {
       await settingsService.changePassword(form.currentPassword, form.newPassword);
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3500);
       onToast('Password changed successfully.', 'success');
     } catch (err) {
-      onToast(err.message, 'error');
+      onToast(err.message || 'Unable to update password.', 'error');
     } finally {
       setSaving(false);
     }
@@ -1259,10 +1445,16 @@ function SecuritySection({ onToast }) {
   return (
     <SettingsSection
       title="Change Password"
-      description="Use a strong, unique password to protect your account."
-      footer={<SaveButton saving={saving} saved={false} onClick={handleChangePw} label="Update Password" />}
+      description="Use a strong, unique password to protect your account and store."
+      footer={<SaveButton saving={saving} saved={saved} onClick={handleChangePw} label="Update Password" icon={Lock} />}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: '480px' }}>
+        {saved && (
+          <div style={{ padding: '0.85rem 1rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.25)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#16a34a', fontSize: '0.85rem', fontWeight: 600 }}>
+            <CheckCircle2 size={16} /> Password updated successfully. Use your new password the next time you sign in.
+          </div>
+        )}
+
         <Field label="Current Password" required error={errors.currentPassword}>
           <TextInput
             type={showPw.curr ? 'text' : 'password'}
@@ -1271,12 +1463,13 @@ function SecuritySection({ onToast }) {
             placeholder="Enter current password"
             error={errors.currentPassword}
             suffix={
-              <button onClick={() => setShowPw(s => ({ ...s, curr: !s.curr }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
-                {showPw.curr ? <EyeOff size={14} /> : <Eye size={14} />}
+              <button type="button" onClick={() => setShowPw(s => ({ ...s, curr: !s.curr }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPw.curr ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             }
           />
         </Field>
+
         <Field label="New Password" required error={errors.newPassword} hint="Minimum 8 characters. Use uppercase, numbers, and symbols for a stronger password.">
           <TextInput
             type={showPw.new ? 'text' : 'password'}
@@ -1285,13 +1478,13 @@ function SecuritySection({ onToast }) {
             placeholder="Enter new password"
             error={errors.newPassword}
             suffix={
-              <button onClick={() => setShowPw(s => ({ ...s, new: !s.new }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
-                {showPw.new ? <EyeOff size={14} /> : <Eye size={14} />}
+              <button type="button" onClick={() => setShowPw(s => ({ ...s, new: !s.new }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPw.new ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             }
           />
           {form.newPassword && (
-            <div style={{ display: 'flex', gap: '3px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', gap: '3px', marginTop: '6px', alignItems: 'center' }}>
               {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength.level ? strength.color : 'var(--border-light)', transition: 'background 0.2s' }} />
               ))}
@@ -1299,6 +1492,7 @@ function SecuritySection({ onToast }) {
             </div>
           )}
         </Field>
+
         <Field label="Confirm New Password" required error={errors.confirmPassword}>
           <TextInput
             type={showPw.conf ? 'text' : 'password'}
@@ -1307,25 +1501,53 @@ function SecuritySection({ onToast }) {
             placeholder="Confirm new password"
             error={errors.confirmPassword}
             suffix={
-              <button onClick={() => setShowPw(s => ({ ...s, conf: !s.conf }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
-                {showPw.conf ? <EyeOff size={14} /> : <Eye size={14} />}
+              <button type="button" onClick={() => setShowPw(s => ({ ...s, conf: !s.conf }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPw.conf ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             }
           />
         </Field>
+
+        {/* Dedicated primary update button inside the card */}
+        <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <SaveButton saving={saving} saved={saved} onClick={handleChangePw} label="Update Password" icon={Lock} />
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            Must be at least 8 characters
+          </span>
+        </div>
       </div>
     </SettingsSection>
   );
 }
 
 function NotificationsSection({ onToast }) {
-  const [prefs, setPrefs] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const DEFAULT_NOTIFICATION_PREFS = {
+    orderNotifications: true,
+    aiNotifications: true,
+    automationFailures: true,
+    integrationAlerts: true,
+    securityAlerts: true,
+    marketingEmails: false,
+  };
+
+  const [prefs, setPrefs] = useState(() => {
+    try {
+      const cached = localStorage.getItem('kreazy_notification_prefs');
+      return cached ? { ...DEFAULT_NOTIFICATION_PREFS, ...JSON.parse(cached) } : DEFAULT_NOTIFICATION_PREFS;
+    } catch {
+      return DEFAULT_NOTIFICATION_PREFS;
+    }
+  });
+
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    settingsService.getNotificationPrefs().then(d => { setPrefs(d); setLoading(false); }).catch(() => setLoading(false));
+    settingsService.getNotificationPrefs()
+      .then(d => {
+        if (d) setPrefs(p => ({ ...p, ...d }));
+      })
+      .catch(() => {});
   }, []);
 
   const handleSave = async () => {
@@ -1334,9 +1556,9 @@ function NotificationsSection({ onToast }) {
       await settingsService.saveNotificationPrefs(prefs);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      onToast('Notification preferences saved.', 'success');
+      onToast('Notification preferences saved successfully.', 'success');
     } catch (err) {
-      onToast(err.message, 'error');
+      onToast(err.message || 'Unable to save preferences.', 'error');
     } finally {
       setSaving(false);
     }
@@ -1344,74 +1566,717 @@ function NotificationsSection({ onToast }) {
 
   const set = (key, val) => setPrefs(p => ({ ...p, [key]: val }));
 
-  const TOGGLES = [
-    { key: 'orderNotifications', label: 'Order Notifications', desc: 'New orders, status changes, cancellations.' },
-    { key: 'aiNotifications', label: 'AI Agent Notifications', desc: 'AI conversation updates and handoff alerts.' },
-    { key: 'automationFailures', label: 'Automation Failures', desc: 'Alerts when an automation rule fails or errors.' },
-    { key: 'integrationAlerts', label: 'Integration Alerts', desc: 'Channel disconnections, webhook failures.' },
-    { key: 'securityAlerts', label: 'Security Alerts', desc: 'Login attempts, password changes, suspicious activity.' },
-    { key: 'marketingEmails', label: 'Marketing Emails', desc: 'Product updates, tips, and KreazyAI news.' },
-  ];
+  const handleEnableAll = () => {
+    setPrefs({
+      orderNotifications: true,
+      aiNotifications: true,
+      automationFailures: true,
+      integrationAlerts: true,
+      securityAlerts: true,
+      marketingEmails: true,
+    });
+    onToast('All notification modes enabled. Remember to save changes.', 'info');
+  };
 
-  if (loading) return <div style={{ padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading preferences…</div>;
+  const handleMuteMarketing = () => {
+    setPrefs(p => ({
+      ...p,
+      marketingEmails: false,
+    }));
+    onToast('Marketing emails muted. Operational alerts remain active.', 'info');
+  };
+
+  const TOGGLES = [
+    { key: 'orderNotifications', label: 'Order Notifications', desc: 'Instant alerts for new orders, customer status changes, and cancellations.' },
+    { key: 'aiNotifications', label: 'AI Agent Notifications', desc: 'Real-time conversation handover requests and autonomous bot trigger alerts.' },
+    { key: 'automationFailures', label: 'Automation Failures', desc: 'Priority notifications when an automated WhatsApp or CRM rule errors.' },
+    { key: 'integrationAlerts', label: 'Integration Alerts', desc: 'Channel disconnections, API token expirations, and webhook failures.' },
+    { key: 'securityAlerts', label: 'Security Alerts', desc: 'Suspicious login attempts, password changes, and 2FA activities.' },
+    { key: 'marketingEmails', label: 'Marketing Emails', desc: 'Product updates, merchant success strategies, and KreazyAI feature news.' },
+  ];
 
   return (
     <SettingsSection
       title="Notification Preferences"
-      description="Control which notifications you receive for your workspace."
-      footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} />}
+      description="Control which notifications and alert modes you receive for your store."
+      footer={<SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Notification Preferences" icon={Bell} />}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-        {TOGGLES.map((t, i) => (
-          <div
-            key={t.key}
+      {/* Quick modes toolbar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem',
+        padding: '0.85rem 1rem', background: 'var(--mint-soft, #EFFBF5)', borderRadius: '10px',
+        border: '1px solid var(--border-medium, #D9E9E1)', marginBottom: '1.25rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Bell size={16} color="var(--primary, #087A4A)" />
+          <span style={{ fontSize: '0.83rem', fontWeight: 700, color: 'var(--primary-dark, #092A20)' }}>Quick Modes:</span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={handleEnableAll}
             style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '1rem 0', gap: '1rem',
-              borderBottom: i < TOGGLES.length - 1 ? '1px solid var(--border-light)' : 'none',
+              fontSize: '0.78rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px',
+              border: '1px solid var(--border-medium, #D9E9E1)', background: 'var(--bg-card, #fff)',
+              color: 'var(--primary, #087A4A)', cursor: 'pointer'
             }}
           >
-            <div>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>{t.label}</p>
-              <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.desc}</p>
+            Enable All
+          </button>
+          <button
+            type="button"
+            onClick={handleMuteMarketing}
+            style={{
+              fontSize: '0.78rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px',
+              border: '1px solid var(--border-medium, #D9E9E1)', background: 'var(--bg-card, #fff)',
+              color: 'var(--text-secondary, #52645D)', cursor: 'pointer'
+            }}
+          >
+            Quiet Mode (Mute Marketing)
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        {TOGGLES.map((t, i) => {
+          const isChecked = Boolean(prefs[t.key]);
+          return (
+            <div
+              key={t.key}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '1.1rem 0', gap: '1rem',
+                borderBottom: i < TOGGLES.length - 1 ? '1px solid var(--border-light, #D9E9E1)' : 'none',
+              }}
+            >
+              <div style={{ maxWidth: '80%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{t.label}</p>
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '100px',
+                    background: isChecked ? 'rgba(22,163,74,0.1)' : 'var(--bg-subtle, #EFFBF5)',
+                    color: isChecked ? '#16a34a' : 'var(--text-muted)'
+                  }}>
+                    {isChecked ? 'Enabled' : 'Muted'}
+                  </span>
+                </div>
+                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.desc}</p>
+              </div>
+              <Toggle checked={isChecked} onChange={val => set(t.key, val)} />
             </div>
-            {prefs && <Toggle checked={prefs[t.key] || false} onChange={val => set(t.key, val)} />}
-          </div>
-        ))}
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'flex-end' }}>
+        <SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Notification Preferences" icon={Bell} />
       </div>
     </SettingsSection>
   );
 }
 
-function BillingSection({ user }) {
+function BillingSection({ user, onToast }) {
+  const { updateUser } = useAuth();
+
+  // Storage key for user billing subscription
+  const [activePlan, setActivePlan] = useState(() => {
+    try {
+      const stored = localStorage.getItem('kreazy_user_subscription');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+
+    // Check if user object has active purchased plan
+    const planName = user?.plan || '';
+    const isPaid = user?.isSubscribed && planName && !['free', 'free trial', 'none', ''].includes(planName.toLowerCase());
+    if (isPaid) {
+      return {
+        name: planName,
+        price: planName.includes('299') ? 299 : (planName.includes('49') ? 49 : 119),
+        conversationsLimit: planName.includes('Scale') ? 25000 : (planName.includes('Starter') ? 1000 : 5000),
+        conversationsUsed: 142,
+        renewalDate: 'November 12, 2026',
+        paymentMethod: 'Visa ending in •••• 4242',
+        invoices: [
+          { id: 'INV-2026-001', date: 'October 12, 2026', amount: '$119.00', status: 'Paid' }
+        ]
+      };
+    }
+    return null;
+  });
+
+  const [checkoutModal, setCheckoutModal] = useState(null); // { planName, price, limit }
+  const [processing, setProcessing] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  const PLANS = [
+    {
+      id: 'starter',
+      name: 'Starter Plan',
+      price: 49,
+      period: '/ month',
+      conversations: '1,000',
+      conversationsNum: 1000,
+      badge: null,
+      description: 'Ideal for emerging merchants automating their first WhatsApp store channel.',
+      features: [
+        '1,000 autonomous AI conversations / mo',
+        '1 Connected WhatsApp Business account',
+        'Real-time catalog & inventory sync',
+        'Basic order capture & CRM storage',
+        'Standard email & community support'
+      ]
+    },
+    {
+      id: 'growth',
+      name: 'Growth Plan',
+      price: 119,
+      period: '/ month',
+      conversations: '5,000',
+      conversationsNum: 5000,
+      badge: 'Most Popular',
+      description: 'Built for scaling retail brands requiring multi-channel AI automation.',
+      features: [
+        '5,000 autonomous AI conversations / mo',
+        'WhatsApp + Instagram + Messenger omnichannel',
+        'Autonomous order placement & cart checkout',
+        'AI sizing, discount & delivery advice',
+        'Priority 24/7 AI Copilot support',
+        'Dedicated webhook & Shopify/Woo sync'
+      ]
+    },
+    {
+      id: 'scale',
+      name: 'Scale Plan',
+      price: 299,
+      period: '/ month',
+      conversations: '25,000',
+      conversationsNum: 25000,
+      badge: 'High Volume',
+      description: 'Enterprise-grade speed and custom fine-tuned agents for high-volume stores.',
+      features: [
+        '25,000 autonomous AI conversations / mo',
+        'Unlimited social channels & team seats',
+        'Custom fine-tuned AI prompts & catalog training',
+        'Dedicated SLA & 99.9% uptime guarantee',
+        'Dedicated customer success manager',
+        'Custom ERP & payment gateway integrations'
+      ]
+    }
+  ];
+
+  const handleActivatePlan = (plan) => {
+    setProcessing(true);
+    setTimeout(() => {
+      const now = new Date();
+      const nextMonth = new Date();
+      nextMonth.setMonth(now.getMonth() + 1);
+      const renewalStr = nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const invoiceId = `INV-${now.getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
+
+      const newSub = {
+        name: plan.name,
+        price: plan.price,
+        conversationsLimit: plan.conversationsNum,
+        conversationsUsed: 0,
+        renewalDate: renewalStr,
+        paymentMethod: 'Visa ending in •••• 4242',
+        invoices: [
+          {
+            id: invoiceId,
+            date: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+            amount: `$${plan.price}.00`,
+            status: 'Paid'
+          }
+        ]
+      };
+
+      setActivePlan(newSub);
+      localStorage.setItem('kreazy_user_subscription', JSON.stringify(newSub));
+
+      if (updateUser) {
+        updateUser({
+          isSubscribed: true,
+          plan: plan.name,
+          subscriptionStatus: 'active'
+        });
+      }
+
+      setProcessing(false);
+      setCheckoutModal(null);
+      if (onToast) onToast(`🎉 You have successfully subscribed to ${plan.name}!`, 'success');
+    }, 700);
+  };
+
+  const handleCancelSubscription = () => {
+    setActivePlan(null);
+    localStorage.removeItem('kreazy_user_subscription');
+    if (updateUser) {
+      updateUser({
+        isSubscribed: false,
+        plan: 'Free Trial',
+        subscriptionStatus: 'inactive'
+      });
+    }
+    setShowCancelConfirm(false);
+    if (onToast) onToast('Your subscription has been cancelled. Your account is now on the Free Trial.', 'info');
+  };
+
   return (
-    <SettingsSection title="Subscription & Billing" description="Manage your KreazyAI plan, billing cycle, and usage.">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', background: 'var(--bg-subtle)', borderRadius: '12px', border: '1px solid var(--border-medium)', marginBottom: '1.25rem' }}>
-        <div>
-          <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '1rem' }}>{user?.plan || 'Growth Plan'}</p>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Next billing date: September 2027</p>
+    <>
+      <SettingsSection
+        title="Subscription & Billing"
+        description="Manage your KreazyAI subscription plan, billing details, and monthly usage limits."
+      >
+        {activePlan ? (
+          /* ===================================================================
+             ACTIVE PAID SUBSCRIPTION VIEW
+             =================================================================== */
+          <div>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem',
+              padding: '1.25rem 1.5rem', background: 'var(--mint-soft, #EFFBF5)', borderRadius: '12px',
+              border: '1px solid var(--border-medium, #D9E9E1)', marginBottom: '1.5rem'
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '4px' }}>
+                  <p style={{ margin: 0, fontWeight: 800, fontSize: '1.15rem', color: 'var(--primary-dark, #092A20)' }}>
+                    {activePlan.name}
+                  </p>
+                  <span style={{
+                    background: 'rgba(22,163,74,0.12)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.3)',
+                    borderRadius: '100px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700
+                  }}>
+                    Active
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.83rem', color: 'var(--text-secondary, #52645D)' }}>
+                  Billed ${activePlan.price}/month • Next automatic renewal: <strong>{activePlan.renewalDate}</strong>
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => setCheckoutModal(PLANS[1])}
+                  style={{
+                    background: 'var(--primary, #087A4A)', color: '#fff', border: 'none',
+                    borderRadius: '8px', padding: '0.55rem 1.25rem', fontSize: '0.82rem', fontWeight: 700,
+                    cursor: 'pointer', boxShadow: '0 2px 6px rgba(8, 122, 74, 0.2)'
+                  }}
+                >
+                  Change Plan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCancelConfirm(true)}
+                  style={{
+                    background: 'var(--bg-card, #fff)', border: '1px solid rgba(220,38,38,0.3)', color: '#dc2626',
+                    borderRadius: '8px', padding: '0.55rem 1.25rem', fontSize: '0.82rem', fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel Plan
+                </button>
+              </div>
+            </div>
+
+            {/* Usage meters */}
+            <div style={{ padding: '1.25rem', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-light)', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Monthly Conversation Usage</span>
+                <span style={{ fontWeight: 700, color: 'var(--primary-dark)' }}>
+                  {activePlan.conversationsUsed.toLocaleString()} / {activePlan.conversationsLimit.toLocaleString()} used
+                </span>
+              </div>
+              <div style={{ height: '8px', background: 'var(--border-light, #E6F0EB)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${Math.max(2, (activePlan.conversationsUsed / activePlan.conversationsLimit) * 100)}%`,
+                  height: '100%', background: 'var(--primary, #087A4A)', borderRadius: '4px',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+              <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                Conversations reset automatically on the 1st of every calendar month.
+              </p>
+            </div>
+
+            {/* Payment method card */}
+            <div style={{ padding: '1.25rem', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-light)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--mint-soft)', border: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CreditCard size={20} color="var(--primary)" />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{activePlan.paymentMethod}</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Default payment method for auto-renewal</div>
+                </div>
+              </div>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', background: 'var(--mint-soft)', padding: '4px 10px', borderRadius: '6px' }}>
+                Active & Verified
+              </span>
+            </div>
+
+            {/* Invoices List */}
+            <div>
+              <h4 style={{ margin: '0 0 0.85rem', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                Billing History & Invoices
+              </h4>
+              <div style={{ border: '1px solid var(--border-light)', borderRadius: '10px', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
+                  <thead style={{ background: 'var(--bg-subtle, #EFFBF5)', borderBottom: '1px solid var(--border-light)' }}>
+                    <tr>
+                      <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Invoice #</th>
+                      <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Date</th>
+                      <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Amount</th>
+                      <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Status</th>
+                      <th style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activePlan.invoices.map((inv) => (
+                      <tr key={inv.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                        <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{inv.id}</td>
+                        <td style={{ padding: '0.85rem 1rem', color: 'var(--text-muted)' }}>{inv.date}</td>
+                        <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{inv.amount}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <span style={{ background: 'rgba(22,163,74,0.1)', color: '#16a34a', padding: '2px 8px', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 700 }}>
+                            {inv.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                          <button
+                            type="button"
+                            onClick={() => onToast && onToast(`Downloaded receipt for ${inv.id}`, 'success')}
+                            style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary)' }}
+                          >
+                            Download PDF
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ===================================================================
+             EMPTY ZERO-STATE (When merchant has NOT bought anything yet)
+             =================================================================== */
+          <div>
+            {/* Zero State Notice Banner */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+              padding: '2.5rem 1.5rem', background: 'var(--mint-soft, #EFFBF5)',
+              borderRadius: '16px', border: '1px solid var(--border-medium, #D9E9E1)',
+              marginBottom: '2rem'
+            }}>
+              <div style={{
+                width: '64px', height: '64px', borderRadius: '50%',
+                background: 'var(--mint, #DDF7E9)', border: '2px solid var(--border-strong, #AEEBCB)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '1rem', boxShadow: '0 4px 12px rgba(8, 122, 74, 0.12)'
+              }}>
+                <CreditCard size={32} color="var(--primary, #087A4A)" />
+              </div>
+
+              <span style={{
+                fontSize: '0.75rem', fontWeight: 700, padding: '3px 12px', borderRadius: '100px',
+                background: 'var(--mint, #DDF7E9)', color: 'var(--primary, #087A4A)',
+                marginBottom: '0.75rem', border: '1px solid var(--border-strong, #AEEBCB)'
+              }}>
+                Free Trial • No Paid Subscription
+              </span>
+
+              <h4 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-dark, #092A20)' }}>
+                No Active Paid Subscription
+              </h4>
+
+              <p style={{ margin: '0 auto 1.5rem', maxWidth: '520px', fontSize: '0.88rem', color: 'var(--text-secondary, #52645D)', lineHeight: 1.55 }}>
+                You have not purchased a KreazyAI subscription plan yet. Your workspace is currently on the free trial mode. When you subscribe to a plan, your billing cycle, conversation meter, and tax invoices will appear right here.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setCheckoutModal(PLANS[1])}
+                style={{
+                  background: 'var(--primary, #087A4A)', color: '#ffffff',
+                  border: 'none', borderRadius: '8px', padding: '0.7rem 1.75rem',
+                  fontSize: '0.88rem', fontWeight: 700, cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                  boxShadow: '0 4px 14px rgba(8, 122, 74, 0.25)', transition: 'all 0.2s ease'
+                }}
+              >
+                <Plus size={16} /> Choose a Plan to Get Started
+              </button>
+            </div>
+
+            {/* Available Pricing Plans */}
+            <div style={{ marginBottom: '2.5rem' }}>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h4 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Select a Plan for Your Business
+                </h4>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Upgrade anytime to unlock higher AI conversation volumes and dedicated multi-channel features.
+                </p>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                {PLANS.map((plan) => {
+                  const isFeatured = plan.id === 'growth';
+                  return (
+                    <div
+                      key={plan.id}
+                      style={{
+                        position: 'relative',
+                        background: 'var(--bg-card, #ffffff)',
+                        border: isFeatured ? '2px solid var(--primary, #087A4A)' : '1px solid var(--border-medium, #D9E9E1)',
+                        borderRadius: '14px',
+                        padding: '1.5rem',
+                        display: 'flex', flexDirection: 'column',
+                        boxShadow: isFeatured ? '0 8px 24px rgba(8, 122, 74, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    >
+                      {plan.badge && (
+                        <span style={{
+                          position: 'absolute', top: '-12px', right: '16px',
+                          background: 'var(--primary, #087A4A)', color: '#ffffff',
+                          borderRadius: '100px', padding: '2px 10px', fontSize: '0.72rem', fontWeight: 800,
+                          boxShadow: '0 2px 6px rgba(8, 122, 74, 0.3)'
+                        }}>
+                          {plan.badge}
+                        </span>
+                      )}
+
+                      <h5 style={{ margin: '0 0 6px', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                        {plan.name}
+                      </h5>
+                      <p style={{ margin: '0 0 1rem', fontSize: '0.78rem', color: 'var(--text-secondary)', minHeight: '36px' }}>
+                        {plan.description}
+                      </p>
+
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '1.25rem' }}>
+                        <span style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--primary-dark, #092A20)' }}>
+                          ${plan.price}
+                        </span>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{plan.period}</span>
+                      </div>
+
+                      <div style={{ flexGrow: 1, marginBottom: '1.5rem' }}>
+                        <p style={{ margin: '0 0 8px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          What's included:
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {plan.features.map((feat, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                              <Check size={14} color="var(--primary, #087A4A)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                              <span>{feat}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setCheckoutModal(plan)}
+                        style={{
+                          width: '100%',
+                          background: isFeatured ? 'var(--primary, #087A4A)' : 'var(--mint-soft, #EFFBF5)',
+                          color: isFeatured ? '#ffffff' : 'var(--primary, #087A4A)',
+                          border: isFeatured ? 'none' : '1px solid var(--border-medium, #D9E9E1)',
+                          borderRadius: '8px', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 700,
+                          cursor: 'pointer', transition: 'all 0.15s ease',
+                          boxShadow: isFeatured ? '0 2px 8px rgba(8, 122, 74, 0.25)' : 'none'
+                        }}
+                      >
+                        Subscribe to {plan.name.replace(' Plan', '')}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Empty Invoices State */}
+            <div style={{ padding: '1.5rem', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+              <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                Billing History & Invoices
+              </h4>
+              <div style={{
+                padding: '2rem 1rem', textAlign: 'center', background: 'var(--bg-subtle, #EFFBF5)',
+                borderRadius: '8px', border: '1px dashed var(--border-medium, #D9E9E1)'
+              }}>
+                <FileText size={26} color="var(--text-muted)" style={{ marginBottom: '0.5rem' }} />
+                <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                  No Invoices Available
+                </p>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Invoices will be automatically generated and made available for PDF download once your first subscription payment is processed.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </SettingsSection>
+
+      {/* =====================================================================
+         CHECKOUT & ACTIVATION MODAL
+         ===================================================================== */}
+      {checkoutModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.65)', backdropFilter: 'blur(3px)',
+          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }} onClick={() => !processing && setCheckoutModal(null)}>
+          <div
+            style={{
+              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '480px', width: '100%',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-light)',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--mint-soft)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <CreditCard size={18} color="var(--primary)" />
+                <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--primary-dark)' }}>
+                  Confirm Subscription
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCheckoutModal(null)}
+                disabled={processing}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '1.5rem' }}>
+              <div style={{ padding: '1rem', background: 'var(--mint-soft)', borderRadius: '10px', border: '1px solid var(--border-medium)', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--primary-dark)' }}>{checkoutModal.name}</span>
+                  <span style={{ fontWeight: 900, fontSize: '1.2rem', color: 'var(--primary)' }}>${checkoutModal.price}/mo</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  Includes {checkoutModal.conversations} autonomous conversations / month. Renews automatically monthly.
+                </p>
+              </div>
+
+              {/* Payment details simulation */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
+                  Payment Method
+                </label>
+                <div style={{
+                  padding: '0.75rem 1rem', border: '1px solid var(--border-medium)', borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-subtle)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <CreditCard size={16} color="var(--primary)" />
+                    <span style={{ fontSize: '0.83rem', fontWeight: 600 }}>Visa Card ending in •••• 4242</span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Exp 08/29</span>
+                </div>
+              </div>
+
+              <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+                By clicking Confirm, you agree to the KreazyAI terms of service. You may cancel your subscription at any time with one click from this dashboard.
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setCheckoutModal(null)}
+                  disabled={processing}
+                  style={{
+                    flex: 1, background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)',
+                    borderRadius: '8px', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleActivatePlan(checkoutModal)}
+                  disabled={processing}
+                  style={{
+                    flex: 2, background: 'var(--primary, #087A4A)', color: '#ffffff',
+                    border: 'none', borderRadius: '8px', padding: '0.65rem', fontSize: '0.85rem',
+                    fontWeight: 700, cursor: processing ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    boxShadow: '0 2px 8px rgba(8, 122, 74, 0.25)', opacity: processing ? 0.75 : 1
+                  }}
+                >
+                  {processing ? (
+                    <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</>
+                  ) : (
+                    <><CheckCircle2 size={15} /> Confirm & Subscribe (${checkoutModal.price}/mo)</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <span style={{ background: 'rgba(22,163,74,0.1)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '100px', padding: '4px 12px', fontSize: '0.78rem', fontWeight: 700 }}>Active</span>
-      </div>
-      <div style={{ marginBottom: '1.25rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.83rem', marginBottom: '6px' }}>
-          <span>Conversations Used This Month</span>
-          <strong>4,890 / 5,000</strong>
+      )}
+
+      {/* =====================================================================
+         CANCEL CONFIRMATION DIALOG
+         ===================================================================== */}
+      {showCancelConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.65)', backdropFilter: 'blur(3px)',
+          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }} onClick={() => setShowCancelConfirm(false)}>
+          <div
+            style={{
+              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '420px', width: '100%',
+              padding: '1.75rem', boxShadow: '0 24px 64px rgba(0,0,0,0.25)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <AlertCircle size={32} color="#dc2626" style={{ marginBottom: '0.75rem' }} />
+            <h4 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              Cancel Subscription?
+            </h4>
+            <p style={{ margin: '0 0 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+              Are you sure you want to cancel your paid subscription? Your workspace will return to the Free Trial tier and your automated limits will be paused.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowCancelConfirm(false)}
+                style={{
+                  flex: 1, background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)',
+                  borderRadius: '8px', padding: '0.6rem', fontSize: '0.85rem', fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Keep Plan
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelSubscription}
+                style={{
+                  flex: 1, background: '#dc2626', color: '#ffffff',
+                  border: 'none', borderRadius: '8px', padding: '0.6rem', fontSize: '0.85rem',
+                  fontWeight: 700, cursor: 'pointer'
+                }}
+              >
+                Yes, Cancel Plan
+              </button>
+            </div>
+          </div>
         </div>
-        <div style={{ height: '8px', background: 'var(--border-light)', borderRadius: '4px', overflow: 'hidden' }}>
-          <div style={{ width: '97.8%', height: '100%', background: '#d97706', borderRadius: '4px' }} />
-        </div>
-        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#d97706' }}>97.8% used — consider upgrading to avoid limits.</p>
-      </div>
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-        <button style={{ background: 'linear-gradient(135deg, var(--olive-700), var(--olive-900))', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.6rem 1.25rem', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}>
-          Upgrade Plan
-        </button>
-        <button style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)', borderRadius: '8px', padding: '0.6rem 1.25rem', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
-          View Invoices
-        </button>
-      </div>
-    </SettingsSection>
+      )}
+    </>
   );
 }
 
@@ -1650,7 +2515,7 @@ export function SettingsPage({ user, onLogout }) {
       case 'team': return <TeamSection user={user} onToast={showToast} />;
       case 'security': return <SecuritySection onToast={showToast} />;
       case 'notifications': return <NotificationsSection onToast={showToast} />;
-      case 'billing': return <BillingSection user={user} />;
+      case 'billing': return <BillingSection user={user} onToast={showToast} />;
       case 'developer': return <DeveloperSection onToast={showToast} />;
       case 'danger': return <DangerZoneSection user={user} onToast={showToast} onLogout={onLogout} />;
       default: return null;

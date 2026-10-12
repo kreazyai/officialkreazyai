@@ -1,8 +1,13 @@
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getDatabase } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
 import crypto from 'crypto';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ─── Helper: log to audit_logs ──────────────────────────────────────────────
 function auditLog(db, businessId, actorEmail, action, resource, resourceId, details = {}) {
@@ -227,6 +232,32 @@ export const settingsController = {
       auditLog(db, req.businessId, req.user.email, 'AVATAR_REMOVED', 'user', req.user.id, {});
 
       return successResponse(res, { avatarUrl: null, message: 'Profile photo removed.' });
+    } catch (err) { next(err); }
+  },
+
+  // ── GET /api/settings/avatar/:userId/:filename ─────────────────────────────
+  async viewAvatar(req, res, next) {
+    try {
+      const filename = req.params.filename || req.params.file;
+      if (!filename) {
+        return errorResponse(res, 'Avatar filename required.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.BAD_REQUEST);
+      }
+      const safeFilename = path.basename(filename);
+      const fs = await import('fs');
+      const avatarPath = path.resolve(__dirname, '../../../data/uploads/avatars', safeFilename);
+      if (!fs.existsSync(avatarPath)) {
+        return errorResponse(res, 'Avatar image not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+      }
+      const ext = path.extname(safeFilename).toLowerCase();
+      const mimeTypes = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.webp': 'image/webp'
+      };
+      res.setHeader('Content-Type', mimeTypes[ext] || 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      fs.createReadStream(avatarPath).pipe(res);
     } catch (err) { next(err); }
   },
 

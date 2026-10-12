@@ -232,5 +232,10 @@ settingsRouter.get('/api-keys', settingsController.getApiKeys);
 settingsRouter.post('/api-keys', settingsController.createApiKey);
 settingsRouter.delete('/api-keys/:id', settingsController.revokeApiKey);
 
+// Public avatar viewing for <img> tags
+apiRouter.get('/settings/avatar/:userId/:filename', settingsController.viewAvatar);
+apiRouter.get('/settings/avatar/:filename', settingsController.viewAvatar);
+
 apiRouter.use('/settings', settingsRouter);
+
 

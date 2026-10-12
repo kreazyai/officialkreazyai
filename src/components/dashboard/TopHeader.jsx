@@ -166,10 +166,21 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 800,
-                fontSize: '0.78rem'
+                fontSize: '0.78rem',
+                overflow: 'hidden',
+                flexShrink: 0
               }}
             >
-              {user?.name ? user.name.slice(0, 2).toUpperCase() : (isDemo ? 'MA' : 'ME')}
+              {(user?.avatarUrl || user?.picture) ? (
+                <img 
+                  src={user.avatarUrl || user.picture} 
+                  alt={user?.name || 'User'} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                user?.name ? user.name.slice(0, 2).toUpperCase() : (isDemo ? 'MA' : 'ME')
+              )}
             </div>
             <div style={{ lineHeight: 1.2, textAlign: 'left' }}>
               <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--primary-dark)' }}>
