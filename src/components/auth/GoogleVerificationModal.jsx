@@ -42,7 +42,6 @@ export function GoogleAuthButton({
   onClick,
   disabled = false,
   loading = false,
-  badge = 'Verified OAuth 2.0',
   className = ''
 }) {
   return (
@@ -52,13 +51,10 @@ export function GoogleAuthButton({
       onClick={onClick}
       disabled={disabled || loading}
     >
-      <div className="google-auth-btn-left">
-        <div className="google-icon-wrapper">
-          {loading ? <Loader2 size={18} className="spinner-rotate" /> : <GoogleIcon size={19} />}
-        </div>
-        <span className="google-auth-btn-text">{text}</span>
+      <div className="google-icon-wrapper">
+        {loading ? <Loader2 size={18} className="spinner-rotate" /> : <GoogleIcon size={19} />}
       </div>
-      {badge && <span className="google-auth-badge">{badge}</span>}
+      <span className="google-auth-btn-text">{text}</span>
     </button>
   );
 }

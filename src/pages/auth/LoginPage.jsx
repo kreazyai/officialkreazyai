@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, Zap } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -56,20 +56,6 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
     }
   };
 
-  const handleDemoQuickLogin = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const user = await login('founder@kreazybrand.com', 'demo', true);
-      if (onLoginSuccess) onLoginSuccess(user);
-      onNavigate('dashboard');
-    } catch (err) {
-      setError('Demo login failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
@@ -92,11 +78,10 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
           </div>
         )}
 
-        {/* 1. Official Google Verified Authentication */}
+        {/* Clean Google Authentication Button */}
         <GoogleAuthButton
           text="Continue with Google"
           onClick={() => setIsGoogleModalOpen(true)}
-          badge="Verified OAuth 2.0"
         />
 
         {/* Clear Divider */}
@@ -168,35 +153,9 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
           >
             Create New Account / Sign Up
           </Button>
-
-          <Button
-            type="button"
-            variant="subtle"
-            size="md"
-            onClick={handleDemoQuickLogin}
-            style={{ width: '100%', border: '1px dashed var(--border-medium)', marginTop: '0.25rem' }}
-          >
-            ⚡ One-Click Instant Demo Login (Pre-Loaded Studio)
-          </Button>
         </form>
 
-        {/* Clear Trust and Security Strip */}
-        <div className="auth-trust-strip">
-          <div className="auth-trust-item">
-            <ShieldCheck size={14} />
-            <span>Google Verified Auth</span>
-          </div>
-          <div className="auth-trust-item">
-            <Lock size={13} />
-            <span>256-Bit SSL Secured</span>
-          </div>
-          <div className="auth-trust-item">
-            <Zap size={13} />
-            <span>Meta Tech Partner</span>
-          </div>
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Don't have an account yet?{' '}
           <button
             type="button"

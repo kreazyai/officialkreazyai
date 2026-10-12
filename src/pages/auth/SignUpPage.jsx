@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, Building2, User, ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2, Zap } from 'lucide-react';
+import { Mail, Lock, Building2, User, ArrowRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -110,11 +110,10 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
           </div>
         )}
 
-        {/* 1. Official Google Verified Sign-Up */}
+        {/* Clean Google Authentication Button */}
         <GoogleAuthButton
           text="Sign up with Google"
           onClick={() => setIsGoogleModalOpen(true)}
-          badge="Fast 1-Click Setup"
         />
 
         {/* Clear Divider */}
@@ -214,23 +213,7 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
           </Button>
         </form>
 
-        {/* Clear Trust and Security Strip */}
-        <div className="auth-trust-strip">
-          <div className="auth-trust-item">
-            <ShieldCheck size={14} />
-            <span>Google Verified Auth</span>
-          </div>
-          <div className="auth-trust-item">
-            <Lock size={13} />
-            <span>256-Bit SSL Secured</span>
-          </div>
-          <div className="auth-trust-item">
-            <Zap size={13} />
-            <span>Meta Tech Partner</span>
-          </div>
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
           <button
             type="button"
