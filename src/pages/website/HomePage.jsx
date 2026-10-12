@@ -29,12 +29,48 @@ import {
   Inbox,
   Workflow,
   Database,
-  FileText
+  FileText,
+  Play,
+  X,
+  Users
 } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { PricingTiersSection } from '../../components/website/PricingTiersSection';
 import { leadService } from '../../services/api';
+
+/* Authentic Full-Color Platform Squircles (Hero Section) */
+const WhatsAppColorSquircle = ({ size = 26 }) => (
+  <svg viewBox="0 0 36 36" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="36" height="36" rx="9" fill="#25D366"/>
+    <path d="M18.02 7C11.94 7 7 11.95 7 18.04c0 2.08.58 4.11 1.68 5.89L7 29l5.24-1.63a10.98 10.98 0 0 0 5.78 1.62c6.08 0 11.02-4.95 11.02-11.03C29.04 11.92 24.1 7 18.02 7zm6.44 15.65c-.27.75-1.56 1.44-2.16 1.53-.56.09-1.29.13-2.09-.13-.48-.15-1.1-.35-1.89-.7-3.35-1.46-5.54-4.88-5.71-5.1-.17-.22-1.37-1.83-1.37-3.48 0-1.66.87-2.48 1.18-2.82.31-.34.68-.43.91-.43.23 0 .46 0 .66.01.21.01.49-.08.77.58.28.68.96 2.36 1.05 2.53.08.18.14.39.02.62-.11.23-.17.37-.34.57-.17.2-.36.45-.51.6-.17.18-.35.37-.15.71.2.35.89 1.48 1.92 2.39 1.32 1.18 2.43 1.54 2.77 1.71.34.17.55.15.75-.08.2-.23.86-.99 1.09-1.33.23-.34.46-.28.77-.17.31.11 1.98.94 2.32 1.11.34.17.57.25.66.39.08.15.08.85-.19 1.6z" fill="#FFFFFF"/>
+  </svg>
+);
+
+const InstagramColorSquircle = ({ size = 26 }) => (
+  <svg viewBox="0 0 36 36" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="igGradHeroSquircle" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#FFDC80" />
+        <stop offset="25%" stopColor="#F56040" />
+        <stop offset="50%" stopColor="#E1306C" />
+        <stop offset="75%" stopColor="#C13584" />
+        <stop offset="100%" stopColor="#833AB4" />
+      </linearGradient>
+    </defs>
+    <rect width="36" height="36" rx="9" fill="url(#igGradHeroSquircle)"/>
+    <rect x="9.5" y="9.5" width="17" height="17" rx="4.8" stroke="#FFFFFF" strokeWidth="2" fill="none"/>
+    <circle cx="18" cy="18" r="4.2" stroke="#FFFFFF" strokeWidth="2" fill="none"/>
+    <circle cx="22.8" cy="13.2" r="1.1" fill="#FFFFFF"/>
+  </svg>
+);
+
+const FacebookColorSquircle = ({ size = 26 }) => (
+  <svg viewBox="0 0 36 36" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="36" height="36" rx="9" fill="#1877F2"/>
+    <path d="M23.5 19l.7-4.6h-4.4v-3c0-1.2.6-2.4 2.5-2.4H24V5.1s-1.6-.3-3.2-.3c-3.2 0-5.3 1.9-5.3 5.5v3.1H11.4V19h4.1v11h5.6V19h2.4z" fill="#FFFFFF"/>
+  </svg>
+);
 
 /* White monochrome social platform icons for macOS hero environment (Item 3) */
 const WhatsAppIcon = ({ size = 15 }) => (
@@ -58,6 +94,9 @@ const MessengerIcon = ({ size = 15 }) => (
 );
 
 export function HomePage({ onNavigate, user }) {
+  // Demo Walkthrough Modal State
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [activeDemoTab, setActiveDemoTab] = useState('inbox');
 
   // Founder Meeting Form State
   const [founderForm, setFounderForm] = useState({
@@ -280,399 +319,303 @@ export function HomePage({ onNavigate, user }) {
   return (
     <div className="homepage-content">
       {/* =============================================================
-          1. HERO SECTION (PDF Page 4 & 5)
-          - Large white/light background (#F8FAF9)
-          - Soft mint-green organic abstract shapes toward edges
-          - Thin flowing green lines inspired by automation connections
-          - Small outlined graphics (chat bubbles, nodes, arrows, etc.)
-          - Eyebrow: AI-Powered Business Automation
-          - Headline: More conversations. Less manual work.
-          - Supporting text & Pill CTAs
-          - Under CTA: WhatsApp • Instagram • Messenger • Web
-          - Hero Visual: 5 rounded floating workflow cards with green curved lines
-          ============================================================= */}
-      {/* =============================================================
-          1. HERO SECTION: macOS-INSPIRED AUTONOMOUS AI WORKSPACE
-          Apple/macOS interface aesthetics + AI automation + KREAZY AI branding
+          1. HERO SECTION: "YOUR BUSINESS AUTOMATION" TWO-COLUMN SHOWCASE
+          Matched to the high-converting SaaS visual identity:
+          - Left: Brand header, bold dark+green headline, subtitle, 
+                  4 benefit pills, primary & secondary CTAs, 
+                  and colorful platform squircles
+          - Right: 3D Laptop + Mobile device mockup showcase
           ============================================================= */}
       <section className="hero-section">
-        {/* Ambient Radial Mint Glows */}
+        {/* Ambient Subtle Mint Glows */}
         <div className="hero-ambient-glow-left" aria-hidden="true" />
         <div className="hero-ambient-glow-right" aria-hidden="true" />
         <div className="hero-ambient-glow-bottom" aria-hidden="true" />
 
-        {/* Technical Dotted Grid Overlay */}
-        <div className="hero-dotted-grid-overlay" aria-hidden="true" />
+        <div className="container">
+          <div className="hero-split-grid">
+            {/* Left Column: Headline, Value Proposition & Actions */}
+            <div className="hero-col-left">
+              {/* Main Headline */}
+              <h1 className="hero-headline">
+                <span className="hero-headline-black">Your Business</span>
+                <span className="hero-headline-green">Automation</span>
+              </h1>
 
-        {/* Decorative thin green workflow lines & automation network canvas (Item 7) */}
-        <svg
-          className="hero-bg-canvas"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1440 760"
-          fill="none"
-          aria-hidden="true"
-        >
-          <defs>
-            <linearGradient id="heroLineGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#AEEBCB" stopOpacity="0.1" />
-              <stop offset="50%" stopColor="#0FA968" stopOpacity="0.38" />
-              <stop offset="100%" stopColor="#AEEBCB" stopOpacity="0.1" />
-            </linearGradient>
-            <linearGradient id="heroLineGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0FA968" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#092A20" stopOpacity="0.08" />
-            </linearGradient>
-          </defs>
-
-          {/* Network Path 1: Left social platforms into KREAZY AI core */}
-          <path
-            d="M 60 220 C 220 160, 340 320, 520 280 C 620 260, 680 320, 720 380"
-            stroke="url(#heroLineGrad1)"
-            strokeWidth="1.5"
-            strokeDasharray="5 7"
-          />
-          {/* Network Path 2: Cross connecting behind headline */}
-          <path
-            d="M -20 380 C 260 480, 480 340, 720 420 C 960 500, 1180 360, 1460 410"
-            stroke="#0FA968"
-            strokeWidth="1.2"
-            strokeOpacity="0.22"
-          />
-          {/* Network Path 3: Right social platforms into KREAZY AI core */}
-          <path
-            d="M 1380 230 C 1220 170, 1100 310, 920 280 C 820 260, 760 320, 720 380"
-            stroke="url(#heroLineGrad1)"
-            strokeWidth="1.5"
-            strokeDasharray="5 7"
-          />
-          {/* Network Path 4: Central AI core to CRM/Orders bottom outflow */}
-          <path
-            d="M 720 440 C 720 540, 580 580, 480 640"
-            stroke="#AEEBCB"
-            strokeWidth="1.2"
-            strokeOpacity="0.35"
-            strokeDasharray="4 6"
-          />
-          <path
-            d="M 720 440 C 720 540, 860 580, 960 640"
-            stroke="#AEEBCB"
-            strokeWidth="1.2"
-            strokeOpacity="0.35"
-            strokeDasharray="4 6"
-          />
-
-          {/* Connection Nodes */}
-          <circle cx="280" cy="240" r="4" fill="#0FA968" opacity="0.6" />
-          <circle cx="520" cy="280" r="3" fill="#0FA968" opacity="0.7" />
-          <circle cx="920" cy="280" r="3" fill="#0FA968" opacity="0.7" />
-          <circle cx="1160" cy="250" r="4" fill="#0FA968" opacity="0.6" />
-        </svg>
-
-        {/* Floating macOS UI Environment (Items 2, 5, 6 - Desktop) */}
-        <div className="hero-floating-stage" aria-hidden="true">
-          {/* Top-Left: Response Engine Widget (⚡ 1.2s • Average reply) */}
-          <div className="hero-float-widget float-top-left">
-            <div className="widget-header-mini">
-              <div className="mini-dots">
-                <span className="mini-dot red" />
-                <span className="mini-dot yellow" />
-                <span className="mini-dot green" />
+              {/* Subtitle / Value Proposition */}
+              <div className="hero-tagline-block">
+                <div className="hero-tagline-bold">
+                  Connect. Automate. Engage. Grow.
+                </div>
+                <div className="hero-tagline-sub">
+                  All from a single, powerful dashboard.
+                </div>
               </div>
-              <span className="widget-tag">Response Engine</span>
-            </div>
-            <div className="widget-metric-row">
-              <span className="widget-stat-number">⚡ 1.2s</span>
-              <span className="widget-stat-pill">Average reply</span>
-            </div>
-            <div className="widget-micro-caption">Instant customer reply in Bangla &amp; English</div>
-          </div>
 
-          {/* Mid-Left: Instant AI Sales Glass Tile + WhatsApp Node (Items 3, 5) */}
-          <div className="hero-float-tile float-mid-left">
-            <div className="tile-icon-box">
-              <Sparkles size={22} className="tile-svg-icon" />
-            </div>
-            <div className="tile-text-wrap">
-              <div className="tile-title">Autonomous Sales</div>
-              <div className="tile-subtitle">● Active on WhatsApp</div>
-            </div>
-            <div className="tile-badge-corner" title="WhatsApp Connected">
-              <WhatsAppIcon size={13} />
-            </div>
-          </div>
+              {/* 4 Benefit / Feature Pills */}
+              <div className="hero-feature-pills">
+                <div className="hero-feature-pill pill-support">
+                  <span className="feature-pill-icon">
+                    <MessageSquare size={17} />
+                  </span>
+                  <span className="feature-pill-label">Customer Support</span>
+                </div>
 
-          {/* Bottom-Left: Leads Qualified Micro Card (Item 6) */}
-          <div className="hero-float-widget float-bottom-left">
-            <div className="widget-lead-row">
-              <div className="widget-icon-circle green">
-                <User size={15} />
+                <div className="hero-feature-pill pill-leads">
+                  <span className="feature-pill-icon">
+                    <Users size={17} />
+                  </span>
+                  <span className="feature-pill-label">More Leads</span>
+                </div>
+
+                <div className="hero-feature-pill pill-sales">
+                  <span className="feature-pill-icon">
+                    <BarChart3 size={17} />
+                  </span>
+                  <span className="feature-pill-label">Higher Sales</span>
+                </div>
+
+                <div className="hero-feature-pill pill-time">
+                  <span className="feature-pill-icon">
+                    <Clock size={17} />
+                  </span>
+                  <span className="feature-pill-label">Save Time</span>
+                </div>
               </div>
-              <div>
-                <div className="widget-stat-number">+24</div>
-                <div className="widget-stat-label">Leads qualified</div>
+
+              {/* CTA Action Buttons */}
+              <div className="hero-action-buttons">
+                <button
+                  type="button"
+                  className="hero-btn-dark"
+                  onClick={() => onNavigate(user ? 'dashboard' : 'signup')}
+                >
+                  <span>Get Started</span>
+                  <ArrowRight size={17} className="btn-arrow" />
+                </button>
+
+                <button
+                  type="button"
+                  className="hero-btn-outline"
+                  onClick={() => setShowDemoModal(true)}
+                >
+                  <span className="hero-play-circle">▶</span>
+                  <span>Watch Demo</span>
+                </button>
+              </div>
+
+              {/* Social Channels Proof */}
+              <div className="hero-social-strip">
+                <div className="hero-social-icons">
+                  <div
+                    className="social-squircle-btn"
+                    title="WhatsApp Business API"
+                    onClick={() => onNavigate('integrations')}
+                  >
+                    <WhatsAppColorSquircle size={26} />
+                  </div>
+                  <div
+                    className="social-squircle-btn"
+                    title="Instagram Direct Automation"
+                    onClick={() => onNavigate('integrations')}
+                  >
+                    <InstagramColorSquircle size={26} />
+                  </div>
+                  <div
+                    className="social-squircle-btn"
+                    title="Facebook Messenger Automation"
+                    onClick={() => onNavigate('integrations')}
+                  >
+                    <FacebookColorSquircle size={26} />
+                  </div>
+                </div>
+                <span className="hero-social-text">
+                  All Your Conversations in One Dashboard
+                </span>
               </div>
             </div>
-            <div className="widget-mini-bar">
-              <div className="widget-mini-fill" style={{ width: '84%' }} />
-            </div>
-            <div className="widget-micro-caption">Auto-synced to CRM &amp; catalog</div>
-          </div>
 
-          {/* Top-Right: 24/7 Live Widget (Item 6) */}
-          <div className="hero-float-widget float-top-right">
-            <div className="widget-header-mini">
-              <div className="mini-dots">
-                <span className="mini-dot red" />
-                <span className="mini-dot yellow" />
-                <span className="mini-dot green" />
-              </div>
-              <div className="widget-live-status">
-                <span className="live-dot" />
-                <span>LIVE</span>
-              </div>
-            </div>
-            <div className="widget-metric-row">
-              <span className="widget-stat-number">24/7</span>
-              <span className="widget-stat-pill">Always available</span>
-            </div>
-            <div className="widget-micro-caption">Zero queue delay across channels</div>
-          </div>
-
-          {/* Mid-Right: Order Created Glass Tile + Instagram Node (Items 3, 5) */}
-          <div className="hero-float-tile float-mid-right">
-            <div className="tile-icon-box">
-              <ShoppingBag size={22} className="tile-svg-icon" />
-            </div>
-            <div className="tile-text-wrap">
-              <div className="tile-title">Order Created</div>
-              <div className="tile-subtitle">৳8,450 auto-captured</div>
-            </div>
-            <div className="tile-badge-corner" title="Instagram Connected">
-              <InstagramIcon size={13} />
-            </div>
-          </div>
-
-          {/* Bottom-Right: Human Handoff Micro Card (Item 5, 6) */}
-          <div className="hero-float-widget float-bottom-right">
-            <div className="widget-lead-row">
-              <div className="widget-icon-circle dark">
-                <Headphones size={15} />
-              </div>
-              <div>
-                <div className="widget-stat-number">1 Click</div>
-                <div className="widget-stat-label">Human agent handoff</div>
+            {/* Right Column: 3D Product & Devices Visual Showcase */}
+            <div className="hero-col-right">
+              <div className="hero-showcase-stage">
+                <img
+                  src="/assets/hero-devices-showcase.png"
+                  srcSet="/assets/hero-devices-showcase.png 1x, /assets/hero-devices-showcase@2x.png 2x"
+                  alt="KreazyAI Multi-Channel Automation Dashboard on Laptop and Mobile Phone"
+                  className="hero-showcase-image"
+                  loading="eager"
+                />
               </div>
             </div>
-            <div className="widget-micro-caption">Seamless moderator transfer</div>
           </div>
         </div>
 
-        {/* Central Main Composition (Items 1, 9, 10, 4) */}
-        <div className="container" style={{ position: 'relative', zIndex: 3 }}>
-          <div className="hero-content-wrap">
-            {/* 1. Small Announcement Badge above Headline */}
-            <div className="hero-announcement-badge">
-              <span className="hero-status-beacon" />
-              <span className="badge-text">AI-Powered Business Automation</span>
-              <ArrowRight size={13} className="badge-arrow" />
-            </div>
-
-            {/* 2. Main Headline: Exactly 'More conversations.' and 'Less manual work.' */}
-            <h1 className="hero-title">
-              <span className="title-line dark">More conversations.</span>
-              <span className="title-line green">Less manual work.</span>
-            </h1>
-
-            {/* 3. Supporting Description */}
-            <p className="hero-subtitle">
-              KREAZY AI automates customer conversations, support, lead qualification, and order capture across WhatsApp, Instagram, Messenger, and Web — 24/7.
-            </p>
-
-            {/* 4. CTA Buttons */}
-            <div className="hero-cta-group">
-              {user ? (
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="hero-pill-cta"
-                  onClick={() => onNavigate('dashboard')}
+        {/* Interactive "Watch Demo" Product Tour Modal */}
+        {showDemoModal && (
+          <div
+            className="hero-modal-backdrop"
+            onClick={() => setShowDemoModal(false)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="hero-modal-box"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="hero-modal-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div className="hero-play-circle" style={{ color: '#00A859' }}>▶</div>
+                  <h3 className="hero-modal-title">KreazyAI Live Platform Demo</h3>
+                </div>
+                <button
+                  type="button"
+                  className="hero-modal-close-btn"
+                  onClick={() => setShowDemoModal(false)}
+                  aria-label="Close demo modal"
                 >
-                  <span>Open Workspace Dashboard</span>
-                  <ArrowRight size={18} className="cta-arrow-icon" />
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="hero-pill-cta"
-                    onClick={() => onNavigate('book-demo')}
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="hero-modal-body">
+                {/* Demo Feature Tabs */}
+                <div className="hero-demo-tabs">
+                  <button
+                    type="button"
+                    className={`hero-demo-tab-btn ${activeDemoTab === 'inbox' ? 'active' : ''}`}
+                    onClick={() => setActiveDemoTab('inbox')}
                   >
-                    <span>Book a Demo</span>
-                    <ArrowRight size={18} className="cta-arrow-icon" />
-                  </Button>
+                    Omnichannel Inbox
+                  </button>
+                  <button
+                    type="button"
+                    className={`hero-demo-tab-btn ${activeDemoTab === 'commerce' ? 'active' : ''}`}
+                    onClick={() => setActiveDemoTab('commerce')}
+                  >
+                    AI Commerce Agent
+                  </button>
+                  <button
+                    type="button"
+                    className={`hero-demo-tab-btn ${activeDemoTab === 'analytics' ? 'active' : ''}`}
+                    onClick={() => setActiveDemoTab('analytics')}
+                  >
+                    Live Telemetry &amp; Growth
+                  </button>
+                </div>
+
+                {activeDemoTab === 'inbox' && (
+                  <div className="hero-demo-card">
+                    <h3>One Unified Inbox Across All Social Channels</h3>
+                    <p>
+                      Receive incoming messages instantly from WhatsApp Business, Instagram DMs, Story Mentions, and Facebook Messenger. Your AI sales agent replies in under 1.2 seconds, answers sizing and stock questions, and qualifies buyer intent.
+                    </p>
+                    <div className="hero-demo-features-list">
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Meta Cloud API official verified routing</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Bangla &amp; English bilingual natural NLP</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>1-Click seamless human agent takeover</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Zero message loss during peak traffic</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeDemoTab === 'commerce' && (
+                  <div className="hero-demo-card">
+                    <h3>Direct In-Chat Checkout &amp; Order Capture</h3>
+                    <p>
+                      Never send buyers away to a clunky external link. Kreazy AI collects customer name, phone number, delivery address, verifies Cash on Delivery eligibility, and generates an order with courier-ready tracking.
+                    </p>
+                    <div className="hero-demo-features-list">
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Live inventory &amp; variant lookups</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Automated address &amp; phone verification</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Syncs to Shopify, WooCommerce &amp; Sheets</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>+28% conversion lift on abandoned carts</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeDemoTab === 'analytics' && (
+                  <div className="hero-demo-card">
+                    <h3>Actionable Telemetry &amp; Business Intelligence</h3>
+                    <p>
+                      Monitor live conversations handled, conversion rates, channel ROI, and top-performing automated replies all from a single executive dashboard.
+                    </p>
+                    <div className="hero-demo-features-list">
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>12,580+ conversations tracked in real-time</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>+62% average sales growth lift</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Sub-second response latency benchmarks</span>
+                      </div>
+                      <div className="hero-demo-feature-item">
+                        <CheckCircle2 size={16} />
+                        <span>Executive export &amp; courier webhook sync</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="hero-modal-footer">
+                <span className="hero-modal-footer-text">
+                  Want a tailored 1-on-1 walkthrough for your store?
+                </span>
+                <div className="hero-modal-actions">
                   <Button
                     variant="secondary"
-                    size="lg"
-                    className="hero-glass-cta"
-                    onClick={() => onNavigate('signup')}
+                    size="md"
+                    onClick={() => {
+                      setShowDemoModal(false);
+                      onNavigate('book-demo');
+                    }}
                   >
-                    <span>Start Automating</span>
-                    <ArrowRight size={18} className="cta-arrow-icon" />
+                    <span>Book Founder Demo</span>
                   </Button>
-                </>
-              )}
-            </div>
-
-            {/* 5. Connected Platform Indicators (Under CTA) */}
-            <div className="hero-channels-row">
-              <div className="hero-channel-item">
-                <span className="hero-channel-icon-pill" title="WhatsApp Business">
-                  <WhatsAppIcon size={14} />
-                </span>
-                <span className="hero-channel-label">WhatsApp</span>
-              </div>
-              <span className="hero-channel-dot">•</span>
-              <div className="hero-channel-item">
-                <span className="hero-channel-icon-pill" title="Instagram Direct">
-                  <InstagramIcon size={14} />
-                </span>
-                <span className="hero-channel-label">Instagram</span>
-              </div>
-              <span className="hero-channel-dot">•</span>
-              <div className="hero-channel-item">
-                <span className="hero-channel-icon-pill" title="Facebook Messenger">
-                  <MessengerIcon size={14} />
-                </span>
-                <span className="hero-channel-label">Messenger</span>
-              </div>
-              <span className="hero-channel-dot">•</span>
-              <div className="hero-channel-item">
-                <span className="hero-channel-icon-pill" title="Web Chat Widget">
-                  <Globe size={14} />
-                </span>
-                <span className="hero-channel-label">Web Chat</span>
-              </div>
-            </div>
-
-            {/* 6. Main AI Visual: Premium Modern SaaS Product Mockup Card */}
-            <div className="hero-product-preview-card">
-              {/* Product Window Header */}
-              <div className="preview-card-header">
-                <div className="preview-traffic-dots">
-                  <span className="traffic-dot traffic-red" />
-                  <span className="traffic-dot traffic-yellow" />
-                  <span className="traffic-dot traffic-green" />
-                </div>
-                <div className="preview-window-pill">
-                  <span className="window-brand">KREAZY AI</span>
-                  <span className="window-sep">/</span>
-                  <span className="window-app">Autonomous Agent Workspace</span>
-                </div>
-                <div className="preview-live-badge">
-                  <span className="live-pulse-dot" />
-                  <span>Listening · 4 Channels Active</span>
-                </div>
-              </div>
-
-              {/* Product Window Body */}
-              <div className="preview-card-body">
-                {/* Agent Identity & Telemetry Bar */}
-                <div className="preview-agent-subbar">
-                  <div className="agent-identity">
-                    <div className="agent-avatar-icon">
-                      <Bot size={18} />
-                    </div>
-                    <div>
-                      <div className="agent-name">Store Intelligence Agent</div>
-                      <div className="agent-role">Multi-Channel Autonomous Commerce</div>
-                    </div>
-                  </div>
-                  <div className="agent-telemetry-strip">
-                    <div className="agent-latency-chip">
-                      <Zap size={13} />
-                      <span>⚡ 1.2s avg response</span>
-                    </div>
-                    <div className="agent-accuracy-chip">
-                      <CheckCircle2 size={13} />
-                      <span>99.8% AI accuracy</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4 Metric Counters Grid */}
-                <div className="preview-metrics-grid">
-                  <div className="preview-metric-card">
-                    <div className="metric-number">12</div>
-                    <div className="metric-label">conversations handled</div>
-                  </div>
-                  <div className="preview-metric-card">
-                    <div className="metric-number">3</div>
-                    <div className="metric-label">leads qualified</div>
-                  </div>
-                  <div className="preview-metric-card highlight">
-                    <div className="metric-number">2</div>
-                    <div className="metric-label">orders created</div>
-                  </div>
-                  <div className="preview-metric-card">
-                    <div className="metric-number">1</div>
-                    <div className="metric-label">human handoff</div>
-                  </div>
-                </div>
-
-                {/* Conversational Automation Stream Preview */}
-                <div className="preview-conversation-stream">
-                  {/* Customer Inbound Bubble */}
-                  <div className="stream-message customer">
-                    <div className="message-header">
-                      <span className="customer-avatar">SM</span>
-                      <span className="customer-name">Sarah M.</span>
-                      <span className="channel-tag">
-                        <WhatsAppIcon size={12} />
-                        WhatsApp
-                      </span>
-                      <span className="message-time">10:42 AM</span>
-                    </div>
-                    <div className="message-body">
-                      Hi! Do you have the Artisan Linen Overshirt in size L? How long for delivery to Dhaka?
-                    </div>
-                  </div>
-
-                  {/* Autonomous Kreazy AI Outbound Bubble */}
-                  <div className="stream-message ai">
-                    <div className="message-header">
-                      <div className="ai-agent-indicator">
-                        <Bot size={12} />
-                        <span>Kreazy AI Agent</span>
-                      </div>
-                      <span className="response-speed-pill">⚡ 0.8s automated reply</span>
-                      <span className="message-time">10:42 AM</span>
-                    </div>
-                    <div className="message-body">
-                      Yes! The Artisan Linen Overshirt in Large is in stock (৳3,450). Standard delivery inside Dhaka arrives within 24-48 hours. Would you like me to reserve one or confirm your order?
-                    </div>
-                    <div className="message-chips-row">
-                      <span className="message-chip success">✓ Catalog Synced</span>
-                      <span className="message-chip">Stock: 4 Available</span>
-                      <span className="message-chip">Cash on Delivery Eligible</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Live Event Ticker */}
-                <div className="preview-event-ticker">
-                  <span className="ticker-badge">LIVE EVENT</span>
-                  <div className="ticker-text">
-                    <span className="ticker-time">10:42:19</span>
-                    <span className="ticker-channel">WhatsApp</span>
-                    <span className="ticker-desc">Order #KZ-9824 auto-confirmed with address &amp; phone verification</span>
-                    <span className="ticker-check">✓</span>
-                  </div>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => {
+                      setShowDemoModal(false);
+                      onNavigate('signup');
+                    }}
+                  >
+                    <span>Start Free Trial</span>
+                    <ArrowRight size={15} style={{ marginLeft: 6 }} />
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* =============================================================
