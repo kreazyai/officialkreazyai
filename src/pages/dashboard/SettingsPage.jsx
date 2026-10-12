@@ -2945,7 +2945,6 @@ const NAV_SECTIONS = [
   { id: 'team', label: 'Team & Access', icon: Users },
   { id: 'security', label: 'Security', icon: Lock },
   { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'billing', label: 'Billing & Subscription', icon: CreditCard },
   { id: 'developer', label: 'Developer / API', icon: Key },
   { id: 'danger', label: 'Danger Zone', icon: AlertTriangle },
 ];
@@ -2966,7 +2965,44 @@ export function SettingsPage({ user, onLogout }) {
       case 'team': return <TeamSection user={user} onToast={showToast} />;
       case 'security': return <SecuritySection onToast={showToast} />;
       case 'notifications': return <NotificationsSection onToast={showToast} />;
-      case 'billing': return <BillingSection user={user} onToast={showToast} />;
+      case 'billing': return (
+        <SettingsSection
+          title="Billing & Subscription"
+          description="Billing and pricing have moved to the main dashboard sidebar."
+        >
+          <div style={{
+            padding: '2.5rem 1.5rem', textAlign: 'center', background: 'var(--mint-soft, #EFFBF5)',
+            borderRadius: '14px', border: '1px solid var(--border-medium, #D9E9E1)'
+          }}>
+            <CreditCard size={32} color="var(--primary, #087A4A)" style={{ marginBottom: '0.75rem' }} />
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary-dark, #092A20)' }}>
+              Billing & Pricing is now in the Main Sidebar
+            </h3>
+            <p style={{ margin: '0 auto 1.25rem', fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '440px' }}>
+              Manage all active plans, bKash & Nagad (01643792804) payments, verification receipts, and invoices directly from the sidebar navigation.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history?.pushState) {
+                  window.history.pushState({}, '', '/dashboard/billing');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                } else {
+                  window.location.href = '/dashboard/billing';
+                }
+              }}
+              style={{
+                background: 'var(--primary, #087A4A)', color: '#ffffff',
+                border: 'none', borderRadius: '8px', padding: '0.65rem 1.5rem',
+                fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem'
+              }}
+            >
+              <CreditCard size={16} /> Go to Billing & Pricing
+            </button>
+          </div>
+        </SettingsSection>
+      );
       case 'developer': return <DeveloperSection onToast={showToast} />;
       case 'danger': return <DangerZoneSection user={user} onToast={showToast} onLogout={onLogout} />;
       default: return null;

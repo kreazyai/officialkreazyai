@@ -8,7 +8,8 @@ import {
   ExternalLink,
   User,
   Settings,
-  LogOut
+  LogOut,
+  CreditCard
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
@@ -234,6 +235,12 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   onClick={() => { onNavigateModule('settings'); setProfileOpen(false); }}
                 >
                   <Settings size={15} /> Workspace Settings
+                </div>
+                <div 
+                  style={{ padding: '0.65rem 1rem', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary, #087A4A)', fontWeight: 600 }}
+                  onClick={() => { onNavigateModule('billing'); setProfileOpen(false); }}
+                >
+                  <CreditCard size={15} /> Billing & Pricing
                 </div>
                 <button 
                   type="button"

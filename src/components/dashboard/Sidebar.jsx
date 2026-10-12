@@ -14,7 +14,8 @@ import {
   ChevronDown,
   LogOut,
   X,
-  Home
+  Home,
+  CreditCard
 } from 'lucide-react';
 
 export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen, onCloseMobile, user, onNavigate }) {
@@ -30,6 +31,7 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
     { id: 'ai-assistant', path: '/dashboard/ai-assistant', label: 'AI Assistant', icon: Bot, highlight: true },
     { id: 'analytics', path: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'revenue', path: '/dashboard/revenue', label: 'Revenue', icon: DollarSign },
+    { id: 'billing', path: '/dashboard/billing', label: 'Billing & Pricing', icon: CreditCard },
     { id: 'settings', path: '/dashboard/settings', label: 'Settings', icon: Settings }
   ];
 

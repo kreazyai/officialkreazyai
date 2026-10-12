@@ -41,6 +41,7 @@ const IntegrationsPage    = lazy(() => import('./pages/dashboard/IntegrationsPag
 const AiAssistantPage     = lazy(() => import('./pages/dashboard/AiAssistantPage').then(m => ({ default: m.AiAssistantPage })));
 const AnalyticsPage       = lazy(() => import('./pages/dashboard/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
 const RevenuePage         = lazy(() => import('./pages/dashboard/RevenuePage').then(m => ({ default: m.RevenuePage })));
+const BillingPage         = lazy(() => import('./pages/dashboard/BillingPage').then(m => ({ default: m.BillingPage })));
 const SettingsPage        = lazy(() => import('./pages/dashboard/SettingsPage').then(m => ({ default: m.SettingsPage })));
 
 // ─── Admin Portal (largest single view — isolated chunk) ─────────────────────
@@ -84,6 +85,7 @@ export const VALID_DASHBOARD_MODULES = [
   'ai-assistant',
   'analytics',
   'revenue',
+  'billing',
   'settings'
 ];
 
@@ -405,6 +407,10 @@ function AppContent() {
 
               {currentDashboardModule === 'revenue' && (
                 <RevenuePage user={user} />
+              )}
+
+              {currentDashboardModule === 'billing' && (
+                <BillingPage user={user} />
               )}
 
               {currentDashboardModule === 'settings' && (
