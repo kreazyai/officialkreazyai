@@ -6,7 +6,7 @@ import {
   Download, Printer, RotateCcw, CheckCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { printInvoicePdf, downloadInvoiceHtml } from '../../services/invoiceService';
+import { downloadInvoicePdf, printInvoicePdf, downloadInvoiceHtml } from '../../services/invoiceService';
 import { addDashboardNotification } from '../../services/notificationStore';
 
 function Toast({ message, type = 'success', onClose }) {
@@ -546,8 +546,8 @@ export function BillingPage({ user }) {
                           <button
                             type="button"
                             onClick={() => {
-                              printInvoicePdf(inv, activePlan, user);
-                              showToast(`Opened printable official tax invoice for ${inv.id}`, 'success');
+                              downloadInvoicePdf(inv, activePlan, user);
+                              showToast(`Downloaded official PDF invoice for ${inv.id}`, 'success');
                             }}
                             style={{
                               background: 'var(--primary, #087A4A)', border: 'none', borderRadius: '6px',
@@ -556,13 +556,13 @@ export function BillingPage({ user }) {
                               boxShadow: '0 2px 6px rgba(8, 122, 74, 0.2)'
                             }}
                           >
-                            <Printer size={13} /> Print / PDF
+                            <Download size={13} /> Download PDF
                           </button>
                           <button
                             type="button"
                             onClick={() => {
-                              downloadInvoiceHtml(inv, activePlan, user);
-                              showToast(`Downloaded tax invoice file for ${inv.id}`, 'success');
+                              printInvoicePdf(inv, activePlan, user);
+                              showToast(`Opened printable official tax invoice for ${inv.id}`, 'success');
                             }}
                             style={{
                               background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px',
@@ -570,7 +570,7 @@ export function BillingPage({ user }) {
                               display: 'inline-flex', alignItems: 'center', gap: '4px'
                             }}
                           >
-                            <Download size={13} /> Download
+                            <Printer size={13} /> Print
                           </button>
                         </div>
                       </td>
@@ -1321,9 +1321,8 @@ export function BillingPage({ user }) {
               <button
                 type="button"
                 onClick={() => {
-                  printInvoicePdf(paymentSuccessModal.invoice, paymentSuccessModal.plan, user);
-                  downloadInvoiceHtml(paymentSuccessModal.invoice, paymentSuccessModal.plan, user);
-                  showToast(`Tax invoice ${paymentSuccessModal.invoice.id} downloaded!`, 'success');
+                  downloadInvoicePdf(paymentSuccessModal.invoice, paymentSuccessModal.plan, user);
+                  showToast(`Downloaded official tax invoice ${paymentSuccessModal.invoice.id}.pdf!`, 'success');
                 }}
                 style={{
                   background: 'var(--primary, #087A4A)', color: '#ffffff',
@@ -1333,7 +1332,7 @@ export function BillingPage({ user }) {
                   boxShadow: '0 4px 14px rgba(8, 122, 74, 0.25)'
                 }}
               >
-                <Download size={18} /> Download Official Tax Invoice (PDF / Receipt)
+                <Download size={18} /> Download Invoice as PDF
               </button>
 
               <button

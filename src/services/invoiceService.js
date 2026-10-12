@@ -2,6 +2,7 @@
 // KREAZY AI - OFFICIAL TAX INVOICE & RECEIPT GENERATOR SERVICE
 // Creates high-resolution, printable, and downloadable tax invoices
 // ─────────────────────────────────────────────────────────────────────────────
+import { jsPDF } from 'jspdf';
 
 export function generateInvoiceHtml(invoice, plan, user) {
   const planName = plan?.name || 'Growth';
@@ -458,7 +459,321 @@ export function printInvoicePdf(invoice, plan, user) {
       printWindow.print();
     }, 400);
   } else {
-    // If popup blocker intervened, fallback to automatic file download
-    downloadInvoiceHtml(invoice, plan, user);
+    // If popup blocker intervened, fallback to automatic PDF file download
+    downloadInvoicePdf(invoice, plan, user);
   }
 }
+
+export function downloadInvoicePdf(invoice, plan, user) {
+  try {
+    const planName = plan?.name || 'Growth';
+    const priceUsd = plan?.price || 119;
+    const priceBdt = plan?.priceBdt || (priceUsd * 120);
+    const convLimit = plan?.conversationsLimit || plan?.conversationsNum || (priceUsd === 49 ? 1000 : (priceUsd === 299 ? 25000 : 5000));
+    const senderNumber = invoice?.senderNumber || '01643792804';
+    const trxId = invoice?.trxId || 'TRX-VERIFIED';
+    const invoiceId = invoice?.id || `INV-${new Date().getFullYear()}-001`;
+    const invoiceDate = invoice?.date || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const paymentMethod = invoice?.method || 'bKash / Nagad 01643792804 (Send money)';
+    const customerName = user?.name || user?.email?.split('@')[0] || 'Valued Merchant';
+    const customerEmail = user?.email || 'merchant@kreazyai.com';
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    // ── 1. Top Header Banner ──
+    doc.setFillColor(9, 42, 32); // #092A20
+    doc.roundedRect(14, 12, 182, 26, 3, 3, 'F');
+
+    // Logo mark
+    doc.setFillColor(8, 122, 74); // #087A4A
+    doc.roundedRect(20, 16.5, 11, 11, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('K', 25.5, 24.5, { align: 'center' });
+
+    // Brand Name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(17);
+    doc.text('Kreazy AI', 35, 22.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(174, 235, 203); // #AEEBCB
+    doc.text('Autonomous Omnichannel AI Agent Platform', 35, 27.5);
+
+    // Right Header Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('TAX INVOICE', 190, 22, { align: 'right' });
+
+    // Status Pill
+    doc.setFillColor(221, 247, 233); // #DDF7E9
+    doc.roundedRect(142, 25, 48, 6.5, 3, 3, 'F');
+    doc.setTextColor(8, 122, 74);
+    doc.setFontSize(7.5);
+    doc.text('PAID & CONFIRMED', 166, 29.5, { align: 'center' });
+
+    // ── 2. Metadata Section ──
+    // Billed From
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BILLED FROM:', 16, 46);
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(9.5);
+    doc.text('Kreazy AI Technologies Ltd.', 16, 51);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.setFontSize(8);
+    doc.text('Level 8, Software Technology Park', 16, 55.5);
+    doc.text('Kawran Bazar, Dhaka-1215, Bangladesh', 16, 60);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(8, 122, 74);
+    doc.text('BIN / Tax Reg: BIN-004829103-2026', 16, 64.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text('Email: billing@kreazyai.com | Phone: 01643792804', 16, 69);
+
+    // Billed To
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text('BILLED TO (CUSTOMER):', 114, 46);
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(9.5);
+    doc.text(customerName, 114, 51);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.setFontSize(8);
+    doc.text(`Account Email: ${customerEmail}`, 114, 55.5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(8, 122, 74);
+    doc.text(`Invoice Number: ${invoiceId}`, 114, 60);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Invoice Date: ${invoiceDate}`, 114, 64.5);
+    doc.text('Billing Cycle: 30-Day Monthly Access', 114, 69);
+
+    // ── 3. Payment Gateway Cleared Confirmation Banner ──
+    doc.setFillColor(239, 251, 245); // #EFFBF5
+    doc.setDrawColor(174, 235, 203); // #AEEBCB
+    doc.setLineWidth(0.4);
+    doc.roundedRect(14, 74, 182, 22, 2.5, 2.5, 'FD');
+
+    // Circle checkmark badge
+    doc.setFillColor(8, 122, 74);
+    doc.circle(22, 85, 4, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text('OK', 22, 87.5, { align: 'center' });
+
+    doc.setTextColor(9, 42, 32);
+    doc.setFontSize(9.5);
+    doc.text('Mobile Payment Verified & Cleared', 29, 82.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(82, 100, 93);
+    doc.setFontSize(7.5);
+    doc.text(`Official Recipient: 01643792804 (Send money)`, 29, 87);
+    doc.text(`Method: ${paymentMethod}`, 29, 91.5);
+
+    // TrxID box
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text('TRANSACTION ID (TrxID):', 125, 82.5);
+
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(217, 233, 225);
+    doc.roundedRect(125, 84.5, 65, 6.5, 1.5, 1.5, 'FD');
+    doc.setTextColor(8, 122, 74);
+    doc.setFontSize(8.5);
+    doc.text(trxId, 128, 89);
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Sender: ${senderNumber}`, 125, 94);
+
+    // ── 4. Line Items Table ──
+    const tableTop = 101;
+    doc.setFillColor(241, 245, 249);
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.rect(14, tableTop, 182, 8, 'FD');
+
+    doc.setTextColor(71, 85, 105);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text('ITEM & DESCRIPTION', 18, tableTop + 5.5);
+    doc.text('QTY', 120, tableTop + 5.5);
+    doc.text('UNIT PRICE', 142, tableTop + 5.5);
+    doc.text('TOTAL PAID', 170, tableTop + 5.5);
+
+    // Table body container
+    doc.setDrawColor(226, 232, 240);
+    doc.rect(14, tableTop + 8, 182, 46, 'S');
+
+    // Title
+    doc.setTextColor(9, 42, 32);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${planName} Plan — Autonomous Omnichannel AI Agent`, 18, tableTop + 16);
+
+    // Bullets
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(8);
+    doc.text(`* ${convLimit.toLocaleString()} monthly autonomous customer conversations`, 18, tableTop + 22);
+    doc.text(`* WhatsApp Cloud API + Facebook Messenger + Web chat widget integration`, 18, tableTop + 27);
+    doc.text(`* Lead qualification, automated catalog recommendations & CRM sync`, 18, tableTop + 32);
+    doc.text(`* 24/7 dedicated system uptime and priority queue processing`, 18, tableTop + 37);
+    doc.text(`* Official Bangladesh bKash & Nagad automated digital payment verification`, 18, tableTop + 42);
+    doc.text(`* Priority multi-channel support with custom prompt engineering`, 18, tableTop + 47);
+
+    // Qty
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.text('1 Month', 120, tableTop + 18);
+
+    // Unit Price
+    doc.setTextColor(71, 85, 105);
+    doc.text(`$${priceUsd}.00`, 142, tableTop + 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(8, 122, 74);
+    doc.text(`(৳${priceBdt.toLocaleString()})`, 142, tableTop + 23);
+
+    // Total
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(8, 122, 74);
+    doc.text(`৳${priceBdt.toLocaleString()}`, 170, tableTop + 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`$${priceUsd}.00 USD`, 170, tableTop + 23);
+
+    // ── 5. Summary Section ──
+    const summaryTop = tableTop + 58;
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(114, summaryTop, 82, 36, 2, 2, 'FD');
+
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Subtotal (USD):', 118, summaryTop + 6);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`$${priceUsd}.00`, 190, summaryTop + 6, { align: 'right' });
+
+    doc.setTextColor(100, 116, 139);
+    doc.text('Exchange Rate (USD to BDT):', 118, summaryTop + 11.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('120.00 BDT', 190, summaryTop + 11.5, { align: 'right' });
+
+    doc.setTextColor(100, 116, 139);
+    doc.text('Subtotal (BDT):', 118, summaryTop + 17);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`৳${priceBdt.toLocaleString()} BDT`, 190, summaryTop + 17, { align: 'right' });
+
+    doc.setTextColor(100, 116, 139);
+    doc.text('VAT / Digital Export Tax (0%):', 118, summaryTop + 22.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('৳0.00 BDT', 190, summaryTop + 22.5, { align: 'right' });
+
+    // Green divider
+    doc.setDrawColor(8, 122, 74);
+    doc.setLineWidth(0.5);
+    doc.line(118, summaryTop + 25.5, 192, summaryTop + 25.5);
+
+    // Grand total
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(9, 42, 32);
+    doc.text('Total Paid:', 118, summaryTop + 31);
+    doc.setTextColor(8, 122, 74);
+    doc.text(`৳${priceBdt.toLocaleString()} BDT`, 190, summaryTop + 31, { align: 'right' });
+
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`($${priceUsd}.00 USD Paid in Full)`, 190, summaryTop + 34.5, { align: 'right' });
+
+    // ── 6. Verification Seal & Legal ──
+    const sealTop = summaryTop + 42;
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.line(14, sealTop, 196, sealTop);
+
+    // Left legal notes
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.text('LEGAL & TAX NOTICE:', 16, sealTop + 5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(71, 85, 105);
+    doc.text('* This document is an official computer-generated Tax Invoice and payment receipt.', 16, sealTop + 9.5);
+    doc.text('* Electronic receipt requires no physical signature under Bangladesh digital commerce regulations.', 16, sealTop + 14);
+    doc.text('* Accounting questions: billing@kreazyai.com | Official hotline: 01643792804', 16, sealTop + 18.5);
+    doc.text('* Registered at Level 8, Software Technology Park, Dhaka-1215 | https://kreazyai.com', 16, sealTop + 23);
+
+    // Right digital seal box
+    doc.setFillColor(239, 251, 245);
+    doc.setDrawColor(8, 122, 74);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(128, sealTop + 4, 68, 23, 2, 2, 'FD');
+
+    doc.setTextColor(8, 122, 74);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.text('[ OFFICIAL VERIFICATION SEAL ]', 162, sealTop + 9, { align: 'center' });
+
+    doc.setTextColor(9, 42, 32);
+    doc.setFontSize(8);
+    doc.text('KREAZY AI GATEWAY DHAKA', 162, sealTop + 14, { align: 'center' });
+
+    doc.setFontSize(6.5);
+    doc.setTextColor(8, 122, 74);
+    doc.text('PAID VIA 01643792804 SEND MONEY', 162, sealTop + 18.5, { align: 'center' });
+
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6);
+    doc.text(`TRX: ${trxId} | ${invoiceDate}`, 162, sealTop + 23, { align: 'center' });
+
+    // ── 7. Page Footer ──
+    doc.setFontSize(6.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Page 1 of 1 • Kreazy AI Autonomous Agent Platform • Official Digital Tax Receipt', 105, 285, { align: 'center' });
+
+    // Direct save/download as true .pdf file!
+    const fileName = `${invoiceId}_KreazyAI_Tax_Invoice.pdf`;
+    doc.save(fileName);
+    return true;
+  } catch (err) {
+    console.error('Error generating PDF with jsPDF:', err);
+    // Fallback to print window
+    printInvoicePdf(invoice, plan, user);
+    return false;
+  }
+}
+
