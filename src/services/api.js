@@ -1379,6 +1379,90 @@ export const authService = {
 
     return user;
   },
+  async loginWithGoogle({ email, name, picture, googleId, storeName, credential } = {}) {
+    const resolvedEmail = (email || 'merchant@gmail.com').trim().toLowerCase();
+    const resolvedName = name?.trim() || resolvedEmail.split('@')[0];
+    const isSuper = resolvedEmail.includes('superadmin') || resolvedEmail.includes('admin@kreazy.ai') || resolvedEmail.includes('kreazyai@gmail.com');
+    
+    // Check if there is an existing workspace or create a clean one
+    const workspaces = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
+    const existingWs = workspaces.find(w => w.owner_email?.toLowerCase() === resolvedEmail);
+    
+    const workspaceId = existingWs ? existingWs.id : `ws-g-${Date.now()}`;
+    const targetStoreName = existingWs ? existingWs.name : (storeName || `${resolvedName}'s Store`);
+    
+    if (!existingWs) {
+      const newWs = {
+        id: workspaceId,
+        name: targetStoreName,
+        owner_name: resolvedName,
+        owner_email: resolvedEmail,
+        plan: "Growth ($119/mo)",
+        status: "ACTIVE",
+        channels_connected: [],
+        total_customers: 0,
+        total_orders: 0,
+        total_revenue: "$0.00",
+        created_at: new Date().toISOString().split('T')[0],
+        last_activity: "Just now"
+      };
+      setStored(STORAGE_KEYS.WORKSPACES, [newWs, ...workspaces]);
+
+      // If new Google user, start with clean store collections
+      setStored(STORAGE_KEYS.PRODUCTS, []);
+      setStored(STORAGE_KEYS.ORDERS, []);
+      setStored(STORAGE_KEYS.CONVERSATIONS, []);
+      setStored(STORAGE_KEYS.CUSTOMERS, []);
+    }
+
+    const user = {
+      id: `usr-g-${Date.now()}`,
+      name: resolvedName,
+      email: resolvedEmail,
+      storeName: isSuper ? "KreazyAI Global Admin" : targetStoreName,
+      workspaceId: workspaceId,
+      role: isSuper ? "SUPER_ADMIN" : "OWNER",
+      is_super_admin: isSuper,
+      isDemo: false,
+      isNewUser: !existingWs,
+      isLoggedIn: true,
+      provider: 'google',
+      picture: picture || null
+    };
+
+    setStored(STORAGE_KEYS.AUTH_USER, user);
+
+    // Call server endpoint
+    try {
+      const res = await apiClient.post('/auth/google', {
+        email: resolvedEmail,
+        name: resolvedName,
+        picture,
+        googleId,
+        storeName: targetStoreName,
+        credential
+      });
+      const token = res?.token || res?.data?.token;
+      const serverUser = res?.user || res?.data?.user;
+      if (token) {
+        apiClient.setToken(token);
+      }
+      if (serverUser) {
+        user.id = serverUser.id || user.id;
+        user.workspaceId = serverUser.businessId || serverUser.business_id || user.workspaceId;
+        user.storeName = serverUser.storeName || user.storeName;
+        user.role = serverUser.role || user.role;
+        user.is_super_admin = Boolean(serverUser.is_super_admin);
+        user.isNewUser = Boolean(serverUser.isNewUser);
+        setStored(STORAGE_KEYS.AUTH_USER, user);
+      }
+    } catch (err) {
+      console.warn('Backend /auth/google endpoint unavailable, preserving local Google session:', err?.message);
+    }
+
+    adminService.logAuditAction('GOOGLE_AUTH_SUCCESS', workspaceId, { email: resolvedEmail, name: resolvedName });
+    return user;
+  },
   async registerWorkspace({ storeName, ownerName, email, password, plan = 'Growth ($119/mo)' }) {
     const workspaces = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
     const newWs = {

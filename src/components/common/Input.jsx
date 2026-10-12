@@ -12,9 +12,14 @@ export function Input({
   required = false,
   disabled = false,
   icon: Icon,
+  iconRight: IconRight,
+  onIconRightClick,
   className = '',
   ...props
 }) {
+  const hasIcon = Boolean(Icon);
+  const hasRightIcon = Boolean(IconRight);
+
   return (
     <div className={`form-group ${className}`}>
       {label && (
@@ -23,7 +28,7 @@ export function Input({
         </label>
       )}
       
-      <div className={Icon ? 'input-with-icon' : ''}>
+      <div className={`input-wrapper-rel ${hasIcon ? 'input-with-icon' : ''} ${hasRightIcon ? 'has-icon-right' : ''}`}>
         {Icon && <Icon size={16} className="input-icon" />}
         <input
           id={name}
@@ -37,6 +42,18 @@ export function Input({
           className={`form-input ${error ? 'is-error' : ''}`}
           {...props}
         />
+        {IconRight && (
+          <button
+            type="button"
+            className="input-action-btn"
+            onClick={onIconRightClick}
+            tabIndex={-1}
+            aria-label="Toggle input visibility"
+            title="Toggle visibility"
+          >
+            <IconRight size={16} />
+          </button>
+        )}
       </div>
 
       {error && <span className="form-error">{error}</span>}

@@ -37,6 +37,7 @@ const authRouter = Router();
 authRouter.post('/register', authController.register);
 authRouter.post('/login', authController.login);
 authRouter.post('/admin-login', authController.adminLogin);
+authRouter.post('/google', authController.googleAuth);
 authRouter.get('/me', authenticate, authController.getMe);
 apiRouter.use('/auth', authRouter);
 

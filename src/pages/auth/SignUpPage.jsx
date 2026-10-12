@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, Building2, User, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Building2, User, ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2, Zap } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
+import { GoogleAuthButton, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
 
 export function SignUpPage({ onNavigate, onLoginSuccess }) {
-  const { register, isAuthenticated } = useAuth();
+  const { register, loginWithGoogle, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     businessName: '',
     fullName: '',
@@ -14,8 +15,11 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
     confirmPassword: '',
     agreeTerms: true
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   // If already authenticated, redirect to dashboard immediately
   useEffect(() => {
@@ -31,6 +35,9 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+
+  const isLengthValid = formData.password.length >= 8;
+  const isMatchValid = formData.password.length > 0 && formData.password === formData.confirmPassword;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,9 +74,23 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
     }
   };
 
+  const handleGoogleSuccess = async (googleData) => {
+    try {
+      const user = await loginWithGoogle({
+        ...googleData,
+        storeName: formData.businessName || googleData.storeName
+      });
+      if (onLoginSuccess) onLoginSuccess(user);
+      setIsGoogleModalOpen(false);
+      onNavigate('onboarding');
+    } catch (err) {
+      setError(err?.message || 'Google account verification failed. Please try again.');
+    }
+  };
+
   return (
     <div className="auth-wrapper">
-      <div className="auth-card" style={{ maxWidth: '480px' }}>
+      <div className="auth-card" style={{ maxWidth: '490px' }}>
         <div className="auth-header">
           <div
             className="brand-logo"
@@ -88,6 +109,18 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
             {error}
           </div>
         )}
+
+        {/* 1. Official Google Verified Sign-Up */}
+        <GoogleAuthButton
+          text="Sign up with Google"
+          onClick={() => setIsGoogleModalOpen(true)}
+          badge="Fast 1-Click Setup"
+        />
+
+        {/* Clear Divider */}
+        <div className="auth-divider">
+          <span>or register with email</span>
+        </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
           <Input
@@ -119,28 +152,49 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
             placeholder="elena@sylvanstudio.com"
             value={formData.email}
             onChange={handleChange}
+            autoComplete="email"
           />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <Input
               label="Password"
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               required
               placeholder="Min. 8 chars"
               value={formData.password}
               onChange={handleChange}
+              iconRight={showPassword ? EyeOff : Eye}
+              onIconRightClick={() => setShowPassword(prev => !prev)}
+              autoComplete="new-password"
             />
             <Input
               label="Confirm Password"
               name="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               required
               placeholder="Confirm password"
               value={formData.confirmPassword}
               onChange={handleChange}
+              iconRight={showConfirmPassword ? EyeOff : Eye}
+              onIconRightClick={() => setShowConfirmPassword(prev => !prev)}
+              autoComplete="new-password"
             />
           </div>
+
+          {/* Real-Time Password Clarity Feedback */}
+          {(formData.password.length > 0 || formData.confirmPassword.length > 0) && (
+            <div className="password-requirements-box">
+              <div className={`password-req-item ${isLengthValid ? 'met' : 'unmet'}`}>
+                <CheckCircle2 size={13} />
+                <span>At least 8 characters ({formData.password.length}/8)</span>
+              </div>
+              <div className={`password-req-item ${isMatchValid ? 'met' : 'unmet'}`}>
+                <CheckCircle2 size={13} />
+                <span>{isMatchValid ? 'Passwords match' : 'Passwords do not match yet'}</span>
+              </div>
+            </div>
+          )}
 
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.825rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
             <input
@@ -155,19 +209,35 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
             </span>
           </label>
 
-          <Button type="submit" variant="primary" size="lg" loading={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+          <Button type="submit" variant="primary" size="lg" loading={loading} style={{ width: '100%', marginTop: '0.25rem' }}>
             Create Account & Setup Channels
           </Button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        {/* Clear Trust and Security Strip */}
+        <div className="auth-trust-strip">
+          <div className="auth-trust-item">
+            <ShieldCheck size={14} />
+            <span>Google Verified Auth</span>
+          </div>
+          <div className="auth-trust-item">
+            <Lock size={13} />
+            <span>256-Bit SSL Secured</span>
+          </div>
+          <div className="auth-trust-item">
+            <Zap size={13} />
+            <span>Meta Tech Partner</span>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
           <button
             type="button"
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--bright-olive)',
+              color: 'var(--primary)',
               fontWeight: 700,
               cursor: 'pointer',
               textDecoration: 'underline',
@@ -180,6 +250,15 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
           </button>
         </div>
       </div>
+
+      {/* Google Verification Modal */}
+      <GoogleVerificationModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSuccess={handleGoogleSuccess}
+        mode="signup"
+        defaultEmail={formData.email}
+      />
     </div>
   );
 }

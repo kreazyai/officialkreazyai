@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, Zap } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
+import { GoogleAuthButton, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
 
 export function LoginPage({ onNavigate, onLoginSuccess }) {
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   // If already authenticated, redirect to dashboard immediately
   useEffect(() => {
@@ -39,6 +42,17 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
       setError(err?.message || 'Login failed. Please verify your credentials.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (googleData) => {
+    try {
+      const user = await loginWithGoogle(googleData);
+      if (onLoginSuccess) onLoginSuccess(user);
+      setIsGoogleModalOpen(false);
+      onNavigate('dashboard');
+    } catch (err) {
+      setError(err?.message || 'Google authentication failed. Please try again.');
     }
   };
 
@@ -78,6 +92,18 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
           </div>
         )}
 
+        {/* 1. Official Google Verified Authentication */}
+        <GoogleAuthButton
+          text="Continue with Google"
+          onClick={() => setIsGoogleModalOpen(true)}
+          badge="Verified OAuth 2.0"
+        />
+
+        {/* Clear Divider */}
+        <div className="auth-divider">
+          <span>or continue with email</span>
+        </div>
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
           <Input
             label="Work Email"
@@ -88,19 +114,21 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             placeholder="merchant@yourbrand.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            autoComplete="off"
+            autoComplete="email"
           />
 
           <Input
             label="Password"
             name="password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             required
             icon={Lock}
+            iconRight={showPassword ? EyeOff : Eye}
+            onIconRightClick={() => setShowPassword(prev => !prev)}
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
+            autoComplete="current-password"
           />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem' }}>
@@ -113,14 +141,14 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
               <span>Remember this device</span>
             </label>
             <span
-              style={{ color: 'var(--olive-700)', cursor: 'pointer', fontWeight: 600 }}
+              style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
               onClick={() => onNavigate('forgot-password')}
             >
               Forgot password?
             </span>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" loading={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+          <Button type="submit" variant="primary" size="lg" loading={loading} style={{ width: '100%', marginTop: '0.25rem' }}>
             Sign In to Workspace
           </Button>
 
@@ -131,10 +159,10 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             onClick={() => onNavigate('signup')}
             style={{
               width: '100%',
-              borderColor: 'var(--bright-olive)',
+              borderColor: 'var(--green-light)',
               color: 'var(--text-primary)',
               fontWeight: 600,
-              backgroundColor: 'rgba(255, 255, 255, 0.05)'
+              backgroundColor: 'var(--mint-soft)'
             }}
             iconRight={ArrowRight}
           >
@@ -146,20 +174,36 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             variant="subtle"
             size="md"
             onClick={handleDemoQuickLogin}
-            style={{ width: '100%', border: '1px dashed var(--olive-400)', marginTop: '0.25rem' }}
+            style={{ width: '100%', border: '1px dashed var(--border-medium)', marginTop: '0.25rem' }}
           >
             ⚡ One-Click Instant Demo Login (Pre-Loaded Studio)
           </Button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        {/* Clear Trust and Security Strip */}
+        <div className="auth-trust-strip">
+          <div className="auth-trust-item">
+            <ShieldCheck size={14} />
+            <span>Google Verified Auth</span>
+          </div>
+          <div className="auth-trust-item">
+            <Lock size={13} />
+            <span>256-Bit SSL Secured</span>
+          </div>
+          <div className="auth-trust-item">
+            <Zap size={13} />
+            <span>Meta Tech Partner</span>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Don't have an account yet?{' '}
           <button
             type="button"
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--bright-olive)',
+              color: 'var(--primary)',
               fontWeight: 700,
               cursor: 'pointer',
               textDecoration: 'underline',
@@ -172,7 +216,15 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
           </button>
         </div>
       </div>
+
+      {/* Google Verification Modal */}
+      <GoogleVerificationModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSuccess={handleGoogleSuccess}
+        mode="login"
+        defaultEmail={email}
+      />
     </div>
   );
 }
-

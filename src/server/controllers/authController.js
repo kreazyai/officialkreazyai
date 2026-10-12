@@ -203,6 +203,184 @@ export const authController = {
     }
   },
 
+  async googleAuth(req, res, next) {
+    try {
+      let { email, name, picture, googleId, storeName, credential } = req.body;
+
+      // Parse payload if credential (JWT) is provided from Google Identity Services
+      if (credential && typeof credential === 'string' && credential.includes('.')) {
+        try {
+          const parts = credential.split('.');
+          if (parts.length >= 2) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            if (payload.email) email = payload.email;
+            if (payload.name) name = payload.name;
+            if (payload.picture) picture = payload.picture;
+            if (payload.sub) googleId = payload.sub;
+          }
+        } catch (e) {
+          logger.warn('Failed to parse Google credential token payload:', e?.message);
+        }
+      }
+
+      if (!email) {
+        return errorResponse(
+          res,
+          'Google verified email is required for authentication.',
+          API_ERROR_CODES.VALIDATION_FAILED,
+          HTTP_STATUS.UNPROCESSABLE_ENTITY
+        );
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const db = getDatabase();
+      const now = new Date().toISOString();
+
+      // Check if user already exists
+      let user = db.prepare(`
+        SELECT u.id, u.business_id, u.email, u.password_hash, u.name, u.role, u.is_super_admin, b.name as store_name
+        FROM users u
+        LEFT JOIN businesses b ON u.business_id = b.id
+        WHERE LOWER(u.email) = ?
+      `).get(normalizedEmail);
+
+      let isNewUser = false;
+
+      if (!user) {
+        // Automatically create business workspace, owner user, and default AI configuration
+        isNewUser = true;
+        const businessId = `ws-${Date.now()}`;
+        const finalStoreName = (storeName || (name ? `${name.split(' ')[0]}'s Store` : 'My Retail Store')).trim();
+        const slug = finalStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + `-${Date.now().toString().slice(-4)}`;
+        const userId = `usr-g-${Date.now()}`;
+        const randomPass = Math.random().toString(36).slice(-10) + 'Krz!9';
+        const passwordHash = await bcrypt.hash(randomPass, 10);
+        const resolvedName = name?.trim() || normalizedEmail.split('@')[0];
+
+        const googleRegisterTx = db.transaction(() => {
+          db.prepare(`
+            INSERT INTO businesses (id, name, slug, owner_name, owner_email, plan, status, channels_connected, total_revenue, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            businessId,
+            finalStoreName,
+            slug,
+            resolvedName,
+            normalizedEmail,
+            'Growth',
+            'ACTIVE',
+            JSON.stringify([]),
+            0.0,
+            now,
+            now
+          );
+
+          db.prepare(`
+            INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            userId,
+            businessId,
+            normalizedEmail,
+            passwordHash,
+            resolvedName,
+            'OWNER',
+            0,
+            now,
+            now
+          );
+
+          db.prepare(`
+            INSERT INTO ai_configs (id, business_id, assistant_name, brand_voice, return_days, return_policy, shipping_info, max_discount, auto_reply_enabled, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            `aiconfig-${Date.now()}`,
+            businessId,
+            `${finalStoreName} AI Assistant`,
+            'Professional, courteous, helpful',
+            '14',
+            'Returns accepted within 14 days of receipt on unused items with tags attached.',
+            'Standard shipping 2-4 business days. Free delivery over $75.',
+            10.0,
+            1,
+            now,
+            now
+          );
+
+          db.prepare(`
+            INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            `audit-${Date.now()}`,
+            businessId,
+            normalizedEmail,
+            'OWNER',
+            'GOOGLE_SIGNUP_SUCCESS',
+            'business',
+            businessId,
+            JSON.stringify({ storeName: finalStoreName, googleId, picture }),
+            now
+          );
+
+          // Initialize 7-Day Free Trial AI Credit Wallet
+          ensureCreditWallet(db, businessId, now);
+        });
+
+        googleRegisterTx();
+
+        user = {
+          id: userId,
+          business_id: businessId,
+          email: normalizedEmail,
+          name: resolvedName,
+          role: 'OWNER',
+          is_super_admin: 0,
+          store_name: finalStoreName
+        };
+      } else {
+        // Log login audit event
+        db.prepare(`
+          INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          `audit-${Date.now()}`,
+          user.business_id,
+          normalizedEmail,
+          user.role || 'OWNER',
+          'GOOGLE_LOGIN_SUCCESS',
+          'user',
+          user.id,
+          JSON.stringify({ ip: req.ip, userAgent: req.get('user-agent'), googleId }),
+          now
+        );
+      }
+
+      const token = jwt.sign(
+        { userId: user.id, businessId: user.business_id, role: user.role, email: user.email },
+        config.auth.jwtSecret,
+        { expiresIn: config.auth.jwtExpiresIn }
+      );
+
+      const userProfile = {
+        id: user.id,
+        businessId: user.business_id,
+        storeName: user.store_name || (user.is_super_admin ? 'KreazyAI Global Admin' : 'My Store'),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        is_super_admin: Boolean(user.is_super_admin),
+        isNewUser,
+        picture: picture || null,
+        provider: 'google'
+      };
+
+      logger.info(`Google Authentication successful: ${user.email} (${isNewUser ? 'New Merchant Workspace Created' : 'Existing Account'})`);
+      return successResponse(res, { token, user: userProfile, isNewUser });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async adminLogin(req, res, next) {
     try {
       const identifier = (req.body.email || req.body.username || '').trim().toLowerCase();

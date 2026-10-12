@@ -71,6 +71,13 @@ export function AuthProvider({ children }) {
     return newUser;
   }, []);
 
+  const loginWithGoogle = useCallback(async (googleData) => {
+    const authedUser = await authService.loginWithGoogle(googleData);
+    setUser(authedUser);
+    setAuthStatus('authenticated');
+    return authedUser;
+  }, []);
+
   const logout = useCallback(() => {
     try {
       authService.logout();
@@ -103,6 +110,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: authStatus === 'authenticated' && !!user,
     isLoading: authStatus === 'loading',
     login,
+    loginWithGoogle,
     register,
     logout,
     refreshUser
