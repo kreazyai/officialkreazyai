@@ -1,6 +1,10 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
+import { LanguageSelector } from '../common/LanguageSelector';
 
 export function Footer({ onNavigate }) {
+  const { t } = useLanguage();
+
   const handleNav = (page) => {
     onNavigate(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -16,8 +20,11 @@ export function Footer({ onNavigate }) {
               <img src="/logo-white.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
             </div>
             <p className="footer-brand-desc">
-              Smart automation for your business. Transform conversations across WhatsApp, Instagram, Messenger, and Web into sales automatically — 24/7.
+              {t('footer.brandDesc')}
             </p>
+            <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+              <LanguageSelector align="left" />
+            </div>
             <div className="footer-social-links">
               <a href="https://facebook.com/kreazyai" target="_blank" rel="noopener noreferrer">Facebook</a>
               <span>•</span>
@@ -29,45 +36,45 @@ export function Footer({ onNavigate }) {
 
           {/* Solutions Col */}
           <div>
-            <h5 className="footer-col-title">Solutions</h5>
+            <h5 className="footer-col-title">{t('footer.solutionsTitle')}</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('solutions')}>AI Customer Support</span></li>
-              <li><span onClick={() => handleNav('solutions')}>Lead Qualification</span></li>
-              <li><span onClick={() => handleNav('solutions')}>Order Automation</span></li>
-              <li><span onClick={() => handleNav('solutions')}>Human Handoff</span></li>
+              <li><span onClick={() => handleNav('solutions')}>{t('footer.solAiSupport')}</span></li>
+              <li><span onClick={() => handleNav('solutions')}>{t('footer.solLeadQual')}</span></li>
+              <li><span onClick={() => handleNav('solutions')}>{t('footer.solOrderAuto')}</span></li>
+              <li><span onClick={() => handleNav('solutions')}>{t('footer.solHumanHandoff')}</span></li>
             </ul>
           </div>
 
           {/* Integrations Col */}
           <div>
-            <h5 className="footer-col-title">Integrations</h5>
+            <h5 className="footer-col-title">{t('footer.integrationsTitle')}</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('integrations')}>WhatsApp Business</span></li>
-              <li><span onClick={() => handleNav('integrations')}>Instagram Direct</span></li>
-              <li><span onClick={() => handleNav('integrations')}>Facebook Messenger</span></li>
-              <li><span onClick={() => handleNav('integrations')}>Website Live Chat</span></li>
+              <li><span onClick={() => handleNav('integrations')}>{t('footer.intWhatsapp')}</span></li>
+              <li><span onClick={() => handleNav('integrations')}>{t('footer.intInstagram')}</span></li>
+              <li><span onClick={() => handleNav('integrations')}>{t('footer.intMessenger')}</span></li>
+              <li><span onClick={() => handleNav('integrations')}>{t('footer.intWebchat')}</span></li>
             </ul>
           </div>
 
           {/* Company & Resources */}
           <div>
-            <h5 className="footer-col-title">Company</h5>
+            <h5 className="footer-col-title">{t('footer.companyTitle')}</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('about')}>About Us</span></li>
-              <li><span onClick={() => handleNav('founder-meeting')}>Founder Consultation</span></li>
-              <li><span onClick={() => handleNav('book-demo')}>Schedule Demo</span></li>
-              <li><span onClick={() => handleNav('contact')}>Contact Team</span></li>
+              <li><span onClick={() => handleNav('about')}>{t('footer.compAbout')}</span></li>
+              <li><span onClick={() => handleNav('founder-meeting')}>{t('footer.compFounder')}</span></li>
+              <li><span onClick={() => handleNav('book-demo')}>{t('footer.compDemo')}</span></li>
+              <li><span onClick={() => handleNav('contact')}>{t('footer.compContact')}</span></li>
             </ul>
           </div>
 
           {/* Resources */}
           <div>
-            <h5 className="footer-col-title">Resources</h5>
+            <h5 className="footer-col-title">{t('footer.resourcesTitle')}</h5>
             <ul className="footer-links-list">
-              <li><span onClick={() => handleNav('pricing')}>Pricing Plans</span></li>
-              <li><span onClick={() => handleNav('faq')}>FAQ & Guides</span></li>
-              <li><span onClick={() => handleNav('legal-privacy')}>Privacy Policy</span></li>
-              <li><span onClick={() => handleNav('legal-terms')}>Terms of Service</span></li>
+              <li><span onClick={() => handleNav('pricing')}>{t('footer.resPricing')}</span></li>
+              <li><span onClick={() => handleNav('faq')}>{t('footer.resFaq')}</span></li>
+              <li><span onClick={() => handleNav('legal-privacy')}>{t('footer.resPrivacy')}</span></li>
+              <li><span onClick={() => handleNav('legal-terms')}>{t('footer.resTerms')}</span></li>
             </ul>
           </div>
         </div>
@@ -75,12 +82,12 @@ export function Footer({ onNavigate }) {
         {/* Footer Bottom Row */}
         <div className="footer-bottom">
           <div className="footer-copyright">
-            © {new Date().getFullYear()} KREAZY AI Technologies Inc. All rights reserved. • kreazyai.com
+            © {new Date().getFullYear()} KREAZY AI Technologies Inc. {t('footer.copyright')}
           </div>
           <div className="footer-bottom-links">
-            <span onClick={() => handleNav('legal-privacy')}>Privacy</span>
-            <span onClick={() => handleNav('legal-terms')}>Terms</span>
-            <span onClick={() => handleNav('contact')}>Security</span>
+            <span onClick={() => handleNav('legal-privacy')}>{t('footer.privacy')}</span>
+            <span onClick={() => handleNav('legal-terms')}>{t('footer.terms')}</span>
+            <span onClick={() => handleNav('contact')}>{t('footer.security')}</span>
           </div>
         </div>
       </div>

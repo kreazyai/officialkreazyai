@@ -38,6 +38,7 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { PricingTiersSection } from '../../components/website/PricingTiersSection';
 import { leadService } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 /* Authentic Full-Color Platform Squircles (Hero Section) */
 const WhatsAppColorSquircle = ({ size = 26 }) => (
@@ -94,6 +95,7 @@ const MessengerIcon = ({ size = 15 }) => (
 );
 
 export function HomePage({ onNavigate, user }) {
+  const { t } = useLanguage();
   // Demo Walkthrough Modal State
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [activeDemoTab, setActiveDemoTab] = useState('inbox');
@@ -316,6 +318,28 @@ export function HomePage({ onNavigate, user }) {
     }
   ];
 
+  // Dynamic localized data lists
+  const dynamicHomeFaqs = Array.isArray(t('homeFaqs')) ? t('homeFaqs') : homeFaqs;
+  const dynamicWorkflowSteps = workflowSteps.map((step, idx) => ({
+    ...step,
+    title: t(`workflow.step${idx + 1}Title`, step.title),
+    subtitle: t(`workflow.step${idx + 1}Sub`, step.subtitle),
+    desc: t(`workflow.step${idx + 1}Desc`, step.desc),
+    badge: t(`workflow.step${idx + 1}Badge`, step.badge)
+  }));
+  const dynamicEditorialFeatures = editorialFeatures.map((feat, idx) => ({
+    ...feat,
+    title: t(`capabilities.f${idx + 1}Title`, feat.title),
+    desc: t(`capabilities.f${idx + 1}Desc`, feat.desc),
+    tag: t(`capabilities.f${idx + 1}Tag`, feat.tag)
+  }));
+  const dynamicChannels = channels.map((chan, idx) => ({
+    ...chan,
+    name: t(`channels.c${idx + 1}Name`, chan.name),
+    tag: t(`channels.c${idx + 1}Tag`, chan.tag),
+    desc: t(`channels.c${idx + 1}Desc`, chan.desc)
+  }));
+
   return (
     <div className="homepage-content">
       {/* =============================================================
@@ -338,17 +362,17 @@ export function HomePage({ onNavigate, user }) {
             <div className="hero-col-left">
               {/* Main Headline */}
               <h1 className="hero-headline">
-                <span className="hero-headline-black">Your Business</span>
-                <span className="hero-headline-green">Automation</span>
+                <span className="hero-headline-black">{t('hero.headlineBlack', 'Your Business')}</span>
+                <span className="hero-headline-green">{t('hero.headlineGreen', 'Automation')}</span>
               </h1>
 
               {/* Subtitle / Value Proposition */}
               <div className="hero-tagline-block">
                 <div className="hero-tagline-bold">
-                  Connect. Automate. Engage. Grow.
+                  {t('hero.taglineBold', 'Connect. Automate. Engage. Grow.')}
                 </div>
                 <div className="hero-tagline-sub">
-                  All from a single, powerful dashboard.
+                  {t('hero.taglineSub', 'All from a single, powerful dashboard.')}
                 </div>
               </div>
 
@@ -358,28 +382,28 @@ export function HomePage({ onNavigate, user }) {
                   <span className="feature-pill-icon">
                     <MessageSquare size={17} />
                   </span>
-                  <span className="feature-pill-label">Customer Support</span>
+                  <span className="feature-pill-label">{t('hero.pillSupport', 'Customer Support')}</span>
                 </div>
 
                 <div className="hero-feature-pill pill-leads">
                   <span className="feature-pill-icon">
                     <Users size={17} />
                   </span>
-                  <span className="feature-pill-label">More Leads</span>
+                  <span className="feature-pill-label">{t('hero.pillLeads', 'More Leads')}</span>
                 </div>
 
                 <div className="hero-feature-pill pill-sales">
                   <span className="feature-pill-icon">
                     <BarChart3 size={17} />
                   </span>
-                  <span className="feature-pill-label">Higher Sales</span>
+                  <span className="feature-pill-label">{t('hero.pillSales', 'Higher Sales')}</span>
                 </div>
 
                 <div className="hero-feature-pill pill-time">
                   <span className="feature-pill-icon">
                     <Clock size={17} />
                   </span>
-                  <span className="feature-pill-label">Save Time</span>
+                  <span className="feature-pill-label">{t('hero.pillTime', 'Save Time')}</span>
                 </div>
               </div>
 
@@ -390,7 +414,7 @@ export function HomePage({ onNavigate, user }) {
                   className="hero-btn-dark"
                   onClick={() => onNavigate(user ? 'dashboard' : 'signup')}
                 >
-                  <span>Get Started</span>
+                  <span>{t('hero.ctaPrimary', 'Get Started')}</span>
                   <ArrowRight size={17} className="btn-arrow" />
                 </button>
 
@@ -400,7 +424,7 @@ export function HomePage({ onNavigate, user }) {
                   onClick={() => setShowDemoModal(true)}
                 >
                   <span className="hero-play-circle">▶</span>
-                  <span>Watch Demo</span>
+                  <span>{t('hero.ctaSecondary', 'Watch Demo')}</span>
                 </button>
               </div>
 
@@ -430,7 +454,7 @@ export function HomePage({ onNavigate, user }) {
                   </div>
                 </div>
                 <span className="hero-social-text">
-                  All Your Conversations in One Dashboard
+                  {t('hero.socialStripText', 'All Your Conversations in One Dashboard')}
                 </span>
               </div>
             </div>
@@ -465,7 +489,7 @@ export function HomePage({ onNavigate, user }) {
               <div className="hero-modal-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                   <div className="hero-play-circle" style={{ color: '#00A859' }}>▶</div>
-                  <h3 className="hero-modal-title">KreazyAI Live Platform Demo</h3>
+                  <h3 className="hero-modal-title">{t('hero.modalTitle', 'KreazyAI Live Platform Demo')}</h3>
                 </div>
                 <button
                   type="button"
@@ -485,29 +509,29 @@ export function HomePage({ onNavigate, user }) {
                     className={`hero-demo-tab-btn ${activeDemoTab === 'inbox' ? 'active' : ''}`}
                     onClick={() => setActiveDemoTab('inbox')}
                   >
-                    Omnichannel Inbox
+                    {t('hero.tabInbox', 'Omnichannel Inbox')}
                   </button>
                   <button
                     type="button"
                     className={`hero-demo-tab-btn ${activeDemoTab === 'commerce' ? 'active' : ''}`}
                     onClick={() => setActiveDemoTab('commerce')}
                   >
-                    AI Commerce Agent
+                    {t('hero.tabCommerce', 'AI Commerce Agent')}
                   </button>
                   <button
                     type="button"
                     className={`hero-demo-tab-btn ${activeDemoTab === 'analytics' ? 'active' : ''}`}
                     onClick={() => setActiveDemoTab('analytics')}
                   >
-                    Live Telemetry &amp; Growth
+                    {t('hero.tabAnalytics', 'Live Telemetry & Growth')}
                   </button>
                 </div>
 
                 {activeDemoTab === 'inbox' && (
                   <div className="hero-demo-card">
-                    <h3>One Unified Inbox Across All Social Channels</h3>
+                    <h3>{t('hero.inboxTitle', 'One Unified Inbox Across All Social Channels')}</h3>
                     <p>
-                      Receive incoming messages instantly from WhatsApp Business, Instagram DMs, Story Mentions, and Facebook Messenger. Your AI sales agent replies in under 1.2 seconds, answers sizing and stock questions, and qualifies buyer intent.
+                      {t('hero.inboxDesc', 'Receive incoming messages instantly from WhatsApp Business, Instagram DMs, Story Mentions, and Facebook Messenger. Your AI sales agent replies in under 1.2 seconds, answers sizing and stock questions, and qualifies buyer intent.')}
                     </p>
                     <div className="hero-demo-features-list">
                       <div className="hero-demo-feature-item">
@@ -532,9 +556,9 @@ export function HomePage({ onNavigate, user }) {
 
                 {activeDemoTab === 'commerce' && (
                   <div className="hero-demo-card">
-                    <h3>Direct In-Chat Checkout &amp; Order Capture</h3>
+                    <h3>{t('hero.commerceTitle', 'Direct In-Chat Checkout & Order Capture')}</h3>
                     <p>
-                      Never send buyers away to a clunky external link. Kreazy AI collects customer name, phone number, delivery address, verifies Cash on Delivery eligibility, and generates an order with courier-ready tracking.
+                      {t('hero.commerceDesc', 'Never send buyers away to a clunky external link. Kreazy AI collects customer name, phone number, delivery address, verifies Cash on Delivery eligibility, and generates an order with courier-ready tracking.')}
                     </p>
                     <div className="hero-demo-features-list">
                       <div className="hero-demo-feature-item">
@@ -559,9 +583,9 @@ export function HomePage({ onNavigate, user }) {
 
                 {activeDemoTab === 'analytics' && (
                   <div className="hero-demo-card">
-                    <h3>Actionable Telemetry &amp; Business Intelligence</h3>
+                    <h3>{t('hero.analyticsTitle', 'Actionable Telemetry & Business Intelligence')}</h3>
                     <p>
-                      Monitor live conversations handled, conversion rates, channel ROI, and top-performing automated replies all from a single executive dashboard.
+                      {t('hero.analyticsDesc', 'Monitor live conversations handled, conversion rates, channel ROI, and top-performing automated replies all from a single executive dashboard.')}
                     </p>
                     <div className="hero-demo-features-list">
                       <div className="hero-demo-feature-item">
@@ -587,7 +611,7 @@ export function HomePage({ onNavigate, user }) {
 
               <div className="hero-modal-footer">
                 <span className="hero-modal-footer-text">
-                  Want a tailored 1-on-1 walkthrough for your store?
+                  {t('hero.modalWalkthrough', 'Want a tailored 1-on-1 walkthrough for your store?')}
                 </span>
                 <div className="hero-modal-actions">
                   <Button
@@ -598,7 +622,7 @@ export function HomePage({ onNavigate, user }) {
                       onNavigate('book-demo');
                     }}
                   >
-                    <span>Book Founder Demo</span>
+                    <span>{t('hero.modalBookBtn', 'Book Founder Demo')}</span>
                   </Button>
                   <Button
                     variant="primary"
@@ -608,7 +632,7 @@ export function HomePage({ onNavigate, user }) {
                       onNavigate('signup');
                     }}
                   >
-                    <span>Start Free Trial</span>
+                    <span>{t('hero.modalTrialBtn', 'Start Free Trial')}</span>
                     <ArrowRight size={15} style={{ marginLeft: 6 }} />
                   </Button>
                 </div>
@@ -626,11 +650,11 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="showcase-header">
             <span className="badge badge-mint" style={{ marginBottom: '0.65rem' }}>
-              CENTRALIZED INTELLIGENCE
+              {t('showcase.overviewEyebrow', 'CENTRALIZED INTELLIGENCE')}
             </span>
-            <h2 className="showcase-title">Store Overview &amp; Automation</h2>
+            <h2 className="showcase-title">{t('showcase.overviewTitle', 'Store Overview & Automation')}</h2>
             <p className="showcase-subtitle">
-              Connected channels, real-time telemetry, and AI-driven commerce operations.
+              {t('showcase.overviewSubtitle', 'Connected channels, real-time telemetry, and AI-driven commerce operations.')}
             </p>
           </div>
 
@@ -649,9 +673,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <ShoppingBag size={20} />
               </div>
-              <div className="showcase-feature-title">Autonomous Commerce</div>
+              <div className="showcase-feature-title">{t('showcase.pillar1Title', 'Autonomous Commerce')}</div>
               <p className="showcase-feature-desc">
-                Manage orders, products, customers, and automation from one unified workspace.
+                {t('showcase.pillar1Desc', 'Manage orders, products, customers, and automation from one unified workspace.')}
               </p>
             </div>
 
@@ -659,9 +683,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <BarChart3 size={20} />
               </div>
-              <div className="showcase-feature-title">Real-Time Analytics</div>
+              <div className="showcase-feature-title">{t('showcase.pillar2Title', 'Real-Time Analytics')}</div>
               <p className="showcase-feature-desc">
-                Track revenue, conversations, and customer activity as it happens.
+                {t('showcase.pillar2Desc', 'Track revenue, conversations, and customer activity as it happens.')}
               </p>
             </div>
 
@@ -669,9 +693,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <Bot size={20} />
               </div>
-              <div className="showcase-feature-title">Live AI Agent Activity</div>
+              <div className="showcase-feature-title">{t('showcase.pillar3Title', 'Live AI Agent Activity')}</div>
               <p className="showcase-feature-desc">
-                Monitor your AI agents, response status, and connected channels in real time.
+                {t('showcase.pillar3Desc', 'Monitor your AI agents, response status, and connected channels in real time.')}
               </p>
             </div>
 
@@ -679,9 +703,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <Share2 size={20} />
               </div>
-              <div className="showcase-feature-title">Channel &amp; Order Management</div>
+              <div className="showcase-feature-title">{t('showcase.pillar4Title', 'Channel & Order Management')}</div>
               <p className="showcase-feature-desc">
-                Keep WhatsApp, Instagram, Messenger, catalog sync, and human handoff organized.
+                {t('showcase.pillar4Desc', 'Keep WhatsApp, Instagram, Messenger, catalog sync, and human handoff organized.')}
               </p>
             </div>
           </div>
@@ -696,11 +720,11 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="showcase-header">
             <span className="badge badge-mint" style={{ marginBottom: '0.65rem' }}>
-              CONVERSATIONAL COMMERCE
+              {t('showcase.omniEyebrow', 'CONVERSATIONAL COMMERCE')}
             </span>
-            <h2 className="showcase-title">Seamless Omnichannel Conversations</h2>
+            <h2 className="showcase-title">{t('showcase.omniTitle', 'Seamless Omnichannel Conversations')}</h2>
             <p className="showcase-subtitle">
-              Turn WhatsApp, Instagram, and Messenger chats into confirmed sales automatically with sub-second AI agents.
+              {t('showcase.omniSubtitle', 'Turn WhatsApp, Instagram, and Messenger chats into confirmed sales automatically with sub-second AI agents.')}
             </p>
           </div>
 
@@ -719,9 +743,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <Database size={20} />
               </div>
-              <div className="showcase-feature-title">Build Your Own AI Chatbots</div>
+              <div className="showcase-feature-title">{t('showcase.omni1Title', 'Build Your Own AI Chatbots')}</div>
               <p className="showcase-feature-desc">
-                Train AI agents on your own business data to deliver accurate, helpful responses instantly.
+                {t('showcase.omni1Desc', 'Train AI agents on your own business data to deliver accurate, helpful responses instantly.')}
               </p>
             </div>
 
@@ -729,9 +753,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <FileText size={20} />
               </div>
-              <div className="showcase-feature-title">Instant Answers from Diverse Sources</div>
+              <div className="showcase-feature-title">{t('showcase.omni2Title', 'Instant Answers from Diverse Sources')}</div>
               <p className="showcase-feature-desc">
-                Connect files, FAQs, product data, and public links so your AI can answer repetitive questions fast.
+                {t('showcase.omni2Desc', 'Connect files, FAQs, product data, and public links so your AI can answer repetitive questions fast.')}
               </p>
             </div>
 
@@ -739,9 +763,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <MessageSquare size={20} />
               </div>
-              <div className="showcase-feature-title">Seamless Omnichannel Conversations</div>
+              <div className="showcase-feature-title">{t('showcase.omni3Title', 'Seamless Omnichannel Conversations')}</div>
               <p className="showcase-feature-desc">
-                Keep conversations flowing across WhatsApp, Instagram, Messenger, and your website.
+                {t('showcase.omni3Desc', 'Keep conversations flowing across WhatsApp, Instagram, Messenger, and your website.')}
               </p>
             </div>
 
@@ -749,9 +773,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="showcase-feature-icon">
                 <Headphones size={20} />
               </div>
-              <div className="showcase-feature-title">Human Support Available as Needed</div>
+              <div className="showcase-feature-title">{t('showcase.omni4Title', 'Human Support Available as Needed')}</div>
               <p className="showcase-feature-desc">
-                When a customer needs a real person, smoothly hand off the conversation with context intact.
+                {t('showcase.omni4Desc', 'When a customer needs a real person, smoothly hand off the conversation with context intact.')}
               </p>
             </div>
           </div>
@@ -774,9 +798,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="benefit-icon-box">
                 <Clock size={24} strokeWidth={1.75} />
               </div>
-              <h3 className="benefit-title">Help customers faster</h3>
+              <h3 className="benefit-title">{t('benefits.b1Title', 'Help customers faster')}</h3>
               <p className="benefit-desc">
-                Provide instant answers automatically.
+                {t('benefits.b1Desc', 'Provide instant answers automatically.')}
               </p>
             </div>
 
@@ -785,9 +809,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="benefit-icon-box">
                 <Repeat size={24} strokeWidth={1.75} />
               </div>
-              <h3 className="benefit-title">Spend less time repeating yourself</h3>
+              <h3 className="benefit-title">{t('benefits.b2Title', 'Spend less time repeating yourself')}</h3>
               <p className="benefit-desc">
-                Let AI answer repetitive questions.
+                {t('benefits.b2Desc', 'Let AI answer repetitive questions.')}
               </p>
             </div>
 
@@ -796,9 +820,9 @@ export function HomePage({ onNavigate, user }) {
               <div className="benefit-icon-box">
                 <TrendingUp size={24} strokeWidth={1.75} />
               </div>
-              <h3 className="benefit-title">Focus on growing your business</h3>
+              <h3 className="benefit-title">{t('benefits.b3Title', 'Focus on growing your business')}</h3>
               <p className="benefit-desc">
-                Automate conversations while your team focuses on growth.
+                {t('benefits.b3Desc', 'Automate conversations while your team focuses on growth.')}
               </p>
             </div>
           </div>
@@ -817,20 +841,19 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="section-header-centered">
             <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              SEAMLESS CONVERSATION PIPELINE
+              {t('workflow.eyebrow', 'SEAMLESS CONVERSATION PIPELINE')}
             </span>
             <h2 className="section-title">
-              From message to action. Automatically.
+              {t('workflow.title', 'From message to action. Automatically.')}
             </h2>
             <p className="section-subtitle">
-              Every message flows through an intelligent pipeline designed to resolve inquiries,
-              confirm orders, and update your business systems in real time.
+              {t('workflow.subtitle', 'Every message flows through an intelligent pipeline designed to resolve inquiries, confirm orders, and update your business systems in real time.')}
             </p>
           </div>
 
           {/* Interactive Horizontal Workflow Bar */}
           <div className="interactive-flow-bar" style={{ marginBottom: 'var(--space-12)' }}>
-            {workflowSteps.map((step, idx) => {
+            {dynamicWorkflowSteps.map((step, idx) => {
               const isActive = activeWorkflowStep === idx + 1;
               return (
                 <div
@@ -870,19 +893,18 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="section-header-centered">
             <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              UNIFIED OMNICHANNEL SUITE
+              {t('channels.eyebrow', 'UNIFIED OMNICHANNEL SUITE')}
             </span>
             <h2 className="section-title">
-              One AI agent. Every conversation.
+              {t('channels.title', 'One AI agent. Every conversation.')}
             </h2>
             <p className="section-subtitle">
-              Connect your official communication channels in minutes. KREAZY AI unifies customer
-              touchpoints into a single continuous intelligence engine.
+              {t('channels.subtitle', 'Connect your official communication channels in minutes. KREAZY AI unifies customer touchpoints into a single continuous intelligence engine.')}
             </p>
           </div>
 
           <div className="channels-grid">
-            {channels.map((chan, idx) => {
+            {dynamicChannels.map((chan, idx) => {
               const Icon = chan.icon;
               return (
                 <div key={idx} className="channel-card">
@@ -905,7 +927,7 @@ export function HomePage({ onNavigate, user }) {
                   </div>
                   <div className="channel-card-footer">
                     <CheckCircle2 size={15} color="var(--green)" />
-                    <span>Official API integration • Live Sync</span>
+                    <span>{t('channels.officialBadge', 'Official API integration • Live Sync')}</span>
                   </div>
                 </div>
               );
@@ -926,19 +948,18 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="section-header-centered">
             <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              CORE AUTOMATION CAPABILITIES
+              {t('capabilities.eyebrow', 'CORE AUTOMATION CAPABILITIES')}
             </span>
             <h2 className="section-title">
-              Designed for High-Volume Commerce
+              {t('capabilities.title', 'Designed for High-Volume Commerce')}
             </h2>
             <p className="section-subtitle">
-              Everything required to eliminate manual typing bottlenecks, scale customer satisfaction,
-              and capture confirmed orders around the clock.
+              {t('capabilities.subtitle', 'Everything required to eliminate manual typing bottlenecks, scale customer satisfaction, and capture confirmed orders around the clock.')}
             </p>
           </div>
 
           <div className="features-editorial-grid">
-            {editorialFeatures.map((feat) => (
+            {dynamicEditorialFeatures.map((feat) => (
               <div
                 key={feat.num}
                 className={`editorial-card ${feat.isMint ? 'mint-bg' : 'white-bg'}`}
@@ -966,32 +987,32 @@ export function HomePage({ onNavigate, user }) {
       <section className="proof-section">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <span className="badge badge-mint">MEASURABLE BUSINESS IMPACT</span>
+            <span className="badge badge-mint">{t('metrics.eyebrow', 'MEASURABLE BUSINESS IMPACT')}</span>
             <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', fontWeight: 850, color: 'var(--primary-dark)', marginTop: '0.5rem', letterSpacing: '-0.035em', lineHeight: 1.1 }}>
-              Why Growing Merchants Trust KREAZY AI
+              {t('metrics.title', 'Why Growing Merchants Trust KREAZY AI')}
             </h2>
           </div>
 
           <div className="proof-metrics-grid">
             <div className="proof-metric-item">
-              <div className="proof-val olive">&lt; 1.5s</div>
-              <div className="proof-label">Instant First Reply</div>
-              <div className="proof-desc">Respond to potential buyers while their purchase impulse is highest.</div>
+              <div className="proof-val olive">{t('metrics.m1Val', '< 1.5s')}</div>
+              <div className="proof-label">{t('metrics.m1Label', 'Instant First Reply')}</div>
+              <div className="proof-desc">{t('metrics.m1Desc', 'Respond to potential buyers while their purchase impulse is highest.')}</div>
             </div>
             <div className="proof-metric-item">
-              <div className="proof-val">24/7/365</div>
-              <div className="proof-label">Zero Lost Midnight Sales</div>
-              <div className="proof-desc">Close late-night orders automatically while your human staff sleeps.</div>
+              <div className="proof-val">{t('metrics.m2Val', '24/7/365')}</div>
+              <div className="proof-label">{t('metrics.m2Label', 'Zero Lost Midnight Sales')}</div>
+              <div className="proof-desc">{t('metrics.m2Desc', 'Close late-night orders automatically while your human staff sleeps.')}</div>
             </div>
             <div className="proof-metric-item">
-              <div className="proof-val olive">100%</div>
-              <div className="proof-label">Catalog Accuracy</div>
-              <div className="proof-desc">Answers strictly grounded in your verified products, sizes, and pricing.</div>
+              <div className="proof-val olive">{t('metrics.m3Val', '100%')}</div>
+              <div className="proof-label">{t('metrics.m3Label', 'Catalog Accuracy')}</div>
+              <div className="proof-desc">{t('metrics.m3Desc', 'Answers strictly grounded in your verified products, sizes, and pricing.')}</div>
             </div>
             <div className="proof-metric-item">
-              <div className="proof-val">Official</div>
-              <div className="proof-label">Meta Cloud Connection</div>
-              <div className="proof-desc">Official Meta Cloud APIs with zero risk of account blocks or bans.</div>
+              <div className="proof-val">{t('metrics.m4Val', 'Official')}</div>
+              <div className="proof-label">{t('metrics.m4Label', 'Meta Cloud Connection')}</div>
+              <div className="proof-desc">{t('metrics.m4Desc', 'Official Meta Cloud APIs with zero risk of account blocks or bans.')}</div>
             </div>
           </div>
         </div>
@@ -1002,8 +1023,6 @@ export function HomePage({ onNavigate, user }) {
           ============================================================= */}
       <PricingTiersSection
         onNavigate={onNavigate}
-        title="Predictable Pricing That Pays For Itself"
-        subtitle="Choose the plan that fits your current sales volume. Start with our 7-day free trial—no credit card required."
       />
 
       {/* =============================================================
@@ -1013,18 +1032,18 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="section-header-centered">
             <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              FREQUENTLY ASKED QUESTIONS
+              {t('faq.eyebrow', 'FREQUENTLY ASKED QUESTIONS')}
             </span>
             <h2 className="section-title">
-              Everything You Need to Know
+              {t('faq.title', 'Everything You Need to Know')}
             </h2>
             <p className="section-subtitle">
-              Common questions from business owners switching from manual typing to automated social sales.
+              {t('faq.subtitle', 'Common questions from business owners switching from manual typing to automated social sales.')}
             </p>
           </div>
 
           <div className="home-faq-grid">
-            {homeFaqs.map((faq, idx) => {
+            {dynamicHomeFaqs.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
                 <div key={idx} className={`home-faq-item ${isOpen ? 'open' : ''}`}>
@@ -1064,24 +1083,24 @@ export function HomePage({ onNavigate, user }) {
           <div className="founder-card">
             <div className="founder-info">
               <span className="badge badge-mint" style={{ alignSelf: 'flex-start' }}>
-                DIRECT FOUNDER CONSULTATION
+                {t('founderMeeting.eyebrow', 'DIRECT FOUNDER CONSULTATION')}
               </span>
-              <h2>Want a Custom Strategy for Your Store?</h2>
+              <h2>{t('founderMeeting.title', 'Want a Custom Strategy for Your Store?')}</h2>
               <p>
-                Talk directly with the KREAZY AI product engineering team about how to automate your specific product catalog, Meta ad funnels, and customer volume.
+                {t('founderMeeting.subtitle', 'Talk directly with the KREAZY AI product engineering team about how to automate your specific product catalog, Meta ad funnels, and customer volume.')}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--primary-dark)', fontSize: '0.925rem' }}>
                   <CheckCircle2 size={18} color="var(--green)" />
-                  <span>Review your actual customer conversation bottlenecks</span>
+                  <span>{t('founderMeeting.bullet1', 'Review your actual customer conversation bottlenecks')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--primary-dark)', fontSize: '0.925rem' }}>
                   <CheckCircle2 size={18} color="var(--green)" />
-                  <span>Live demonstration on your specific product catalog</span>
+                  <span>{t('founderMeeting.bullet2', 'Live demonstration on your specific product catalog')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--primary-dark)', fontSize: '0.925rem' }}>
                   <CheckCircle2 size={18} color="var(--green)" />
-                  <span>Setup and onboarding guidance before launch</span>
+                  <span>{t('founderMeeting.bullet3', 'Setup and onboarding guidance before launch')}</span>
                 </div>
               </div>
             </div>
@@ -1093,18 +1112,20 @@ export function HomePage({ onNavigate, user }) {
                   <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#FFFFFF', border: '1px solid var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--space-4) auto', color: 'var(--green)' }}>
                     <Check size={24} />
                   </div>
-                  <h3 style={{ fontSize: '1.25rem', color: 'var(--primary-dark)', marginBottom: 'var(--space-2)', fontFamily: 'var(--font-heading)', fontWeight: 800 }}>Meeting Scheduled</h3>
+                  <h3 style={{ fontSize: '1.25rem', color: 'var(--primary-dark)', marginBottom: 'var(--space-2)', fontFamily: 'var(--font-heading)', fontWeight: 800 }}>
+                    {t('founderMeeting.scheduledTitle', 'Meeting Scheduled')}
+                  </h3>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>
-                    Thank you, {founderForm.name}. A calendar invitation has been prepared for {founderForm.company}. We will connect via Google Meet at your preferred time.
+                    {t('founderMeeting.scheduledDesc', `Thank you, ${founderForm.name}. A calendar invitation has been prepared for ${founderForm.company}. We will connect via Google Meet at your preferred time.`)}
                   </p>
                   <Button variant="secondary" size="sm" onClick={() => setFounderSubmitted(false)}>
-                    Schedule Another Session
+                    {t('founderMeeting.scheduleAnotherBtn', 'Schedule Another Session')}
                   </Button>
                 </div>
               ) : (
                 <form onSubmit={handleFounderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--primary-dark)', marginBottom: '2px', fontFamily: 'var(--font-heading)' }}>
-                    Book a Founder Strategy Call
+                    {t('founderMeeting.formTitle', 'Book a Founder Strategy Call')}
                   </div>
 
                   {founderError && (
@@ -1115,22 +1136,22 @@ export function HomePage({ onNavigate, user }) {
 
                   <div className="founder-form-row-2">
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>Your Name *</label>
+                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.fullName', 'Your Name *')}</label>
                       <input
                         type="text"
                         required
-                        placeholder="Sakib Ahmed"
+                        placeholder={t('founderMeeting.fullNamePlaceholder', 'Sakib Ahmed')}
                         className="form-input"
                         value={founderForm.name}
                         onChange={(e) => setFounderForm({ ...founderForm, name: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>Work Email *</label>
+                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.email', 'Work Email *')}</label>
                       <input
                         type="email"
                         required
-                        placeholder="sakib@brand.com"
+                        placeholder={t('founderMeeting.emailPlaceholder', 'sakib@brand.com')}
                         className="form-input"
                         value={founderForm.email}
                         onChange={(e) => setFounderForm({ ...founderForm, email: e.target.value })}
@@ -1140,21 +1161,21 @@ export function HomePage({ onNavigate, user }) {
 
                   <div className="founder-form-row-2">
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>Phone / WhatsApp</label>
+                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.phone', 'Phone / WhatsApp')}</label>
                       <input
                         type="tel"
-                        placeholder="+880 1700-000000"
+                        placeholder={t('founderMeeting.phonePlaceholder', '+880 1700-000000')}
                         className="form-input"
                         value={founderForm.phone}
                         onChange={(e) => setFounderForm({ ...founderForm, phone: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>Company / Page Name *</label>
+                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.company', 'Company / Page Name *')}</label>
                       <input
                         type="text"
                         required
-                        placeholder="Artisan Wear"
+                        placeholder={t('founderMeeting.companyPlaceholder', 'Artisan Wear')}
                         className="form-input"
                         value={founderForm.company}
                         onChange={(e) => setFounderForm({ ...founderForm, company: e.target.value })}
@@ -1163,11 +1184,11 @@ export function HomePage({ onNavigate, user }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.775rem' }}>Current Automation Bottlenecks</label>
+                    <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.message', 'Current Automation Bottlenecks')}</label>
                     <textarea
                       rows={2}
                       className="form-textarea"
-                      placeholder="What is your biggest pain point with customer inquiries right now?"
+                      placeholder={t('founderMeeting.messagePlaceholder', 'What is your biggest pain point with customer inquiries right now?')}
                       value={founderForm.message}
                       onChange={(e) => setFounderForm({ ...founderForm, message: e.target.value })}
                     />
@@ -1180,7 +1201,7 @@ export function HomePage({ onNavigate, user }) {
                     loading={founderLoading}
                     style={{ width: '100%', justifyContent: 'center', marginTop: '0.25rem' }}
                   >
-                    Confirm Founder Strategy Call
+                    {founderLoading ? t('founderMeeting.submittingBtn', 'Booking Session...') : t('founderMeeting.submitBtn', 'Confirm Founder Strategy Call')}
                   </Button>
                 </form>
               )}
@@ -1200,10 +1221,10 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="final-cta-card">
             <h2 className="final-cta-title">
-              Ready for fewer repetitive conversations?
+              {t('finalCta.title', 'Ready for fewer repetitive conversations?')}
             </h2>
             <p className="final-cta-desc">
-              Let KREAZY AI handle the repetitive work while your team focuses on customers and growth.
+              {t('finalCta.subtitle', 'Let KREAZY AI handle the repetitive work while your team focuses on customers and growth.')}
             </p>
             <div className="final-cta-btn-wrap">
               <Button
@@ -1212,18 +1233,18 @@ export function HomePage({ onNavigate, user }) {
                 onClick={() => onNavigate('signup')}
                 iconRight={ArrowRight}
               >
-                Start with KREAZY AI
+                {t('finalCta.startBtn', 'Start with KREAZY AI')}
               </Button>
               <Button
                 variant="secondary"
                 size="lg"
                 onClick={() => onNavigate('book-demo')}
               >
-                Book a 1-on-1 Demo
+                {t('finalCta.demoBtn', 'Book a 1-on-1 Demo')}
               </Button>
             </div>
             <div style={{ marginTop: '1.25rem', fontSize: '0.825rem', color: 'var(--text-secondary)', position: 'relative', zIndex: 1 }}>
-              ⚡ Connects in 5 minutes • No credit card required • Cancel anytime
+              {t('finalCta.guarantee', '⚡ Connects in 5 minutes • No credit card required • Cancel anytime')}
             </div>
           </div>
         </div>

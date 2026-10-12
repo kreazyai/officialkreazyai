@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
+import { LanguageSelector } from '../common/LanguageSelector';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function Navbar({ currentPage, onNavigate, user, onLogout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,12 +36,12 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
   };
 
   const navLinks = [
-    { id: 'solutions', label: 'Solutions' },
-    { id: 'ai-agents', label: 'AI Agents' },
-    { id: 'integrations', label: 'Integrations' },
-    { id: 'how-it-works', label: 'How It Works' },
-    { id: 'pricing', label: 'Pricing' },
-    { id: 'faq', label: 'Resources' },
+    { id: 'solutions', label: t('nav.solutions') },
+    { id: 'ai-agents', label: t('nav.aiAgents') },
+    { id: 'integrations', label: t('nav.integrations') },
+    { id: 'how-it-works', label: t('nav.howItWorks') },
+    { id: 'pricing', label: t('nav.pricing') },
+    { id: 'faq', label: t('nav.resources') },
   ];
 
   return (
@@ -73,8 +76,10 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
             ))}
           </nav>
 
-          {/* Right: Log In & Get Started CTA */}
-          <div className="nav-actions">
+          {/* Right: Language Selector + Log In & Get Started CTA */}
+          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <LanguageSelector />
+
             {user ? (
               <>
                 <Button
@@ -83,7 +88,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   className="nav-btn-signup"
                   onClick={() => handleLinkClick('dashboard')}
                 >
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Button>
                 <Button
                   variant="ghost"
@@ -94,7 +99,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   }}
                   style={{ color: 'var(--danger)' }}
                 >
-                  Sign Out
+                  {t('nav.signOut')}
                 </Button>
               </>
             ) : (
@@ -105,7 +110,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   className="nav-btn-signin"
                   onClick={() => handleLinkClick('login')}
                 >
-                  Sign In
+                  {t('nav.signIn')}
                 </Button>
 
                 <Button
@@ -114,7 +119,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                   className="nav-btn-signup"
                   onClick={() => handleLinkClick('signup')}
                 >
-                  Get Started
+                  {t('nav.getStarted')}
                 </Button>
               </>
             )}
@@ -144,6 +149,11 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
         className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}
         aria-hidden={!mobileMenuOpen}
       >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-medium)' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{t('nav.selectLanguage')}:</span>
+          <LanguageSelector align="left" />
+        </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {navLinks.map((item) => {
             const isActive = currentPage === item.id;
@@ -180,7 +190,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                 onClick={() => handleLinkClick('dashboard')}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                Open Dashboard
+                {t('nav.dashboard')}
               </Button>
               <Button
                 variant="ghost"
@@ -191,7 +201,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                 }}
                 style={{ width: '100%', justifyContent: 'center', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}
               >
-                Sign Out
+                {t('nav.signOut')}
               </Button>
             </>
           ) : (
@@ -202,7 +212,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                 onClick={() => handleLinkClick('signup')}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                Sign Up Free
+                {t('nav.getStarted')}
               </Button>
               <Button
                 variant="secondary"
@@ -210,15 +220,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                 onClick={() => handleLinkClick('login')}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                Log In to Workspace
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleLinkClick('book-demo')}
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                Book a Demo
+                {t('nav.signIn')}
               </Button>
             </>
           )}

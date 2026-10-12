@@ -9,6 +9,7 @@ import { WebsiteChatWidget } from './components/website/WebsiteChatWidget';
 import { Sidebar } from './components/dashboard/Sidebar';
 import { TopHeader } from './components/dashboard/TopHeader';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // ─── Website pages (lazy-loaded on first navigation) ─────────────────────────
 const HomePage            = lazy(() => import('./pages/website/HomePage').then(m => ({ default: m.HomePage })));
@@ -533,8 +534,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

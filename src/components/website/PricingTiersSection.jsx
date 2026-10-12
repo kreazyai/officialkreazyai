@@ -1,78 +1,86 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Sparkles, ShieldCheck, Zap, Smartphone } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
+  const { t } = useLanguage();
   const [currency, setCurrency] = useState('USD'); // Default 'USD' to match screenshot ($49, $119, $299 with ৳ BDT underneath)
   const [isAnnual, setIsAnnual] = useState(false);
+
+  const starterFeatures = [
+    '1,000 autonomous AI conversations / mo',
+    '1 Connected WhatsApp Business account',
+    'Real-time catalog & inventory sync',
+    'Basic order capture & CRM storage',
+    'Standard email & community support'
+  ];
+
+  const growthFeatures = [
+    '5,000 autonomous AI conversations / mo',
+    'WhatsApp + Instagram + Messenger omnichannel',
+    'Autonomous order placement & cart checkout',
+    'AI sizing, discount & delivery advice',
+    'Priority 24/7 AI Copilot support',
+    'Dedicated webhook & Shopify/Woo sync'
+  ];
+
+  const scaleFeatures = [
+    '25,000 autonomous AI conversations / mo',
+    'Unlimited social channels & team seats',
+    'Custom fine-tuned AI prompts & catalog training',
+    'Dedicated SLA & 99.9% uptime guarantee',
+    'Dedicated customer success manager',
+    'Custom ERP & payment gateway integrations'
+  ];
 
   const plans = [
     {
       id: 'starter',
-      name: 'Starter Plan',
+      name: t('pricing.starter.name', 'Starter Plan'),
       bdtMonthly: 5880,
       bdtAnnual: 4700,
       usdMonthly: 49,
       usdAnnual: 39,
       eurMonthly: 45,
       eurAnnual: 36,
-      teamText: 'Ideal for emerging merchants automating their first WhatsApp store channel.',
+      teamText: t('pricing.starter.desc', 'Ideal for emerging merchants automating their first WhatsApp store channel.'),
       isPopular: false,
       badge: null,
-      ctaText: 'Subscribe via bKash / Nagad',
+      ctaText: t('pricing.ctaSubscribe', 'Subscribe via bKash / Nagad'),
       ctaVariant: 'secondary',
-      features: [
-        '1,000 autonomous AI conversations / mo',
-        '1 Connected WhatsApp Business account',
-        'Real-time catalog & inventory sync',
-        'Basic order capture & CRM storage',
-        'Standard email & community support'
-      ]
+      features: Array.isArray(t('pricing.starter.features')) ? t('pricing.starter.features') : starterFeatures
     },
     {
       id: 'growth',
-      name: 'Growth Plan',
-      badge: 'Most Popular',
+      name: t('pricing.growth.name', 'Growth Plan'),
+      badge: t('pricing.popularBadge', 'Most Popular'),
       bdtMonthly: 14280,
       bdtAnnual: 11420,
       usdMonthly: 119,
       usdAnnual: 95,
       eurMonthly: 109,
       eurAnnual: 87,
-      teamText: 'Built for scaling retail brands requiring multi-channel AI automation.',
+      teamText: t('pricing.growth.desc', 'Built for scaling retail brands requiring multi-channel AI automation.'),
       isPopular: true,
-      ctaText: 'Subscribe via bKash / Nagad',
+      ctaText: t('pricing.ctaSubscribe', 'Subscribe via bKash / Nagad'),
       ctaVariant: 'primary',
-      features: [
-        '5,000 autonomous AI conversations / mo',
-        'WhatsApp + Instagram + Messenger omnichannel',
-        'Autonomous order placement & cart checkout',
-        'AI sizing, discount & delivery advice',
-        'Priority 24/7 AI Copilot support',
-        'Dedicated webhook & Shopify/Woo sync'
-      ]
+      features: Array.isArray(t('pricing.growth.features')) ? t('pricing.growth.features') : growthFeatures
     },
     {
       id: 'scale',
-      name: 'Scale Plan',
-      badge: 'High Volume',
+      name: t('pricing.scale.name', 'Scale Plan'),
+      badge: t('pricing.highVolumeBadge', 'High Volume'),
       bdtMonthly: 35880,
       bdtAnnual: 28700,
       usdMonthly: 299,
       usdAnnual: 239,
       eurMonthly: 275,
       eurAnnual: 220,
-      teamText: 'Enterprise-grade speed and custom fine-tuned agents for high-volume stores.',
+      teamText: t('pricing.scale.desc', 'Enterprise-grade speed and custom fine-tuned agents for high-volume stores.'),
       isPopular: false,
-      ctaText: 'Subscribe via bKash / Nagad',
+      ctaText: t('pricing.ctaSubscribe', 'Subscribe via bKash / Nagad'),
       ctaVariant: 'secondary',
-      features: [
-        '25,000 autonomous AI conversations / mo',
-        'Unlimited social channels & team seats',
-        'Custom fine-tuned AI prompts & catalog training',
-        'Dedicated SLA & 99.9% uptime guarantee',
-        'Dedicated customer success manager',
-        'Custom ERP & payment gateway integrations'
-      ]
+      features: Array.isArray(t('pricing.scale.features')) ? t('pricing.scale.features') : scaleFeatures
     }
   ];
 
@@ -102,10 +110,10 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
             </span>
           )}
           <h1 style={{ fontSize: 'clamp(2.2rem, 3.8vw, 3rem)', fontWeight: 850, color: 'var(--text-primary)', marginBottom: '0.85rem', letterSpacing: '-0.04em', lineHeight: 1.04 }}>
-            {title || "Simple pricing that pays for itself in captured sales"}
+            {title || t('pricing.title', "Simple pricing that pays for itself in captured sales")}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 1.75rem auto', lineHeight: 1.6 }}>
-            {subtitle || "Choose the plan that fits your growth. Upgrade or adjust anytime as your message volume and team scale."}
+            {subtitle || t('pricing.subtitle', "Choose the plan that fits your growth. Upgrade or adjust anytime as your message volume and team scale.")}
           </p>
 
           {/* Currency & Billing Cycle Toggles Row */}
@@ -131,15 +139,15 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                 onClick={() => setIsAnnual(false)}
                 className={`pricing-mode-btn ${!isAnnual ? 'active' : ''}`}
               >
-                Monthly
+                {t('pricing.billingMonthly', 'Monthly')}
               </button>
               <button
                 type="button"
                 onClick={() => setIsAnnual(true)}
                 className={`pricing-mode-btn ${isAnnual ? 'active' : ''}`}
               >
-                <span>Annual</span>
-                <span className="pricing-save-badge">Save 20%</span>
+                <span>{t('pricing.billingAnnual', 'Annual')}</span>
+                <span className="pricing-save-badge">{t('pricing.save20', 'Save 20%')}</span>
               </button>
             </div>
           </div>
@@ -156,15 +164,15 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
 
             if (currency === 'BDT') {
               primaryPrice = `৳${bdtVal.toLocaleString()}`;
-              secondaryConverted = `$${usdVal} USD / month`;
+              secondaryConverted = `$${usdVal} USD ${t('pricing.perMonth', '/ month')}`;
             } else if (currency === 'EUR') {
               primaryPrice = `€${eurVal}`;
-              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT / month`;
+              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
             } else {
               primaryPrice = `$${usdVal}`;
-              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT / month`;
+              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
             }
-            const periodLabel = isAnnual ? '/ month (billed annually)' : '/ month';
+            const periodLabel = isAnnual ? t('pricing.perMonthAnnual', '/ month (billed annually)') : t('pricing.perMonth', '/ month');
 
             return (
               <div
@@ -211,7 +219,7 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                       onClick={handleDirectSignUp}
                       title="Create an account directly"
                     >
-                      or Start 7-Day Free Trial &rarr;
+                      {t('pricing.orTrial', 'or Start 7-Day Free Trial →')}
                     </span>
                   </div>
                 </div>
@@ -219,7 +227,7 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                 {/* Features Divider & Section */}
                 <div className="pricing-suite-features-block">
                   <div className="pricing-suite-features-heading" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    WHAT'S INCLUDED:
+                    {t('pricing.whatsIncluded', "WHAT'S INCLUDED:")}
                   </div>
 
                   <ul className="pricing-suite-features-list">
@@ -243,15 +251,15 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
         <div className="pricing-suite-trust-strip">
           <div className="pricing-suite-trust-item">
             <ShieldCheck size={18} color="var(--bright-olive)" />
-            <span>Official Meta Cloud API Verified</span>
+            <span>{t('pricing.metaVerified', 'Official Meta Cloud API Verified')}</span>
           </div>
           <div className="pricing-suite-trust-item">
             <Zap size={18} color="var(--bright-olive)" />
-            <span>Instant Setup in under 5 minutes</span>
+            <span>{t('pricing.instantSetup', 'Instant Setup in under 5 minutes')}</span>
           </div>
           <div className="pricing-suite-trust-item">
             <Sparkles size={18} color="var(--bright-olive)" />
-            <span>bKash & Nagad 01643792804 supported</span>
+            <span>{t('pricing.bkashSupported', 'bKash & Nagad 01643792804 supported')}</span>
           </div>
         </div>
       </div>

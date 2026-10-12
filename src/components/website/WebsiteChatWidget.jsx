@@ -10,8 +10,10 @@ import {
   Bot
 } from 'lucide-react';
 import { leadService } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function WebsiteChatWidget() {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState('welcome'); // 'welcome' | 'form' | 'success'
   const [formData, setFormData] = useState({
@@ -118,8 +120,8 @@ export function WebsiteChatWidget() {
                   <span className="kreazy-chat-status-dot" title="Online now" />
                 </div>
 
-                <h3 id="kreazy-chat-title" className="kreazy-chat-title">Hi there</h3>
-                <p className="kreazy-chat-subtitle">Welcome to KreazyAI</p>
+                <h3 id="kreazy-chat-title" className="kreazy-chat-title">{t('chatWidget.hiThere', 'Hi there')}</h3>
+                <p className="kreazy-chat-subtitle">{t('chatWidget.welcome', 'Welcome to KreazyAI')}</p>
               </div>
 
               {/* Body */}
@@ -132,8 +134,8 @@ export function WebsiteChatWidget() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setView('form'); }}
                 >
                   <div className="kreazy-chat-card-text">
-                    <div className="kreazy-chat-card-title">Chat with us</div>
-                    <div className="kreazy-chat-card-desc">We typically reply within minutes.</div>
+                    <div className="kreazy-chat-card-title">{t('chatWidget.chatWithUs', 'Chat with us')}</div>
+                    <div className="kreazy-chat-card-desc">{t('chatWidget.replyNotice', 'We typically reply within minutes.')}</div>
                   </div>
                   <div className="kreazy-chat-send-icon-wrap">
                     <Send size={16} />
@@ -143,7 +145,7 @@ export function WebsiteChatWidget() {
 
               {/* Footer */}
               <div className="kreazy-chat-footer">
-                <span>POWERED BY <strong>KREAZYAI</strong></span>
+                <span>{t('chatWidget.poweredBy', 'POWERED BY KREAZYAI')}</span>
               </div>
             </div>
           )}
@@ -176,7 +178,7 @@ export function WebsiteChatWidget() {
 
               <div className="kreazy-chat-form-body">
                 <p className="kreazy-chat-form-notice">
-                  We'll get back to you when one of our agents is able to respond. Please provide your details so we can get in touch with you.
+                  {t('chatWidget.formNotice', "We'll get back to you when one of our agents is able to respond. Please provide your details so we can get in touch with you.")}
                 </p>
 
                 {error && (
@@ -190,7 +192,7 @@ export function WebsiteChatWidget() {
                     <input
                       type="text"
                       className="kreazy-chat-input"
-                      placeholder="Name *"
+                      placeholder={t('chatWidget.namePlaceholder', 'Name *')}
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       required
@@ -201,7 +203,7 @@ export function WebsiteChatWidget() {
                     <input
                       type="tel"
                       className="kreazy-chat-input"
-                      placeholder="Phone *"
+                      placeholder={t('chatWidget.phonePlaceholder', 'Phone *')}
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       required
@@ -211,7 +213,7 @@ export function WebsiteChatWidget() {
                   <div className="kreazy-chat-field">
                     <textarea
                       className="kreazy-chat-input kreazy-chat-textarea"
-                      placeholder="Message"
+                      placeholder={t('chatWidget.messagePlaceholder', 'Message')}
                       rows={3}
                       value={formData.message}
                       onChange={(e) => handleInputChange('message', e.target.value)}
@@ -222,7 +224,7 @@ export function WebsiteChatWidget() {
                     <input
                       type="text"
                       className="kreazy-chat-input"
-                      placeholder="Company *"
+                      placeholder={t('chatWidget.companyPlaceholder', 'Company *')}
                       value={formData.company}
                       onChange={(e) => handleInputChange('company', e.target.value)}
                       required
@@ -234,7 +236,7 @@ export function WebsiteChatWidget() {
                     className="kreazy-chat-submit-btn"
                     disabled={loading}
                   >
-                    {loading ? 'Sending...' : 'Send'}
+                    {loading ? t('chatWidget.sendingBtn', 'Sending...') : t('chatWidget.sendBtn', 'Send')}
                   </button>
                 </form>
               </div>
@@ -259,21 +261,21 @@ export function WebsiteChatWidget() {
                 <div className="kreazy-chat-success-icon">
                   <CheckCircle2 size={44} />
                 </div>
-                <h4>Message Received!</h4>
+                <h4>{t('chatWidget.successTitle', 'Message Received!')}</h4>
                 <p>
-                  Thank you, <strong>{formData.name}</strong>. Our AI assistant and merchant growth team will get in touch with you at <strong>{formData.phone}</strong> promptly.
+                  {t('chatWidget.successDesc', `Thank you! Our AI assistant and merchant growth team will get in touch with you promptly.`)}
                 </p>
                 <button 
                   type="button" 
                   className="kreazy-chat-reset-btn"
                   onClick={handleReset}
                 >
-                  Send another message
+                  {t('chatWidget.startNewChat', 'Send another message')}
                 </button>
               </div>
 
               <div className="kreazy-chat-footer">
-                <span>POWERED BY <strong>KREAZYAI</strong></span>
+                <span>{t('chatWidget.poweredBy', 'POWERED BY KREAZYAI')}</span>
               </div>
             </div>
           )}
@@ -287,9 +289,9 @@ export function WebsiteChatWidget() {
             type="button" 
             className="kreazy-chat-launcher-pill"
             onClick={() => { setIsOpen(true); setView('welcome'); }}
-            aria-label="Chat with us"
+            aria-label={t('chatWidget.chatWithUs', 'Chat with us')}
           >
-            Chat with us
+            {t('chatWidget.chatWithUs', 'Chat with us')}
           </button>
         )}
 
