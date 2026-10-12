@@ -2,9 +2,12 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   CreditCard, Smartphone, Upload, Check, CheckCircle2,
   AlertCircle, Loader2, X, Key, FileText, Copy, Plus,
-  Trash2, Image as ImageIcon, ShieldCheck, Zap, Sparkles
+  Trash2, Image as ImageIcon, ShieldCheck, Zap, Sparkles,
+  Download, Printer, RotateCcw, CheckCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { printInvoicePdf, downloadInvoiceHtml } from '../../services/invoiceService';
+import { addDashboardNotification } from '../../services/notificationStore';
 
 function Toast({ message, type = 'success', onClose }) {
   useEffect(() => {
@@ -95,6 +98,8 @@ export function BillingPage({ user }) {
   const [processing, setProcessing] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [viewScreenshotModal, setViewScreenshotModal] = useState(null);
+  const [paymentSuccessModal, setPaymentSuccessModal] = useState(null);
+  const [clearPaymentMethodModal, setClearPaymentMethodModal] = useState(false);
   const screenshotInputRef = useRef(null);
 
   const PLANS = [
@@ -207,6 +212,18 @@ export function BillingPage({ user }) {
       const priceBdt = Math.round(plan.price * 120);
       const methodName = selectedMethod === 'NAGAD' ? 'Nagad' : 'bKash';
       const formattedMethod = `${methodName} 01643792804 (Send money)`;
+      const clearedTimeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      const invoiceItem = {
+        id: invoiceId,
+        date: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        amount: `$${plan.price}.00 (৳${priceBdt.toLocaleString()} BDT)`,
+        status: 'Confirmed & Cleared',
+        method: formattedMethod,
+        trxId: trxId.trim().toUpperCase(),
+        senderNumber: senderNumber.trim(),
+        screenshotUrl: screenshotPreview
+      };
 
       const newSub = {
         name: plan.name,
@@ -217,27 +234,20 @@ export function BillingPage({ user }) {
         renewalDate: renewalStr,
         paymentMethod: formattedMethod,
         paymentMethodType: selectedMethod,
+        paymentCleared: true,
+        paymentClearedAt: clearedTimeStr,
         senderNumber: senderNumber.trim(),
         trxId: trxId.trim().toUpperCase(),
         screenshotUrl: screenshotPreview,
         screenshotName: screenshotName || 'payment_screenshot.png',
-        invoices: [
-          {
-            id: invoiceId,
-            date: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-            amount: `$${plan.price}.00 (৳${priceBdt.toLocaleString()} BDT)`,
-            status: 'Verified',
-            method: formattedMethod,
-            trxId: trxId.trim().toUpperCase(),
-            senderNumber: senderNumber.trim(),
-            screenshotUrl: screenshotPreview
-          }
-        ]
+        invoices: [invoiceItem]
       };
 
+      // 1. Persist subscription locally
       setActivePlan(newSub);
       localStorage.setItem('kreazy_user_subscription', JSON.stringify(newSub));
 
+      // 2. Synchronize user auth profile
       if (updateUser) {
         updateUser({
           isSubscribed: true,
@@ -246,14 +256,55 @@ export function BillingPage({ user }) {
         });
       }
 
-      setProcessing(false);
-      setCheckoutModal(null);
+      // 3. Dispatch instant reactive notification to Dashboard TopHeader
+      addDashboardNotification({
+        title: '🎉 Payment Confirmed & Plan Active',
+        desc: `Payment of ৳${priceBdt.toLocaleString()} BDT for ${plan.name} has been verified & cleared via ${methodName} 01643792804. TrxID: ${trxId.trim().toUpperCase()}`,
+        type: 'payment',
+        time: 'Just now',
+        link: '/dashboard/billing'
+      });
+
+      // 4. Capture details for the celebration confirmation modal
+      const successData = {
+        plan,
+        invoice: invoiceItem,
+        senderNumber: senderNumber.trim(),
+        trxId: trxId.trim().toUpperCase(),
+        priceBdt,
+        methodName
+      };
+
+      // 5. Cleanly clear all input form fields
       setSenderNumber('');
       setTrxId('');
       setScreenshotPreview(null);
       setScreenshotName('');
-      showToast(`🎉 Payment submitted! Your subscription to ${plan.name} is now active.`, 'success');
-    }, 750);
+      setCheckoutError('');
+      setProcessing(false);
+      setCheckoutModal(null);
+
+      // 6. Show payment success confirmation modal
+      setPaymentSuccessModal(successData);
+      showToast(`🎉 Payment Confirmed! Your subscription to ${plan.name} is now 100% active.`, 'success');
+    }, 700);
+  };
+
+  const handleClearPaymentMethod = () => {
+    if (!activePlan) return;
+    const updated = {
+      ...activePlan,
+      senderNumber: '',
+      trxId: '',
+      screenshotUrl: null,
+      screenshotName: ''
+    };
+    setActivePlan(updated);
+    try {
+      localStorage.setItem('kreazy_user_subscription', JSON.stringify(updated));
+    } catch {}
+    setClearPaymentMethodModal(false);
+    showToast('Saved payment sender details have been cleared.', 'info');
   };
 
   const handleCancelSubscription = () => {
@@ -393,17 +444,18 @@ export function BillingPage({ user }) {
               <div>
                 <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <span>{activePlan.paymentMethod || 'bKash/Nagad 01643792804 (Send money)'}</span>
-                  <span style={{ fontSize: '0.72rem', background: 'var(--mint-soft, #EFFBF5)', color: 'var(--primary, #087A4A)', padding: '2px 8px', borderRadius: '100px', fontWeight: 700, border: '1px solid var(--border-medium, #D9E9E1)' }}>
-                    Send Money Verified
+                  <span style={{ fontSize: '0.72rem', background: '#DDF7E9', color: '#087A4A', padding: '3px 10px', borderRadius: '100px', fontWeight: 800, border: '1px solid #AEEBCB' }}>
+                    ✓ Payment Cleared & Confirmed
                   </span>
                 </div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                   Sender Account: <strong>{activePlan.senderNumber || '01643792804'}</strong> • TrxID: <code style={{ background: 'var(--bg-subtle)', padding: '2px 6px', borderRadius: '4px', fontWeight: 800, color: 'var(--primary-dark)' }}>{activePlan.trxId || 'TRX-VERIFIED'}</code>
+                  {activePlan.paymentClearedAt && <span> • Cleared: <em>{activePlan.paymentClearedAt}</em></span>}
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
               {activePlan.screenshotUrl && (
                 <button
                   type="button"
@@ -424,6 +476,18 @@ export function BillingPage({ user }) {
                   <ImageIcon size={16} /> View Payment Screenshot
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => setClearPaymentMethodModal(true)}
+                style={{
+                  background: 'transparent', border: '1px solid var(--border-medium, #D9E9E1)',
+                  borderRadius: '8px', padding: '7px 14px', fontSize: '0.8rem', fontWeight: 600,
+                  color: 'var(--text-secondary)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px'
+                }}
+              >
+                <RotateCcw size={14} /> Clear / Update Method
+              </button>
             </div>
           </div>
 
@@ -455,12 +519,12 @@ export function BillingPage({ user }) {
                         {inv.trxId && <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>TrxID: {inv.trxId}</div>}
                       </td>
                       <td style={{ padding: '0.95rem 1.15rem' }}>
-                        <span style={{ background: 'rgba(22,163,74,0.1)', color: '#16a34a', padding: '3px 10px', borderRadius: '100px', fontSize: '0.74rem', fontWeight: 700 }}>
-                          {inv.status}
+                        <span style={{ background: 'rgba(22,163,74,0.12)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.3)', padding: '3px 10px', borderRadius: '100px', fontSize: '0.74rem', fontWeight: 700 }}>
+                          {inv.status || 'Confirmed & Cleared'}
                         </span>
                       </td>
                       <td style={{ padding: '0.95rem 1.15rem', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'inline-flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                           {inv.screenshotUrl && (
                             <button
                               type="button"
@@ -473,21 +537,40 @@ export function BillingPage({ user }) {
                               })}
                               style={{
                                 background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px',
-                                padding: '4px 10px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary, #087A4A)'
+                                padding: '5px 10px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary, #087A4A)'
                               }}
                             >
-                              View Proof
+                              Proof
                             </button>
                           )}
                           <button
                             type="button"
-                            onClick={() => showToast(`Downloaded tax invoice receipt for ${inv.id}`, 'success')}
+                            onClick={() => {
+                              printInvoicePdf(inv, activePlan, user);
+                              showToast(`Opened printable official tax invoice for ${inv.id}`, 'success');
+                            }}
                             style={{
-                              background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px',
-                              padding: '4px 12px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary, #087A4A)'
+                              background: 'var(--primary, #087A4A)', border: 'none', borderRadius: '6px',
+                              padding: '5px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: '#ffffff',
+                              display: 'inline-flex', alignItems: 'center', gap: '4px',
+                              boxShadow: '0 2px 6px rgba(8, 122, 74, 0.2)'
                             }}
                           >
-                            Download PDF
+                            <Printer size={13} /> Print / PDF
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              downloadInvoiceHtml(inv, activePlan, user);
+                              showToast(`Downloaded tax invoice file for ${inv.id}`, 'success');
+                            }}
+                            style={{
+                              background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px',
+                              padding: '5px 10px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary, #087A4A)',
+                              display: 'inline-flex', alignItems: 'center', gap: '4px'
+                            }}
+                          >
+                            <Download size={13} /> Download
                           </button>
                         </div>
                       </td>
@@ -1133,6 +1216,186 @@ export function BillingPage({ user }) {
                 }}
               >
                 Yes, Cancel Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+         PAYMENT CONFIRMED SUCCESS CELEBRATION MODAL
+         ===================================================================== */}
+      {paymentSuccessModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.78)', backdropFilter: 'blur(5px)',
+          zIndex: 10002, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+          animation: 'fadeIn 0.2s ease'
+        }} onClick={() => setPaymentSuccessModal(null)}>
+          <div
+            style={{
+              background: 'var(--bg-card, #ffffff)', borderRadius: '20px', maxWidth: '520px', width: '100%',
+              padding: '2rem 1.75rem', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', margin: 'auto', textAlign: 'center',
+              border: '1.5px solid var(--border-medium, #D9E9E1)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Celebration Green Badge */}
+            <div style={{
+              width: '72px', height: '72px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #087A4A 0%, #0FA968 100%)',
+              color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 1.25rem', boxShadow: '0 10px 24px rgba(8, 122, 74, 0.35)'
+            }}>
+              <CheckCircle2 size={40} />
+            </div>
+
+            <span style={{
+              display: 'inline-block', background: '#DDF7E9', color: '#087A4A',
+              border: '1.5px solid #AEEBCB', borderRadius: '100px', padding: '4px 14px',
+              fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px'
+            }}>
+              ✓ Payment Cleared & Confirmed
+            </span>
+
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.45rem', fontWeight: 900, color: 'var(--primary-dark, #092A20)' }}>
+              Subscription Activated!
+            </h3>
+
+            <p style={{ margin: '0 0 1.5rem', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+              Your payment for the <strong>{paymentSuccessModal.plan.name}</strong> has been successfully verified and cleared. Your monthly conversation quota is fully active.
+            </p>
+
+            {/* Receipt Summary Card */}
+            <div style={{
+              background: 'var(--mint-soft, #EFFBF5)', borderRadius: '12px',
+              border: '1px solid var(--border-medium, #D9E9E1)', padding: '1.25rem',
+              marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.84rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Amount Paid:</span>
+                <span style={{ fontWeight: 800, color: 'var(--primary-dark)' }}>
+                  ৳{paymentSuccessModal.priceBdt.toLocaleString()} BDT (${paymentSuccessModal.plan.price} USD)
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Payment Gateway:</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+                  {paymentSuccessModal.methodName} 01643792804 (Send money)
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Sender Account:</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+                  {paymentSuccessModal.senderNumber}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Transaction ID (TrxID):</span>
+                <code style={{ fontWeight: 800, color: 'var(--primary-dark)', background: '#fff', padding: '1px 6px', borderRadius: '4px' }}>
+                  {paymentSuccessModal.trxId}
+                </code>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Tax Invoice ID:</span>
+                <span style={{ fontWeight: 800, color: 'var(--primary, #087A4A)' }}>
+                  {paymentSuccessModal.invoice.id}
+                </span>
+              </div>
+            </div>
+
+            {/* Instant Notification Alert */}
+            <div style={{
+              background: 'rgba(8, 122, 74, 0.08)', borderRadius: '10px',
+              padding: '0.75rem 1rem', marginBottom: '1.5rem', display: 'flex',
+              alignItems: 'center', gap: '0.65rem', textAlign: 'left',
+              fontSize: '0.8rem', color: 'var(--primary-dark, #092A20)', border: '1px solid var(--border-medium)'
+            }}>
+              <CheckCheck size={18} color="var(--primary, #087A4A)" style={{ flexShrink: 0 }} />
+              <div>
+                <strong>Instant Dashboard Alert:</strong> A payment confirmation notification has been posted to your top dashboard bell.
+              </div>
+            </div>
+
+            {/* Primary Action Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  printInvoicePdf(paymentSuccessModal.invoice, paymentSuccessModal.plan, user);
+                  downloadInvoiceHtml(paymentSuccessModal.invoice, paymentSuccessModal.plan, user);
+                  showToast(`Tax invoice ${paymentSuccessModal.invoice.id} downloaded!`, 'success');
+                }}
+                style={{
+                  background: 'var(--primary, #087A4A)', color: '#ffffff',
+                  border: 'none', borderRadius: '10px', padding: '0.85rem 1.25rem',
+                  fontSize: '0.92rem', fontWeight: 700, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  boxShadow: '0 4px 14px rgba(8, 122, 74, 0.25)'
+                }}
+              >
+                <Download size={18} /> Download Official Tax Invoice (PDF / Receipt)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentSuccessModal(null)}
+                style={{
+                  background: 'var(--bg-subtle, #f8fafc)', border: '1px solid var(--border-medium)',
+                  borderRadius: '10px', padding: '0.75rem', fontSize: '0.88rem',
+                  fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer'
+                }}
+              >
+                Done & View Active Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+         CLEAR / UPDATE PAYMENT METHOD MODAL
+         ===================================================================== */}
+      {clearPaymentMethodModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.65)', backdropFilter: 'blur(3px)',
+          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }} onClick={() => setClearPaymentMethodModal(false)}>
+          <div
+            style={{
+              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '440px', width: '100%',
+              padding: '1.75rem', boxShadow: '0 24px 64px rgba(0,0,0,0.25)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <RotateCcw size={32} color="var(--primary, #087A4A)" style={{ marginBottom: '0.75rem' }} />
+            <h4 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              Clear or Update Payment Method?
+            </h4>
+            <p style={{ margin: '0 0 1.25rem', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+              This will clear your saved sender account number and transaction ID. Your active subscription tier remains intact, and you can re-enter new bKash / Nagad payment credentials anytime.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => setClearPaymentMethodModal(false)}
+                style={{
+                  flex: 1, background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)',
+                  borderRadius: '8px', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 600,
+                  color: 'var(--text-secondary)', cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleClearPaymentMethod}
+                style={{
+                  flex: 1, background: 'var(--primary, #087A4A)', color: '#ffffff',
+                  border: 'none', borderRadius: '8px', padding: '0.65rem', fontSize: '0.85rem',
+                  fontWeight: 700, cursor: 'pointer'
+                }}
+              >
+                Yes, Clear Details
               </button>
             </div>
           </div>

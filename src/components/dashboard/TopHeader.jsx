@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Bell, 
@@ -9,40 +9,36 @@ import {
   User,
   Settings,
   LogOut,
-  CreditCard
+  CreditCard,
+  CheckCheck
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
+import { 
+  getStoredNotifications, 
+  markAllNotificationsRead, 
+  clearAllNotifications 
+} from '../../services/notificationStore';
 
 export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLogout, onNavigate }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsList, setNotificationsList] = useState(getStoredNotifications);
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'New Autonomous Order #KZ-1049',
-      desc: 'Marcus Vance confirmed Artisan Linen Overshirt ($89.00) via WhatsApp',
-      time: '2 mins ago',
-      unread: true
-    },
-    {
-      id: 2,
-      title: 'Human Handoff Request',
-      desc: 'Julian Bennett requested agent assistance regarding sizing on Facebook',
-      time: '48 mins ago',
-      unread: true
-    },
-    {
-      id: 3,
-      title: 'Shopify Inventory Synced',
-      desc: '48 products and stock numbers updated successfully',
-      time: '1 hour ago',
-      unread: false
-    }
-  ];
+  useEffect(() => {
+    const handleUpdate = () => {
+      setNotificationsList(getStoredNotifications());
+    };
+    window.addEventListener('kreazy_notification_update', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('kreazy_notification_update', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
 
+  const unreadCount = notificationsList.filter(n => n.unread).length;
   const isDemo = Boolean(user?.isDemo);
-  const activeNotifications = isDemo ? notifications : [];
+
 
   return (
     <header className="app-topbar">
@@ -86,8 +82,17 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
             aria-label="Notifications"
           >
             <Bell size={18} />
-            {activeNotifications.some(n => n.unread) && (
-              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e11d48' }}></span>
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute', top: '6px', right: '6px',
+                minWidth: '16px', height: '16px', borderRadius: '10px',
+                backgroundColor: '#e11d48', color: '#ffffff',
+                fontSize: '10px', fontWeight: 800, display: 'flex',
+                alignItems: 'center', justifyContent: 'center', padding: '0 3px',
+                boxShadow: '0 0 8px rgba(225, 29, 72, 0.6)'
+              }}>
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
             )}
           </button>
 
@@ -103,30 +108,101 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   position: 'absolute',
                   right: 0,
                   top: '46px',
-                  width: 'min(320px, calc(100vw - 2rem))',
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-medium)',
-                  borderRadius: 'var(--radius-lg)',
-                  boxShadow: 'var(--shadow-lg)',
+                  width: 'min(340px, calc(100vw - 2rem))',
+                  backgroundColor: 'var(--bg-card, #ffffff)',
+                  border: '1px solid var(--border-medium, #D9E9E1)',
+                  borderRadius: 'var(--radius-lg, 12px)',
+                  boxShadow: '0 12px 32px rgba(9, 42, 32, 0.12)',
                   zIndex: 850,
-                  padding: '0.75rem 0'
+                  padding: '0.75rem 0',
+                  overflow: 'hidden'
                 }}
               >
-                <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between', color: 'var(--text-primary)' }}>
-                  <span>Notifications</span>
-                  {activeNotifications.length > 0 && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--bright-olive)', cursor: 'pointer' }}>Mark all read</span>
+                <div style={{
+                  padding: '0.5rem 1rem 0.65rem',
+                  borderBottom: '1px solid var(--border-subtle, #E6F0EB)',
+                  fontWeight: 700, fontSize: '0.85rem',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  color: 'var(--text-primary)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                      <span style={{
+                        background: 'rgba(225, 29, 72, 0.12)', color: '#e11d48',
+                        padding: '1px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 800
+                      }}>
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  {notificationsList.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span 
+                        onClick={() => {
+                          const updated = markAllNotificationsRead();
+                          setNotificationsList(updated);
+                        }}
+                        style={{ fontSize: '0.72rem', color: 'var(--primary, #087A4A)', cursor: 'pointer', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '2px' }}
+                      >
+                        <CheckCheck size={12} /> Mark all read
+                      </span>
+                      <span 
+                        onClick={() => {
+                          const updated = clearAllNotifications();
+                          setNotificationsList(updated);
+                        }}
+                        style={{ fontSize: '0.72rem', color: 'var(--text-muted)', cursor: 'pointer' }}
+                      >
+                        Clear
+                      </span>
+                    </div>
                   )}
                 </div>
-                <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
-                  {activeNotifications.length > 0 ? (
-                    activeNotifications.map(n => (
-                      <div key={n.id} style={{ padding: '0.65rem 1rem', borderBottom: '1px solid var(--border-subtle)', backgroundColor: n.unread ? 'rgba(163, 230, 53, 0.05)' : 'transparent', cursor: 'pointer' }}>
-                        <div style={{ fontWeight: 600, fontSize: '0.825rem', marginBottom: '2px', color: 'var(--text-primary)' }}>{n.title}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>{n.desc}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{n.time}</div>
-                      </div>
-                    ))
+
+                <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
+                  {notificationsList.length > 0 ? (
+                    notificationsList.map(n => {
+                      const isPayment = n.type === 'payment' || n.title.toLowerCase().includes('payment');
+                      return (
+                        <div 
+                          key={n.id} 
+                          onClick={() => {
+                            if (n.link && onNavigateModule) {
+                              const moduleName = n.link.replace('/dashboard/', '');
+                              onNavigateModule(moduleName);
+                            }
+                            setNotificationsOpen(false);
+                          }}
+                          style={{
+                            padding: '0.75rem 1rem',
+                            borderBottom: '1px solid var(--border-subtle, #F0F6F3)',
+                            backgroundColor: n.unread ? 'rgba(8, 122, 74, 0.05)' : 'transparent',
+                            cursor: 'pointer',
+                            transition: 'background 0.15s ease'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                            {isPayment && (
+                              <span style={{ color: '#16a34a', flexShrink: 0, marginTop: '2px' }}>
+                                <CheckCircle size={15} />
+                              </span>
+                            )}
+                            <div style={{ flexGrow: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 700, fontSize: '0.825rem', marginBottom: '2px', color: 'var(--text-primary)' }}>
+                                {n.title}
+                              </div>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px', lineHeight: 1.4 }}>
+                                {n.desc}
+                              </div>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                {n.time}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
                   ) : (
                     <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                       No new notifications. Everything is ready.
