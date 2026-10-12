@@ -4,7 +4,8 @@ import {
   Bell, CreditCard, Key, AlertTriangle, Camera, Upload,
   Check, X, Eye, EyeOff, Copy, Trash2, Plus, RefreshCw,
   ExternalLink, ChevronRight, Info, CheckCircle2, Clock,
-  AlertCircle, Save, Loader2, Smartphone, Globe, Mail, Phone, LogOut
+  AlertCircle, Save, Loader2, Smartphone, Globe, Mail, Phone, LogOut,
+  Image as ImageIcon
 } from 'lucide-react';
 import { settingsService } from '../../services/api';
 import { Badge } from '../../components/common/Badge';
@@ -768,11 +769,6 @@ function ProfileSection({ user, onToast, onLogout }) {
             ]} />
           </Field>
         </div>
-
-        {/* In-form action bar */}
-        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
-          <SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Profile Changes" />
-        </div>
       </SettingsSection>
 
       {showAvatarModal && (
@@ -1507,14 +1503,6 @@ function SecuritySection({ onToast }) {
             }
           />
         </Field>
-
-        {/* Dedicated primary update button inside the card */}
-        <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <SaveButton saving={saving} saved={saved} onClick={handleChangePw} label="Update Password" icon={Lock} />
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Must be at least 8 characters
-          </span>
-        </div>
       </div>
     </SettingsSection>
   );
@@ -1667,10 +1655,6 @@ function NotificationsSection({ onToast }) {
           );
         })}
       </div>
-
-      <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'flex-end' }}>
-        <SaveButton saving={saving} saved={saved} onClick={handleSave} label="Save Notification Preferences" icon={Bell} />
-      </div>
     </SettingsSection>
   );
 }
@@ -1692,27 +1676,51 @@ function BillingSection({ user, onToast }) {
       return {
         name: planName,
         price: planName.includes('299') ? 299 : (planName.includes('49') ? 49 : 119),
+        priceBdt: planName.includes('299') ? 35880 : (planName.includes('49') ? 5880 : 14280),
         conversationsLimit: planName.includes('Scale') ? 25000 : (planName.includes('Starter') ? 1000 : 5000),
         conversationsUsed: 142,
         renewalDate: 'November 12, 2026',
-        paymentMethod: 'Visa ending in •••• 4242',
+        paymentMethod: 'bKash 01643792804 (Send money)',
+        paymentMethodType: 'BKASH',
+        senderNumber: '01643792804',
+        trxId: 'BL98XJ28K9',
+        screenshotUrl: null,
         invoices: [
-          { id: 'INV-2026-001', date: 'October 12, 2026', amount: '$119.00', status: 'Paid' }
+          {
+            id: 'INV-2026-001',
+            date: 'October 12, 2026',
+            amount: '$119.00 (৳14,280 BDT)',
+            status: 'Verified',
+            method: 'bKash 01643792804 (Send money)',
+            trxId: 'BL98XJ28K9',
+            senderNumber: '01643792804'
+          }
         ]
       };
     }
     return null;
   });
 
-  const [checkoutModal, setCheckoutModal] = useState(null); // { planName, price, limit }
+  const [checkoutModal, setCheckoutModal] = useState(null); // { id, name, price, conversations, etc. }
+  const [selectedMethod, setSelectedMethod] = useState('BKASH'); // 'BKASH' | 'NAGAD'
+  const [senderNumber, setSenderNumber] = useState('');
+  const [trxId, setTrxId] = useState('');
+  const [screenshotPreview, setScreenshotPreview] = useState(null);
+  const [screenshotName, setScreenshotName] = useState('');
+  const [copiedNumber, setCopiedNumber] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [viewScreenshotModal, setViewScreenshotModal] = useState(null);
+  const screenshotInputRef = useRef(null);
 
   const PLANS = [
     {
       id: 'starter',
       name: 'Starter Plan',
       price: 49,
+      priceBdt: 5880,
       period: '/ month',
       conversations: '1,000',
       conversationsNum: 1000,
@@ -1730,6 +1738,7 @@ function BillingSection({ user, onToast }) {
       id: 'growth',
       name: 'Growth Plan',
       price: 119,
+      priceBdt: 14280,
       period: '/ month',
       conversations: '5,000',
       conversationsNum: 5000,
@@ -1748,6 +1757,7 @@ function BillingSection({ user, onToast }) {
       id: 'scale',
       name: 'Scale Plan',
       price: 299,
+      priceBdt: 35880,
       period: '/ month',
       conversations: '25,000',
       conversationsNum: 25000,
@@ -1764,7 +1774,47 @@ function BillingSection({ user, onToast }) {
     }
   ];
 
+  const handleCopyNumber = () => {
+    navigator.clipboard?.writeText('01643792804').then(() => {
+      setCopiedNumber(true);
+      setTimeout(() => setCopiedNumber(false), 2500);
+    });
+  };
+
+  const handleScreenshotFile = (file) => {
+    setCheckoutError('');
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setCheckoutError('Please choose an image file (JPG, PNG, or WebP).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setCheckoutError('Screenshot must be smaller than 10 MB.');
+      return;
+    }
+    setScreenshotName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setScreenshotPreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleActivatePlan = (plan) => {
+    setCheckoutError('');
+    if (!senderNumber.trim()) {
+      setCheckoutError('Please enter the sender phone number (your bKash/Nagad account).');
+      return;
+    }
+    if (!trxId.trim()) {
+      setCheckoutError('Please enter the Transaction ID (TrxID) received from Send Money.');
+      return;
+    }
+    if (!screenshotPreview) {
+      setCheckoutError('Please upload your payment transaction screenshot before submitting.');
+      return;
+    }
+
     setProcessing(true);
     setTimeout(() => {
       const now = new Date();
@@ -1772,20 +1822,33 @@ function BillingSection({ user, onToast }) {
       nextMonth.setMonth(now.getMonth() + 1);
       const renewalStr = nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       const invoiceId = `INV-${now.getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
+      const priceBdt = Math.round(plan.price * 120);
+      const methodName = selectedMethod === 'NAGAD' ? 'Nagad' : 'bKash';
+      const formattedMethod = `${methodName} 01643792804 (Send money)`;
 
       const newSub = {
         name: plan.name,
         price: plan.price,
+        priceBdt: priceBdt,
         conversationsLimit: plan.conversationsNum,
         conversationsUsed: 0,
         renewalDate: renewalStr,
-        paymentMethod: 'Visa ending in •••• 4242',
+        paymentMethod: formattedMethod,
+        paymentMethodType: selectedMethod,
+        senderNumber: senderNumber.trim(),
+        trxId: trxId.trim().toUpperCase(),
+        screenshotUrl: screenshotPreview,
+        screenshotName: screenshotName || 'payment_screenshot.png',
         invoices: [
           {
             id: invoiceId,
             date: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-            amount: `$${plan.price}.00`,
-            status: 'Paid'
+            amount: `$${plan.price}.00 (৳${priceBdt.toLocaleString()} BDT)`,
+            status: 'Verified',
+            method: formattedMethod,
+            trxId: trxId.trim().toUpperCase(),
+            senderNumber: senderNumber.trim(),
+            screenshotUrl: screenshotPreview
           }
         ]
       };
@@ -1803,8 +1866,12 @@ function BillingSection({ user, onToast }) {
 
       setProcessing(false);
       setCheckoutModal(null);
-      if (onToast) onToast(`🎉 You have successfully subscribed to ${plan.name}!`, 'success');
-    }, 700);
+      setSenderNumber('');
+      setTrxId('');
+      setScreenshotPreview(null);
+      setScreenshotName('');
+      if (onToast) onToast(`🎉 Payment submitted! Your subscription to ${plan.name} is now active.`, 'success');
+    }, 750);
   };
 
   const handleCancelSubscription = () => {
@@ -1825,7 +1892,7 @@ function BillingSection({ user, onToast }) {
     <>
       <SettingsSection
         title="Subscription & Billing"
-        description="Manage your KreazyAI subscription plan, billing details, and monthly usage limits."
+        description="Manage your KreazyAI subscription plan, bKash / Nagad billing details, and monthly usage limits."
       >
         {activePlan ? (
           /* ===================================================================
@@ -1846,11 +1913,11 @@ function BillingSection({ user, onToast }) {
                     background: 'rgba(22,163,74,0.12)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.3)',
                     borderRadius: '100px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 700
                   }}>
-                    Active
+                    Active & Verified
                   </span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.83rem', color: 'var(--text-secondary, #52645D)' }}>
-                  Billed ${activePlan.price}/month • Next automatic renewal: <strong>{activePlan.renewalDate}</strong>
+                  Billed ${activePlan.price}/month (৳{(activePlan.priceBdt || activePlan.price * 120).toLocaleString()} BDT) • Next automatic renewal: <strong>{activePlan.renewalDate}</strong>
                 </p>
               </div>
 
@@ -1885,12 +1952,12 @@ function BillingSection({ user, onToast }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', marginBottom: '8px' }}>
                 <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Monthly Conversation Usage</span>
                 <span style={{ fontWeight: 700, color: 'var(--primary-dark)' }}>
-                  {activePlan.conversationsUsed.toLocaleString()} / {activePlan.conversationsLimit.toLocaleString()} used
+                  {(activePlan.conversationsUsed || 0).toLocaleString()} / {activePlan.conversationsLimit.toLocaleString()} used
                 </span>
               </div>
               <div style={{ height: '8px', background: 'var(--border-light, #E6F0EB)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{
-                  width: `${Math.max(2, (activePlan.conversationsUsed / activePlan.conversationsLimit) * 100)}%`,
+                  width: `${Math.max(2, ((activePlan.conversationsUsed || 0) / activePlan.conversationsLimit) * 100)}%`,
                   height: '100%', background: 'var(--primary, #087A4A)', borderRadius: '4px',
                   transition: 'width 0.3s ease'
                 }} />
@@ -1901,19 +1968,55 @@ function BillingSection({ user, onToast }) {
             </div>
 
             {/* Payment method card */}
-            <div style={{ padding: '1.25rem', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-light)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div style={{
+              padding: '1.25rem', background: 'var(--bg-card)', borderRadius: '12px',
+              border: '1px solid var(--border-light)', marginBottom: '1.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem'
+            }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--mint-soft)', border: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CreditCard size={20} color="var(--primary)" />
+                <div style={{
+                  width: '46px', height: '46px', borderRadius: '10px',
+                  background: activePlan.paymentMethodType === 'NAGAD' ? 'rgba(247, 147, 30, 0.12)' : 'rgba(226, 19, 110, 0.12)',
+                  border: `1.5px solid ${activePlan.paymentMethodType === 'NAGAD' ? 'rgba(247, 147, 30, 0.35)' : 'rgba(226, 19, 110, 0.35)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  <Smartphone size={22} color={activePlan.paymentMethodType === 'NAGAD' ? '#F7931E' : '#E2136E'} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{activePlan.paymentMethod}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Default payment method for auto-renewal</div>
+                  <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span>{activePlan.paymentMethod || 'Bkash/nagad 01643792804(Send money)'}</span>
+                    <span style={{ fontSize: '0.72rem', background: 'var(--mint-soft)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '100px', fontWeight: 700, border: '1px solid var(--border-medium)' }}>
+                      Send Money Verified
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '3px' }}>
+                    Sender Account: <strong>{activePlan.senderNumber || '01643792804'}</strong> • TrxID: <code style={{ background: 'var(--bg-subtle)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, color: 'var(--primary-dark)' }}>{activePlan.trxId || 'TRX-VERIFIED'}</code>
+                  </div>
                 </div>
               </div>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', background: 'var(--mint-soft)', padding: '4px 10px', borderRadius: '6px' }}>
-                Active & Verified
-              </span>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                {activePlan.screenshotUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setViewScreenshotModal({
+                      url: activePlan.screenshotUrl,
+                      plan: activePlan.name,
+                      trxId: activePlan.trxId,
+                      senderNumber: activePlan.senderNumber,
+                      amount: `$${activePlan.price} (৳${(activePlan.priceBdt || activePlan.price * 120).toLocaleString()} BDT)`
+                    })}
+                    style={{
+                      background: 'var(--mint-soft, #EFFBF5)', border: '1px solid var(--border-medium, #D9E9E1)',
+                      borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700,
+                      color: 'var(--primary, #087A4A)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <ImageIcon size={15} /> View Payment Screenshot
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Invoices List */}
@@ -1928,29 +2031,57 @@ function BillingSection({ user, onToast }) {
                       <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Invoice #</th>
                       <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Date</th>
                       <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Amount</th>
+                      <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Payment Method & TrxID</th>
                       <th style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Status</th>
                       <th style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {activePlan.invoices.map((inv) => (
+                    {(activePlan.invoices || []).map((inv) => (
                       <tr key={inv.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                         <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{inv.id}</td>
                         <td style={{ padding: '0.85rem 1rem', color: 'var(--text-muted)' }}>{inv.date}</td>
                         <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{inv.amount}</td>
+                        <td style={{ padding: '0.85rem 1rem', color: 'var(--text-secondary)' }}>
+                          <div>{inv.method || 'bKash/Nagad (01643792804)'}</div>
+                          {inv.trxId && <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>TrxID: {inv.trxId}</div>}
+                        </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
                           <span style={{ background: 'rgba(22,163,74,0.1)', color: '#16a34a', padding: '2px 8px', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 700 }}>
                             {inv.status}
                           </span>
                         </td>
                         <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
-                          <button
-                            type="button"
-                            onClick={() => onToast && onToast(`Downloaded receipt for ${inv.id}`, 'success')}
-                            style={{ background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary)' }}
-                          >
-                            Download PDF
-                          </button>
+                          <div style={{ display: 'inline-flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                            {inv.screenshotUrl && (
+                              <button
+                                type="button"
+                                onClick={() => setViewScreenshotModal({
+                                  url: inv.screenshotUrl,
+                                  plan: activePlan.name,
+                                  trxId: inv.trxId || activePlan.trxId,
+                                  senderNumber: inv.senderNumber || activePlan.senderNumber,
+                                  amount: inv.amount
+                                })}
+                                style={{
+                                  background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px',
+                                  padding: '4px 8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary)'
+                                }}
+                              >
+                                View Proof
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => onToast && onToast(`Downloaded receipt for ${inv.id}`, 'success')}
+                              style={{
+                                background: 'none', border: '1px solid var(--border-medium)', borderRadius: '6px',
+                                padding: '4px 10px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--primary)'
+                              }}
+                            >
+                              Download PDF
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1977,7 +2108,7 @@ function BillingSection({ user, onToast }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 marginBottom: '1rem', boxShadow: '0 4px 12px rgba(8, 122, 74, 0.12)'
               }}>
-                <CreditCard size={32} color="var(--primary, #087A4A)" />
+                <Smartphone size={32} color="var(--primary, #087A4A)" />
               </div>
 
               <span style={{
@@ -1992,8 +2123,8 @@ function BillingSection({ user, onToast }) {
                 No Active Paid Subscription
               </h4>
 
-              <p style={{ margin: '0 auto 1.5rem', maxWidth: '520px', fontSize: '0.88rem', color: 'var(--text-secondary, #52645D)', lineHeight: 1.55 }}>
-                You have not purchased a KreazyAI subscription plan yet. Your workspace is currently on the free trial mode. When you subscribe to a plan, your billing cycle, conversation meter, and tax invoices will appear right here.
+              <p style={{ margin: '0 auto 1.5rem', maxWidth: '540px', fontSize: '0.88rem', color: 'var(--text-secondary, #52645D)', lineHeight: 1.55 }}>
+                You have not purchased a KreazyAI subscription plan yet. Your workspace is currently on the free trial mode. Payments are accepted via <strong>bKash / Nagad 01643792804 (Send money)</strong> with instant screenshot verification.
               </p>
 
               <button
@@ -2018,7 +2149,7 @@ function BillingSection({ user, onToast }) {
                   Select a Plan for Your Business
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                  Upgrade anytime to unlock higher AI conversation volumes and dedicated multi-channel features.
+                  Upgrade anytime using bKash / Nagad to unlock higher AI conversation volumes and dedicated multi-channel features.
                 </p>
               </div>
 
@@ -2057,11 +2188,14 @@ function BillingSection({ user, onToast }) {
                         {plan.description}
                       </p>
 
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '1.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '4px' }}>
                         <span style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--primary-dark, #092A20)' }}>
                           ${plan.price}
                         </span>
                         <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{plan.period}</span>
+                      </div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary, #087A4A)', marginBottom: '1.25rem' }}>
+                        ৳{plan.priceBdt.toLocaleString()} BDT / month
                       </div>
 
                       <div style={{ flexGrow: 1, marginBottom: '1.5rem' }}>
@@ -2091,7 +2225,7 @@ function BillingSection({ user, onToast }) {
                           boxShadow: isFeatured ? '0 2px 8px rgba(8, 122, 74, 0.25)' : 'none'
                         }}
                       >
-                        Subscribe to {plan.name.replace(' Plan', '')}
+                        Subscribe via bKash / Nagad
                       </button>
                     </div>
                   );
@@ -2113,7 +2247,7 @@ function BillingSection({ user, onToast }) {
                   No Invoices Available
                 </p>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Invoices will be automatically generated and made available for PDF download once your first subscription payment is processed.
+                  Invoices and verification receipts will be automatically generated and made available here once you subscribe.
                 </p>
               </div>
             </div>
@@ -2122,74 +2256,317 @@ function BillingSection({ user, onToast }) {
       </SettingsSection>
 
       {/* =====================================================================
-         CHECKOUT & ACTIVATION MODAL
+         CHECKOUT & ACTIVATION MODAL (bKash / Nagad 01643792804 Send money)
          ===================================================================== */}
       {checkoutModal && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.65)', backdropFilter: 'blur(3px)',
-          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.7)', backdropFilter: 'blur(4px)',
+          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+          overflowY: 'auto'
         }} onClick={() => !processing && setCheckoutModal(null)}>
           <div
             style={{
-              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '480px', width: '100%',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden'
+              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '520px', width: '100%',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden', margin: 'auto'
             }}
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div style={{
               padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-light)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--mint-soft)'
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--mint-soft, #EFFBF5)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <CreditCard size={18} color="var(--primary)" />
-                <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--primary-dark)' }}>
-                  Confirm Subscription
-                </span>
+                <Smartphone size={20} color="var(--primary, #087A4A)" />
+                <div>
+                  <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--primary-dark, #092A20)', display: 'block', lineHeight: 1.2 }}>
+                    Subscribe to {checkoutModal.name}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    bKash / Nagad Send Money Gateway
+                  </span>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setCheckoutModal(null)}
                 disabled={processing}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
               >
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '1.5rem' }}>
-              <div style={{ padding: '1rem', background: 'var(--mint-soft)', borderRadius: '10px', border: '1px solid var(--border-medium)', marginBottom: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--primary-dark)' }}>{checkoutModal.name}</span>
-                  <span style={{ fontWeight: 900, fontSize: '1.2rem', color: 'var(--primary)' }}>${checkoutModal.price}/mo</span>
+            <div style={{ padding: '1.5rem', maxHeight: 'calc(90vh - 80px)', overflowY: 'auto' }}>
+              {/* Plan Summary Banner */}
+              <div style={{
+                padding: '0.9rem 1.15rem', background: 'var(--mint-soft, #EFFBF5)', borderRadius: '10px',
+                border: '1px solid var(--border-medium, #D9E9E1)', marginBottom: '1.25rem',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+              }}>
+                <div>
+                  <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--primary-dark)' }}>{checkoutModal.name}</span>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                    {checkoutModal.conversations} autonomous conversations / mo
+                  </p>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                  Includes {checkoutModal.conversations} autonomous conversations / month. Renews automatically monthly.
-                </p>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 900, fontSize: '1.25rem', color: 'var(--primary, #087A4A)' }}>
+                    ${checkoutModal.price}/mo
+                  </div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-dark)' }}>
+                    ৳{(checkoutModal.price * 120).toLocaleString()} BDT
+                  </div>
+                </div>
               </div>
 
-              {/* Payment details simulation */}
+              {/* Payment Method Selector Tabs */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  Select Payment Method:
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedMethod('BKASH'); setCheckoutError(''); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                      padding: '0.75rem 0.5rem', borderRadius: '10px', cursor: 'pointer',
+                      border: selectedMethod === 'BKASH' ? '2px solid #E2136E' : '1px solid var(--border-medium)',
+                      background: selectedMethod === 'BKASH' ? 'rgba(226, 19, 110, 0.08)' : 'var(--bg-subtle)',
+                      color: selectedMethod === 'BKASH' ? '#E2136E' : 'var(--text-secondary)',
+                      fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span style={{
+                      width: '18px', height: '18px', borderRadius: '50%',
+                      background: selectedMethod === 'BKASH' ? '#E2136E' : '#9ca3af',
+                      color: '#fff', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800
+                    }}>৳</span>
+                    bKash (Send money)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedMethod('NAGAD'); setCheckoutError(''); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                      padding: '0.75rem 0.5rem', borderRadius: '10px', cursor: 'pointer',
+                      border: selectedMethod === 'NAGAD' ? '2px solid #F7931E' : '1px solid var(--border-medium)',
+                      background: selectedMethod === 'NAGAD' ? 'rgba(247, 147, 30, 0.08)' : 'var(--bg-subtle)',
+                      color: selectedMethod === 'NAGAD' ? '#F7931E' : 'var(--text-secondary)',
+                      fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span style={{
+                      width: '18px', height: '18px', borderRadius: '50%',
+                      background: selectedMethod === 'NAGAD' ? '#F7931E' : '#9ca3af',
+                      color: '#fff', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800
+                    }}>৳</span>
+                    Nagad (Send money)
+                  </button>
+                </div>
+              </div>
+
+              {/* Bkash / Nagad Send Money Target Card */}
+              <div style={{
+                padding: '1rem 1.15rem', borderRadius: '12px',
+                background: selectedMethod === 'NAGAD' ? 'rgba(247, 147, 30, 0.06)' : 'rgba(226, 19, 110, 0.06)',
+                border: `1.5px solid ${selectedMethod === 'NAGAD' ? 'rgba(247, 147, 30, 0.3)' : 'rgba(226, 19, 110, 0.3)'}`,
+                marginBottom: '1.25rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{
+                    fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px',
+                    color: selectedMethod === 'NAGAD' ? '#C26A00' : '#B00E53'
+                  }}>
+                    {selectedMethod === 'NAGAD' ? 'Nagad' : 'bKash'} Personal (Send money)
+                  </span>
+                  <span style={{
+                    fontSize: '0.72rem', background: '#ffffff', padding: '2px 8px', borderRadius: '100px',
+                    fontWeight: 700, color: 'var(--text-primary)', border: '1px solid var(--border-medium)'
+                  }}>
+                    Send Money Only
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Smartphone size={20} color={selectedMethod === 'NAGAD' ? '#F7931E' : '#E2136E'} />
+                    <span style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '1px', color: 'var(--primary-dark, #092A20)' }}>
+                      01643792804
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyNumber}
+                    style={{
+                      background: copiedNumber ? 'var(--mint, #DDF7E9)' : '#ffffff',
+                      color: copiedNumber ? 'var(--primary, #087A4A)' : 'var(--text-primary)',
+                      border: copiedNumber ? '1px solid var(--green, #0FA968)' : '1px solid var(--border-medium)',
+                      borderRadius: '8px', padding: '5px 12px', fontSize: '0.78rem', fontWeight: 700,
+                      cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {copiedNumber ? <><Check size={13} /> Copied!</> : <><Copy size={13} /> Copy Number</>}
+                  </button>
+                </div>
+
+                <div style={{ marginTop: '0.75rem', paddingTop: '0.65rem', borderTop: '1px dashed rgba(0,0,0,0.1)', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  Amount to Send: <strong>৳{(checkoutModal.price * 120).toLocaleString()} BDT</strong> (${checkoutModal.price} USD)
+                </div>
+              </div>
+
+              {/* Instructions steps */}
+              <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1rem', background: 'var(--bg-subtle)', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
+                <p style={{ margin: '0 0 6px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  How to complete payment:
+                </p>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.76rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                  <li>Open your <strong>{selectedMethod === 'NAGAD' ? 'Nagad' : 'bKash'}</strong> app and select <strong>Send Money (সেন্ড মানি)</strong>.</li>
+                  <li>Enter number <strong>01643792804</strong> and send <strong>৳{(checkoutModal.price * 120).toLocaleString()} BDT</strong>.</li>
+                  <li>Save a screenshot of the successful transaction confirmation.</li>
+                  <li>Enter your sender number, Transaction ID (TrxID), and upload your transaction screenshot below.</li>
+                </ol>
+              </div>
+
+              {/* Sender Details Form */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
+                    Your {selectedMethod === 'NAGAD' ? 'Nagad' : 'bKash'} Sender Number <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <TextInput
+                    value={senderNumber}
+                    onChange={e => setSenderNumber(e.target.value)}
+                    placeholder="e.g. 017XXXXXXXX or 016XXXXXXXX"
+                    suffix={<Smartphone size={15} color="var(--text-muted)" />}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
+                    Transaction ID (TrxID) <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <TextInput
+                    value={trxId}
+                    onChange={e => setTrxId(e.target.value)}
+                    placeholder="e.g. BL98XJ28K9"
+                    suffix={<Key size={15} color="var(--text-muted)" />}
+                  />
+                </div>
+              </div>
+
+              {/* Transaction Picture Choosing Section (Upload Screenshot) */}
               <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
-                  Payment Method
+                  Payment Screenshot Proof <span style={{ color: '#dc2626' }}>*</span>
                 </label>
-                <div style={{
-                  padding: '0.75rem 1rem', border: '1px solid var(--border-medium)', borderRadius: '8px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-subtle)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <CreditCard size={16} color="var(--primary)" />
-                    <span style={{ fontSize: '0.83rem', fontWeight: 600 }}>Visa Card ending in •••• 4242</span>
+
+                {screenshotPreview ? (
+                  <div style={{
+                    padding: '0.85rem', borderRadius: '10px',
+                    border: '1.5px solid var(--border-strong, #AEEBCB)',
+                    background: 'var(--mint-soft, #EFFBF5)',
+                    display: 'flex', alignItems: 'center', gap: '0.85rem'
+                  }}>
+                    <div style={{
+                      width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden',
+                      border: '1px solid var(--border-medium)', background: '#fff', flexShrink: 0
+                    }}>
+                      <img
+                        src={screenshotPreview}
+                        alt="Payment Screenshot Preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+
+                    <div style={{ flexGrow: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '2px' }}>
+                        <CheckCircle2 size={14} color="#16a34a" />
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#16a34a' }}>Screenshot Attached</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {screenshotName || 'Transaction_screenshot.png'}
+                      </p>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => screenshotInputRef.current?.click()}
+                          style={{
+                            background: 'none', border: 'none', padding: 0, fontSize: '0.75rem',
+                            fontWeight: 700, color: 'var(--primary, #087A4A)', cursor: 'pointer', textDecoration: 'underline'
+                          }}
+                        >
+                          Change Screenshot
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setScreenshotPreview(null); setScreenshotName(''); }}
+                          style={{
+                            background: 'none', border: 'none', padding: 0, fontSize: '0.75rem',
+                            fontWeight: 700, color: '#dc2626', cursor: 'pointer', textDecoration: 'underline'
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Exp 08/29</span>
+                ) : (
+                  <div
+                    onDragEnter={() => setIsDragging(true)}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => {
+                      e.preventDefault();
+                      setIsDragging(false);
+                      const f = e.dataTransfer.files?.[0];
+                      if (f) handleScreenshotFile(f);
+                    }}
+                    onClick={() => screenshotInputRef.current?.click()}
+                    style={{
+                      border: `2px dashed ${isDragging ? 'var(--primary, #087A4A)' : 'var(--border-medium, #D9E9E1)'}`,
+                      borderRadius: '10px', padding: '1.25rem 1rem', textAlign: 'center', cursor: 'pointer',
+                      background: isDragging ? 'rgba(8, 122, 74, 0.05)' : 'var(--bg-subtle, #EFFBF5)',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <Upload size={24} color="var(--primary, #087A4A)" style={{ marginBottom: '4px' }} />
+                    <p style={{ margin: '0 0 4px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      Click or drag & drop payment screenshot here
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                      Upload transaction screenshot • JPG, PNG, WebP (Max 10 MB)
+                    </p>
+                  </div>
+                )}
+
+                <input
+                  ref={screenshotInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  style={{ display: 'none' }}
+                  onChange={e => e.target.files?.[0] && handleScreenshotFile(e.target.files[0])}
+                />
+              </div>
+
+              {/* Error Banner */}
+              {checkoutError && (
+                <div style={{
+                  padding: '0.75rem 1rem', background: 'rgba(220,38,38,0.08)',
+                  border: '1px solid rgba(220,38,38,0.25)', borderRadius: '8px',
+                  marginBottom: '1.25rem', color: '#dc2626', fontSize: '0.78rem',
+                  display: 'flex', alignItems: 'center', gap: '0.45rem', fontWeight: 600
+                }}>
+                  <AlertCircle size={15} style={{ flexShrink: 0 }} /> {checkoutError}
                 </div>
-              </div>
+              )}
 
-              <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-                By clicking Confirm, you agree to the KreazyAI terms of service. You may cancel your subscription at any time with one click from this dashboard.
-              </div>
-
+              {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button
                   type="button"
@@ -2216,12 +2593,86 @@ function BillingSection({ user, onToast }) {
                   }}
                 >
                   {processing ? (
-                    <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</>
+                    <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Verifying Payment…</>
                   ) : (
-                    <><CheckCircle2 size={15} /> Confirm & Subscribe (${checkoutModal.price}/mo)</>
+                    <><CheckCircle2 size={15} /> Submit Payment & Activate</>
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+         VIEW PAYMENT SCREENSHOT MODAL
+         ===================================================================== */}
+      {viewScreenshotModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.75)', backdropFilter: 'blur(4px)',
+          zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }} onClick={() => setViewScreenshotModal(null)}>
+          <div
+            style={{
+              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '500px', width: '100%',
+              padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', margin: 'auto'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Payment Transaction Screenshot Proof
+                </h4>
+                <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Recipient: bKash/Nagad 01643792804 (Send money)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewScreenshotModal(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{
+              borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-medium)',
+              marginBottom: '1rem', background: '#000', maxHeight: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <img
+                src={viewScreenshotModal.url}
+                alt="Payment proof screenshot"
+                style={{ maxWidth: '100%', maxHeight: '380px', objectFit: 'contain' }}
+              />
+            </div>
+
+            <div style={{
+              padding: '0.75rem', background: 'var(--mint-soft, #EFFBF5)', borderRadius: '8px',
+              border: '1px solid var(--border-medium)', fontSize: '0.78rem', color: 'var(--text-secondary)',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem'
+            }}>
+              <div>
+                Sender: <strong>{viewScreenshotModal.senderNumber || '01643792804'}</strong>
+              </div>
+              <div>
+                TrxID: <code style={{ fontWeight: 800, color: 'var(--primary-dark)' }}>{viewScreenshotModal.trxId || 'TRX-VERIFIED'}</code>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setViewScreenshotModal(null)}
+                style={{
+                  background: 'var(--primary, #087A4A)', color: '#ffffff',
+                  border: 'none', borderRadius: '8px', padding: '0.55rem 1.25rem',
+                  fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer'
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
