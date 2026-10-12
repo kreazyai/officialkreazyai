@@ -1,104 +1,84 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Sparkles, ShieldCheck, Zap, MessageSquare } from 'lucide-react';
+import { CheckCircle2, Sparkles, ShieldCheck, Zap, Smartphone } from 'lucide-react';
 
 export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
-  const [currency, setCurrency] = useState('BDT'); // 'BDT' | 'USD' | 'EUR'
+  const [currency, setCurrency] = useState('USD'); // Default 'USD' to match screenshot ($49, $119, $299 with ৳ BDT underneath)
   const [isAnnual, setIsAnnual] = useState(false);
 
   const plans = [
     {
-      id: 'trial',
-      name: 'Trial plan',
-      bdtMonthly: 4999,
-      bdtAnnual: 3999,
+      id: 'starter',
+      name: 'Starter Plan',
+      bdtMonthly: 5880,
+      bdtAnnual: 4700,
       usdMonthly: 49,
       usdAnnual: 39,
       eurMonthly: 45,
-      eurAnnual: 35,
-      teamText: 'Growing teams up to 03 users.',
+      eurAnnual: 36,
+      teamText: 'Ideal for emerging merchants automating their first WhatsApp store channel.',
       isPopular: false,
-      ctaText: 'Chat to sales',
+      badge: null,
+      ctaText: 'Subscribe via bKash / Nagad',
       ctaVariant: 'secondary',
       features: [
-        '6,600 AI message credits included',
-        'Facebook, Instagram & WhatsApp connected',
-        'Auto-reply to post comments & send private DMs',
-        'Live chat widget for your website or store',
-        'AI understands customer photos & product screenshots',
-        'Voice note understanding in Bangla & English',
-        'Unified shared inbox for all customer chats',
-        'Bangla, Banglish & English conversational replies',
-        'Automatic customer lead capture & contact saving',
-        'In-chat order placement with address & phone check',
-        'Team member handoff & moderator controls (up to 3 users)',
-        'Clear sales & message campaign performance reports',
-        'Promotional broadcast messaging to customers'
+        '1,000 autonomous AI conversations / mo',
+        '1 Connected WhatsApp Business account',
+        'Real-time catalog & inventory sync',
+        'Basic order capture & CRM storage',
+        'Standard email & community support'
       ]
     },
     {
-      id: 'standard',
-      name: 'Standard plan',
-      badge: 'Popular',
-      bdtMonthly: 12500,
-      bdtAnnual: 9990,
+      id: 'growth',
+      name: 'Growth Plan',
+      badge: 'Most Popular',
+      bdtMonthly: 14280,
+      bdtAnnual: 11420,
       usdMonthly: 119,
       usdAnnual: 95,
       eurMonthly: 109,
-      eurAnnual: 89,
-      teamText: 'Growing teams up to 05 users.',
+      eurAnnual: 87,
+      teamText: 'Built for scaling retail brands requiring multi-channel AI automation.',
       isPopular: true,
-      ctaText: 'Chat to sales',
+      ctaText: 'Subscribe via bKash / Nagad',
       ctaVariant: 'primary',
       features: [
-        '18,000 AI message credits included',
-        'Facebook, Instagram & WhatsApp connected',
-        'Auto-reply to post comments & send private DMs',
-        'Live webchat & full website store integration',
-        'Advanced product photo & receipt recognition',
-        'Voice note understanding in Bangla & English',
-        'Unified shared inbox with smart customer tagging',
-        'Bangla, Banglish & English conversational replies',
-        'Automatic customer lead capture & CRM synchronization',
-        'In-chat order placement with live stock & catalog lookup',
-        'Advanced team handoff & moderator permissions (up to 5 users)',
-        'Real-time sales conversion & campaign analytics reports',
-        'Targeted promotional broadcast messaging campaigns'
+        '5,000 autonomous AI conversations / mo',
+        'WhatsApp + Instagram + Messenger omnichannel',
+        'Autonomous order placement & cart checkout',
+        'AI sizing, discount & delivery advice',
+        'Priority 24/7 AI Copilot support',
+        'Dedicated webhook & Shopify/Woo sync'
       ]
     },
     {
-      id: 'pro',
-      name: 'Pro plan',
-      bdtMonthly: 26000,
-      bdtAnnual: 20800,
-      usdMonthly: 249,
-      usdAnnual: 199,
-      eurMonthly: 229,
-      eurAnnual: 185,
-      teamText: 'Growing teams up to 10 users.',
+      id: 'scale',
+      name: 'Scale Plan',
+      badge: 'High Volume',
+      bdtMonthly: 35880,
+      bdtAnnual: 28700,
+      usdMonthly: 299,
+      usdAnnual: 239,
+      eurMonthly: 275,
+      eurAnnual: 220,
+      teamText: 'Enterprise-grade speed and custom fine-tuned agents for high-volume stores.',
       isPopular: false,
-      ctaText: 'Chat to sales',
+      ctaText: 'Subscribe via bKash / Nagad',
       ctaVariant: 'secondary',
       features: [
-        '40,000 AI message credits included',
-        'Facebook, Instagram & WhatsApp connected',
-        'Priority auto-reply to comments & viral post spikes',
-        'Full website, online store & custom API integration',
-        'Enterprise photo, document & catalog recognition',
-        'High-accuracy voice message transcription & instant answers',
-        'High-capacity omnichannel inbox with automated routing',
-        'Full multilingual understanding with custom brand tone',
-        'Comprehensive lead management & automated follow-ups',
-        'High-volume in-chat order processing & batch export',
-        'Full team role permissions & audit logs (up to 10 users)',
-        'In-depth campaign performance & revenue ROI reports',
-        'High-speed priority broadcast messaging with VIP delivery'
+        '25,000 autonomous AI conversations / mo',
+        'Unlimited social channels & team seats',
+        'Custom fine-tuned AI prompts & catalog training',
+        'Dedicated SLA & 99.9% uptime guarantee',
+        'Dedicated customer success manager',
+        'Custom ERP & payment gateway integrations'
       ]
     }
   ];
 
   const handlePlanAction = (planId) => {
     if (onNavigate) {
-      onNavigate('contact');
+      onNavigate('signup');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -130,9 +110,9 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
 
           {/* Currency & Billing Cycle Toggles Row */}
           <div className="pricing-controls-row">
-            {/* Currency Selector: BDT | USD | EUR (Pure text, no emojis or symbols) */}
+            {/* Currency Selector: USD | BDT | EUR */}
             <div className="pricing-currency-selector" role="group" aria-label="Select currency">
-              {['BDT', 'USD', 'EUR'].map((curr) => (
+              {['USD', 'BDT', 'EUR'].map((curr) => (
                 <button
                   key={curr}
                   type="button"
@@ -168,18 +148,23 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
         {/* Pricing Cards Grid (3 Columns) */}
         <div className="pricing-suite-grid">
           {plans.map((p) => {
-            let priceFormatted = '';
+            let primaryPrice = '';
+            let secondaryConverted = '';
+            const bdtVal = isAnnual ? p.bdtAnnual : p.bdtMonthly;
+            const usdVal = isAnnual ? p.usdAnnual : p.usdMonthly;
+            const eurVal = isAnnual ? p.eurAnnual : p.eurMonthly;
+
             if (currency === 'BDT') {
-              const priceVal = isAnnual ? p.bdtAnnual : p.bdtMonthly;
-              priceFormatted = `৳${priceVal.toLocaleString()}`;
+              primaryPrice = `৳${bdtVal.toLocaleString()}`;
+              secondaryConverted = `$${usdVal} USD / month`;
             } else if (currency === 'EUR') {
-              const priceVal = isAnnual ? p.eurAnnual : p.eurMonthly;
-              priceFormatted = `€${priceVal}`;
+              primaryPrice = `€${eurVal}`;
+              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT / month`;
             } else {
-              const priceVal = isAnnual ? p.usdAnnual : p.usdMonthly;
-              priceFormatted = `$${priceVal}`;
+              primaryPrice = `$${usdVal}`;
+              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT / month`;
             }
-            const periodLabel = isAnnual ? 'per month (billed annually)' : 'per month';
+            const periodLabel = isAnnual ? '/ month (billed annually)' : '/ month';
 
             return (
               <div
@@ -195,13 +180,21 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                     )}
                   </div>
 
+                  <div className="pricing-suite-team-desc">
+                    {p.teamText}
+                  </div>
+
                   <div className="pricing-suite-price-row">
-                    <span className="pricing-suite-price-val">{priceFormatted}</span>
+                    <span className="pricing-suite-price-val">{primaryPrice}</span>
                     <span className="pricing-suite-price-period">{periodLabel}</span>
                   </div>
 
-                  <div className="pricing-suite-team-desc">
-                    {p.teamText}
+                  {/* Converted BDT / USD price matching the dashboard screenshot */}
+                  <div style={{
+                    fontSize: '0.88rem', fontWeight: 750, color: 'var(--primary, #087A4A)',
+                    marginTop: '2px', marginBottom: '1.25rem'
+                  }}>
+                    {secondaryConverted}
                   </div>
 
                   <div className="pricing-suite-cta-wrap">
@@ -210,7 +203,7 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                       className={`pricing-suite-cta-btn ${p.ctaVariant}`}
                       onClick={() => handlePlanAction(p.id)}
                     >
-                      <MessageSquare size={16} />
+                      <Smartphone size={16} />
                       {p.ctaText}
                     </button>
                     <span 
@@ -218,15 +211,15 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                       onClick={handleDirectSignUp}
                       title="Create an account directly"
                     >
-                      or Start Free Trial &rarr;
+                      or Start 7-Day Free Trial &rarr;
                     </span>
                   </div>
                 </div>
 
                 {/* Features Divider & Section */}
                 <div className="pricing-suite-features-block">
-                  <div className="pricing-suite-features-heading">
-                    FEATURES
+                  <div className="pricing-suite-features-heading" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    WHAT'S INCLUDED:
                   </div>
 
                   <ul className="pricing-suite-features-list">
@@ -258,7 +251,7 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
           </div>
           <div className="pricing-suite-trust-item">
             <Sparkles size={18} color="var(--bright-olive)" />
-            <span>Cancel or switch plans anytime</span>
+            <span>bKash & Nagad 01643792804 supported</span>
           </div>
         </div>
       </div>

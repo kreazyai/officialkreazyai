@@ -13,38 +13,72 @@ export const PLAN_CONFIG = {
     priceUsdMonthly: 0,
     priceBdtMonthly: 0
   },
-  trial: {
-    id: 'trial',
-    name: 'Trial plan',
-    credits: 6600,
+  starter: {
+    id: 'starter',
+    name: 'Starter Plan',
+    credits: 5000,
     costPerReply: 5,
-    maxReplies: 1320,
+    maxReplies: 1000,
     priceUsdMonthly: 49,
     priceUsdAnnual: 39,
-    priceBdtMonthly: 4999,
-    priceBdtAnnual: 3999
+    priceBdtMonthly: 5880,
+    priceBdtAnnual: 4700
   },
-  standard: {
-    id: 'standard',
-    name: 'Standard plan',
-    credits: 18000,
+  growth: {
+    id: 'growth',
+    name: 'Growth Plan',
+    credits: 25000,
     costPerReply: 5,
-    maxReplies: 3600,
+    maxReplies: 5000,
     priceUsdMonthly: 119,
     priceUsdAnnual: 95,
-    priceBdtMonthly: 12500,
-    priceBdtAnnual: 9990
+    priceBdtMonthly: 14280,
+    priceBdtAnnual: 11420
+  },
+  scale: {
+    id: 'scale',
+    name: 'Scale Plan',
+    credits: 125000,
+    costPerReply: 5,
+    maxReplies: 25000,
+    priceUsdMonthly: 299,
+    priceUsdAnnual: 239,
+    priceBdtMonthly: 35880,
+    priceBdtAnnual: 28700
+  },
+  // Backward compatibility aliases
+  trial: {
+    id: 'starter',
+    name: 'Starter Plan',
+    credits: 5000,
+    costPerReply: 5,
+    maxReplies: 1000,
+    priceUsdMonthly: 49,
+    priceUsdAnnual: 39,
+    priceBdtMonthly: 5880,
+    priceBdtAnnual: 4700
+  },
+  standard: {
+    id: 'growth',
+    name: 'Growth Plan',
+    credits: 25000,
+    costPerReply: 5,
+    maxReplies: 5000,
+    priceUsdMonthly: 119,
+    priceUsdAnnual: 95,
+    priceBdtMonthly: 14280,
+    priceBdtAnnual: 11420
   },
   pro: {
-    id: 'pro',
-    name: 'Pro plan',
-    credits: 40000,
+    id: 'scale',
+    name: 'Scale Plan',
+    credits: 125000,
     costPerReply: 5,
-    maxReplies: 8000,
-    priceUsdMonthly: 249,
-    priceUsdAnnual: 199,
-    priceBdtMonthly: 26000,
-    priceBdtAnnual: 20800
+    maxReplies: 25000,
+    priceUsdMonthly: 299,
+    priceUsdAnnual: 239,
+    priceBdtMonthly: 35880,
+    priceBdtAnnual: 28700
   }
 };
 
