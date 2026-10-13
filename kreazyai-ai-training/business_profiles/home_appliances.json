@@ -1,0 +1,46 @@
+{
+  "tenant_id": "tenant_appliances_07",
+  "business_name": "ElectroHome Appliances",
+  "vertical": "Home & Kitchen Appliances",
+  "brand_tone": "Household-friendly, reassuring, utility-focused",
+  "primary_channels": ["WhatsApp", "Facebook Messenger", "Website Live Chat"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "EH-AF-01",
+      "name": "Digital Touchscreen Air Fryer (6.5 Litre XXL)",
+      "category": "Cooking",
+      "price": 6800,
+      "stock_status": "in_stock",
+      "stock_quantity": 24,
+      "specs": "1800W TurboAir 360°, 8 Preset Menus, Non-Stick Dishwasher Safe Basket",
+      "warranty": "1 Year Official Service Warranty",
+      "max_discount_allowed_pct": 8
+    },
+    {
+      "sku": "EH-VAC-02",
+      "name": "Smart Cyclone Cordless Stick Vacuum Cleaner",
+      "category": "Home Cleaning",
+      "price": 9200,
+      "stock_status": "in_stock",
+      "stock_quantity": 16,
+      "specs": "25000Pa Suction Power, 5-Stage HEPA Filtration, 50min Runtime Battery",
+      "warranty": "1 Year Motor Warranty",
+      "max_discount_allowed_pct": 5
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 48 hours",
+    "delivery_outside_dhaka": "48 to 72 hours",
+    "fee_inside_dhaka": 100,
+    "fee_outside_dhaka": 220,
+    "cash_on_delivery": true,
+    "return_policy": "7 days return if unboxing video shows technical fault",
+    "refund_policy": "Full refund if replacement unit is unavailable"
+  },
+  "escalation_rules": {
+    "max_discount_cap": 8,
+    "urgent_complaint_triggers": ["electric shock", "smoke from motor", "dead appliance", "damaged heating coil"],
+    "critical_triggers": ["fire incident", "burn injury", "safety lawsuit", "consumer fraud case"]
+  }
+}

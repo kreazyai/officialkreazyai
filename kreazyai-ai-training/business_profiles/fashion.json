@@ -1,0 +1,74 @@
+{
+  "tenant_id": "tenant_fashion_01",
+  "business_name": "Aura Threads",
+  "vertical": "Fashion & Apparel",
+  "brand_tone": "Warm, polite, consultative, fashionable",
+  "primary_channels": ["WhatsApp", "Instagram Direct", "Facebook Messenger"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "AT-PAN-01",
+      "name": "Royal Emerald Semi-Kaptan Panjabi",
+      "category": "Ethnic Wear",
+      "price": 2650,
+      "stock_status": "in_stock",
+      "stock_quantity": 42,
+      "available_sizes": ["M", "L", "XL", "XXL"],
+      "colors": ["Emerald Green", "Midnight Black", "Ivory White"],
+      "fabric": "100% Premium Combed Cotton with Jacquard Texture",
+      "max_discount_allowed_pct": 10
+    },
+    {
+      "sku": "AT-TEE-02",
+      "name": "Heavyweight Oversized Minimalist Tee",
+      "category": "Casual Wear",
+      "price": 850,
+      "stock_status": "in_stock",
+      "stock_quantity": 88,
+      "available_sizes": ["S", "M", "L", "XL"],
+      "colors": ["Onyx Black", "Sage Green", "Charcoal Grey"],
+      "fabric": "240 GSM Pre-shrunk Organic Cotton",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "AT-SAR-03",
+      "name": "Soft Jamdani Motif Cotton Saree",
+      "category": "Traditional Wear",
+      "price": 3800,
+      "stock_status": "in_stock",
+      "stock_quantity": 18,
+      "available_sizes": ["Free Size (with Unstitched Blouse Piece)"],
+      "colors": ["Powder Blue with Silver Zari", "Beige with Maroon Motif"],
+      "fabric": "Handloom Cotton Jamdani Blend",
+      "max_discount_allowed_pct": 8
+    },
+    {
+      "sku": "AT-HOD-04",
+      "name": "Winter Drop-Shoulder Fleece Hoodie",
+      "category": "Winterwear",
+      "price": 1750,
+      "stock_status": "out_of_stock",
+      "stock_quantity": 0,
+      "available_sizes": ["M", "L", "XL"],
+      "colors": ["Vintage Olive", "Jet Black"],
+      "fabric": "360 GSM Brushed Cotton Fleece",
+      "max_discount_allowed_pct": 0,
+      "restock_eta": "Next week Thursday"
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 48 hours",
+    "delivery_outside_dhaka": "48 to 72 hours",
+    "fee_inside_dhaka": 70,
+    "fee_outside_dhaka": 130,
+    "cash_on_delivery": true,
+    "return_policy": "7 days easy exchange if tags are attached and unworn",
+    "refund_policy": "Full refund within 5 business days via bKash if product is defective or wrong size delivered",
+    "advance_required": false
+  },
+  "escalation_rules": {
+    "max_discount_cap": 10,
+    "urgent_complaint_triggers": ["fake product", "damaged dress", "stain on fabric", "vulgar", "complaint"],
+    "critical_triggers": ["consumer rights", "court", "fraud", "scam", "police complaint"]
+  }
+}

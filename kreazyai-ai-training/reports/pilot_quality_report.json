@@ -1,0 +1,112 @@
+{
+  "total_examples": 200,
+  "validation_passed": true,
+  "error_count": 0,
+  "warning_count": 0,
+  "errors": [],
+  "warnings_sample": [],
+  "duplicate_rate_pct": 0.0,
+  "single_turn_count": 183,
+  "multi_turn_count": 17,
+  "multi_turn_pct": 8.5,
+  "language_distribution": {
+    "bangla": {
+      "count": 55,
+      "percentage": 27.5
+    },
+    "banglish": {
+      "count": 70,
+      "percentage": 35.0
+    },
+    "english": {
+      "count": 44,
+      "percentage": 22.0
+    },
+    "mixed": {
+      "count": 31,
+      "percentage": 15.5
+    }
+  },
+  "priority_distribution": {
+    "CRITICAL": {
+      "count": 11,
+      "percentage": 5.5
+    },
+    "HIGH": {
+      "count": 18,
+      "percentage": 9.0
+    },
+    "LOW": {
+      "count": 162,
+      "percentage": 81.0
+    },
+    "MEDIUM": {
+      "count": 9,
+      "percentage": 4.5
+    }
+  },
+  "tenant_distribution": {
+    "tenant_appliances_07": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_cosmetics_03": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_electronics_02": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_fashion_01": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_furniture_05": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_general_10": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_grocery_04": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_jewelry_09": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_mobile_acc_06": {
+      "count": 20,
+      "percentage": 10.0
+    },
+    "tenant_shoes_08": {
+      "count": 20,
+      "percentage": 10.0
+    }
+  },
+  "sentiment_distribution": {
+    "neutral": 139,
+    "frustrated": 20,
+    "positive": 37,
+    "urgent": 4
+  },
+  "human_escalation_ratio_pct": 15.0,
+  "intent_frequency": {
+    "Product inquiry": 95,
+    "General customer support": 60,
+    "Price inquiry": 44,
+    "Product recommendation": 26,
+    "Delivery complaint": 24,
+    "Customer dissatisfaction": 23,
+    "Payment issue": 17,
+    "Product availability": 16,
+    "Human agent request": 15,
+    "Refund request": 9,
+    "Order tracking": 9,
+    "Product comparison": 6,
+    "Image request": 1
+  }
+}

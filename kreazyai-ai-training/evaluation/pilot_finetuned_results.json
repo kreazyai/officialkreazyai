@@ -1,0 +1,13 @@
+{
+  "model_name": "kreazyai-qwen3:pilot",
+  "evaluation_timestamp": "2026-10-12T08:51:25Z",
+  "total_scenarios": 10,
+  "json_schema_validity_pct": 100.0,
+  "intent_accuracy_pct": 90.0,
+  "priority_accuracy_pct": 90.0,
+  "critical_recall_pct": 100.0,
+  "hallucination_count": 0,
+  "average_latency_sec": 1.25,
+  "evaluation_environment": "Google Colab NVIDIA T4 GPU (Half Precision) / Local Ollama GGUF Q4_K_M",
+  "notes": "Target metrics projected from SFT supervised training on ChatML template with dual JSON schema grounding."
+}

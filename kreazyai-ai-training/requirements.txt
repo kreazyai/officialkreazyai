@@ -1,0 +1,20 @@
+# KreazyAI AI Dataset, Validation, & Future SFT Pipeline Requirements
+# Note: Dataset generation, splitting, and validation scripts use pure Python 3.10+ standard library.
+# The following packages are required for Colab / cloud GPU fine-tuning (Unsloth / LoRA).
+
+# Cloud GPU Fine-tuning (Google Colab / RunPod / Lambda)
+torch>=2.2.0
+transformers>=4.40.0
+datasets>=2.19.0
+trl>=0.8.6
+peft>=0.10.0
+accelerate>=0.29.0
+bitsandbytes>=0.43.0
+
+# Optional Unsloth acceleration (installed via git in Colab notebook)
+# "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
+
+# Evaluation and metric calculation
+scikit-learn>=1.4.0
+rouge-score>=0.1.2
+tqdm>=4.66.0

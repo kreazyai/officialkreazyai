@@ -1,0 +1,56 @@
+{
+  "tenant_id": "tenant_mobile_acc_06",
+  "business_name": "GearPulse Accessories",
+  "vertical": "Mobile & Gadget Accessories",
+  "brand_tone": "Fast, trendy, practical, value-driven",
+  "primary_channels": ["WhatsApp", "Facebook Messenger"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "GP-GAN-01",
+      "name": "65W GaN Dual Type-C + USB Fast Wall Charger",
+      "category": "Charging",
+      "price": 1850,
+      "stock_status": "in_stock",
+      "stock_quantity": 70,
+      "compatibility": "MacBook, iPhone 15/16, Samsung S24, Xiaomi",
+      "warranty": "1 Year Replacement Warranty",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "GP-MAG-02",
+      "name": "Frosted Magnetic Shockproof Case (iPhone 13 to 16 Pro Max)",
+      "category": "Phone Protection",
+      "price": 750,
+      "stock_status": "in_stock",
+      "stock_quantity": 110,
+      "colors": ["Titanium Natural", "Matte Black", "Deep Blue"],
+      "features": "Strong N52 Neodymium Ring, Anti-Yellowing Bayer TPU",
+      "max_discount_allowed_pct": 0
+    },
+    {
+      "sku": "GP-CBL-03",
+      "name": "Braided 100W PD Type-C to Type-C Cable (1.5m)",
+      "category": "Cables",
+      "price": 450,
+      "stock_status": "in_stock",
+      "stock_quantity": 150,
+      "features": "E-Marker Smart Chip, 20,000+ Bend Lifespan",
+      "max_discount_allowed_pct": 0
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 36 hours",
+    "delivery_outside_dhaka": "48 hours via Pathao Logistics",
+    "fee_inside_dhaka": 60,
+    "fee_outside_dhaka": 110,
+    "cash_on_delivery": true,
+    "return_policy": "7 days easy replacement if pin/port fails",
+    "refund_policy": "Direct bKash refund within 48 hours for verified defective items"
+  },
+  "escalation_rules": {
+    "max_discount_cap": 5,
+    "urgent_complaint_triggers": ["phone heated up", "spark from charger", "wrong model case", "scratched product"],
+    "critical_triggers": ["battery explosion", "burnt phone", "police complaint", "cheating case"]
+  }
+}

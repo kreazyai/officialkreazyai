@@ -1,0 +1,74 @@
+{
+  "tenant_id": "tenant_electronics_02",
+  "business_name": "VoltTech Gadgets",
+  "vertical": "Consumer Electronics",
+  "brand_tone": "Tech-savvy, precise, helpful, guarantee-focused",
+  "primary_channels": ["WhatsApp", "Facebook Messenger", "Website Live Chat"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "VT-HP-101",
+      "name": "VoltTech Apex Wireless ANC Headphones",
+      "category": "Audio",
+      "price": 2850,
+      "stock_status": "in_stock",
+      "stock_quantity": 35,
+      "colors": ["Matte Black", "Space Silver"],
+      "specs": "40mm Drivers, 45h Playtime, Active Noise Cancellation (-30dB), Bluetooth 5.3, Type-C Fast Charge",
+      "warranty": "6 Months Official Replacement Warranty",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "VT-TWS-102",
+      "name": "VoltTech AirBuds Bass Pro TWS",
+      "category": "Audio",
+      "price": 1450,
+      "stock_status": "in_stock",
+      "stock_quantity": 64,
+      "colors": ["Glacier White", "Carbon Black"],
+      "specs": "13mm Bio-Diaphragm, Low Latency Game Mode (45ms), IPX4 Splashproof, 28h Total Playback",
+      "warranty": "6 Months Official Replacement Warranty",
+      "max_discount_allowed_pct": 0
+    },
+    {
+      "sku": "VT-SW-103",
+      "name": "VoltTech Pulse AMOLED Smartwatch",
+      "category": "Wearables",
+      "price": 3600,
+      "stock_status": "in_stock",
+      "stock_quantity": 21,
+      "colors": ["Midnight Black", "Deep Navy"],
+      "specs": "1.43-inch HD AMOLED Always-On Display, Bluetooth Calling, 120+ Sports Modes, IP68 Waterproof",
+      "warranty": "1 Year Official Brand Warranty",
+      "max_discount_allowed_pct": 8
+    },
+    {
+      "sku": "VT-PB-104",
+      "name": "VoltTech PowerForge 20000mAh 22.5W Powerbank",
+      "category": "Power",
+      "price": 2100,
+      "stock_status": "out_of_stock",
+      "stock_quantity": 0,
+      "colors": ["Steel Grey"],
+      "specs": "PD 3.0 & QC 4.0 Fast Charge, Triple Output Ports, Flight Approved Lithium Polymer",
+      "warranty": "6 Months Warranty",
+      "max_discount_allowed_pct": 0,
+      "restock_eta": "Arriving this Sunday"
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 hours",
+    "delivery_outside_dhaka": "48 hours via Steadfast Express",
+    "fee_inside_dhaka": 60,
+    "fee_outside_dhaka": 120,
+    "cash_on_delivery": true,
+    "return_policy": "7 days replacement for manufacturing defects with intact box and invoice",
+    "refund_policy": "Money-back within 72 hours if verified defective upon delivery",
+    "advance_required": false
+  },
+  "escalation_rules": {
+    "max_discount_cap": 8,
+    "urgent_complaint_triggers": ["fake warranty", "battery burst", "dead on arrival", "courier damaged box"],
+    "critical_triggers": ["police report", "cheater", "fraudulent seller", "legal action"]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "tenant_id": "tenant_jewelry_09",
+  "business_name": "LuxeShine Artisans",
+  "vertical": "Fine & Semi-Precious Jewelry",
+  "brand_tone": "Elegant, delicate, trustworthy, gifting-oriented",
+  "primary_channels": ["Instagram Direct", "WhatsApp", "Facebook Messenger"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "LX-NCK-01",
+      "name": "Celestial Dual-Layer 18K Gold-Plated Choker Necklace",
+      "category": "Necklaces",
+      "price": 1850,
+      "stock_status": "in_stock",
+      "stock_quantity": 38,
+      "materials": "Anti-Tarnish Surgical Stainless Steel Base, 18K PVD Real Gold Plating, Cubic Zirconia",
+      "plating_guarantee": "1 Year Anti-Fading Guarantee Card Included",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "LX-EAR-02",
+      "name": "Baroque Freshwater Pearl Drop Earrings",
+      "category": "Earrings",
+      "price": 1450,
+      "stock_status": "in_stock",
+      "stock_quantity": 25,
+      "materials": "Natural Cultured Freshwater Pearls, 925 Sterling Silver Posts (Hypoallergenic)",
+      "max_discount_allowed_pct": 0
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 36 hours (Packaged in luxury gift box with ribbon)",
+    "delivery_outside_dhaka": "48 to 72 hours via RedX Express",
+    "fee_inside_dhaka": 80,
+    "fee_outside_dhaka": 140,
+    "cash_on_delivery": true,
+    "return_policy": "48 hours exchange for transit damage with unboxing video; hygiene policy prohibits worn earrings returns",
+    "refund_policy": "Full refund if damaged during delivery"
+  },
+  "escalation_rules": {
+    "max_discount_cap": 5,
+    "urgent_complaint_triggers": ["color turned black on day 1", "broken clasp", "missing pearl", "irritation on earlobe"],
+    "critical_triggers": ["fake gold fraud", "police report", "consumer bureau", "stolen parcel"]
+  }
+}

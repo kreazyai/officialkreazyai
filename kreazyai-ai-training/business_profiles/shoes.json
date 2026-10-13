@@ -1,0 +1,48 @@
+{
+  "tenant_id": "tenant_shoes_08",
+  "business_name": "StrideCraft Footwear",
+  "vertical": "Footwear & Leather Goods",
+  "brand_tone": "Athletic, stylish, comfortable, fit-focused",
+  "primary_channels": ["WhatsApp", "Instagram Direct", "Facebook Messenger"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "SC-RN-01",
+      "name": "StrideCraft AeroFlex Carbon Running Shoes",
+      "category": "Performance Sports",
+      "price": 2850,
+      "stock_status": "in_stock",
+      "stock_quantity": 48,
+      "sizes_available": ["40", "41", "42", "43", "44"],
+      "colors": ["Triple Black", "Arctic White with Neon Accent", "Slate Grey"],
+      "features": "Nitrogen-Infused High Bounce Midsole, Breathable Jacquard Knit Upper",
+      "max_discount_allowed_pct": 10
+    },
+    {
+      "sku": "SC-LOAF-02",
+      "name": "Handcrafted Full-Grain Genuine Leather Penny Loafers",
+      "category": "Formal Leather",
+      "price": 3800,
+      "stock_status": "in_stock",
+      "stock_quantity": 22,
+      "sizes_available": ["40", "41", "42", "43"],
+      "colors": ["Espresso Brown", "Classic Black"],
+      "features": "Supple Cowhide Leather, Orthopedic Memory Foam Footbed",
+      "max_discount_allowed_pct": 5
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 48 hours",
+    "delivery_outside_dhaka": "48 to 72 hours",
+    "fee_inside_dhaka": 70,
+    "fee_outside_dhaka": 130,
+    "cash_on_delivery": true,
+    "size_exchange_policy": "Free doorstep size exchange within Dhaka if size does not fit; single-charge return outside Dhaka",
+    "return_policy": "7 days exchange if sole has no outdoor wear marks"
+  },
+  "escalation_rules": {
+    "max_discount_cap": 10,
+    "urgent_complaint_triggers": ["sole ripped", "wrong size delivered twice", "torn leather", "fake leather complaint"],
+    "critical_triggers": ["consumer rights", "scam merchant", "cheating", "fraud"]
+  }
+}

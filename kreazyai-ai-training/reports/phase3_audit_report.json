@@ -1,0 +1,170 @@
+{
+  "audit_metadata": {
+    "phase": "PHASE_3_AUDIT",
+    "model_tested": "qwen3:1.7b (Ollama 8f68893c685c, GGUF Q4_K_M)",
+    "context_window": 40960,
+    "architecture": "qwen3",
+    "hardware_mode": "100% CPU on Intel Core i5 11th Gen (8 GB RAM)",
+    "total_records_inspected": 200,
+    "original_v1_preserved_at": "datasets/raw/pilot_raw_200_legacy.jsonl",
+    "current_clean_dataset_at": "datasets/processed/pilot_clean_200.jsonl"
+  },
+  "audit_findings_summary": {
+    "syntax_and_schema_validity": "100% VALID (0 syntax or schema errors)",
+    "exact_duplicate_rate_pct": 0.0,
+    "train_val_test_leakage_pct": 0.0,
+    "single_turn_records": 183,
+    "multi_turn_records": 17,
+    "multi_turn_percentage": 8.5,
+    "errors_discovered_in_pilot_v1": [
+      "160 records (80%) shared 20 identical syntactic template frames across tenants 3-10",
+      "Hardcoded customer identity ('Sadat Sakib, 01712345678') was repeated across 8 tenants",
+      "100% of pilot v1 conversations were single-turn, missing multi-turn dialogues",
+      "Over-concentration of greeting 'vai' (55.7%) in Banglish examples"
+    ],
+    "errors_corrected_in_pilot_v2": [
+      "Rewrote generator: 0 template skeletons detected across all 10 tenants",
+      "Replaced customer identities with unique per-tenant synthetic profiles and masked numbers",
+      "Introduced 17 multi-turn conversations (8.5%) with 5 turns each",
+      "Diversified Banglish seeds with authentic spelling variations ('bhai', 'bro', 'apu', 'dam koto', 'price ta bolen', 'ekhn', 'amr order koi', etc.)"
+    ],
+    "remaining_improvements_for_phase_4": [
+      "Scale multi-turn proportion to 15% (1,500 records) in the 10,000 dataset",
+      "Incorporate regional dialect variations (Sylheti, Chittagonian, Noakhali loanwords)",
+      "Expand adversarial negative testing for cross-tenant refusals"
+    ]
+  },
+  "distributions": {
+    "languages": {
+      "bangla": {
+        "count": 55,
+        "percentage": 27.5
+      },
+      "banglish": {
+        "count": 70,
+        "percentage": 35.0
+      },
+      "english": {
+        "count": 44,
+        "percentage": 22.0
+      },
+      "mixed": {
+        "count": 31,
+        "percentage": 15.5
+      }
+    },
+    "priorities": {
+      "CRITICAL": {
+        "count": 11,
+        "percentage": 5.5
+      },
+      "HIGH": {
+        "count": 18,
+        "percentage": 9.0
+      },
+      "LOW": {
+        "count": 162,
+        "percentage": 81.0
+      },
+      "MEDIUM": {
+        "count": 9,
+        "percentage": 4.5
+      }
+    },
+    "sentiments": {
+      "neutral": 139,
+      "frustrated": 20,
+      "positive": 37,
+      "urgent": 4
+    },
+    "human_escalation": {
+      "requires_human_true": 30,
+      "requires_human_false": 170,
+      "escalation_ratio_pct": 15.0
+    },
+    "tenants": {
+      "tenant_appliances_07": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_cosmetics_03": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_electronics_02": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_fashion_01": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_furniture_05": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_general_10": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_grocery_04": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_jewelry_09": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_mobile_acc_06": {
+        "count": 20,
+        "percentage": 10.0
+      },
+      "tenant_shoes_08": {
+        "count": 20,
+        "percentage": 10.0
+      }
+    },
+    "intents": {
+      "Product inquiry": 95,
+      "General customer support": 60,
+      "Price inquiry": 44,
+      "Product recommendation": 26,
+      "Delivery complaint": 24,
+      "Customer dissatisfaction": 23,
+      "Payment issue": 17,
+      "Product availability": 16,
+      "Human agent request": 15,
+      "Refund request": 9,
+      "Order tracking": 9,
+      "Product comparison": 6,
+      "Image request": 1
+    }
+  },
+  "dataset_splits_leakage_audit": {
+    "train_samples": 152,
+    "validation_samples": 23,
+    "test_samples": 25,
+    "train_percentage": 76.0,
+    "validation_percentage": 11.5,
+    "test_percentage": 12.5,
+    "train_validation_prompt_leakage": 0,
+    "train_test_prompt_leakage": 0,
+    "validation_test_prompt_leakage": 0,
+    "leakage_status": "ZERO_LEAKAGE_VERIFIED"
+  },
+  "model_compatibility_and_empirical_inference": {
+    "local_ollama_model": "qwen3:1.7b",
+    "chat_template": "ChatML (<|im_start|>role\\ncontent<|im_end|>)",
+    "empirical_probe_test": {
+      "query": "Vai 2000 takar moddhe valo headphone ase?",
+      "latency_cpu_seconds": 47.68,
+      "un_finetuned_behavior": "Model hallucinated fake 'VoltTech 2000 Pro/Elite' models due to mistranslating '2000 takar moddhe' (under 2000 taka budget) as a product series name. Also failed structured JSON schema.",
+      "conclusion": "Proves necessity of supervised fine-tuning (SFT) on cloud GPU before production deployment."
+    }
+  },
+  "readiness_verdict": {
+    "is_pilot_valid": true,
+    "is_ready_for_phase_4_expansion": true,
+    "recommendation": "Proceed with Phase 4 batch expansion to 10,000 examples upon founder approval, adhering to phase4_expansion_plan.md."
+  }
+}

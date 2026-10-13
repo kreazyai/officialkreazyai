@@ -1,0 +1,58 @@
+{
+  "tenant_id": "tenant_grocery_04",
+  "business_name": "DailyBazaar Organics",
+  "vertical": "Organic Grocery & Pantry",
+  "brand_tone": "Wholesome, transparent, fresh, community-oriented",
+  "primary_channels": ["WhatsApp", "Facebook Messenger"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "DB-OIL-01",
+      "name": "Pure Cold-Pressed Wood-Milled Mustard Oil (1 Litre)",
+      "category": "Edible Oils",
+      "price": 380,
+      "stock_status": "in_stock",
+      "stock_quantity": 120,
+      "purity": "100% Unrefined Ghani-Pressed Mustard Seeds",
+      "shelf_life": "12 Months from harvest",
+      "max_discount_allowed_pct": 0
+    },
+    {
+      "sku": "DB-GHEE-02",
+      "name": "Grass-Fed Cultured Bilona Cow Ghee (500g)",
+      "category": "Dairy Pantry",
+      "price": 950,
+      "stock_status": "in_stock",
+      "stock_quantity": 45,
+      "purity": "Desi Cow Milk Cream, Traditional Clay Churned",
+      "shelf_life": "9 Months",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "DB-HON-03",
+      "name": "Raw Wild Sundarbans Mangrove Honey (500g)",
+      "category": "Natural Sweeteners",
+      "price": 750,
+      "stock_status": "in_stock",
+      "stock_quantity": 60,
+      "purity": "Unpasteurized, Raw Multifloral Khalisha Bloom",
+      "shelf_life": "24 Months",
+      "max_discount_allowed_pct": 5
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "Same day if ordered before 12 PM, else next day",
+    "delivery_outside_dhaka": "3 to 4 days via temperature-controlled parcel",
+    "fee_inside_dhaka": 60,
+    "fee_outside_dhaka": 140,
+    "cash_on_delivery": true,
+    "return_policy": "Instant return at doorstep if jar is cracked or packaging compromised",
+    "refund_policy": "Full refund or replacement within 24 hours",
+    "advance_required": false
+  },
+  "escalation_rules": {
+    "max_discount_cap": 5,
+    "urgent_complaint_triggers": ["spoiled food", "fungus", "foul smell", "leaking jar", "stale oil"],
+    "critical_triggers": ["food poisoning", "adulteration complaint", "food safety authority", "police"]
+  }
+}

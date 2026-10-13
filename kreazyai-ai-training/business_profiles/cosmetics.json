@@ -1,0 +1,61 @@
+{
+  "tenant_id": "tenant_cosmetics_03",
+  "business_name": "GlowBloom Botanicals",
+  "vertical": "Cosmetics & Skincare",
+  "brand_tone": "Gentle, informative, dermatology-conscious, reassuring",
+  "primary_channels": ["Instagram Direct", "WhatsApp", "Facebook Messenger"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "GB-SRM-01",
+      "name": "Niacinamide 10% + Zinc 1% Clarifying Serum (30ml)",
+      "category": "Face Serum",
+      "price": 1250,
+      "stock_status": "in_stock",
+      "stock_quantity": 52,
+      "skin_type": "Oily, Acne-Prone & Sensitive Skin",
+      "key_ingredients": "10% Pure Niacinamide, Zinc PCA, Centella Asiatica",
+      "authenticity": "100% Imported with Official Hologram",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "GB-SUN-02",
+      "name": "Water-Light SPF 50+ PA++++ Hyaluronic Sunscreen (50ml)",
+      "category": "Sun Protection",
+      "price": 1650,
+      "stock_status": "in_stock",
+      "stock_quantity": 40,
+      "skin_type": "All Skin Types, Zero White Cast",
+      "key_ingredients": "Broad Spectrum UV Filters, 8x Hyaluronic Acid Complex",
+      "authenticity": "K-Beauty Certified Batch",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "GB-MST-03",
+      "name": "Ceramide Barrier Hydration Gel Cream (60ml)",
+      "category": "Moisturizer",
+      "price": 1450,
+      "stock_status": "in_stock",
+      "stock_quantity": 29,
+      "skin_type": "Dry, Damaged Skin Barrier",
+      "key_ingredients": "5 Essential Ceramides, Squalane, Panthenol",
+      "authenticity": "Authentic Lab Sealed",
+      "max_discount_allowed_pct": 0
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 48 hours",
+    "delivery_outside_dhaka": "48 to 72 hours",
+    "fee_inside_dhaka": 70,
+    "fee_outside_dhaka": 130,
+    "cash_on_delivery": true,
+    "return_policy": "Unopened & sealed products returnable within 3 days",
+    "refund_policy": "Refund provided if product seal is broken during courier delivery",
+    "advance_required": false
+  },
+  "escalation_rules": {
+    "max_discount_cap": 5,
+    "urgent_complaint_triggers": ["skin reaction", "burning sensation", "broken bottle", "expired batch", "fake cosmetics"],
+    "critical_triggers": ["hospitalized", "allergic emergency", "consumer court", "lawsuit", "chemical burn"]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "total_records": 200,
+  "issues_count": 0,
+  "issues": [],
+  "language_distribution": {
+    "banglish": 70,
+    "bangla": 55,
+    "english": 44,
+    "mixed": 31
+  },
+  "priority_distribution": {
+    "LOW": 162,
+    "MEDIUM": 9,
+    "CRITICAL": 11,
+    "HIGH": 18
+  },
+  "sentiment_distribution": {
+    "neutral": 139,
+    "frustrated": 20,
+    "positive": 37,
+    "urgent": 4
+  },
+  "tenant_distribution": {
+    "tenant_fashion_01": 20,
+    "tenant_electronics_02": 20,
+    "tenant_cosmetics_03": 20,
+    "tenant_grocery_04": 20,
+    "tenant_furniture_05": 20,
+    "tenant_mobile_acc_06": 20,
+    "tenant_appliances_07": 20,
+    "tenant_shoes_08": 20,
+    "tenant_jewelry_09": 20,
+    "tenant_general_10": 20
+  },
+  "intent_distribution": {
+    "Product inquiry": 95,
+    "Product availability": 16,
+    "Price inquiry": 44,
+    "Image request": 1,
+    "Product recommendation": 26,
+    "Payment issue": 17,
+    "Refund request": 9,
+    "Customer dissatisfaction": 23,
+    "Human agent request": 15,
+    "General customer support": 60,
+    "Delivery complaint": 24,
+    "Order tracking": 9,
+    "Product comparison": 6
+  },
+  "human_escalation_distribution": {
+    "false": 170,
+    "true": 30
+  },
+  "leakage_findings": {
+    "train_val_overlap": 0,
+    "train_test_overlap": 0,
+    "val_test_overlap": 0
+  }
+}

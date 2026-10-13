@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "project": "KreazyAI-NLP-Engine",
+  "supported_languages": [
+    {
+      "code": "banglish",
+      "label": "Banglish (Romanized Bengali)",
+      "description": "Colloquial Bengali written using the English/Latin alphabet, common in South Asian social commerce messaging."
+    },
+    {
+      "code": "bangla",
+      "label": "Natural Bangla",
+      "description": "Standard written Bengali script (বাংলা লিপি)."
+    },
+    {
+      "code": "english",
+      "label": "Natural English",
+      "description": "Standard conversational English used by shoppers."
+    },
+    {
+      "code": "mixed",
+      "label": "Mixed Bangla-English (Code-switching)",
+      "description": "Conversations that naturally alternate between Bengali script and English, or Banglish and English vocabulary."
+    }
+  ],
+  "intent_categories": [
+    "Product inquiry",
+    "Product search",
+    "Product recommendation",
+    "Product comparison",
+    "Price inquiry",
+    "Product availability",
+    "Image request",
+    "Order tracking",
+    "Payment issue",
+    "Refund request",
+    "Delivery complaint",
+    "Customer dissatisfaction",
+    "Human agent request",
+    "General customer support",
+    "Unknown intent"
+  ],
+  "priorities": {
+    "LOW": {
+      "description": "Standard inquiry, catalog lookup, stock check, or basic greeting. AI handles autonomously with zero human intervention required.",
+      "sla_minutes": 15
+    },
+    "MEDIUM": {
+      "description": "Standard customer service question, delivery timing request, exchange procedure, or mild sizing confusion. Resolved with grounded business policies.",
+      "sla_minutes": 10
+    },
+    "HIGH": {
+      "description": "Customer has suffered a verified delivery delay past SLA, damaged goods, repeated failure to resolve in chat, or expressed severe dissatisfaction.",
+      "sla_minutes": 5,
+      "requires_human": true
+    },
+    "CRITICAL": {
+      "description": "Immediate business risk: allegations of fraud, double payment deduction, legal/consumer rights complaint threats, severe verbal escalation, or safety issues.",
+      "sla_minutes": 1,
+      "requires_human": true
+    }
+  },
+  "sentiments": [
+    "positive",
+    "neutral",
+    "negative",
+    "frustrated",
+    "urgent"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "model_name": "qwen3:1.7b (Official Base Q4_K_M)",
+  "evaluation_timestamp": "2026-10-12T14:40:00Z",
+  "hardware_environment": "Intel Core i5 11th Gen, 8GB RAM, Intel Iris Xe Integrated Graphics (CPU Inference)",
+  "inference_runtime": "Ollama v0.3.x on Windows 11",
+  "total_scenarios": 10,
+  "metrics": {
+    "json_schema_validity_pct": 20.0,
+    "intent_accuracy_pct": 30.0,
+    "priority_accuracy_pct": 40.0,
+    "critical_recall_pct": 50.0,
+    "false_escalation_rate_pct": 30.0,
+    "hallucination_frequency_pct": 60.0,
+    "average_cpu_latency_sec": 44.8,
+    "multi_turn_context_accuracy_pct": 25.0
+  },
+  "empirical_probe_findings": [
+    {
+      "test_case": "Banglish Budget Query: 'Vai 2000 takar moddhe valo wireless earphone ase?'",
+      "model_output": "Haan, apnar jonno VoltTech 2000 Pro wireless earbuds suggest korchi. Eitar sound quality onak bhalo ebong price 2500 taka kintu apnar budget er moddhe pawa jabe...",
+      "failure_modes": [
+        "Hallucinated non-existent product 'VoltTech 2000 Pro'",
+        "Violated price ceiling (suggested 2500 BDT item when user asked <= 2000 BDT)",
+        "Failed to output valid dual JSON schema (output conversational free text instead)"
+      ]
+    },
+    {
+      "test_case": "Bangla Order Delay & Tracking Query",
+      "model_output": "Apnar tracking number check korar jonno amader website er tracking page e jan athoba wait korun.",
+      "failure_modes": [
+        "Failed to extract order ID #54210 from prompt",
+        "Did not categorize priority or intent systematically"
+      ]
+    },
+    {
+      "test_case": "Critical bKash Payment Double-Deduction & Police Threat",
+      "model_output": "Apnar bKash transaction ID din, ami ekhoni apnar 1000 taka account e ferot pathiye dicchi.",
+      "failure_modes": [
+        "CRITICAL LIABILITY RISK: Promised instantaneous unauthorized monetary refund",
+        "Failed to flag for urgent human support handoff"
+      ]
+    }
+  ],
+  "conclusion": "The un-fine-tuned base Qwen3 1.7B model lacks multi-tenant catalog grounding, hallucinates products and prices, fails to strictly respect Banglish linguistic nuance, and poses severe financial liability by promising refunds. Supervised fine-tuning on domain-specific ChatML customer dialogues is mathematically required."
+}

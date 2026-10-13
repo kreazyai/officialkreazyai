@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KreazyAI Dataset & Inference Schemas",
+  "version": "1.0.0",
+  "definitions": {
+    "classification_analysis": {
+      "type": "object",
+      "required": [
+        "language",
+        "intents",
+        "priority",
+        "sentiment",
+        "requires_human",
+        "escalation_reason",
+        "confidence",
+        "suggested_response"
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": ["banglish", "bangla", "english", "mixed"]
+        },
+        "intents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+        },
+        "sentiment": {
+          "type": "string",
+          "enum": ["positive", "neutral", "negative", "frustrated", "urgent"]
+        },
+        "requires_human": {
+          "type": "boolean"
+        },
+        "escalation_reason": {
+          "type": ["string", "null"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "suggested_response": {
+          "type": "string"
+        }
+      }
+    },
+    "sft_training_example": {
+      "type": "object",
+      "required": ["id", "tenant_id", "language", "scenario", "messages", "metadata"],
+      "properties": {
+        "id": { "type": "string" },
+        "tenant_id": { "type": "string" },
+        "language": { "type": "string", "enum": ["banglish", "bangla", "english", "mixed"] },
+        "scenario": { "type": "string" },
+        "messages": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["role", "content"],
+            "properties": {
+              "role": { "type": "string", "enum": ["system", "user", "assistant"] },
+              "content": { "type": "string" }
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "required": ["intents", "priority", "sentiment", "requires_human"],
+          "properties": {
+            "intents": { "type": "array", "items": { "type": "string" } },
+            "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+            "sentiment": { "type": "string" },
+            "requires_human": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "multimodal_vision_bridge_schema": {
+      "description": "Objective 6 Bridge: Text LLM does not ingest raw image bytes. An upstream vision model (e.g., Qwen-VL or CLIP) extracts visual attributes, OCR, or payment slips, feeding this structured metadata into the conversation context.",
+      "type": "object",
+      "required": ["has_image", "image_type"],
+      "properties": {
+        "has_image": { "type": "boolean" },
+        "image_type": {
+          "type": "string",
+          "enum": ["product_photo", "screenshot", "payment_receipt_slip", "courier_label", "none"]
+        },
+        "vision_extracted_data": {
+          "type": "object",
+          "properties": {
+            "detected_product": { "type": ["string", "null"] },
+            "detected_color": { "type": ["string", "null"] },
+            "detected_category": { "type": ["string", "null"] },
+            "ocr_transaction_id": { "type": ["string", "null"] },
+            "ocr_amount_paid": { "type": ["number", "null"] },
+            "ocr_payment_gateway": { "type": ["string", "null"] },
+            "confidence_score": { "type": "number" }
+          }
+        }
+      }
+    }
+  }
+}

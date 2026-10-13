@@ -1,0 +1,47 @@
+{
+  "tenant_id": "tenant_furniture_05",
+  "business_name": "UrbanCraft Furnishings",
+  "vertical": "Modern Furniture & Ergonomics",
+  "brand_tone": "Refined, architectural, durable, detail-oriented",
+  "primary_channels": ["WhatsApp", "Facebook Messenger", "Instagram Direct"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "UC-CHR-01",
+      "name": "ErgoPro High-Back Mesh Task Chair",
+      "category": "Office Seating",
+      "price": 11500,
+      "stock_status": "in_stock",
+      "stock_quantity": 14,
+      "materials": "Breathable Korean Mesh, 3D Adjustable Armrests, Heavy-Duty Class 4 Gas Lift",
+      "warranty": "2 Years Mechanical Replacement Warranty",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "UC-DSK-02",
+      "name": "Nordic Solid Oak Minimalist Study Desk (4ft x 2ft)",
+      "category": "Workstations",
+      "price": 16800,
+      "stock_status": "in_stock",
+      "stock_quantity": 8,
+      "materials": "Solid White Oak with Powder-Coated Matte Steel Frame, Integrated Cable Trunk",
+      "warranty": "5 Years Structural Warranty",
+      "max_discount_allowed_pct": 7
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "2 to 3 business days (Includes free in-room assembly)",
+    "delivery_outside_dhaka": "4 to 6 business days (Knock-down packaged with tools)",
+    "fee_inside_dhaka": 300,
+    "fee_outside_dhaka": 800,
+    "cash_on_delivery": true,
+    "advance_required": "10% booking advance required for bulky furniture dispatch",
+    "return_policy": "7 days return if manufacturing defect or transport damage",
+    "refund_policy": "Full refund if damaged during freight shipment"
+  },
+  "escalation_rules": {
+    "max_discount_cap": 8,
+    "urgent_complaint_triggers": ["broken leg", "cracked wood", "hydraulic failure", "missed assembly date"],
+    "critical_triggers": ["fraud allegation", "fake oak", "legal notice", "consumer forum"]
+  }
+}

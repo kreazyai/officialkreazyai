@@ -1,0 +1,48 @@
+{
+  "phase": "PHASE_4_FINAL_QUALITY_REPORT",
+  "total_generated": 10000,
+  "total_accepted": 10000,
+  "quarantined_records": 0,
+  "exact_duplicates": 0,
+  "split_leakage_rate": 0.0,
+  "multi_turn_records": 1900,
+  "multi_turn_percentage": 19.0,
+  "human_escalation_records": 2300,
+  "human_escalation_percentage": 23.0,
+  "primary_category_distribution": {
+    "banglish": 3000,
+    "bangla": 2500,
+    "english": 2000,
+    "mixed": 1500,
+    "complex": 1000
+  },
+  "language_distribution": {
+    "banglish": 3250,
+    "bangla": 2750,
+    "english": 2250,
+    "mixed": 1750
+  },
+  "priority_distribution": {
+    "LOW": 7200,
+    "HIGH": 1150,
+    "CRITICAL": 1150,
+    "MEDIUM": 500
+  },
+  "tenant_distribution": {
+    "tenant_cosmetics_03": 1000,
+    "tenant_electronics_02": 1000,
+    "tenant_fashion_01": 1000,
+    "tenant_furniture_05": 1000,
+    "tenant_general_10": 1000,
+    "tenant_grocery_04": 1000,
+    "tenant_appliances_07": 1000,
+    "tenant_jewelry_09": 1000,
+    "tenant_mobile_acc_06": 1000,
+    "tenant_shoes_08": 1000
+  },
+  "splits": {
+    "train": 8000,
+    "validation": 1000,
+    "test": 1000
+  }
+}

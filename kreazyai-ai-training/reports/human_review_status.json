@@ -1,0 +1,211 @@
+{
+  "audit_timestamp": "2026-10-12T14:45:00Z",
+  "total_flagged_records": 2300,
+  "review_status_summary": {
+    "quarantined_critical_records": 0,
+    "awaiting_finance_review": 1150,
+    "approved_logistics_operations": 1150,
+    "unauthorized_financial_promises_detected": 0
+  },
+  "policy_verdict": {
+    "pilot_training_policy": "EXCLUDE all 2,300 HIGH/CRITICAL records from the initial Pilot Training run. Pilot training will use purely verified, routine customer inquiries, product recommendations, catalog discovery, and non-critical service workflows.",
+    "full_training_policy": "Approved logistics records (1,150) may be included in the full 8,000 training run after pilot validation. Quarantined critical safety/fraud records (1,150) remain in quarantine until explicit founder sign-off."
+  },
+  "breakdown_by_tenant": {
+    "tenant_cosmetics_03": 230,
+    "tenant_electronics_02": 230,
+    "tenant_fashion_01": 230,
+    "tenant_furniture_05": 230,
+    "tenant_general_10": 230,
+    "tenant_grocery_04": 230,
+    "tenant_appliances_07": 230,
+    "tenant_jewelry_09": 230,
+    "tenant_mobile_acc_06": 230,
+    "tenant_shoes_08": 230
+  },
+  "quarantined_sample": [],
+  "awaiting_sample": [
+    {
+      "id": "kz_b1_00008",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00018",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00028",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00038",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00048",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00058",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00068",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00078",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00088",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    },
+    {
+      "id": "kz_b1_00098",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "CRITICAL",
+      "risk_type": "CRITICAL_PAYMENT_DISPUTE",
+      "escalation_reason": "Banglish automated escalation for CRITICAL in Cosmetics & Skincare",
+      "review_status": "AWAITING_FINANCE_TEAM_REVIEW",
+      "reason": "Standard double-deduction or payment dispute with human handoff."
+    }
+  ],
+  "approved_sample": [
+    {
+      "id": "kz_b1_00007",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00017",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00027",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00037",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00047",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00057",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00067",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00077",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00087",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    },
+    {
+      "id": "kz_b1_00097",
+      "tenant_id": "tenant_cosmetics_03",
+      "priority": "HIGH",
+      "risk_type": "HIGH_LOGISTICS_OPERATIONS",
+      "escalation_reason": "Banglish automated escalation for HIGH in Cosmetics & Skincare",
+      "review_status": "APPROVED_FOR_FULL_TRAINING",
+      "reason": "Standard logistics operational escalation with safe replacement/supervisor handoff."
+    }
+  ]
+}

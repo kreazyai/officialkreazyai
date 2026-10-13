@@ -1,0 +1,54 @@
+{
+  "tenant_id": "tenant_general_10",
+  "business_name": "MegaMart Direct",
+  "vertical": "General Multi-Category Retail",
+  "brand_tone": "Helpful, efficient, transparent, promotional",
+  "primary_channels": ["WhatsApp", "Facebook Messenger", "Website Live Chat"],
+  "currency": "BDT",
+  "catalog": [
+    {
+      "sku": "MM-BTL-01",
+      "name": "Insulated Thermal Smart Water Bottle (500ml with LED Temp Display)",
+      "category": "Home & Kitchen",
+      "price": 850,
+      "stock_status": "in_stock",
+      "stock_quantity": 90,
+      "features": "304 Stainless Steel, 24h Cold / 12h Hot, Leakproof",
+      "max_discount_allowed_pct": 5
+    },
+    {
+      "sku": "MM-LGT-02",
+      "name": "Rechargeable Motion-Sensor Magnetic Closet Light",
+      "category": "Home Improvement",
+      "price": 550,
+      "stock_status": "in_stock",
+      "stock_quantity": 140,
+      "features": "USB-C Rechargeable, Warm White, Adhesive Magnetic Strip",
+      "max_discount_allowed_pct": 0
+    },
+    {
+      "sku": "MM-BLD-03",
+      "name": "Portable USB Smoothie Blender (6 Blades)",
+      "category": "Kitchen",
+      "price": 1250,
+      "stock_status": "in_stock",
+      "stock_quantity": 40,
+      "features": "BPA Free Tritan Jar, 4000mAh Battery",
+      "max_discount_allowed_pct": 5
+    }
+  ],
+  "policies": {
+    "delivery_dhaka": "24 to 48 hours",
+    "delivery_outside_dhaka": "48 to 72 hours",
+    "fee_inside_dhaka": 60,
+    "fee_outside_dhaka": 120,
+    "cash_on_delivery": true,
+    "return_policy": "7 days return if package is defective upon delivery",
+    "refund_policy": "Full refund within 3 business days via bKash or Nagad"
+  },
+  "escalation_rules": {
+    "max_discount_cap": 5,
+    "urgent_complaint_triggers": ["wrong item sent", "broken plastic", "battery dead", "delayed delivery 4 days"],
+    "critical_triggers": ["scam page", "fake company", "consumer protection complaint", "cheating report"]
+  }
+}
