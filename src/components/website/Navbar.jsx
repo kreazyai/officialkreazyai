@@ -58,8 +58,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
             <img
               src="/logo-dark.svg"
               alt="KREAZY AI"
-              className="brand-logo-img"
-              style={{ height: '22px', width: 'auto', objectFit: 'contain' }}
+              className="brand-logo-img nav-brand-logo"
             />
           </div>
 
@@ -77,8 +76,10 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
           </nav>
 
           {/* Right: Language Selector + Log In & Get Started CTA */}
-          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <LanguageSelector />
+          <div className="nav-actions">
+            <div className="nav-header-lang">
+              <LanguageSelector />
+            </div>
 
             {user ? (
               <>

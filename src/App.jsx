@@ -61,7 +61,7 @@ function PageLoader() {
       color: 'var(--primary-accent)',
       fontFamily: 'var(--font-sans, system-ui)'
     }}>
-      <img src="/logo-dark.svg" alt="KreazyAI" style={{ height: '26px', width: 'auto', opacity: 0.9, marginBottom: '4px' }} />
+      <img src="/logo-dark.svg" alt="KreazyAI" style={{ height: '22px', width: 'auto', opacity: 0.9, marginBottom: '4px' }} />
       <div style={{
         width: '36px',
         height: '36px',

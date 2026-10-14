@@ -274,9 +274,9 @@ html, body, #root, .app-root {
 }
 
 .brand-logo-img {
-  height: 22px;
+  height: 18px;
   width: auto;
-  max-width: 175px;
+  max-width: 145px;
   object-fit: contain;
   flex-shrink: 0;
   display: block;
@@ -291,24 +291,29 @@ html, body, #root, .app-root {
   transform: translateY(-1px) scale(1.02);
 }
 
+.brand-logo-img.brand-logo-xs {
+  height: 13px;
+  max-width: 105px;
+}
+
 .brand-logo-img.brand-logo-sm {
+  height: 15px;
+  max-width: 122px;
+}
+
+.brand-logo-img.brand-logo-md {
   height: 18px;
   max-width: 145px;
 }
 
-.brand-logo-img.brand-logo-md {
-  height: 22px;
-  max-width: 175px;
-}
-
 .brand-logo-img.brand-logo-lg {
-  height: 26px;
-  max-width: 210px;
+  height: 22px;
+  max-width: 176px;
 }
 
 .brand-logo-img.brand-logo-xl {
-  height: 32px;
-  max-width: 260px;
+  height: 26px;
+  max-width: 210px;
 }
 
 .brand-text {
@@ -330,8 +335,23 @@ html, body, #root, .app-root {
   letter-spacing: -0.02em;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .brand-logo-img {
+    height: 15.5px;
+    max-width: 125px;
+  }
+  .brand-logo-img.brand-logo-lg {
+    height: 19px;
+    max-width: 155px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo-img {
+    height: 14.5px;
+    max-width: 118px;
+  }
+  .brand-logo-img.brand-logo-lg {
     height: 18px;
     max-width: 145px;
   }

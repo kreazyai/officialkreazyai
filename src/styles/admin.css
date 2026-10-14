@@ -109,8 +109,9 @@
 }
 
 .mac-login-logo {
-  height: 28px;
+  height: 22px;
   width: auto;
+  max-width: 175px;
   margin: 0 auto 16px auto;
   display: block;
 }
@@ -354,8 +355,9 @@
 }
 
 .mac-sidebar-logo {
-  height: 24px;
+  height: 18px;
   width: auto;
+  max-width: 145px;
 }
 
 .mac-brand-titles {
