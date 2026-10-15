@@ -122,24 +122,48 @@ class ApiClient {
       ...(options.headers || {})
     };
 
+    // Resilient timeout for mobile cellular networks (prevents silent hanging on dropped packets)
+    const timeoutMs = options.timeoutMs || 45000;
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    let timeoutId = null;
+
+    if (controller && !options.signal) {
+      timeoutId = setTimeout(() => {
+        controller.abort(new Error(`Network request timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
+    }
+
     try {
       let response;
       try {
         response = await fetch(url, {
           ...options,
-          headers
+          headers,
+          signal: options.signal || controller?.signal
         });
       } catch (fetchErr) {
-        // If relative /api/v1 fetch fails (e.g. Vite dev proxy timeout), fall back to direct backend on port 5000
-        if (typeof window !== 'undefined' && !url.startsWith('http://localhost:5000') && !url.startsWith('http://127.0.0.1:5000')) {
-          const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-          const directUrl = `http://localhost:5000/api/v1${cleanEndpoint}`;
-          try {
-            response = await fetch(directUrl, {
-              ...options,
-              headers
-            });
-          } catch {
+        // Fall back to direct backend port 5000 ONLY when running on local machine or LAN.
+        // On mobile data (public domain / tunnel), attempting 'localhost:5000' triggers
+        // Mixed Content HTTPS->HTTP blocks and reaches the phone loopback instead of the server.
+        if (typeof window !== 'undefined') {
+          const hostname = window.location.hostname || '';
+          const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+          const isLan = /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
+
+          if ((isLocal || isLan) && !url.includes(':5000')) {
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+            const directPort = window.location.port === '5000' ? '' : ':5000';
+            const directUrl = `${window.location.protocol}//${hostname}${directPort}/api/v1${cleanEndpoint}`;
+            try {
+              response = await fetch(directUrl, {
+                ...options,
+                headers,
+                signal: options.signal || controller?.signal
+              });
+            } catch {
+              throw fetchErr;
+            }
+          } else {
             throw fetchErr;
           }
         } else {
@@ -155,9 +179,10 @@ class ApiClient {
       }
 
       return json?.data !== undefined ? json.data : json;
-    } catch (err) {
-      // Re-throw for caller handling
-      throw err;
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     }
   }
 

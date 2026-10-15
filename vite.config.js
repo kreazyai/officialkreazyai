@@ -5,6 +5,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true, // Listen on all network addresses (0.0.0.0) for mobile hotspot & LAN access
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:5000',

@@ -9,40 +9,81 @@ import { errorHandler, notFoundHandler } from '../middleware/errorHandler.js';
 import { successResponse, errorResponse, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
 
-// ─── Reverse-Proxy Client IP Resolution ───────────────────────────────────────
+// ─── Reverse-Proxy & Mobile Carrier Client IP Resolution ──────────────────────
 
 /**
- * Safely resolves the true client IP behind Cloudflare Tunnel (local reverse proxy).
- * - When the request arrives through the trusted local proxy hop (loopback: 127.0.0.1, ::1),
- *   it utilizes the Cloudflare authenticated 'cf-connecting-ip' header if present.
- * - Otherwise, it falls back to Express req.ip (which respects 'trust proxy: loopback').
- * - Protects against external IP spoofing by only honoring cf-connecting-ip when socket is loopback.
+ * Safely resolves the true client IP across mobile networks, cellular data (CGNAT),
+ * Cloudflare Tunnels, ngrok, and local/remote reverse proxies.
+ * - Extracts Cloudflare 'cf-connecting-ip' (authenticated at Cloudflare edge).
+ * - Extracts standard 'x-real-ip' and 'x-forwarded-for' (leftmost client IP).
+ * - Falls back to Express req.ip and raw socket remoteAddress.
+ * - Guarantees a non-empty string fallback ('127.0.0.1') so rate-limiters never key on undefined.
  */
 export function getClientIp(req) {
-  const remoteAddr = req.socket?.remoteAddress;
-  const isLoopback = remoteAddr === '127.0.0.1' || 
-                     remoteAddr === '::1' || 
-                     remoteAddr === '::ffff:127.0.0.1';
+  // 1. Cloudflare authenticated client IP header
+  const cfIp = req.headers['cf-connecting-ip'];
+  if (cfIp && typeof cfIp === 'string' && cfIp.trim()) {
+    return cfIp.trim();
+  }
 
-  if (isLoopback) {
-    const cfIp = req.headers['cf-connecting-ip'];
-    if (cfIp && typeof cfIp === 'string') {
-      return cfIp.trim();
+  // 2. Standard X-Real-IP reverse proxy header
+  const realIp = req.headers['x-real-ip'];
+  if (realIp && typeof realIp === 'string' && realIp.trim()) {
+    return realIp.trim();
+  }
+
+  // 3. X-Forwarded-For header (leftmost IP is the originating client)
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded && typeof forwarded === 'string') {
+    const firstIp = forwarded.split(',')[0]?.trim();
+    if (firstIp) return firstIp;
+  }
+
+  // 4. Express req.ip (when trust proxy is configured)
+  if (req.ip) {
+    return req.ip;
+  }
+
+  // 5. Raw socket remote address
+  const remoteAddr = req.socket?.remoteAddress;
+  if (remoteAddr) {
+    return remoteAddr;
+  }
+
+  // 6. Resilient loopback fallback
+  return '127.0.0.1';
+}
+
+/**
+ * Resolves a safe rate-limiting key for the client.
+ * For mobile networks / cellular data (CGNAT & IPv6):
+ * 1. If user is authenticated (Bearer token or workspace header), rate-limit by user identity / workspace
+ *    so multiple mobile devices sharing the same carrier IP/subnet are not throttled together.
+ * 2. For IPv6, mask at /64 (3GPP cellular standard allocates a /64 per mobile device PDP context)
+ *    rather than /56 (which incorrectly groups 256 mobile subscribers together).
+ */
+export function getRateLimitKey(req) {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    const tokenPart = authHeader.slice(7).trim();
+    if (tokenPart.length >= 10) {
+      return `auth_${tokenPart.slice(-16)}`;
     }
   }
 
-  return req.ip;
+  const clientIp = getClientIp(req);
+  return ipKeyGenerator(clientIp, 64);
 }
 
 // ─── Rate Limiter Definitions ─────────────────────────────────────────────────
 
-/** General API rate limit: 100 requests / 15-minute window per IP */
+/** General API rate limit: 1000 requests / 15-minute window per IP / session */
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
+  keyGenerator: (req) => getRateLimitKey(req),
   message: {
     success: false,
     error: {
@@ -58,29 +99,29 @@ const generalLimiter = rateLimit({
     req.originalUrl.startsWith('/api/meta')
 });
 
-/** Strict limit for auth endpoints: 10 attempts / 15-minute window per IP */
+/** Strict limit for auth endpoints: 60 attempts / 15-minute window per IP */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
+  keyGenerator: (req) => getRateLimitKey(req),
   message: {
     success: false,
     error: {
       code: 'RATE_LIMITED',
-      message: 'Too many login attempts — please wait 15 minutes before trying again.'
+      message: 'Too many login attempts — please wait a few minutes before trying again.'
     }
   }
 });
 
-/** Public lead intake: 5 submissions / 10-minute window per IP (prevents spam) */
+/** Public lead intake: 30 submissions / 10-minute window per IP (prevents spam without blocking mobile users) */
 const leadLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 5,
+  max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
+  keyGenerator: (req) => getRateLimitKey(req),
   message: {
     success: false,
     error: {
@@ -95,38 +136,52 @@ const leadLimiter = rateLimit({
 export function createApp() {
   const app = express();
 
-  // 0. Trust only the local Cloudflare Tunnel reverse-proxy hop (loopback: 127.0.0.1, ::1)
-  // Prevents trusting arbitrary external proxies while accurately trusting the local tunnel
-  app.set('trust proxy', 'loopback');
+  // 0. Trust reverse proxy hops (Cloudflare Tunnel, ngrok, Docker, LAN reverse proxies)
+  // Essential for mobile data connections arriving through tunnels or reverse proxies
+  app.set('trust proxy', true);
 
   // 1. Security Headers via Helmet (OWASP A05:2021 hardening)
+  // For REST API servers, disable HTML CSP to allow cross-origin mobile clients & webviews
   app.use(helmet({
-    // Allow cross-origin resource loading needed for fonts and static assets
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-    // Content Security Policy — configured for SPA with API
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"], // Vite injects inline scripts
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-        imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
-        connectSrc: ["'self'", 'https://generativelanguage.googleapis.com', 'https://api.openai.com', 'https://graph.facebook.com'],
-        frameSrc: ["'none'"],
-        objectSrc: ["'none'"]
-      }
-    }
+    contentSecurityPolicy: false
   }));
 
-  // 2. CORS Configuration
+  // 2. Resilient CORS Configuration for Mobile Networks, Tunnels & Local Dev
   app.use(cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, server-to-server)
-      if (!origin || config.corsOrigins.includes(origin) || config.isDev) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS blocked request from origin: ${origin}`));
+      // Allow requests with no origin (mobile native apps, curl, server-to-server webhooks)
+      if (!origin || config.isDev) {
+        return callback(null, true);
       }
+
+      // Check configured origins and frontend URL
+      if (config.corsOrigins.includes(origin) || origin === config.meta.frontendUrl) {
+        return callback(null, true);
+      }
+
+      // Allow any localhost / loopback on any port
+      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow private LAN IPs on any port (for mobile hotspot or LAN testing: 192.168.x, 10.x, 172.16-31.x)
+      if (/^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow public development tunnels (Cloudflare Tunnel, ngrok, localtunnel)
+      if (/^https?:\/\/.*(trycloudflare\.com|ngrok-free\.app|ngrok\.io|loca\.lt)$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow official KreazyAI production and preview domains
+      if (/^https?:\/\/([a-z0-9-]+\.)*kreazyai\.com(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      logger.warn(`CORS rejected origin: ${origin}`);
+      return callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

@@ -1678,12 +1678,20 @@ export const settingsService = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
-      if (!res.ok) {
-        res = await fetch('http://localhost:5000/api/v1/settings/avatar', {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: formData,
-        });
+      if (!res.ok && typeof window !== 'undefined') {
+        const hostname = window.location.hostname || '';
+        const isLocalOrLan = hostname === 'localhost' || 
+                             hostname === '127.0.0.1' || 
+                             /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
+        if (isLocalOrLan) {
+          const directPort = window.location.port === '5000' ? '' : ':5000';
+          const directUrl = `${window.location.protocol}//${hostname}${directPort}/api/v1/settings/avatar`;
+          res = await fetch(directUrl, {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData,
+          });
+        }
       }
       const json = await res.json().catch(() => null);
       if (res.ok && json?.data?.avatarUrl) {

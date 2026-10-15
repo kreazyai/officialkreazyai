@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node ./scripts/dev-all.mjs",
+    "dev:vite": "vite",
+    "dev:server": "node src/server/server.js",
     "server": "node src/server/server.js",
     "admin": "vite --port 5174",
     "build": "vite build",

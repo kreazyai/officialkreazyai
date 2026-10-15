@@ -11,15 +11,20 @@ async function bootstrap() {
     // 2. Instantiate Express App
     const app = createApp();
 
-    // 3. Start HTTP Server
-    const server = app.listen(config.port, () => {
+    // 3. Start HTTP Server bound to 0.0.0.0 (all network interfaces)
+    const host = process.env.HOST || '0.0.0.0';
+    const server = app.listen(config.port, host, () => {
       logger.info(`============================================================`);
-      logger.info(`KREAZYAI PRODUCTION REST API SERVER RUNNING ON PORT ${config.port}`);
+      logger.info(`KREAZYAI PRODUCTION REST API SERVER RUNNING ON ${host}:${config.port}`);
       logger.info(`Environment: ${config.nodeEnv}`);
       logger.info(`Health check: http://localhost:${config.port}/api/health`);
       logger.info(`API Base:     http://localhost:${config.port}/api/v1`);
       logger.info(`============================================================`);
     });
+
+    // Mobile carrier keep-alive and connection stability
+    server.keepAliveTimeout = 65000;
+    server.headersTimeout = 66000;
 
     // Graceful Shutdown
     const shutdown = (signal) => {
