@@ -134,6 +134,7 @@ whatsappRouter.post('/embedded-signup/session', whatsappController.initiateEmbed
 whatsappRouter.post('/embedded-signup/callback', whatsappController.completeEmbeddedSignup);
 whatsappRouter.get('/qr-session', whatsappController.getQrSession);
 whatsappRouter.post('/pair-qr', whatsappController.pairWithQr);
+whatsappRouter.post('/connect-phone', whatsappController.connectPhone);
 whatsappRouter.post('/configure-credentials', whatsappController.configureCredentials);
 whatsappRouter.patch('/auto-reply', whatsappController.updateAutoReply);
 whatsappRouter.post('/connect', whatsappController.connect);

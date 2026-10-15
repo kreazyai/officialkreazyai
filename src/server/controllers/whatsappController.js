@@ -96,6 +96,37 @@ export const whatsappController = {
   },
 
   /**
+   * POST /api/v1/whatsapp/connect-phone
+   * Instant 1-click connection: merchant provides WhatsApp number.
+   * Connects to Meta Cloud API, activates auto-reply, sets status to CONNECTED.
+   */
+  async connectPhone(req, res, next) {
+    try {
+      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const { phoneNumber, wabaId, phoneNumberId, accessToken } = req.body || {};
+
+      if (!phoneNumber || !phoneNumber.trim()) {
+        return errorResponse(res, 'Please provide a valid WhatsApp phone number', 'PHONE_REQUIRED', HTTP_STATUS.BAD_REQUEST);
+      }
+
+      const connection = whatsappConnectionService.connectPhoneNumber(tenantId, {
+        phoneNumber: phoneNumber.trim(),
+        wabaId,
+        phoneNumberId,
+        accessToken
+      });
+
+      return successResponse(res, {
+        connection,
+        connected: true,
+        message: 'WhatsApp Business connected successfully'
+      }, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * POST /api/v1/whatsapp/configure-credentials
    * Saves and encrypts official Meta WhatsApp Cloud API credentials
    */

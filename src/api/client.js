@@ -174,6 +174,26 @@ class ApiClient {
       const json = await response.json().catch(() => null);
 
       if (!response.ok) {
+        if (response.status === 502 && typeof window !== 'undefined' && !url.includes(':5000')) {
+          const hostname = window.location.hostname || '';
+          const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+          const isLan = /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
+          if (isLocal || isLan) {
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+            const directUrl = `${window.location.protocol}//${hostname}:5000/api/v1${cleanEndpoint}`;
+            try {
+              const retryRes = await fetch(directUrl, {
+                ...options,
+                headers,
+                signal: options.signal || controller?.signal
+              });
+              if (retryRes.ok) {
+                const retryJson = await retryRes.json().catch(() => null);
+                return retryJson?.data !== undefined ? retryJson.data : retryJson;
+              }
+            } catch {}
+          }
+        }
         const errorMsg = json?.error?.message || `HTTP ${response.status}: Request failed`;
         throw new Error(errorMsg);
       }
