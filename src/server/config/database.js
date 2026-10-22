@@ -664,6 +664,27 @@ export function runMigrations(db) {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
+    -- 29. Billing Invoices & Receipts Ledger
+    CREATE TABLE IF NOT EXISTS billing_invoices (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      invoice_number TEXT UNIQUE NOT NULL,
+      plan_id TEXT NOT NULL,
+      plan_name TEXT NOT NULL,
+      amount REAL NOT NULL,
+      currency TEXT DEFAULT 'USD',
+      amount_formatted TEXT,
+      status TEXT NOT NULL DEFAULT 'Confirmed',
+      payment_method TEXT NOT NULL,
+      payment_provider TEXT NOT NULL DEFAULT 'bKash',
+      sender_number TEXT,
+      trx_id TEXT,
+      screenshot_url TEXT,
+      cleared_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_onboarding_sessions_state ON whatsapp_onboarding_sessions(state_token);
     CREATE INDEX IF NOT EXISTS idx_onboarding_sessions_tenant ON whatsapp_onboarding_sessions(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_credit_wallets_tenant ON ai_credit_wallets(tenant_id);
@@ -671,6 +692,8 @@ export function runMigrations(db) {
     CREATE INDEX IF NOT EXISTS idx_credit_tx_ref ON credit_transactions(reference_id);
     CREATE INDEX IF NOT EXISTS idx_subscriptions_tenant ON subscriptions(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_payment_events_id ON payment_events(event_id);
+    CREATE INDEX IF NOT EXISTS idx_billing_invoices_tenant ON billing_invoices(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_billing_invoices_num ON billing_invoices(invoice_number);
   `);
 
   // Dynamically backfill/alter columns on existing tables for strict specification compliance
@@ -1097,7 +1120,48 @@ export function seedInitialData(db) {
   ensureCreditWallet(db, flagshipId, now);
   ensureCreditWallet(db, artisanId, now);
 
+  // Initialize baseline Growth Plan subscription and invoice for flagship workspace
+  ensureBillingData(db, flagshipId, now);
+
   logger.info('Database seeded with baseline multi-tenant structure, WhatsApp connections, FAQs, and policies.');
+}
+
+/**
+ * Ensures baseline billing subscription and invoice records exist for a tenant workspace.
+ */
+export function ensureBillingData(db, tenantId, now = new Date()) {
+  try {
+    const existingSub = db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
+    const existingInvoice = db.prepare('SELECT * FROM billing_invoices WHERE tenant_id = ?').get(tenantId);
+
+    const nowIso = now.toISOString();
+    const nextMonth = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const periodEndIso = nextMonth.toISOString();
+
+    if (!existingSub) {
+      db.prepare(`
+        INSERT OR IGNORE INTO subscriptions (
+          id, tenant_id, plan_id, status, credits_allowance, billing_cycle,
+          currency, amount, current_period_start, current_period_end,
+          cancel_at_period_end, payment_provider, external_subscription_id,
+          created_at, updated_at
+        ) VALUES (?, ?, 'growth', 'ACTIVE', 25000, 'MONTHLY', 'USD', 119.00, ?, ?, 0, 'bKash', ?, ?, ?)
+      `).run(`sub-${tenantId}`, tenantId, nowIso, periodEndIso, `sub_ext_${Date.now()}`, nowIso, nowIso);
+    }
+
+    if (!existingInvoice) {
+      const invNum = tenantId === 'ws-flagship-01' ? 'INV-2026-001' : `INV-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      db.prepare(`
+        INSERT OR IGNORE INTO billing_invoices (
+          id, tenant_id, invoice_number, plan_id, plan_name, amount, currency,
+          amount_formatted, status, payment_method, payment_provider, sender_number,
+          trx_id, cleared_at, created_at, updated_at
+        ) VALUES (?, ?, ?, 'growth', 'Growth Plan', 119.00, 'USD', '$119.00 (৳14,280 BDT)', 'Confirmed', 'bKash 01643792804 (Send money)', 'bKash', '01643792804', 'BL98XJ28K9', ?, ?, ?)
+      `).run(`inv-${tenantId}-${Date.now()}`, tenantId, invNum, nowIso, nowIso, nowIso);
+    }
+  } catch (err) {
+    logger.warn(`Failed to initialize billing data for tenant ${tenantId}:`, err.message);
+  }
 }
 
 /**

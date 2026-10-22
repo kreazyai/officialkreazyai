@@ -7,7 +7,6 @@ import {
   Zap,
   TrendingUp,
   MessageSquare,
-  ShoppingBag,
   Sparkles,
   Layers,
   BarChart3,
@@ -18,18 +17,14 @@ import {
   Mail,
   User,
   Phone,
-  Headphones,
   ChevronDown,
   Globe,
   Clock,
   MessageCircle,
   Repeat,
   ArrowUpRight,
-  Share2,
   Inbox,
   Workflow,
-  Database,
-  FileText,
   Play,
   X,
   Users
@@ -421,10 +416,10 @@ export function HomePage({ onNavigate, user }) {
                 <button
                   type="button"
                   className="hero-btn-outline"
-                  onClick={() => setShowDemoModal(true)}
+                  onClick={() => onNavigate('book-demo')}
                 >
-                  <span className="hero-play-circle">▶</span>
-                  <span>{t('hero.ctaSecondary', 'Watch Demo')}</span>
+                  <span>{t('hero.ctaBookDemo', 'Book a Demo')}</span>
+                  <Calendar size={17} className="btn-calendar" />
                 </button>
               </div>
 
@@ -643,8 +638,7 @@ export function HomePage({ onNavigate, user }) {
       </section>
 
       {/* =============================================================
-          SHOWCASE SECTION 1: STORE OVERVIEW & AUTOMATION (PICTURE 2)
-          Connected channels, real-time telemetry, and AI-driven operations
+          SHOWCASE SECTION 1: STORE OVERVIEW & AUTOMATION
           ============================================================= */}
       <section className="showcase-section">
         <div className="container">
@@ -653,9 +647,6 @@ export function HomePage({ onNavigate, user }) {
               {t('showcase.overviewEyebrow', 'CENTRALIZED INTELLIGENCE')}
             </span>
             <h2 className="showcase-title">{t('showcase.overviewTitle', 'Store Overview & Automation')}</h2>
-            <p className="showcase-subtitle">
-              {t('showcase.overviewSubtitle', 'Connected channels, real-time telemetry, and AI-driven commerce operations.')}
-            </p>
           </div>
 
           <div className="showcase-frame">
@@ -666,55 +657,11 @@ export function HomePage({ onNavigate, user }) {
               loading="eager"
             />
           </div>
-
-          {/* 4 Feature Pillars Grid (High readability on desktop, stacked cleanly on mobile) */}
-          <div className="showcase-features-grid">
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <ShoppingBag size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.pillar1Title', 'Autonomous Commerce')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.pillar1Desc', 'Manage orders, products, customers, and automation from one unified workspace.')}
-              </p>
-            </div>
-
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <BarChart3 size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.pillar2Title', 'Real-Time Analytics')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.pillar2Desc', 'Track revenue, conversations, and customer activity as it happens.')}
-              </p>
-            </div>
-
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <Bot size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.pillar3Title', 'Live AI Agent Activity')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.pillar3Desc', 'Monitor your AI agents, response status, and connected channels in real time.')}
-              </p>
-            </div>
-
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <Share2 size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.pillar4Title', 'Channel & Order Management')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.pillar4Desc', 'Keep WhatsApp, Instagram, Messenger, catalog sync, and human handoff organized.')}
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* =============================================================
-          SHOWCASE SECTION 2: OMNICHANNEL MOBILE AI CHAT (PICTURE 3)
-          WhatsApp & Social conversations converting directly into orders
+          SHOWCASE SECTION 2: OMNICHANNEL MOBILE AI CHAT
           ============================================================= */}
       <section className="showcase-section showcase-section-alt">
         <div className="container">
@@ -723,9 +670,6 @@ export function HomePage({ onNavigate, user }) {
               {t('showcase.omniEyebrow', 'CONVERSATIONAL COMMERCE')}
             </span>
             <h2 className="showcase-title">{t('showcase.omniTitle', 'Seamless Omnichannel Conversations')}</h2>
-            <p className="showcase-subtitle">
-              {t('showcase.omniSubtitle', 'Turn WhatsApp, Instagram, and Messenger chats into confirmed sales automatically with sub-second AI agents.')}
-            </p>
           </div>
 
           <div className="showcase-frame">
@@ -735,49 +679,6 @@ export function HomePage({ onNavigate, user }) {
               className="showcase-img"
               loading="lazy"
             />
-          </div>
-
-          {/* 4 Feature Pillars Grid (High readability on desktop, stacked cleanly on mobile) */}
-          <div className="showcase-features-grid">
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <Database size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.omni1Title', 'Build Your Own AI Chatbots')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.omni1Desc', 'Train AI agents on your own business data to deliver accurate, helpful responses instantly.')}
-              </p>
-            </div>
-
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <FileText size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.omni2Title', 'Instant Answers from Diverse Sources')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.omni2Desc', 'Connect files, FAQs, product data, and public links so your AI can answer repetitive questions fast.')}
-              </p>
-            </div>
-
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <MessageSquare size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.omni3Title', 'Seamless Omnichannel Conversations')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.omni3Desc', 'Keep conversations flowing across WhatsApp, Instagram, Messenger, and your website.')}
-              </p>
-            </div>
-
-            <div className="showcase-feature-card">
-              <div className="showcase-feature-icon">
-                <Headphones size={20} />
-              </div>
-              <div className="showcase-feature-title">{t('showcase.omni4Title', 'Human Support Available as Needed')}</div>
-              <p className="showcase-feature-desc">
-                {t('showcase.omni4Desc', 'When a customer needs a real person, smoothly hand off the conversation with context intact.')}
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -846,9 +747,6 @@ export function HomePage({ onNavigate, user }) {
             <h2 className="section-title">
               {t('workflow.title', 'From message to action. Automatically.')}
             </h2>
-            <p className="section-subtitle">
-              {t('workflow.subtitle', 'Every message flows through an intelligent pipeline designed to resolve inquiries, confirm orders, and update your business systems in real time.')}
-            </p>
           </div>
 
           {/* Interactive Horizontal Workflow Bar */}
@@ -863,18 +761,14 @@ export function HomePage({ onNavigate, user }) {
                   style={{ cursor: 'pointer' }}
                 >
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                      <span className="flow-step-num">{step.num}</span>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--primary)', background: 'var(--mint-soft)', padding: '2px 6px', borderRadius: '4px' }}>
-                        {step.badge}
-                      </span>
+                    <div className="flow-step-num" style={{ marginBottom: '0.65rem' }}>
+                      {step.num}
                     </div>
                     <div className="flow-step-name">{step.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600, marginBottom: '0.35rem' }}>
-                      {step.subtitle}
-                    </div>
                   </div>
-                  <p className="flow-step-desc">{step.desc}</p>
+                  <p className="flow-step-desc" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+                    {step.desc}
+                  </p>
                 </div>
               );
             })}
@@ -891,23 +785,17 @@ export function HomePage({ onNavigate, user }) {
           ============================================================= */}
       <section className="channels-section">
         <div className="container">
-          <div className="section-header-centered">
-            <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              {t('channels.eyebrow', 'UNIFIED OMNICHANNEL SUITE')}
-            </span>
-            <h2 className="section-title">
+          <div className="section-header-centered" style={{ marginBottom: '2.5rem' }}>
+            <h2 className="section-title" style={{ margin: 0 }}>
               {t('channels.title', 'One AI agent. Every conversation.')}
             </h2>
-            <p className="section-subtitle">
-              {t('channels.subtitle', 'Connect your official communication channels in minutes. KREAZY AI unifies customer touchpoints into a single continuous intelligence engine.')}
-            </p>
           </div>
 
           <div className="channels-grid">
             {dynamicChannels.map((chan, idx) => {
               const Icon = chan.icon;
               return (
-                <div key={idx} className="channel-card">
+                <div key={idx} className="channel-card" style={{ paddingBottom: '1.75rem', justifyContent: 'flex-start' }}>
                   <div>
                     <div className="channel-card-top">
                       <div
@@ -923,11 +811,7 @@ export function HomePage({ onNavigate, user }) {
                         </span>
                       </div>
                     </div>
-                    <p className="channel-card-desc">{chan.desc}</p>
-                  </div>
-                  <div className="channel-card-footer">
-                    <CheckCircle2 size={15} color="var(--green)" />
-                    <span>{t('channels.officialBadge', 'Official API integration • Live Sync')}</span>
+                    <p className="channel-card-desc" style={{ marginBottom: 0 }}>{chan.desc}</p>
                   </div>
                 </div>
               );
@@ -953,28 +837,16 @@ export function HomePage({ onNavigate, user }) {
             <h2 className="section-title">
               {t('capabilities.title', 'Designed for High-Volume Commerce')}
             </h2>
-            <p className="section-subtitle">
-              {t('capabilities.subtitle', 'Everything required to eliminate manual typing bottlenecks, scale customer satisfaction, and capture confirmed orders around the clock.')}
-            </p>
           </div>
 
           <div className="features-editorial-grid">
             {dynamicEditorialFeatures.map((feat) => (
               <div
-                key={feat.num}
+                key={feat.title}
                 className={`editorial-card ${feat.isMint ? 'mint-bg' : 'white-bg'}`}
               >
-                <div>
-                  <div className="editorial-card-num">{feat.num}</div>
-                  <h3 className="editorial-card-title">{feat.title}</h3>
-                  <p className="editorial-card-desc">{feat.desc}</p>
-                </div>
-                <div>
-                  <span className="editorial-card-tag">
-                    <Check size={14} color="var(--green)" />
-                    <span>{feat.tag}</span>
-                  </span>
-                </div>
+                <h3 className="editorial-card-title">{feat.title}</h3>
+                <p className="editorial-card-desc">{feat.desc}</p>
               </div>
             ))}
           </div>

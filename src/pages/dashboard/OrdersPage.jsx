@@ -124,22 +124,6 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
               Exit Demo
             </button>
           )}
-
-          <div className="orders-live-status">
-            <span className="orders-live-dot" />
-            <span>AI Order Capture Active</span>
-          </div>
-
-          {orders.length === 0 && !previewingDemo && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => { setPreviewingDemo(true); fetchOrders(true); }}
-              icon={Sparkles}
-            >
-              Preview Demo
-            </Button>
-          )}
         </div>
       </div>
 
@@ -401,27 +385,9 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
           <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
             No orders yet
           </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '380px', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '380px', lineHeight: 1.5, margin: 0 }}>
             Orders placed via WhatsApp, Instagram, or Facebook will show up here automatically.
           </p>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => { setPreviewingDemo(true); fetchOrders(true); }}
-              icon={Sparkles}
-            >
-              Preview Sample Orders
-            </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => onNavigateModule ? onNavigateModule('integrations') : null}
-              icon={Network}
-            >
-              Connect Channels
-            </Button>
-          </div>
         </div>
       )}
 

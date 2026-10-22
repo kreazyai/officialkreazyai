@@ -268,18 +268,12 @@ export function ProductsPage({ user, onNavigateModule }) {
           }}>
             <Boxes size={28} />
           </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
             No products in your catalog yet
           </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '440px', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-            Add your merchandise, prices, and sizing information. Kreazy AI indexes every SKU to automatically answer customer questions and process orders across your social channels.
-          </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Button variant="primary" size="md" onClick={() => { setEditingProduct(null); setIsAddModalOpen(true); }} icon={Plus}>
               Add First Product
-            </Button>
-            <Button variant="subtle" size="md" onClick={() => { setPreviewingDemo(true); fetchProducts(true); }} icon={Sparkles}>
-              ⚡ Preview Demo Catalog
             </Button>
           </div>
         </div>

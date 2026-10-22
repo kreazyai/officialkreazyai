@@ -2332,4 +2332,262 @@ export const policyService = {
   }
 };
 
+// =====================================================================
+// REAL-TIME OVERVIEW DASHBOARD TELEMETRY SERVICE (CACHE & DEDUPLICATION)
+// =====================================================================
+let _overviewInFlightPromise = null;
+let _overviewCache = {
+  data: null,
+  timestamp: 0,
+  tenantId: null
+};
+let _rateLimitUntil = 0;
+
+export const dashboardService = {
+  /**
+   * Retrieves Overview Telemetry Metrics.
+   * Features:
+   * - In-flight request deduplication (prevents duplicate simultaneous calls).
+   * - 30-second memory cache (avoids repeated roundtrips for unchanged data).
+   * - Rate-limit cooldown guard (respects Retry-After).
+   * - Safe fallback to cached data during temporary outages.
+   * @param {boolean} force - Set to true to bypass cache.
+   */
+  async getOverviewMetrics(force = false) {
+    const currentTenant = apiClient.getWorkspaceId() || 'ws-flagship-01';
+    const now = Date.now();
+
+    // 1. If currently in a server-requested cooldown period and we have cached data, return cached with stale flag
+    if (now < _rateLimitUntil) {
+      const waitSec = Math.ceil((_rateLimitUntil - now) / 1000);
+      if (_overviewCache.data && _overviewCache.tenantId === currentTenant) {
+        return {
+          ..._overviewCache.data,
+          _isStale: true,
+          _cooldownSeconds: waitSec
+        };
+      }
+      const err = new Error(`Too many requests — please wait ${waitSec}s.`);
+      err.status = 429;
+      err.code = 'RATE_LIMITED';
+      err.retryAfter = waitSec;
+      throw err;
+    }
+
+    // 2. Return fresh cached data if younger than 30s and tenant matches (unless forced)
+    if (!force && _overviewCache.data && _overviewCache.tenantId === currentTenant && (now - _overviewCache.timestamp < 30000)) {
+      return _overviewCache.data;
+    }
+
+    // 3. Return existing in-flight promise if a request is already active
+    if (_overviewInFlightPromise) {
+      return await _overviewInFlightPromise;
+    }
+
+    // 4. Execute single network request
+    _overviewInFlightPromise = (async () => {
+      try {
+        const data = await apiClient.get('/dashboard/overview-metrics');
+        if (data) {
+          _overviewCache = {
+            data,
+            timestamp: Date.now(),
+            tenantId: currentTenant
+          };
+          try {
+            if (typeof localStorage !== 'undefined') {
+              localStorage.setItem(`kreazy_overview_cache_${currentTenant}`, JSON.stringify({ data, timestamp: Date.now() }));
+            }
+          } catch {}
+        }
+        return data;
+      } catch (err) {
+        if (err.status === 429) {
+          const cooldownSec = err.retryAfter || 60;
+          _rateLimitUntil = Date.now() + (cooldownSec * 1000);
+          console.warn(`[DASHBOARD SERVICE] Rate limited (429). Cooldown set for ${cooldownSec}s.`);
+          // If we have cached data, return it marked stale rather than failing the UI completely
+          if (_overviewCache.data && _overviewCache.tenantId === currentTenant) {
+            return {
+              ..._overviewCache.data,
+              _isStale: true,
+              _cooldownSeconds: cooldownSec
+            };
+          }
+        }
+        throw err;
+      } finally {
+        _overviewInFlightPromise = null;
+      }
+    })();
+
+    return await _overviewInFlightPromise;
+  },
+
+  /**
+   * Returns locally cached metrics without triggering network request
+   */
+  getCached(tenantId) {
+    if (_overviewCache.data && (!tenantId || _overviewCache.tenantId === tenantId)) {
+      return _overviewCache.data;
+    }
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem(`kreazy_overview_cache_${tenantId || 'ws-flagship-01'}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return parsed.data;
+        }
+      }
+    } catch {}
+    return null;
+  }
+};
+
+// =====================================================================
+// SIMPLIFIED ANALYTICS SERVICE WITH INTELLIGENT CACHING & DEDUPLICATION
+// =====================================================================
+let _analyticsInFlightPromise = null;
+let _analyticsCache = {
+  data: null,
+  timestamp: 0,
+  tenantId: null
+};
+let _analyticsRateLimitUntil = 0;
+
+export const analyticsService = {
+  /**
+   * Retrieves Analytics Telemetry Metrics.
+   * Features:
+   * - In-flight request deduplication.
+   * - 30-second memory cache.
+   * - Rate-limit cooldown guard (respects Retry-After).
+   * - Safe fallback to cached data during temporary outages.
+   * @param {boolean} force - Set to true to bypass cache.
+   */
+  async getAnalyticsMetrics(force = false) {
+    const currentTenant = apiClient.getWorkspaceId() || 'ws-flagship-01';
+    const now = Date.now();
+
+    // 1. If currently in a server-requested cooldown period and we have cached data, return cached with stale flag
+    if (now < _analyticsRateLimitUntil) {
+      const waitSec = Math.ceil((_analyticsRateLimitUntil - now) / 1000);
+      if (_analyticsCache.data && _analyticsCache.tenantId === currentTenant) {
+        return {
+          ..._analyticsCache.data,
+          _isStale: true,
+          _cooldownSeconds: waitSec
+        };
+      }
+      const err = new Error(`Too many requests — please wait ${waitSec}s.`);
+      err.status = 429;
+      err.code = 'RATE_LIMITED';
+      err.retryAfter = waitSec;
+      throw err;
+    }
+
+    // 2. Return fresh cached data if younger than 30s and tenant matches (unless forced)
+    if (!force && _analyticsCache.data && _analyticsCache.tenantId === currentTenant && (now - _analyticsCache.timestamp < 30000)) {
+      return _analyticsCache.data;
+    }
+
+    // 3. Return existing in-flight promise if a request is already active
+    if (_analyticsInFlightPromise) {
+      return await _analyticsInFlightPromise;
+    }
+
+    // 4. Execute single network request
+    _analyticsInFlightPromise = (async () => {
+      try {
+        const res = await apiClient.get('/analytics/metrics');
+        const data = res?.data || res;
+        if (data) {
+          _analyticsCache = {
+            data,
+            timestamp: Date.now(),
+            tenantId: currentTenant
+          };
+          try {
+            if (typeof localStorage !== 'undefined') {
+              localStorage.setItem(`kreazy_analytics_cache_${currentTenant}`, JSON.stringify({ data, timestamp: Date.now() }));
+            }
+          } catch {}
+        }
+        return data;
+      } catch (err) {
+        if (err.status === 429) {
+          const cooldownSec = err.retryAfter || 60;
+          _analyticsRateLimitUntil = Date.now() + (cooldownSec * 1000);
+          console.warn(`[ANALYTICS SERVICE] Rate limited (429). Cooldown set for ${cooldownSec}s.`);
+          if (_analyticsCache.data && _analyticsCache.tenantId === currentTenant) {
+            return {
+              ..._analyticsCache.data,
+              _isStale: true,
+              _cooldownSeconds: cooldownSec
+            };
+          }
+        }
+        throw err;
+      } finally {
+        _analyticsInFlightPromise = null;
+      }
+    })();
+
+    return await _analyticsInFlightPromise;
+  },
+
+  /**
+   * Returns locally cached metrics without triggering network request
+   */
+  getCached(tenantId) {
+    if (_analyticsCache.data && (!tenantId || _analyticsCache.tenantId === tenantId)) {
+      return _analyticsCache.data;
+    }
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem(`kreazy_analytics_cache_${tenantId || 'ws-flagship-01'}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return parsed.data;
+        }
+      }
+    } catch {}
+    return null;
+  },
+
+  async getSummaryMetrics() {
+    return await apiClient.get('/analytics/summary');
+  }
+};
+
+// =====================================================================
+// SIMPLIFIED REVENUE SERVICE
+// =====================================================================
+export const revenueService = {
+  async getRevenueMetrics() {
+    return await apiClient.get('/revenue/metrics');
+  }
+};
+
+// =====================================================================
+// SIMPLIFIED BILLING & SUBSCRIPTIONS SERVICE
+// =====================================================================
+export const billingService = {
+  async getBillingDetails() {
+    return await apiClient.get('/billing/details');
+  },
+  async changePlan(planId, billingCycle = 'MONTHLY', provider = 'BKASH') {
+    return await apiClient.post('/billing/change-plan', { planId, billingCycle, provider });
+  },
+  async cancelPlan() {
+    return await apiClient.post('/billing/cancel-plan');
+  },
+  async submitPayment(data) {
+    return await apiClient.post('/billing/submit-payment', data);
+  },
+  async updatePaymentMethod(data) {
+    return await apiClient.post('/billing/update-method', data);
+  }
+};
+
 

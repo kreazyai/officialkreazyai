@@ -470,14 +470,36 @@ export function MessagesPage({ user, onNavigateModule }) {
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [conversations, setConversations] = useState([]);
-  const [activeId, setActiveId] = useState(null);
+  const [activeId, setActiveId] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('kreazy_selected_conv_id');
+      if (stored) {
+        sessionStorage.removeItem('kreazy_selected_conv_id');
+        return stored;
+      }
+      const urlParam = new URLSearchParams(window.location.search).get('convId') || new URLSearchParams(window.location.search).get('conversation');
+      if (urlParam) return urlParam;
+    } catch {}
+    return null;
+  });
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterChannel, setFilterChannel] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('kreazy_messages_filter');
+      if (stored) {
+        sessionStorage.removeItem('kreazy_messages_filter');
+        return stored;
+      }
+      const urlParam = new URLSearchParams(window.location.search).get('filter');
+      if (urlParam) return urlParam;
+    } catch {}
+    return 'all';
+  });
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [showCustomerPanel, setShowCustomerPanel] = useState(true);
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
@@ -553,7 +575,7 @@ export function MessagesPage({ user, onNavigateModule }) {
       const matchChannel = filterChannel === 'all' || ch === filterChannel;
 
       const st = c.status || '';
-      const needsHuman = c.needsHuman || c.status === 'NEEDS_HUMAN';
+      const needsHuman = c.needsHuman || c.status === 'NEEDS_HUMAN' || c.status === 'WAITING';
       let matchStatus = true;
       if (filterStatus === 'unread') matchStatus = Number(c.unread) > 0;
       else if (filterStatus === 'ai') matchStatus = !needsHuman && st !== 'RESOLVED';
@@ -747,19 +769,7 @@ export function MessagesPage({ user, onNavigateModule }) {
           display: 'flex', flexDirection: 'column', gap: '0.6rem',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Messages</h2>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                {loading ? 'Loading…' : `${conversations.length} conversation${conversations.length !== 1 ? 's' : ''}`}
-              </span>
-            </div>
-            <button
-              onClick={() => loadConversations(true)}
-              title="Refresh"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
-            >
-              <RefreshCw size={15} />
-            </button>
+            <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Messages</h2>
           </div>
 
           {/* Search */}
@@ -787,7 +797,6 @@ export function MessagesPage({ user, onNavigateModule }) {
               { key: 'whatsapp', label: '📱 WA' },
               { key: 'instagram', label: '📸 IG' },
               { key: 'facebook', label: '👥 FB' },
-              { key: 'website', label: '🌐 Web' },
             ].map(f => (
               <button
                 key={f.key}
@@ -804,13 +813,11 @@ export function MessagesPage({ user, onNavigateModule }) {
           </div>
 
           {/* Status filters */}
-          <div style={{ display: 'flex', gap: '4px', overflowX: 'auto' }}>
+          <div style={{ display: 'flex', gap: '4px', overflowX: 'auto', alignItems: 'center' }}>
             {[
               { key: 'all', label: 'All' },
               { key: 'unread', label: 'Unread' },
-              { key: 'open', label: 'Open' },
-              { key: 'human', label: 'Human' },
-              { key: 'resolved', label: 'Resolved' },
+              ...(filterStatus === 'human' ? [{ key: 'human', label: 'Needs Attention' }] : [])
             ].map(f => (
               <button
                 key={f.key}
@@ -818,8 +825,8 @@ export function MessagesPage({ user, onNavigateModule }) {
                 style={{
                   padding: '2px 7px', borderRadius: '100px', fontSize: '0.68rem', fontWeight: 600,
                   border: filterStatus === f.key ? '1px solid var(--border-medium)' : '1px solid transparent',
-                  background: filterStatus === f.key ? 'var(--bg-subtle)' : 'transparent',
-                  color: filterStatus === f.key ? 'var(--text-primary)' : 'var(--text-muted)',
+                  background: filterStatus === f.key ? (f.key === 'human' ? 'rgba(245, 158, 11, 0.15)' : 'var(--bg-subtle)') : 'transparent',
+                  color: filterStatus === f.key ? (f.key === 'human' ? '#f59e0b' : 'var(--text-primary)') : 'var(--text-muted)',
                   cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
                 }}
               >{f.label}</button>
@@ -1167,11 +1174,8 @@ export function MessagesPage({ user, onNavigateModule }) {
             color: 'var(--text-muted)', textAlign: 'center', padding: '2rem',
           }}>
             <MessageSquare size={40} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '1rem', color: 'var(--text-secondary)' }}>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem', color: 'var(--text-secondary)' }}>
               Select a conversation
-            </p>
-            <p style={{ margin: 0, fontSize: '0.82rem', lineHeight: 1.5 }}>
-              Choose a conversation from the left to start messaging.
             </p>
           </div>
         )}

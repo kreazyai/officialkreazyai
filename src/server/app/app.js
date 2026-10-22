@@ -73,6 +73,11 @@ export function getRateLimitKey(req) {
     }
   }
 
+  const wsHeader = req.headers['x-workspace-id'];
+  if (wsHeader && typeof wsHeader === 'string' && wsHeader.trim()) {
+    return `ws_${wsHeader.trim()}`;
+  }
+
   const clientIp = getClientIp(req);
   return ipKeyGenerator(clientIp, 64);
 }
@@ -86,19 +91,36 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => getRateLimitKey(req),
-  message: {
-    success: false,
-    error: {
-      code: 'RATE_LIMITED',
-      message: 'Too many requests — please try again in a few minutes.'
-    }
+  handler: (req, res, _next, options) => {
+    const retryAfter = Math.ceil(options.windowMs / 1000) || 60;
+    res.setHeader('Retry-After', String(retryAfter));
+    res.status(options.statusCode || 429).json({
+      success: false,
+      error: {
+        code: 'RATE_LIMITED',
+        message: 'Too many requests — please try again in a few minutes.',
+        retryAfter
+      }
+    });
   },
-  skip: (req) =>
-    req.originalUrl === '/api/health' ||
-    req.originalUrl === '/api/health/db' ||
-    req.originalUrl.includes('/webhook') ||
-    req.originalUrl.startsWith('/api/v1/meta') ||
-    req.originalUrl.startsWith('/api/meta')
+  skip: (req) => {
+    if (process.env.NODE_ENV === 'test') return true;
+    const url = req.originalUrl || req.url || '';
+    if (url === '/api/health' || url === '/api/health/db' || url.includes('/webhook')) return true;
+    // Skip internal authenticated merchant telemetry & billing read APIs so normal dashboard browsing is never throttled
+    if (
+      url.includes('/api/v1/dashboard') ||
+      url.includes('/dashboard/overview-metrics') ||
+      url.includes('/api/v1/analytics') ||
+      url.includes('/api/v1/revenue') ||
+      url.includes('/api/v1/billing') ||
+      url.includes('/api/v1/meta') ||
+      url.includes('/api/meta')
+    ) {
+      return true;
+    }
+    return false;
+  }
 });
 
 /** Strict limit for auth endpoints: 60 attempts / 15-minute window per IP */

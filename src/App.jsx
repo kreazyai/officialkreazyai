@@ -88,7 +88,6 @@ export const VALID_DASHBOARD_MODULES = [
   'analytics',
   'revenue',
   'billing',
-  'recovery',
   'settings'
 ];
 
@@ -405,11 +404,11 @@ function AppContent() {
               )}
 
               {currentDashboardModule === 'analytics' && (
-                <AnalyticsPage user={user} />
+                <AnalyticsPage user={user} onNavigateModule={handleNavigateModule} />
               )}
 
               {currentDashboardModule === 'revenue' && (
-                <RevenuePage user={user} />
+                <RevenuePage user={user} onNavigateModule={handleNavigateModule} />
               )}
 
               {currentDashboardModule === 'billing' && (
@@ -418,10 +417,6 @@ function AppContent() {
 
               {currentDashboardModule === 'settings' && (
                 <SettingsPage user={user} onLogout={handleLogout} />
-              )}
-
-              {currentDashboardModule === 'recovery' && (
-                <RecoveryPage user={user} />
               )}
 
               {currentDashboardModule === 'not-found' && (

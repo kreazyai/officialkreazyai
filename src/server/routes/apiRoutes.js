@@ -15,6 +15,8 @@ import { policyController } from '../controllers/policyController.js';
 import { aiSettingsController } from '../controllers/aiSettingsController.js';
 import { whatsappController } from '../controllers/whatsappController.js';
 import { recoveryController } from '../controllers/recoveryController.js';
+import { dashboardMetricsController } from '../controllers/dashboardMetricsController.js';
+import { billingController } from '../controllers/billingController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSuperAdmin } from '../middleware/rbac.js';
 import { avatarUpload, documentUpload, handleUploadError } from '../middleware/upload.js';
@@ -88,9 +90,34 @@ conversationRouter.post('/:id/ai-suggest', conversationController.aiSuggest);
 conversationRouter.post('/inbound', conversationController.receiveIncoming);
 apiRouter.use('/conversations', conversationRouter);
 
+// =====================================================================
+// 7. DASHBOARD METRICS ROUTES (Tenant-Scoped, Timezone-Aware)
+// =====================================================================
+const dashboardRouter = Router();
+dashboardRouter.use(optionalAuth);
+dashboardRouter.get('/overview-metrics', dashboardMetricsController.getOverviewMetrics);
+apiRouter.use('/dashboard', dashboardRouter);
 
 // =====================================================================
-// 7. AI & KNOWLEDGE ROUTES (Tenant-Scoped)
+// 8. SIMPLIFIED ANALYTICS SUMMARY ROUTES (Tenant-Scoped)
+// =====================================================================
+const analyticsRouter = Router();
+analyticsRouter.use(optionalAuth);
+analyticsRouter.get('/summary', dashboardMetricsController.getAnalyticsMetrics);
+analyticsRouter.get('/metrics', dashboardMetricsController.getAnalyticsMetrics);
+apiRouter.use('/analytics', analyticsRouter);
+
+// =====================================================================
+// 8.5. SIMPLIFIED REVENUE METRICS ROUTES (Tenant-Scoped)
+// =====================================================================
+const revenueRouter = Router();
+revenueRouter.use(optionalAuth);
+revenueRouter.get('/metrics', dashboardMetricsController.getRevenueMetrics);
+revenueRouter.get('/summary', dashboardMetricsController.getRevenueMetrics);
+apiRouter.use('/revenue', revenueRouter);
+
+// =====================================================================
+// 9. AI & KNOWLEDGE ROUTES (Tenant-Scoped)
 // =====================================================================
 const aiRouter = Router();
 aiRouter.use(authenticate);
@@ -256,5 +283,17 @@ recoveryRouter.get('/events', recoveryController.getEvents);
 recoveryRouter.post('/simulate', recoveryController.simulateIntent);
 recoveryRouter.post('/trigger-worker', recoveryController.triggerWorkerTick);
 apiRouter.use('/recovery', recoveryRouter);
+
+// =====================================================================
+// 12. BILLING & SUBSCRIPTIONS ROUTES (Tenant-Scoped)
+// =====================================================================
+const billingRouter = Router();
+billingRouter.use(authenticate);
+billingRouter.get('/details', billingController.getDetails);
+billingRouter.post('/change-plan', billingController.changePlan);
+billingRouter.post('/cancel-plan', billingController.cancelPlan);
+billingRouter.post('/submit-payment', billingController.submitPayment);
+billingRouter.post('/update-method', billingController.updatePaymentMethod);
+apiRouter.use('/billing', billingRouter);
 
 

@@ -555,10 +555,19 @@
 
 .hero-btn-outline:hover {
   background: #F8FAF9;
-  border-color: #CBD5E1;
+  border-color: #00A859;
   color: #00A859;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 6px 18px rgba(0, 168, 89, 0.12);
+}
+
+.hero-btn-outline .btn-calendar {
+  color: #00A859;
+  transition: transform 0.2s ease;
+}
+
+.hero-btn-outline:hover .btn-calendar {
+  transform: scale(1.1);
 }
 
 .hero-play-circle {
@@ -1372,7 +1381,7 @@
   transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .flow-step-card:hover {
@@ -1516,7 +1525,7 @@
   padding: 2.25rem 1.85rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
 }
@@ -1558,7 +1567,7 @@
   font-size: 0.925rem;
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0;
 }
 
 .editorial-card-tag {
@@ -3153,7 +3162,7 @@
 .showcase-header {
   text-align: center;
   max-width: 760px;
-  margin: 0 auto clamp(2rem, 4vw, 3.25rem) auto;
+  margin: 0 auto clamp(1.75rem, 3.5vw, 2.5rem) auto;
 }
 
 .showcase-title {
@@ -3163,7 +3172,7 @@
   color: var(--primary-dark);
   letter-spacing: -0.04em;
   line-height: 1.1;
-  margin: 0.6rem 0 0.85rem 0;
+  margin: 0.6rem 0 0 0;
 }
 
 .showcase-subtitle {

@@ -194,8 +194,15 @@ class ApiClient {
             } catch { }
           }
         }
+
         const errorMsg = json?.error?.message || `HTTP ${response.status}: Request failed`;
-        throw new Error(errorMsg);
+        const err = new Error(errorMsg);
+        err.status = response.status;
+        err.code = json?.error?.code || (response.status === 429 ? 'RATE_LIMITED' : 'HTTP_ERROR');
+        const retryHeader = response.headers?.get('Retry-After') || response.headers?.get('retry-after');
+        err.retryAfter = parseInt(retryHeader || json?.error?.retryAfter || '60', 10);
+        err.data = json;
+        throw err;
       }
 
       return json?.data !== undefined ? json.data : json;

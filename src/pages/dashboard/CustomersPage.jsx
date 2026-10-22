@@ -145,9 +145,6 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
       <div className="page-title-row" style={{ marginBottom: '1.5rem' }}>
         <div>
           <h2>Customers</h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Shopper profiles and customer records captured from chat channels.
-          </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
@@ -161,26 +158,6 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
               Exit Demo
             </button>
           )}
-
-          {customers.length === 0 && !previewingDemo && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => { setPreviewingDemo(true); fetchCustomers(true); }}
-              icon={Sparkles}
-            >
-              Preview Demo
-            </Button>
-          )}
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsSimulateModalOpen(true)}
-            icon={Plus}
-          >
-            Simulate Message
-          </Button>
         </div>
       </div>
 
@@ -432,32 +409,9 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
             <Users size={28} />
           </div>
 
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
             No customers yet
           </h3>
-
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '380px', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-            Customer profiles will automatically appear as shoppers message you on WhatsApp, Instagram, or Facebook.
-          </p>
-
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => { setPreviewingDemo(true); fetchCustomers(true); }}
-              icon={Sparkles}
-            >
-              Preview Demo Customers
-            </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => onNavigateModule ? onNavigateModule('integrations') : null}
-              icon={Network}
-            >
-              Connect Channels
-            </Button>
-          </div>
         </div>
       )}
 
