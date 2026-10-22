@@ -1,6 +1,7 @@
 import { getDatabase } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
+import { recoveryAttributionService } from '../services/recovery/recoveryAttributionService.js';
 
 export const orderController = {
   async getAll(req, res, next) {
@@ -85,23 +86,23 @@ export const orderController = {
 
   async create(req, res, next) {
     try {
-      const { 
-        customerName, 
-        customerEmail = '', 
-        customerPhone = '', 
-        channel = 'DIRECT', 
-        items = [], 
-        discount = 0.0, 
-        shippingAddress = {} 
+      const {
+        customerName,
+        customerEmail = '',
+        customerPhone = '',
+        channel = 'DIRECT',
+        items = [],
+        discount = 0.0,
+        shippingAddress = {}
       } = req.body;
 
       const businessId = req.businessId;
 
       if (!customerName || !items || !items.length) {
         return errorResponse(
-          res, 
-          'Customer name and at least one order line item are required.', 
-          API_ERROR_CODES.VALIDATION_FAILED, 
+          res,
+          'Customer name and at least one order line item are required.',
+          API_ERROR_CODES.VALIDATION_FAILED,
           HTTP_STATUS.UNPROCESSABLE_ENTITY
         );
       }
@@ -218,6 +219,21 @@ export const orderController = {
       }
 
       const createdOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+
+      // Attribute confirmed order to any active/recent recovery attempt
+      try {
+        const custRecord = db.prepare('SELECT id FROM customers WHERE business_id = ? AND (email = ? OR phone = ?)').get(businessId, customerEmail.trim(), customerPhone.trim());
+        recoveryAttributionService.attributeOrder({
+          tenantId: businessId,
+          orderId,
+          orderValue: createdOrder.total,
+          currency: 'USD',
+          customerId: custRecord ? custRecord.id : null,
+          customerPhone: customerPhone.trim()
+        });
+      } catch (attrErr) {
+        logger.warn('[ORDER CONTROLLER] Recovery attribution error:', attrErr.message);
+      }
       const itemsCreated = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(orderId);
 
       logger.info(`Order ${orderId} created for ${customerName} (Total: $${createdOrder.total})`);
@@ -244,9 +260,9 @@ export const orderController = {
       const allowedStatuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
       if (!status || !allowedStatuses.includes(status.toUpperCase())) {
         return errorResponse(
-          res, 
-          `Status must be one of: ${allowedStatuses.join(', ')}`, 
-          API_ERROR_CODES.VALIDATION_FAILED, 
+          res,
+          `Status must be one of: ${allowedStatuses.join(', ')}`,
+          API_ERROR_CODES.VALIDATION_FAILED,
           HTTP_STATUS.UNPROCESSABLE_ENTITY
         );
       }

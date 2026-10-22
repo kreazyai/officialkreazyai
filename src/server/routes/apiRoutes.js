@@ -14,6 +14,7 @@ import { faqController } from '../controllers/faqController.js';
 import { policyController } from '../controllers/policyController.js';
 import { aiSettingsController } from '../controllers/aiSettingsController.js';
 import { whatsappController } from '../controllers/whatsappController.js';
+import { recoveryController } from '../controllers/recoveryController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSuperAdmin } from '../middleware/rbac.js';
 import { avatarUpload, documentUpload, handleUploadError } from '../middleware/upload.js';
@@ -238,5 +239,22 @@ apiRouter.get('/settings/avatar/:userId/:filename', settingsController.viewAvata
 apiRouter.get('/settings/avatar/:filename', settingsController.viewAvatar);
 
 apiRouter.use('/settings', settingsRouter);
+
+// =====================================================================
+// 11. SMART SALES RECOVERY AGENT ROUTES (Tenant-Scoped)
+// =====================================================================
+const recoveryRouter = Router();
+recoveryRouter.use(authenticate);
+recoveryRouter.get('/overview', recoveryController.getOverview);
+recoveryRouter.get('/candidates', recoveryController.getCandidates);
+recoveryRouter.get('/candidates/:id', recoveryController.getCandidateById);
+recoveryRouter.post('/candidates/:id/cancel', recoveryController.cancelCandidate);
+recoveryRouter.post('/candidates/:id/retry', recoveryController.retryCandidate);
+recoveryRouter.get('/settings', recoveryController.getSettings);
+recoveryRouter.put('/settings', recoveryController.updateSettings);
+recoveryRouter.get('/events', recoveryController.getEvents);
+recoveryRouter.post('/simulate', recoveryController.simulateIntent);
+recoveryRouter.post('/trigger-worker', recoveryController.triggerWorkerTick);
+apiRouter.use('/recovery', recoveryRouter);
 
 

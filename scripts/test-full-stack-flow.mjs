@@ -94,7 +94,7 @@ async function main() {
     // Update lead status
     const updateLeadRes = await fetch(`${BASE_URL}/admin/leads/${foundDemo.id}/status`, {
       method: 'PATCH',
-      headers: { 
+      headers: {
         Authorization: `Bearer ${adminToken}`,
         'Content-Type': 'application/json'
       },

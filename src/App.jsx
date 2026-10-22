@@ -12,41 +12,42 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 
 // ─── Website pages (lazy-loaded on first navigation) ─────────────────────────
-const HomePage            = lazy(() => import('./pages/website/HomePage').then(m => ({ default: m.HomePage })));
-const SolutionsPage       = lazy(() => import('./pages/website/SolutionsPage').then(m => ({ default: m.SolutionsPage })));
-const AiAgentsPage        = lazy(() => import('./pages/website/AiAgentsPage').then(m => ({ default: m.AiAgentsPage })));
+const HomePage = lazy(() => import('./pages/website/HomePage').then(m => ({ default: m.HomePage })));
+const SolutionsPage = lazy(() => import('./pages/website/SolutionsPage').then(m => ({ default: m.SolutionsPage })));
+const AiAgentsPage = lazy(() => import('./pages/website/AiAgentsPage').then(m => ({ default: m.AiAgentsPage })));
 const WebsiteIntegrationsPage = lazy(() => import('./pages/website/WebsiteIntegrationsPage').then(m => ({ default: m.WebsiteIntegrationsPage })));
-const HowItWorksPage      = lazy(() => import('./pages/website/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })));
-const FeaturesPage        = lazy(() => import('./pages/website/FeaturesPage').then(m => ({ default: m.FeaturesPage })));
-const PricingPage         = lazy(() => import('./pages/website/PricingPage').then(m => ({ default: m.PricingPage })));
-const AboutPage           = lazy(() => import('./pages/website/AboutPage').then(m => ({ default: m.AboutPage })));
-const ContactPage         = lazy(() => import('./pages/website/ContactPage').then(m => ({ default: m.ContactPage })));
-const BookDemoPage        = lazy(() => import('./pages/website/BookDemoPage').then(m => ({ default: m.BookDemoPage })));
-const FounderMeetingPage  = lazy(() => import('./pages/website/FounderMeetingPage').then(m => ({ default: m.FounderMeetingPage })));
-const FaqPage             = lazy(() => import('./pages/website/FaqPage').then(m => ({ default: m.FaqPage })));
-const LegalPage           = lazy(() => import('./pages/website/LegalPage').then(m => ({ default: m.LegalPage })));
+const HowItWorksPage = lazy(() => import('./pages/website/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })));
+const FeaturesPage = lazy(() => import('./pages/website/FeaturesPage').then(m => ({ default: m.FeaturesPage })));
+const PricingPage = lazy(() => import('./pages/website/PricingPage').then(m => ({ default: m.PricingPage })));
+const AboutPage = lazy(() => import('./pages/website/AboutPage').then(m => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import('./pages/website/ContactPage').then(m => ({ default: m.ContactPage })));
+const BookDemoPage = lazy(() => import('./pages/website/BookDemoPage').then(m => ({ default: m.BookDemoPage })));
+const FounderMeetingPage = lazy(() => import('./pages/website/FounderMeetingPage').then(m => ({ default: m.FounderMeetingPage })));
+const FaqPage = lazy(() => import('./pages/website/FaqPage').then(m => ({ default: m.FaqPage })));
+const LegalPage = lazy(() => import('./pages/website/LegalPage').then(m => ({ default: m.LegalPage })));
 
 // ─── Auth & Onboarding pages (lazy-loaded) ───────────────────────────────────
-const LoginPage           = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
-const SignUpPage          = lazy(() => import('./pages/auth/SignUpPage').then(m => ({ default: m.SignUpPage })));
-const ForgotPasswordPage  = lazy(() => import('./pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
-const OnboardingPage      = lazy(() => import('./pages/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })));
+const LoginPage = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const SignUpPage = lazy(() => import('./pages/auth/SignUpPage').then(m => ({ default: m.SignUpPage })));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const OnboardingPage = lazy(() => import('./pages/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })));
 
 // ─── Merchant Dashboard modules (largest files — aggressive code-splitting) ──
-const DashboardOverview   = lazy(() => import('./pages/dashboard/DashboardOverview').then(m => ({ default: m.DashboardOverview })));
-const MessagesPage        = lazy(() => import('./pages/dashboard/MessagesPage').then(m => ({ default: m.MessagesPage })));
-const OrdersPage          = lazy(() => import('./pages/dashboard/OrdersPage').then(m => ({ default: m.OrdersPage })));
-const ProductsPage        = lazy(() => import('./pages/dashboard/ProductsPage').then(m => ({ default: m.ProductsPage })));
-const CustomersPage       = lazy(() => import('./pages/dashboard/CustomersPage').then(m => ({ default: m.CustomersPage })));
-const IntegrationsPage    = lazy(() => import('./pages/dashboard/IntegrationsPage').then(m => ({ default: m.IntegrationsPage })));
-const AiAssistantPage     = lazy(() => import('./pages/dashboard/AiAssistantPage').then(m => ({ default: m.AiAssistantPage })));
-const AnalyticsPage       = lazy(() => import('./pages/dashboard/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
-const RevenuePage         = lazy(() => import('./pages/dashboard/RevenuePage').then(m => ({ default: m.RevenuePage })));
-const BillingPage         = lazy(() => import('./pages/dashboard/BillingPage').then(m => ({ default: m.BillingPage })));
-const SettingsPage        = lazy(() => import('./pages/dashboard/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const DashboardOverview = lazy(() => import('./pages/dashboard/DashboardOverview').then(m => ({ default: m.DashboardOverview })));
+const MessagesPage = lazy(() => import('./pages/dashboard/MessagesPage').then(m => ({ default: m.MessagesPage })));
+const OrdersPage = lazy(() => import('./pages/dashboard/OrdersPage').then(m => ({ default: m.OrdersPage })));
+const ProductsPage = lazy(() => import('./pages/dashboard/ProductsPage').then(m => ({ default: m.ProductsPage })));
+const CustomersPage = lazy(() => import('./pages/dashboard/CustomersPage').then(m => ({ default: m.CustomersPage })));
+const IntegrationsPage = lazy(() => import('./pages/dashboard/IntegrationsPage').then(m => ({ default: m.IntegrationsPage })));
+const AiAssistantPage = lazy(() => import('./pages/dashboard/AiAssistantPage').then(m => ({ default: m.AiAssistantPage })));
+const AnalyticsPage = lazy(() => import('./pages/dashboard/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const RevenuePage = lazy(() => import('./pages/dashboard/RevenuePage').then(m => ({ default: m.RevenuePage })));
+const BillingPage = lazy(() => import('./pages/dashboard/BillingPage').then(m => ({ default: m.BillingPage })));
+const SettingsPage = lazy(() => import('./pages/dashboard/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const RecoveryPage = lazy(() => import('./pages/dashboard/RecoveryPage').then(m => ({ default: m.RecoveryPage })));
 
 // ─── Admin Portal (largest single view — isolated chunk) ─────────────────────
-const AdminPortal         = lazy(() => import('./pages/admin/AdminPortal').then(m => ({ default: m.AdminPortal })));
+const AdminPortal = lazy(() => import('./pages/admin/AdminPortal').then(m => ({ default: m.AdminPortal })));
 
 // ─── Shared loading fallback ──────────────────────────────────────────────────
 function PageLoader() {
@@ -87,6 +88,7 @@ export const VALID_DASHBOARD_MODULES = [
   'analytics',
   'revenue',
   'billing',
+  'recovery',
   'settings'
 ];
 
@@ -416,6 +418,10 @@ function AppContent() {
 
               {currentDashboardModule === 'settings' && (
                 <SettingsPage user={user} onLogout={handleLogout} />
+              )}
+
+              {currentDashboardModule === 'recovery' && (
+                <RecoveryPage user={user} />
               )}
 
               {currentDashboardModule === 'not-found' && (

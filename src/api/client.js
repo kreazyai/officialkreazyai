@@ -42,7 +42,7 @@ function safeGet(key, def = null) {
     if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
       return localStorage.getItem(key) || def;
     }
-  } catch {}
+  } catch { }
   return def;
 }
 
@@ -51,7 +51,7 @@ function safeSet(key, val) {
     if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
       localStorage.setItem(key, val);
     }
-  } catch {}
+  } catch { }
 }
 
 function safeRemove(key) {
@@ -59,7 +59,7 @@ function safeRemove(key) {
     if (typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
       localStorage.removeItem(key);
     }
-  } catch {}
+  } catch { }
 }
 
 /**
@@ -191,7 +191,7 @@ class ApiClient {
                 const retryJson = await retryRes.json().catch(() => null);
                 return retryJson?.data !== undefined ? retryJson.data : retryJson;
               }
-            } catch {}
+            } catch { }
           }
         }
         const errorMsg = json?.error?.message || `HTTP ${response.status}: Request failed`;

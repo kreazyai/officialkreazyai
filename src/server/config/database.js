@@ -743,6 +743,148 @@ export function runMigrations(db) {
     logger.warn('Non-critical schema extension warning:', alterErr.message);
   }
 
+  // ── Phase 5 Migrations: Smart Sales Recovery Agent Architecture ─────────────
+  db.exec(`
+    -- 29. Recovery Settings (Per-Tenant Configuration)
+    CREATE TABLE IF NOT EXISTS recovery_settings (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT UNIQUE NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      enabled INTEGER DEFAULT 0,
+      dry_run INTEGER DEFAULT 1,
+      channels TEXT DEFAULT '{"whatsapp":true,"messenger":false,"instagram":false}',
+      min_intent_score REAL DEFAULT 0.70,
+      inactivity_minutes INTEGER DEFAULT 30,
+      quiet_hours_enabled INTEGER DEFAULT 1,
+      quiet_hours_start TEXT DEFAULT '22:00',
+      quiet_hours_end TEXT DEFAULT '08:00',
+      timezone TEXT DEFAULT 'Asia/Dhaka',
+      max_daily_attempts_per_lead INTEGER DEFAULT 2,
+      max_daily_tenant_attempts INTEGER DEFAULT 100,
+      consent_policy TEXT DEFAULT 'EXPLICIT_OR_24H',
+      model_provider TEXT DEFAULT 'local_ollama',
+      model_name TEXT DEFAULT 'qwen3:1.7b',
+      max_tokens INTEGER DEFAULT 150,
+      temperature REAL DEFAULT 0.3,
+      discount_offer_percent REAL DEFAULT 0.0,
+      control_group_ratio REAL DEFAULT 0.1,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 30. Recovery Candidates (High-Intent Detected Leads)
+    CREATE TABLE IF NOT EXISTS recovery_candidates (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      channel TEXT DEFAULT 'WHATSAPP',
+      customer_id TEXT REFERENCES customers(id) ON DELETE SET NULL,
+      intent_score REAL NOT NULL,
+      intent_category TEXT NOT NULL,
+      intent_reason TEXT,
+      buying_signals TEXT DEFAULT '[]',
+      product_identifiers TEXT DEFAULT '[]',
+      detected_language TEXT DEFAULT 'en',
+      last_customer_message_text TEXT,
+      last_customer_message_at TEXT NOT NULL,
+      eligible_at TEXT NOT NULL,
+      stage TEXT DEFAULT 'IDENTIFIED',
+      state TEXT DEFAULT 'PENDING',
+      version INTEGER DEFAULT 1,
+      is_control_group INTEGER DEFAULT 0,
+      cancel_reason TEXT,
+      deduplication_key TEXT UNIQUE NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 31. Recovery Attempts (Historical Records of Execution & Delivery)
+    CREATE TABLE IF NOT EXISTS recovery_attempts (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      candidate_id TEXT NOT NULL REFERENCES recovery_candidates(id) ON DELETE CASCADE,
+      channel TEXT NOT NULL,
+      scheduled_at TEXT NOT NULL,
+      attempted_at TEXT,
+      message_id TEXT,
+      outcome TEXT DEFAULT 'PENDING',
+      failure_reason TEXT,
+      policy_check_result TEXT DEFAULT '{}',
+      template_id TEXT,
+      generation_model TEXT,
+      prompt_tokens INTEGER DEFAULT 0,
+      completion_tokens INTEGER DEFAULT 0,
+      latency_ms INTEGER DEFAULT 0,
+      cost_estimate REAL DEFAULT 0.0,
+      message_text TEXT,
+      message_hash TEXT,
+      provider_response_id TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 32. Recovery Events (Audit & Lifecycle Trail)
+    CREATE TABLE IF NOT EXISTS recovery_events (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      candidate_id TEXT REFERENCES recovery_candidates(id) ON DELETE CASCADE,
+      attempt_id TEXT REFERENCES recovery_attempts(id) ON DELETE CASCADE,
+      event_type TEXT NOT NULL,
+      event_at TEXT DEFAULT (datetime('now')),
+      metadata TEXT DEFAULT '{}',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- 33. Recovery Attributions (Verified Order Value Linking)
+    CREATE TABLE IF NOT EXISTS recovery_attributions (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      candidate_id TEXT NOT NULL REFERENCES recovery_candidates(id) ON DELETE CASCADE,
+      attempt_id TEXT REFERENCES recovery_attempts(id) ON DELETE SET NULL,
+      order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+      order_value REAL NOT NULL,
+      currency TEXT DEFAULT 'USD',
+      attributed_at TEXT DEFAULT (datetime('now')),
+      attribution_method TEXT DEFAULT 'LAST_TOUCH',
+      is_control_group INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(tenant_id, order_id)
+    );
+
+    -- 34. Recovery Outbox (Durable Asynchronous Dispatch & Safe Retries)
+    CREATE TABLE IF NOT EXISTS recovery_outbox (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+      candidate_id TEXT NOT NULL REFERENCES recovery_candidates(id) ON DELETE CASCADE,
+      attempt_id TEXT REFERENCES recovery_attempts(id) ON DELETE CASCADE,
+      channel TEXT NOT NULL,
+      recipient TEXT NOT NULL,
+      status TEXT DEFAULT 'QUEUED',
+      idempotency_key TEXT UNIQUE NOT NULL,
+      payload TEXT NOT NULL,
+      retries INTEGER DEFAULT 0,
+      max_retries INTEGER DEFAULT 3,
+      last_error TEXT,
+      next_retry_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    -- Recovery Indexes for Rapid Execution, Strict Isolation, & Optimistic Concurrency
+    CREATE INDEX IF NOT EXISTS idx_recovery_settings_tenant ON recovery_settings(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_candidates_tenant ON recovery_candidates(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_candidates_conv ON recovery_candidates(conversation_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_candidates_eligible ON recovery_candidates(eligible_at, stage, state);
+    CREATE INDEX IF NOT EXISTS idx_recovery_candidates_customer ON recovery_candidates(customer_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_attempts_candidate ON recovery_attempts(candidate_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_attempts_tenant ON recovery_attempts(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_events_candidate ON recovery_events(candidate_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_events_tenant ON recovery_events(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_attributions_tenant ON recovery_attributions(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_attributions_candidate ON recovery_attributions(candidate_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_attributions_order ON recovery_attributions(order_id);
+    CREATE INDEX IF NOT EXISTS idx_recovery_outbox_status ON recovery_outbox(status, next_retry_at);
+    CREATE INDEX IF NOT EXISTS idx_recovery_outbox_idempotency ON recovery_outbox(idempotency_key);
+  `);
+
   logger.info('Database schema and performance indexes verified successfully.');
 }
 

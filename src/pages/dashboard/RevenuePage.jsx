@@ -169,7 +169,7 @@ export function RevenuePage({ user }) {
 
       {/* Main Grid: Revenue by Channel & Settlement Ledger */}
       <div className="analytics-breakdown-grid" style={{ marginTop: '1.5rem' }}>
-        
+
         {/* Section 1: Revenue by Social Channel */}
         <div className="card" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', padding: 0 }}>
           <div style={{ padding: '1.35rem 1.75rem', borderBottom: '1px solid var(--border-subtle)', background: 'rgba(214, 229, 215, 0.04)' }}>

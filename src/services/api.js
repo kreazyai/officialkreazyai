@@ -329,7 +329,7 @@ export const customerCrmService = {
     const cleanEmail = email || `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'shopper'}@customer.meta`;
 
     // Check if customer already exists in directory
-    const existingIndex = list.findIndex(c => 
+    const existingIndex = list.findIndex(c =>
       (email && c.email?.toLowerCase() === email.toLowerCase()) ||
       (phone && c.phone === phone) ||
       (c.full_name?.toLowerCase() === cleanName.toLowerCase())
@@ -781,7 +781,7 @@ export const orderService = {
     };
     const updated = [newOrder, ...orders];
     setStored(key, updated);
-    
+
     // Log platform audit
     adminService.logAuditAction('ORDER_CAPTURED_AUTONOMOUS', newOrder.id, {
       total: newOrder.total,
@@ -950,7 +950,7 @@ export const conversationService = {
 
       const existingConv = convos.find(
         c => c.customer?.full_name?.toLowerCase() === (customerName || '').toLowerCase() ||
-             c.customer?.name?.toLowerCase() === (customerName || '').toLowerCase()
+          c.customer?.name?.toLowerCase() === (customerName || '').toLowerCase()
       );
       let targetConv;
       let updatedConvos;
@@ -1153,9 +1153,9 @@ export const leadService = {
     }
 
     if (!createdLead) {
-      createdLead = { 
-        ...demoData, 
-        id: `demo-${Date.now()}`, 
+      createdLead = {
+        ...demoData,
+        id: `demo-${Date.now()}`,
         request_type: 'DEMO',
         status: 'NEW',
         notes: demoData.message || 'Submitted via public website demo booking flow.',
@@ -1383,14 +1383,14 @@ export const authService = {
     const resolvedEmail = (email || 'merchant@gmail.com').trim().toLowerCase();
     const resolvedName = name?.trim() || resolvedEmail.split('@')[0];
     const isSuper = resolvedEmail.includes('superadmin') || resolvedEmail.includes('admin@kreazy.ai') || resolvedEmail.includes('kreazyai@gmail.com');
-    
+
     // Check if there is an existing workspace or create a clean one
     const workspaces = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
     const existingWs = workspaces.find(w => w.owner_email?.toLowerCase() === resolvedEmail);
-    
+
     const workspaceId = existingWs ? existingWs.id : `ws-g-${Date.now()}`;
     const targetStoreName = existingWs ? existingWs.name : (storeName || `${resolvedName}'s Store`);
-    
+
     if (!existingWs) {
       const newWs = {
         id: workspaceId,
@@ -1680,9 +1680,9 @@ export const settingsService = {
       });
       if (!res.ok && typeof window !== 'undefined') {
         const hostname = window.location.hostname || '';
-        const isLocalOrLan = hostname === 'localhost' || 
-                             hostname === '127.0.0.1' || 
-                             /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
+        const isLocalOrLan = hostname === 'localhost' ||
+          hostname === '127.0.0.1' ||
+          /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
         if (isLocalOrLan) {
           const directPort = window.location.port === '5000' ? '' : ':5000';
           const directUrl = `${window.location.protocol}//${hostname}${directPort}/api/v1/settings/avatar`;

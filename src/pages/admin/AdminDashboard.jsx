@@ -19,7 +19,8 @@ import {
   Zap,
   Radio,
   UserCheck,
-  Menu
+  Menu,
+  FileText
 } from 'lucide-react';
 import { adminService } from '../../services/api';
 import '../../styles/admin.css';
@@ -437,6 +438,32 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               <RefreshCw size={15} />
               <span className="mac-sync-text">{isSyncing ? 'Syncing...' : 'Sync Live'}</span>
             </button>
+
+            {/* Official Audit Report Download Button */}
+            <a
+              href="/KreazyAI_Full_Website_Audit_Report.pdf"
+              download="KreazyAI_Full_Website_Audit_Report.pdf"
+              className="mac-audit-download-btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 700,
+                background: '#EFFBF5',
+                color: '#087A4A',
+                border: '1px solid rgba(8, 122, 74, 0.3)',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              title="Download Official 12-Page Full Website Audit Report (PDF)"
+            >
+              <FileText size={15} />
+              <span>Audit Report (PDF)</span>
+            </a>
           </div>
         </header>
 

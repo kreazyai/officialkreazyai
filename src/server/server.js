@@ -2,6 +2,7 @@ import { createApp } from './app/app.js';
 import { config } from './config/env.js';
 import { getDatabase } from './config/database.js';
 import { logger } from './utils/logger.js';
+import { recoveryWorker } from './services/recovery/recoveryWorker.js';
 
 async function bootstrap() {
   try {
@@ -11,7 +12,10 @@ async function bootstrap() {
     // 2. Instantiate Express App
     const app = createApp();
 
-    // 3. Start HTTP Server bound to 0.0.0.0 (all network interfaces)
+    // 3. Start Smart Sales Recovery Background Scheduler
+    recoveryWorker.start(30000);
+
+    // 4. Start HTTP Server bound to 0.0.0.0 (all network interfaces)
     const host = process.env.HOST || '0.0.0.0';
     const server = app.listen(config.port, host, () => {
       logger.info(`============================================================`);
@@ -29,6 +33,7 @@ async function bootstrap() {
     // Graceful Shutdown
     const shutdown = (signal) => {
       logger.info(`Received ${signal}. Shutting down HTTP server gracefully...`);
+      recoveryWorker.stop();
       server.close(() => {
         logger.info('HTTP server closed.');
         process.exit(0);

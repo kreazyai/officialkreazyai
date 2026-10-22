@@ -108,7 +108,7 @@ export function LegalPage({ initialTab = 'privacy' }) {
               <h1 style={{ fontSize: 'clamp(2rem, 3.8vw, 2.75rem)', fontWeight: 900, letterSpacing: '-0.045em', lineHeight: 0.96, marginBottom: '1.5rem' }}>
                 {t.privacyTitle}
               </h1>
-              
+
               <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>{t.p1Head}</h3>
               <p>{t.p1Body}</p>
 

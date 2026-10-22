@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -91,10 +93,10 @@ const generalLimiter = rateLimit({
       message: 'Too many requests — please try again in a few minutes.'
     }
   },
-  skip: (req) => 
-    req.originalUrl === '/api/health' || 
-    req.originalUrl === '/api/health/db' || 
-    req.originalUrl.includes('/webhook') || 
+  skip: (req) =>
+    req.originalUrl === '/api/health' ||
+    req.originalUrl === '/api/health/db' ||
+    req.originalUrl.includes('/webhook') ||
     req.originalUrl.startsWith('/api/v1/meta') ||
     req.originalUrl.startsWith('/api/meta')
 });
@@ -269,7 +271,37 @@ export function createApp() {
   app.use('/api/v1', apiRouter);
   app.use('/api', apiRouter); // Alias for convenience
 
-  // 9. Catch-all Not Found & Error Handling
+  // 9. Static File Serving (public assets & audit reports)
+  const publicDir = path.resolve(process.cwd(), 'public');
+  if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir));
+  }
+
+  // 10. Direct Download Endpoint for Official Master Audit PDF
+  const handlePdfDownload = (req, res) => {
+    const candidates = [
+      path.resolve(process.cwd(), 'KreazyAI_Full_Website_Audit_Report.pdf'),
+      path.resolve(process.cwd(), 'public', 'KreazyAI_Full_Website_Audit_Report.pdf'),
+      path.resolve(process.cwd(), 'KREAZYAI_FULL_PROJECT_AUDIT_REPORT.pdf'),
+      path.resolve(process.cwd(), 'public', 'KREAZYAI_FULL_PROJECT_AUDIT_REPORT.pdf')
+    ];
+
+    for (const filePath of candidates) {
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="KreazyAI_Full_Website_Audit_Report.pdf"');
+        return res.sendFile(filePath);
+      }
+    }
+    return res.status(404).json({ success: false, error: 'Audit PDF not found on server' });
+  };
+
+  app.get('/download-audit-pdf', handlePdfDownload);
+  app.get('/KreazyAI_Full_Website_Audit_Report.pdf', handlePdfDownload);
+  app.get('/KREAZYAI_FULL_PROJECT_AUDIT_REPORT.pdf', handlePdfDownload);
+  app.get('/api/v1/public/download-audit-pdf', handlePdfDownload);
+
+  // 11. Catch-all Not Found & Error Handling
   app.use(notFoundHandler);
   app.use(errorHandler);
 

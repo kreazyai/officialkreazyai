@@ -1535,7 +1535,7 @@ function NotificationsSection({ onToast }) {
       .then(d => {
         if (d) setPrefs(p => ({ ...p, ...d }));
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleSave = async () => {
@@ -1667,7 +1667,7 @@ function BillingSection({ user, onToast }) {
     try {
       const stored = localStorage.getItem('kreazy_user_subscription');
       if (stored) return JSON.parse(stored);
-    } catch {}
+    } catch { }
 
     // Check if user object has active purchased plan
     const planName = user?.plan || '';

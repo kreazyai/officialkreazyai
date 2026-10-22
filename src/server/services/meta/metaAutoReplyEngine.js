@@ -6,6 +6,8 @@ import { whatsappService } from './whatsappService.js';
 import { instagramService } from './instagramService.js';
 import { messengerService } from './messengerService.js';
 import { whatsappPipeline } from '../whatsapp/whatsappPipeline.js';
+import { highIntentDetector } from '../recovery/highIntentDetector.js';
+import { recoveryCandidateService } from '../recovery/recoveryCandidateService.js';
 
 export const metaAutoReplyEngine = {
   /**
@@ -96,6 +98,12 @@ export const metaAutoReplyEngine = {
       VALUES (?, ?, 'customer', ?, ?, 0, ?, datetime('now'))
     `).run(incomingMsgId, externalConversationId, customer.full_name, messageText, platform);
 
+    // Cancel active recovery candidates as customer has replied
+    try {
+      recoveryCandidateService.cancelActiveCandidates(businessId, externalConversationId, 'CUSTOMER_REPLIED');
+      recoveryCandidateService.markReplied(businessId, externalConversationId);
+    } catch {}
+
     // ─────────────────────────────────────────────────────────────────
     // STEP 4: RULE-FIRST ENGINE (Fast, Deterministic, Zero Cost)
     // ─────────────────────────────────────────────────────────────────
@@ -129,6 +137,9 @@ export const metaAutoReplyEngine = {
           WHERE id = ?
         `).run(externalConversationId);
         logger.info(`[HUMAN ESCALATION] Thread ${externalConversationId} assigned to Live Inbox (Confidence: ${confidence})`);
+        try {
+          recoveryCandidateService.cancelActiveCandidates(businessId, externalConversationId, 'HUMAN_ESCALATION');
+        } catch {}
       } else {
         replyText = aiResult.reply;
       }
@@ -175,6 +186,29 @@ export const metaAutoReplyEngine = {
       UPDATE meta_connections SET last_webhook_at = datetime('now'), updated_at = datetime('now')
       WHERE business_id = ? AND platform = ?
     `).run(businessId, platform);
+
+    // Evaluate High-Intent Sales Recovery Lead for Messenger/Instagram
+    if (!escalated && messageText && customer) {
+      try {
+        const catalog = db.prepare('SELECT id, name, sku, price, stock FROM products WHERE business_id = ? LIMIT 30').all(businessId);
+        highIntentDetector.classifyMessage(messageText, { catalog }).then(recClassification => {
+          if (recClassification && recClassification.eligibleForRecovery) {
+            recoveryCandidateService.registerIntent({
+              tenantId: businessId,
+              conversationId: externalConversationId,
+              channel: platform,
+              customerId: customer.id,
+              classification: recClassification,
+              messageText
+            });
+          }
+        }).catch(err => {
+          logger.warn('[META AUTO-REPLY] Recovery intent detection error:', err.message);
+        });
+      } catch (detErr) {
+        logger.warn('[META AUTO-REPLY] Recovery lead check error:', detErr.message);
+      }
+    }
 
     return {
       replied: true,

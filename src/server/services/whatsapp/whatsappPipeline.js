@@ -9,6 +9,8 @@ import { whatsappConnectionService } from './whatsappConnectionService.js';
 import { metaWebhookService } from '../meta/metaWebhookService.js';
 import { whatsappAiService } from './whatsappAiService.js';
 import { creditWalletService } from '../billing/creditWalletService.js';
+import { highIntentDetector } from '../recovery/highIntentDetector.js';
+import { recoveryCandidateService } from '../recovery/recoveryCandidateService.js';
 
 export const WHATSAPP_INTENTS = {
   PRODUCT_INQUIRY: 'PRODUCT_INQUIRY',
@@ -197,6 +199,14 @@ export const whatsappPipeline = {
       mediaRef,
       externalMessageId || null
     );
+
+    // Cancel any active recovery candidates since customer has replied
+    try {
+      recoveryCandidateService.cancelActiveCandidates(tenantId, convId, 'CUSTOMER_REPLIED');
+      recoveryCandidateService.markReplied(tenantId, convId);
+    } catch (recCancelErr) {
+      logger.warn('[PIPELINE] Recovery cancellation warning:', recCancelErr.message);
+    }
 
     // ─────────────────────────────────────────────────────────────────
     // STEP 5: LANGUAGE DETECTION (Bangla, English, Banglish, Mixed)
@@ -422,6 +432,9 @@ export const whatsappPipeline = {
         WHERE id = ?
       `).run(convId);
       logger.info(`[PIPELINE] Conversation ${convId} marked as NEEDS_HUMAN in Live Inbox`);
+      try {
+        recoveryCandidateService.cancelActiveCandidates(tenantId, convId, 'HUMAN_ESCALATION');
+      } catch {}
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -530,6 +543,29 @@ export const whatsappPipeline = {
         WHERE tenant_id = ?
       `).run(tenantId);
     } catch {}
+
+    // Evaluate High-Intent Sales Recovery Lead
+    if (!isEscalated && rawMessageText && customer) {
+      try {
+        const catalog = db.prepare('SELECT id, name, sku, price, stock FROM products WHERE (business_id = ? OR tenant_id = ?) LIMIT 30').all(tenantId, tenantId);
+        highIntentDetector.classifyMessage(rawMessageText, { catalog }).then(recClassification => {
+          if (recClassification && recClassification.eligibleForRecovery) {
+            recoveryCandidateService.registerIntent({
+              tenantId,
+              conversationId: convId,
+              channel: 'WHATSAPP',
+              customerId: customer.id,
+              classification: recClassification,
+              messageText: rawMessageText
+            });
+          }
+        }).catch(err => {
+          logger.warn('[PIPELINE] Background recovery intent detection error:', err.message);
+        });
+      } catch (detErr) {
+        logger.warn('[PIPELINE] Recovery lead check error:', detErr.message);
+      }
+    }
 
     const executionTimeMs = Date.now() - startTime;
 
