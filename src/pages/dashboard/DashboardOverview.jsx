@@ -24,7 +24,7 @@ function getCurrencySymbol(code = 'BDT') {
  */
 function formatMonetaryAmount(amount, symbol = '৳') {
   const num = Number(amount) || 0;
-  return `${symbol}${num.toLocaleString('en-US', {
+  return `${symbol}\u00A0${num.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;

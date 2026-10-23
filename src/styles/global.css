@@ -566,3 +566,32 @@ td,
   border-radius: 0px !important;
 }
 
+/* =====================================================================
+   CURRENCY AMOUNT & BENGALI TAKA (৳) TYPOGRAPHIC ISOLATION
+   Ensures the currency glyph has dedicated spacing and font fallback
+   so it never visual collides or glitches with adjacent digits.
+   ===================================================================== */
+.currency-amount-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1;
+}
+
+.rev-currency-sym {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Bengali", sans-serif;
+  font-weight: 700;
+  margin-right: 0.16em;
+  font-size: 0.88em;
+  letter-spacing: 0 !important;
+  color: inherit;
+  opacity: 0.88;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.rev-currency-val {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+

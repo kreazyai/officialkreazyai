@@ -86,11 +86,29 @@ function InstagramIcon({ size = 22, className = '' }) {
 }
 
 /**
- * Format currency amount with symbol (e.g. ৳1,500.00 or $0.00)
+ * MoneyDisplay — Typographically isolated currency renderer.
+ * Prevents the Bengali Taka symbol (৳) from colliding with digits on Windows/WebKit.
+ */
+function MoneyDisplay({ amount, symbol = '৳', className = '' }) {
+  const num = Number(amount) || 0;
+  const formatted = num.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  return (
+    <span className={`currency-amount-wrap ${className}`}>
+      <span className="rev-currency-sym" aria-hidden="true">{symbol}</span>
+      <span className="rev-currency-val">{formatted}</span>
+    </span>
+  );
+}
+
+/**
+ * Format currency amount with symbol (e.g. ৳ 1,500.00 or $ 0.00)
  */
 function formatMoney(amount, symbol = '৳') {
   const num = Number(amount) || 0;
-  return `${symbol}${num.toLocaleString('en-US', {
+  return `${symbol}\u00A0${num.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;
@@ -368,12 +386,12 @@ export function RevenuePage({ user, onNavigateModule }) {
             </div>
           </div>
           <div className="hero-card-val">
-            {loading ? '···' : formatMoney(totalPeriodRevenue, currencySymbol)}
+            {loading ? '···' : <MoneyDisplay amount={totalPeriodRevenue} symbol={currencySymbol} />}
           </div>
           <div className="hero-card-footnote">
             {totalPeriodOrders > 0
               ? `${totalPeriodOrders} order${totalPeriodOrders === 1 ? '' : 's'} across channels`
-              : 'Awaiting first order in this period'}
+              : `Awaiting first order ${periodLabelText}`}
           </div>
         </div>
 
@@ -388,9 +406,11 @@ export function RevenuePage({ user, onNavigateModule }) {
             {loading ? '···' : totalPeriodOrders.toLocaleString()}
           </div>
           <div className="hero-card-footnote">
-            {totalPeriodOrders > 0
-              ? `Avg order: ${formatMoney(averageOrderValue, currencySymbol)}`
-              : 'Direct messaging channel orders'}
+            {totalPeriodOrders > 0 ? (
+              <span>Avg order: <MoneyDisplay amount={averageOrderValue} symbol={currencySymbol} /></span>
+            ) : (
+              'Direct messaging channel orders'
+            )}
           </div>
         </div>
 
@@ -435,9 +455,9 @@ export function RevenuePage({ user, onNavigateModule }) {
         >
           <div className="card-top-heading-row">
             <div className="section-icon-badge green-badge">
-              <DollarSign size={22} />
+              <BarChart3 size={20} />
             </div>
-            <div>
+            <div className="section-title-wrap">
               <h2 id="heading-sales-channels" className="section-title-text">
                 Where Sales Came From
               </h2>
@@ -445,10 +465,16 @@ export function RevenuePage({ user, onNavigateModule }) {
                 Sales generated across messaging platforms {periodLabelText}
               </p>
             </div>
+            <div className="section-right-badge">
+              <span className="live-channel-badge">
+                <span className="channel-live-dot" />
+                Live Channel Tracking
+              </span>
+            </div>
           </div>
 
-          {/* Visual Channel Contribution Bar (Visible when sales exist) */}
-          {totalPeriodRevenue > 0 && (
+          {/* Visual Channel Contribution Bar */}
+          {totalPeriodRevenue > 0 ? (
             <div className="revenue-distribution-bar-wrapper">
               <div className="revenue-distribution-bar" title="Channel revenue proportion">
                 {waShare > 0 && (
@@ -481,6 +507,15 @@ export function RevenuePage({ user, onNavigateModule }) {
                 )}
               </div>
             </div>
+          ) : (
+            <div className="revenue-distribution-standby-wrapper">
+              <div className="revenue-distribution-standby-bar">
+                <div className="standby-pulse-fill" />
+              </div>
+              <div className="standby-bar-caption">
+                All 3 conversational channels active and ready for orders
+              </div>
+            </div>
           )}
 
           <div
@@ -497,25 +532,31 @@ export function RevenuePage({ user, onNavigateModule }) {
                   <span className="platform-name">WhatsApp</span>
                   <span className="platform-sub">Messaging sales</span>
                 </div>
-                {waShare > 0 && (
+                {waShare > 0 ? (
                   <span className="platform-share-badge wa-share-badge">{waShare}%</span>
+                ) : (
+                  <span className="platform-standby-badge">● Ready</span>
                 )}
               </div>
-              <div className="platform-amount-value" id="revenue-wa-amount">
-                {loading ? '···' : formatMoney(channels.whatsapp?.amount, currencySymbol)}
+              <div className="platform-amount-wrap">
+                <span className="platform-metric-label">Sales Volume</span>
+                <div className="platform-amount-value" id="revenue-wa-amount">
+                  {loading ? '···' : <MoneyDisplay amount={channels.whatsapp?.amount} symbol={currencySymbol} />}
+                </div>
               </div>
               <div className="platform-order-caption">
                 {loading
                   ? 'Loading…'
                   : channels.whatsapp?.amount > 0
                   ? `${channels.whatsapp?.orderCount} order${channels.whatsapp?.orderCount === 1 ? '' : 's'}`
-                  : `No WhatsApp sales ${periodLabelText}`}
+                  : `0 orders recorded ${periodLabelText}`}
               </div>
-              {totalPeriodRevenue > 0 && (
-                <div className="platform-progress-track">
-                  <div className="platform-progress-fill wa-fill" style={{ width: `${waShare}%` }} />
-                </div>
-              )}
+              <div className="platform-progress-track">
+                <div
+                  className="platform-progress-fill wa-fill"
+                  style={{ width: waShare > 0 ? `${waShare}%` : '0%' }}
+                />
+              </div>
             </div>
 
             {/* Facebook Messenger */}
@@ -528,25 +569,31 @@ export function RevenuePage({ user, onNavigateModule }) {
                   <span className="platform-name">Facebook</span>
                   <span className="platform-sub">Messenger sales</span>
                 </div>
-                {fbShare > 0 && (
+                {fbShare > 0 ? (
                   <span className="platform-share-badge fb-share-badge">{fbShare}%</span>
+                ) : (
+                  <span className="platform-standby-badge">● Ready</span>
                 )}
               </div>
-              <div className="platform-amount-value" id="revenue-fb-amount">
-                {loading ? '···' : formatMoney(channels.facebook?.amount, currencySymbol)}
+              <div className="platform-amount-wrap">
+                <span className="platform-metric-label">Sales Volume</span>
+                <div className="platform-amount-value" id="revenue-fb-amount">
+                  {loading ? '···' : <MoneyDisplay amount={channels.facebook?.amount} symbol={currencySymbol} />}
+                </div>
               </div>
               <div className="platform-order-caption">
                 {loading
                   ? 'Loading…'
                   : channels.facebook?.amount > 0
                   ? `${channels.facebook?.orderCount} order${channels.facebook?.orderCount === 1 ? '' : 's'}`
-                  : `No Facebook sales ${periodLabelText}`}
+                  : `0 orders recorded ${periodLabelText}`}
               </div>
-              {totalPeriodRevenue > 0 && (
-                <div className="platform-progress-track">
-                  <div className="platform-progress-fill fb-fill" style={{ width: `${fbShare}%` }} />
-                </div>
-              )}
+              <div className="platform-progress-track">
+                <div
+                  className="platform-progress-fill fb-fill"
+                  style={{ width: fbShare > 0 ? `${fbShare}%` : '0%' }}
+                />
+              </div>
             </div>
 
             {/* Instagram */}
@@ -559,25 +606,31 @@ export function RevenuePage({ user, onNavigateModule }) {
                   <span className="platform-name">Instagram</span>
                   <span className="platform-sub">Direct DM sales</span>
                 </div>
-                {igShare > 0 && (
+                {igShare > 0 ? (
                   <span className="platform-share-badge ig-share-badge">{igShare}%</span>
+                ) : (
+                  <span className="platform-standby-badge">● Ready</span>
                 )}
               </div>
-              <div className="platform-amount-value" id="revenue-ig-amount">
-                {loading ? '···' : formatMoney(channels.instagram?.amount, currencySymbol)}
+              <div className="platform-amount-wrap">
+                <span className="platform-metric-label">Sales Volume</span>
+                <div className="platform-amount-value" id="revenue-ig-amount">
+                  {loading ? '···' : <MoneyDisplay amount={channels.instagram?.amount} symbol={currencySymbol} />}
+                </div>
               </div>
               <div className="platform-order-caption">
                 {loading
                   ? 'Loading…'
                   : channels.instagram?.amount > 0
                   ? `${channels.instagram?.orderCount} order${channels.instagram?.orderCount === 1 ? '' : 's'}`
-                  : `No Instagram sales ${periodLabelText}`}
+                  : `0 orders recorded ${periodLabelText}`}
               </div>
-              {totalPeriodRevenue > 0 && (
-                <div className="platform-progress-track">
-                  <div className="platform-progress-fill ig-fill" style={{ width: `${igShare}%` }} />
-                </div>
-              )}
+              <div className="platform-progress-track">
+                <div
+                  className="platform-progress-fill ig-fill"
+                  style={{ width: igShare > 0 ? `${igShare}%` : '0%' }}
+                />
+              </div>
             </div>
 
             {/* Other / Store (displayed when qualifying unclassified sales exist) */}
@@ -591,23 +644,29 @@ export function RevenuePage({ user, onNavigateModule }) {
                     <span className="platform-name">Other / Direct</span>
                     <span className="platform-sub">Store & web sales</span>
                   </div>
-                  {otherShare > 0 && (
+                  {otherShare > 0 ? (
                     <span className="platform-share-badge other-share-badge">{otherShare}%</span>
+                  ) : (
+                    <span className="platform-standby-badge">● Ready</span>
                   )}
                 </div>
-                <div className="platform-amount-value" id="revenue-other-amount">
-                  {loading ? '···' : formatMoney(channels.other?.amount, currencySymbol)}
+                <div className="platform-amount-wrap">
+                  <span className="platform-metric-label">Sales Volume</span>
+                  <div className="platform-amount-value" id="revenue-other-amount">
+                    {loading ? '···' : <MoneyDisplay amount={channels.other?.amount} symbol={currencySymbol} />}
+                  </div>
                 </div>
                 <div className="platform-order-caption">
                   {loading
                     ? 'Loading…'
                     : `${channels.other?.orderCount} order${channels.other?.orderCount === 1 ? '' : 's'}`}
                 </div>
-                {totalPeriodRevenue > 0 && (
-                  <div className="platform-progress-track">
-                    <div className="platform-progress-fill other-fill" style={{ width: `${otherShare}%` }} />
-                  </div>
-                )}
+                <div className="platform-progress-track">
+                  <div
+                    className="platform-progress-fill other-fill"
+                    style={{ width: otherShare > 0 ? `${otherShare}%` : '0%' }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -625,7 +684,7 @@ export function RevenuePage({ user, onNavigateModule }) {
             <div className="section-icon-badge mint-badge">
               <Package size={22} />
             </div>
-            <div>
+            <div className="section-title-wrap">
               <h2 id="heading-best-selling" className="section-title-text">
                 Best Selling Products
               </h2>
@@ -649,7 +708,7 @@ export function RevenuePage({ user, onNavigateModule }) {
                     </div>
                     <div className="product-details-body">
                       <span className="product-display-name">{product.name}</span>
-                      <span className="product-rank-caption">Top seller #{rankNum}</span>
+                      <span className="product-rank-caption">Top seller #{rankNum} in conversational sales</span>
                     </div>
                     <div className="product-units-sold-pill">
                       <Package size={14} className="units-pill-icon" />
@@ -663,7 +722,7 @@ export function RevenuePage({ user, onNavigateModule }) {
             /* Premium, Inspiring Empty State when no products sold */
             <div className="best-selling-empty-box">
               <div className="empty-package-circle">
-                <ShoppingBag size={26} color="#00A859" />
+                <ShoppingBag size={28} color="#0FA968" />
               </div>
               <div className="empty-state-content">
                 <p className="empty-state-title">No products sold yet {periodLabelText}</p>
