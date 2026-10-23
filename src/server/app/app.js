@@ -175,7 +175,7 @@ export function createApp() {
   app.use(cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile native apps, curl, server-to-server webhooks)
-      if (!origin || config.isDev) {
+      if (!origin) {
         return callback(null, true);
       }
 
@@ -200,7 +200,7 @@ export function createApp() {
       }
 
       // Allow official KreazyAI production and preview domains
-      if (/^https?:\/\/([a-z0-9-]+\.)*kreazyai\.com(:\d+)?$/.test(origin)) {
+      if (/^https?:\/\/([a-z0-9-]+\.)*(kreazyai\.com|onrender\.com)(:\d+)?$/.test(origin)) {
         return callback(null, true);
       }
 
@@ -213,6 +213,7 @@ export function createApp() {
       'Content-Type',
       'Authorization',
       'X-Requested-With',
+      'Accept',
       'x-hub-signature-256',
       'x-workspace-id',
       'X-Workspace-Id',

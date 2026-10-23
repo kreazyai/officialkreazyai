@@ -63,6 +63,84 @@ function safeRemove(key) {
 }
 
 /**
+ * Normalizes an API base URL ensuring no trailing slashes and proper /api/v1 prefix.
+ * e.g. 'https://kreazyai.onrender.com' -> 'https://kreazyai.onrender.com/api/v1'
+ *      'https://kreazyai.onrender.com/' -> 'https://kreazyai.onrender.com/api/v1'
+ *      'https://kreazyai.onrender.com/api/v1' -> 'https://kreazyai.onrender.com/api/v1'
+ *      '/api/v1' -> '/api/v1'
+ */
+export function normalizeApiBaseUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  let clean = url.trim().replace(/\/+$/, '');
+  if (!clean) return '';
+
+  if (clean.endsWith('/api/v1')) {
+    return clean;
+  }
+  if (clean.endsWith('/api')) {
+    return `${clean}/v1`;
+  }
+  // If it's relative like '/'
+  if (clean === '/') {
+    return '/api/v1';
+  }
+  return `${clean}/api/v1`;
+}
+
+/**
+ * Resolves the appropriate API base URL for the current runtime environment.
+ * Priority:
+ * 1. Build-time Vite env vars: VITE_API_URL, VITE_API_BASE_URL, VITE_BACKEND_URL
+ * 2. Process env fallback (Node/SSR/testing): process.env.VITE_API_URL, etc.
+ * 3. Browser runtime detection:
+ *    - Localhost / 127.0.0.1 / private LAN: relative '/api/v1' (Vite dev proxy)
+ *    - Production website (kreazyai.com / CloudFront / S3): defaults to production Render backend
+ * 4. Node fallback: 'http://localhost:5000/api/v1'
+ */
+export function resolveApiBaseUrl() {
+  let envUrl = '';
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      envUrl = import.meta.env.VITE_API_URL || 
+               import.meta.env.VITE_API_BASE_URL || 
+               import.meta.env.VITE_BACKEND_URL || '';
+    }
+  } catch {}
+
+  if (!envUrl) {
+    try {
+      if (typeof process !== 'undefined' && process.env) {
+        envUrl = process.env.VITE_API_URL || 
+                 process.env.VITE_API_BASE_URL || 
+                 process.env.VITE_BACKEND_URL || 
+                 process.env.API_URL || 
+                 process.env.BACKEND_URL || '';
+      }
+    } catch {}
+  }
+
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+    return normalizeApiBaseUrl(envUrl);
+  }
+
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname || '';
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isLan = /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
+
+    // In local development, use relative '/api/v1' which is proxied by Vite
+    if (isLocal || isLan) {
+      return '/api/v1';
+    }
+
+    // In production on CloudFront / S3 (kreazyai.com), default to the Render backend:
+    return 'https://kreazyai.onrender.com/api/v1';
+  }
+
+  return 'http://localhost:5000/api/v1';
+}
+
+/**
  * Production API Client with Real HTTP Network Transport,
  * JWT Auth, Multi-Tenant Headers & Graceful Fallback
  */
@@ -70,7 +148,15 @@ class ApiClient {
   constructor() {
     this.workspaceId = safeGet('kreazy_active_workspace', 'ws-flagship-01');
     this.token = safeGet('kreazy_auth_token', null);
-    this.baseUrl = typeof window !== 'undefined' ? '/api/v1' : 'http://localhost:5000/api/v1';
+    this.baseUrl = resolveApiBaseUrl();
+  }
+
+  setBaseUrl(url) {
+    this.baseUrl = normalizeApiBaseUrl(url);
+  }
+
+  getBaseUrl() {
+    return this.baseUrl;
   }
 
   setWorkspace(id) {
@@ -115,8 +201,36 @@ class ApiClient {
     return headers;
   }
 
+  /**
+   * Resolves a relative or full endpoint to the full target API URL,
+   * stripping duplicate /api/v1 prefixes and preventing trailing slash 301 redirects.
+   */
+  resolveUrl(endpoint) {
+    if (!endpoint) return this.baseUrl;
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      return endpoint;
+    }
+    let clean = String(endpoint).trim();
+    // Normalize leading /api/v1 to avoid duplicate segments
+    if (clean.startsWith('/api/v1/')) {
+      clean = clean.slice('/api/v1'.length);
+    } else if (clean.startsWith('api/v1/')) {
+      clean = clean.slice('api/v1'.length);
+    } else if (clean === '/api/v1' || clean === 'api/v1') {
+      clean = '';
+    }
+
+    // Strip trailing slashes on endpoints to avoid CloudFront / S3 301 redirects
+    if (clean.length > 1 && clean.endsWith('/')) {
+      clean = clean.replace(/\/+$/, '');
+    }
+
+    const slash = clean.startsWith('/') || !clean ? '' : '/';
+    return `${this.baseUrl}${slash}${clean}`;
+  }
+
   async request(endpoint, options = {}) {
-    const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+    const url = this.resolveUrl(endpoint);
     const headers = {
       ...this.getHeaders(),
       ...(options.headers || {})

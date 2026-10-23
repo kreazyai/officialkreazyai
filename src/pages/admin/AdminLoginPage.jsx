@@ -39,7 +39,13 @@ export function AdminLoginPage({ onLoginSuccess }) {
       }
     } catch (err) {
       setLoading(false);
-      setError('Email or password is incorrect.');
+      let msg = err?.message || 'Email or password is incorrect.';
+      if (err?.status === 429) {
+        msg = err.message || 'Too many attempts. Please try again in a few minutes.';
+      } else if (!err?.status && (msg.includes('fetch') || msg.includes('Network') || msg.includes('Failed'))) {
+        msg = 'Unable to connect to authentication server. Please check your network or try again in a moment.';
+      }
+      setError(msg);
     }
   };
 

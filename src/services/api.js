@@ -1673,7 +1673,8 @@ export const settingsService = {
       const formData = new FormData();
       formData.append('avatar', file);
       const token = apiClient.getAuthToken();
-      let res = await fetch('/api/v1/settings/avatar', {
+      const uploadUrl = apiClient.resolveUrl('/settings/avatar');
+      let res = await fetch(uploadUrl, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,

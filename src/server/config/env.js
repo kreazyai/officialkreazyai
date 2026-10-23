@@ -37,7 +37,7 @@ export const config = {
   isDev,
   isProduction,
   isTest,
-  corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
+  corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,https://kreazyai.com,https://www.kreazyai.com,https://kreazyai.onrender.com')
     .split(',')
     .map(o => o.trim()),
 

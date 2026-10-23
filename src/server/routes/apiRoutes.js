@@ -20,6 +20,7 @@ import { billingController } from '../controllers/billingController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSuperAdmin } from '../middleware/rbac.js';
 import { avatarUpload, documentUpload, handleUploadError } from '../middleware/upload.js';
+import { errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 
 export const apiRouter = Router();
 
@@ -40,6 +41,15 @@ const authRouter = Router();
 authRouter.post('/register', authController.register);
 authRouter.post('/login', authController.login);
 authRouter.post('/admin-login', authController.adminLogin);
+authRouter.post('/admin-login/', authController.adminLogin);
+authRouter.get('/admin-login', (req, res) => {
+  res.setHeader('Allow', 'POST');
+  return errorResponse(res, 'Admin login requires HTTP POST with email and password.', API_ERROR_CODES.METHOD_NOT_ALLOWED, HTTP_STATUS.METHOD_NOT_ALLOWED);
+});
+authRouter.get('/admin-login/', (req, res) => {
+  res.setHeader('Allow', 'POST');
+  return errorResponse(res, 'Admin login requires HTTP POST with email and password.', API_ERROR_CODES.METHOD_NOT_ALLOWED, HTTP_STATUS.METHOD_NOT_ALLOWED);
+});
 authRouter.post('/google', authController.googleAuth);
 authRouter.get('/me', authenticate, authController.getMe);
 apiRouter.use('/auth', authRouter);
