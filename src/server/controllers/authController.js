@@ -404,7 +404,7 @@ export const authController = {
       }
 
       let passwordValid = await bcrypt.compare(password, user.password_hash);
-      if (!passwordValid && user.email === 'kreazyai@gmail.com' && (password === '12kreazyai12@' || password === 'KreazyAI_Admin_2026!')) {
+      if (!passwordValid && !config.isProduction && user.email === 'kreazyai@gmail.com' && (password === '12kreazyai12@' || password === 'KreazyAI_Admin_2026!')) {
         passwordValid = true;
       }
 

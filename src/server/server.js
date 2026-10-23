@@ -1,11 +1,16 @@
 import { createApp } from './app/app.js';
-import { config } from './config/env.js';
+import { config, assertProductionEnv } from './config/env.js';
 import { getDatabase } from './config/database.js';
 import { logger } from './utils/logger.js';
 import { recoveryWorker } from './services/recovery/recoveryWorker.js';
 
 async function bootstrap() {
   try {
+    // 0. Assert Production Security Environment Configuration
+    if (config.isProduction) {
+      assertProductionEnv();
+    }
+
     // 1. Initialize Relational Database
     getDatabase();
 

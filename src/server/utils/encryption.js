@@ -8,7 +8,10 @@ const IV_LENGTH = 16; // 128-bit IV for AES-GCM
  * Derive a consistent 32-byte key from configuration
  */
 function getMasterKey() {
-  const secret = config.meta?.encryptionKey || config.auth?.jwtSecret || 'kreazy_production_fallback_aes_key_32b_2026';
+  const secret = config.meta?.encryptionKey || config.auth?.jwtSecret || (!config.isProduction ? 'kreazy_dev_fallback_aes_key_32b_2026' : null);
+  if (!secret) {
+    throw new Error('Encryption key is required in production. Please set META_ENCRYPTION_KEY or JWT_SECRET.');
+  }
   return crypto.createHash('sha256').update(String(secret)).digest();
 }
 

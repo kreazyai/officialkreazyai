@@ -12,21 +12,61 @@ const __dirname = path.dirname(__filename);
 
 let dbInstance = null;
 
+/**
+ * Resolves SQLite database path handling URLs, absolute paths (e.g. /var/data/kreazy.db), and :memory:.
+ * @param {string} rawPath
+ * @returns {string}
+ */
+export function resolveDbPath(rawPath) {
+  if (!rawPath || rawPath === ':memory:') {
+    return ':memory:';
+  }
+
+  let clean = String(rawPath).trim();
+  // Strip url schemes if present (e.g. sqlite:///var/data/kreazy.db, sqlite:/var/data/kreazy.db, file:///var/data/kreazy.db)
+  if (clean.startsWith('sqlite://')) {
+    clean = clean.replace(/^sqlite:\/\//, '');
+  } else if (clean.startsWith('sqlite:')) {
+    clean = clean.replace(/^sqlite:/, '');
+  } else if (clean.startsWith('file://')) {
+    clean = clean.replace(/^file:\/\//, '');
+  }
+
+  // Strip query parameters (e.g. ?mode=rwc)
+  if (clean.includes('?')) {
+    clean = clean.split('?')[0];
+  }
+
+  if (clean === ':memory:') {
+    return ':memory:';
+  }
+
+  // If path is absolute (POSIX /var/data/kreazy.db or Windows C:\var\data\kreazy.db)
+  if (path.isAbsolute(clean)) {
+    return path.resolve(clean);
+  }
+
+  // If path starts with / or \ on Windows (e.g. /var/data/kreazy.db)
+  if (clean.startsWith('/') || clean.startsWith('\\')) {
+    return path.resolve(clean);
+  }
+
+  // Relative path - resolve relative to project root
+  return path.resolve(__dirname, '../../../', clean);
+}
+
 export function getDatabase(dbPath = null) {
   if (dbInstance) return dbInstance;
 
   const targetPath = dbPath || config.database.url;
+  const resolvedDbPath = resolveDbPath(targetPath);
 
-  if (targetPath !== ':memory:') {
-    const dir = path.dirname(path.resolve(__dirname, '../../../', targetPath));
+  if (resolvedDbPath !== ':memory:') {
+    const dir = path.dirname(resolvedDbPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
   }
-
-  const resolvedDbPath = targetPath === ':memory:' 
-    ? ':memory:' 
-    : path.resolve(__dirname, '../../../', targetPath);
 
   logger.info(`Initializing SQLite database connection at: ${resolvedDbPath}`);
   const db = new Database(resolvedDbPath);
@@ -912,12 +952,19 @@ export function runMigrations(db) {
 }
 
 export function seedInitialData(db) {
+  // In production, NEVER seed demo tenant, demo users, sample products, fake WhatsApp connections, or sample billing data.
+  if (config.isProduction) {
+    logger.info('Production mode: skipping demo tenant, demo users, sample data, and fake WhatsApp connections.');
+    return;
+  }
+
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
   if (userCount > 0) return;
 
-  logger.info('Seeding initial baseline businesses and super-admin credentials...');
+  logger.info('Seeding initial baseline development businesses and super-admin credentials...');
 
-  const now = new Date().toISOString();
+  const nowDateObj = new Date();
+  const now = nowDateObj.toISOString();
 
   // 1. Create Default Flagship Workspace
   const flagshipId = 'ws-flagship-01';
@@ -957,8 +1004,9 @@ export function seedInitialData(db) {
     now
   );
 
-  // 2. Hash Passwords with Bcrypt
-  const superAdminPassHash = bcrypt.hashSync(config.auth.superAdminPassword, 10);
+  // 2. Hash Passwords with Bcrypt for Dev Environment
+  const devSuperAdminPassword = config.auth.superAdminPassword || '12kreazyai12@';
+  const superAdminPassHash = bcrypt.hashSync(devSuperAdminPassword, 10);
   const demoUserPassHash = bcrypt.hashSync('demo', 10);
 
   // 3. Seed Super Admin (Fixed secure server hash)
@@ -968,7 +1016,7 @@ export function seedInitialData(db) {
   `).run(
     'usr-superadmin',
     null,
-    config.auth.superAdminEmail,
+    config.auth.superAdminEmail || 'kreazyai@gmail.com',
     superAdminPassHash,
     'Kreazy Super Administrator',
     'SUPER_ADMIN',
@@ -1098,7 +1146,7 @@ export function seedInitialData(db) {
     insertPolicy.run(`pol-${flagshipId}-${idx + 1}`, flagshipId, p.type, p.content, now, now);
   });
 
-  // 12. Seed flagship WhatsApp connection & Meta channel
+  // 12. Seed flagship WhatsApp connection & Meta channel (Development only)
   db.prepare(`
     INSERT OR REPLACE INTO whatsapp_connections (
       id, tenant_id, WABA_id, phone_number_id, display_number, status, credential_reference, webhook_status, diagnostics, created_at, updated_at
@@ -1120,22 +1168,27 @@ export function seedInitialData(db) {
   ensureCreditWallet(db, flagshipId, now);
   ensureCreditWallet(db, artisanId, now);
 
-  // Initialize baseline Growth Plan subscription and invoice for flagship workspace
-  ensureBillingData(db, flagshipId, now);
+  // Initialize baseline Growth Plan subscription and invoice for flagship workspace (Development only)
+  ensureBillingData(db, flagshipId, nowDateObj);
 
-  logger.info('Database seeded with baseline multi-tenant structure, WhatsApp connections, FAQs, and policies.');
+  logger.info('Database seeded with baseline development multi-tenant structure, WhatsApp connections, FAQs, and policies.');
 }
 
 /**
  * Ensures baseline billing subscription and invoice records exist for a tenant workspace.
  */
 export function ensureBillingData(db, tenantId, now = new Date()) {
+  // Never seed sample billing data in production
+  if (config.isProduction) {
+    return;
+  }
   try {
     const existingSub = db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
     const existingInvoice = db.prepare('SELECT * FROM billing_invoices WHERE tenant_id = ?').get(tenantId);
 
-    const nowIso = now.toISOString();
-    const nextMonth = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const nowDate = now instanceof Date ? now : new Date(now || Date.now());
+    const nowIso = nowDate.toISOString();
+    const nextMonth = new Date(nowDate.getTime() + 30 * 24 * 60 * 60 * 1000);
     const periodEndIso = nextMonth.toISOString();
 
     if (!existingSub) {
@@ -1150,7 +1203,7 @@ export function ensureBillingData(db, tenantId, now = new Date()) {
     }
 
     if (!existingInvoice) {
-      const invNum = tenantId === 'ws-flagship-01' ? 'INV-2026-001' : `INV-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const invNum = tenantId === 'ws-flagship-01' ? 'INV-2026-001' : `INV-${nowDate.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
       db.prepare(`
         INSERT OR IGNORE INTO billing_invoices (
           id, tenant_id, invoice_number, plan_id, plan_name, amount, currency,
@@ -1246,52 +1299,129 @@ export function ensureMetaConnections(db, businessId, workspaceId) {
 
 export function ensureSuperAdmin(db) {
   try {
-    const adminEmail = (config.auth?.superAdminEmail || 'admin@kreazyai.com').trim().toLowerCase();
-    const adminPassword = config.auth?.superAdminPassword || 'KreazyAI_Admin_2026!';
     const now = new Date().toISOString();
 
-    const targetAdmins = [
-      {
-        id: 'usr-dev-superadmin',
-        email: 'admin@kreazyai.com',
-        name: 'Kreazy Super Administrator',
-        password: 'KreazyAI_Admin_2026!'
-      },
-      {
+    if (config.isProduction) {
+      // ── PRODUCTION SECURITY PATH ──
+      // In production, NEVER use hardcoded administrator passwords or default accounts.
+      const adminEmail = (config.auth?.superAdminEmail || '').trim().toLowerCase();
+      const adminPassword = config.auth?.superAdminPassword || '';
+
+      // Check if ANY super admin already exists in the database
+      const existingSuperAdmin = db.prepare(`
+        SELECT id, email, password_hash, role, is_super_admin 
+        FROM users 
+        WHERE role = 'SUPER_ADMIN' OR is_super_admin = 1
+        LIMIT 1
+      `).get();
+
+      if (adminEmail) {
+        const existingByEmail = db.prepare(`
+          SELECT id, password_hash, role, is_super_admin 
+          FROM users 
+          WHERE LOWER(email) = ?
+        `).get(adminEmail);
+
+        if (existingByEmail) {
+          // CRITICAL: NEVER overwrite existing admin passwords on startup!
+          if (existingByEmail.role !== 'SUPER_ADMIN' || !existingByEmail.is_super_admin) {
+            db.prepare(`
+              UPDATE users 
+              SET role = 'SUPER_ADMIN', is_super_admin = 1, updated_at = ?
+              WHERE id = ?
+            `).run(now, existingByEmail.id);
+            logger.info(`Promoted existing user ${adminEmail} to SUPER_ADMIN without modifying password.`);
+          } else {
+            logger.info(`Verified existing production super-admin account: ${adminEmail} (credentials unchanged).`);
+          }
+          return;
+        }
+
+        // Admin email does not exist in DB yet -> Initial bootstrap
+        if (!adminPassword) {
+          logger.warn(`SUPER_ADMIN_EMAIL is set (${adminEmail}), but SUPER_ADMIN_PASSWORD is empty. Skipping initial admin seeding.`);
+          return;
+        }
+
+        if (adminPassword.length < 12) {
+          logger.error('SUPER_ADMIN_PASSWORD must be at least 12 characters in production. Skipping initial admin seeding.');
+          return;
+        }
+
+        const hash = bcrypt.hashSync(adminPassword, 12);
+        const adminId = `usr-admin-${Date.now()}`;
+        db.prepare(`
+          INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+          VALUES (?, null, ?, ?, 'Kreazy Super Administrator', 'SUPER_ADMIN', 1, ?, ?)
+        `).run(adminId, adminEmail, hash, now, now);
+        logger.info(`Successfully bootstrapped initial production super-admin: ${adminEmail}`);
+      } else if (!existingSuperAdmin) {
+        logger.warn('No SUPER_ADMIN user exists in production database and SUPER_ADMIN_EMAIL is not set in environment.');
+      }
+      return;
+    }
+
+    // ── DEVELOPMENT & TEST PATH ──
+    // Preserves existing development and test behavior
+    const envAdminEmail = (config.auth?.superAdminEmail || '').trim().toLowerCase();
+    const envAdminPassword = config.auth?.superAdminPassword || '';
+
+    const targetAdmins = [];
+
+    if (config.isTest) {
+      targetAdmins.push({
         id: 'usr-superadmin',
         email: 'kreazyai@gmail.com',
         name: 'Kreazy Platform Administrator',
-        password: '12kreazyai12@'
-      }
-    ];
+        password: envAdminPassword || '12kreazyai12@'
+      });
+    } else {
+      targetAdmins.push({
+        id: 'usr-dev-superadmin',
+        email: 'admin@kreazyai.com',
+        name: 'Kreazy Super Administrator',
+        password: envAdminPassword || 'KreazyAI_Admin_2026!'
+      });
+      targetAdmins.push({
+        id: 'usr-superadmin',
+        email: 'kreazyai@gmail.com',
+        name: 'Kreazy Platform Administrator',
+        password: envAdminPassword || '12kreazyai12@'
+      });
+    }
 
-    if (adminEmail && adminEmail !== 'admin@kreazyai.com' && adminEmail !== 'kreazyai@gmail.com') {
+    if (envAdminEmail && !targetAdmins.some(a => a.email.toLowerCase() === envAdminEmail)) {
       targetAdmins.push({
         id: 'usr-env-superadmin',
-        email: adminEmail,
+        email: envAdminEmail,
         name: 'Kreazy System Administrator',
-        password: adminPassword
+        password: envAdminPassword || 'KreazyAI_Admin_2026!'
       });
     }
 
     for (const target of targetAdmins) {
-      const existing = db.prepare('SELECT id, password_hash, role, is_super_admin FROM users WHERE email = ?').get(target.email);
-      const hash = bcrypt.hashSync(target.password, 10);
+      const existing = db.prepare('SELECT id, password_hash, role, is_super_admin FROM users WHERE LOWER(email) = ?').get(target.email.toLowerCase());
+
       if (!existing) {
+        // Only seed password when creating a new account in dev/test!
+        const hash = bcrypt.hashSync(target.password, 10);
         const idCollision = db.prepare('SELECT id FROM users WHERE id = ?').get(target.id);
         const finalId = idCollision ? `${target.id}-${Date.now()}` : target.id;
         db.prepare(`
           INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
           VALUES (?, null, ?, ?, ?, 'SUPER_ADMIN', 1, ?, ?)
-        `).run(finalId, target.email, hash, target.name, now, now);
+        `).run(finalId, target.email.toLowerCase(), hash, target.name, now, now);
         logger.info(`Seeded development super-admin account: ${target.email}`);
       } else {
-        // Ensure credentials and permissions are synchronized
-        db.prepare(`
-          UPDATE users 
-          SET role = 'SUPER_ADMIN', is_super_admin = 1, password_hash = ?, updated_at = ?
-          WHERE email = ?
-        `).run(hash, now, target.email);
+        // User already exists! CRITICAL: NEVER OVERWRITE PASSWORD HASH!
+        if (existing.role !== 'SUPER_ADMIN' || !existing.is_super_admin) {
+          db.prepare(`
+            UPDATE users 
+            SET role = 'SUPER_ADMIN', is_super_admin = 1, updated_at = ?
+            WHERE id = ?
+          `).run(now, existing.id);
+          logger.info(`Synchronized super-admin role for ${target.email} (password preserved).`);
+        }
       }
     }
   } catch (err) {
