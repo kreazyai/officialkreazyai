@@ -8,7 +8,8 @@ import { logger } from '../utils/logger.js';
 export const authController = {
   async register(req, res, next) {
     try {
-      const { storeName, ownerName, email, password, plan = 'Growth' } = req.body;
+      const { storeName, ownerName, name, email, password, plan = 'Growth' } = req.body;
+      const resolvedOwnerName = (ownerName || name || '').trim() || (email ? email.split('@')[0] : 'Merchant');
 
       if (!email || !password || !storeName) {
         return errorResponse(
@@ -29,12 +30,13 @@ export const authController = {
       }
 
       const db = getDatabase();
-      const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email.trim().toLowerCase());
+      const normalizedEmail = email.trim().toLowerCase();
+      const existingUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
 
       if (existingUser) {
         return errorResponse(
           res,
-          'An account with this email address already exists.',
+          'An account with this email address already exists. Please sign in instead.',
           API_ERROR_CODES.CONFLICT,
           HTTP_STATUS.CONFLICT
         );
@@ -55,8 +57,8 @@ export const authController = {
           businessId,
           storeName.trim(),
           slug,
-          ownerName?.trim() || email.split('@')[0],
-          email.trim().toLowerCase(),
+          resolvedOwnerName,
+          normalizedEmail,
           plan,
           'ACTIVE',
           JSON.stringify([]),
@@ -71,9 +73,9 @@ export const authController = {
         `).run(
           userId,
           businessId,
-          email.trim().toLowerCase(),
+          normalizedEmail,
           passwordHash,
-          ownerName?.trim() || email.split('@')[0],
+          resolvedOwnerName,
           'OWNER',
           0,
           now,
@@ -103,7 +105,7 @@ export const authController = {
         `).run(
           `audit-${Date.now()}`,
           businessId,
-          email.trim().toLowerCase(),
+          normalizedEmail,
           'OWNER',
           'MERCHANT_REGISTERED',
           'business',
@@ -119,7 +121,7 @@ export const authController = {
       registerTransaction();
 
       const token = jwt.sign(
-        { userId, businessId, role: 'OWNER', email: email.trim().toLowerCase() },
+        { userId, businessId, role: 'OWNER', email: normalizedEmail },
         config.auth.jwtSecret,
         { expiresIn: config.auth.jwtExpiresIn }
       );
@@ -127,15 +129,17 @@ export const authController = {
       const userProfile = {
         id: userId,
         businessId,
+        business_id: businessId,
+        workspaceId: businessId,
         storeName: storeName.trim(),
-        name: ownerName?.trim() || email.split('@')[0],
-        email: email.trim().toLowerCase(),
+        name: resolvedOwnerName,
+        email: normalizedEmail,
         role: 'OWNER',
         is_super_admin: false,
         isNewUser: true
       };
 
-      logger.info(`New merchant registered: ${storeName} (${email}) -> Workspace ${businessId}`);
+      logger.info(`New merchant registered: ${storeName} (${normalizedEmail}) -> Workspace ${businessId}`);
       return successResponse(res, { token, user: userProfile }, HTTP_STATUS.CREATED);
     } catch (err) {
       next(err);
@@ -158,11 +162,21 @@ export const authController = {
         SELECT u.id, u.business_id, u.email, u.password_hash, u.name, u.role, u.is_super_admin, b.name as store_name
         FROM users u
         LEFT JOIN businesses b ON u.business_id = b.id
-        WHERE u.email = ?
+        WHERE LOWER(u.email) = ?
       `).get(normalizedEmail);
 
       if (!user) {
         return errorResponse(res, 'Invalid email or password.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+
+      // Administrative accounts must log in via the dedicated /admin gate
+      if (user.is_super_admin === 1 || user.role === 'SUPER_ADMIN') {
+        return errorResponse(
+          res,
+          'Administrative accounts must sign in through the Admin Portal at /admin.',
+          API_ERROR_CODES.SUPER_ADMIN_PORTAL_REQUIRED,
+          HTTP_STATUS.FORBIDDEN
+        );
       }
 
       // If demo quick login requested and user is demo founder
@@ -188,11 +202,13 @@ export const authController = {
       const userProfile = {
         id: user.id,
         businessId: user.business_id,
-        storeName: user.store_name || (user.is_super_admin ? 'KreazyAI Global Admin' : 'My Store'),
+        business_id: user.business_id,
+        workspaceId: user.business_id,
+        storeName: user.store_name || 'My Store',
         name: user.name,
         email: user.email,
         role: user.role,
-        is_super_admin: Boolean(user.is_super_admin),
+        is_super_admin: false,
         isDemo: isDemoMatch
       };
 
@@ -464,16 +480,24 @@ export const authController = {
         return errorResponse(res, 'User not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      return successResponse(res, {
+      const userProfile = {
         id: user.id,
         businessId: user.business_id,
+        business_id: user.business_id,
+        workspaceId: user.business_id,
         storeName: user.store_name || (user.is_super_admin ? 'KreazyAI Global Admin' : 'My Store'),
+        businessName: user.store_name || '',
         name: user.name,
         email: user.email,
         role: user.role,
         is_super_admin: Boolean(user.is_super_admin),
         plan: user.plan,
         businessStatus: user.business_status
+      };
+
+      return successResponse(res, {
+        user: userProfile,
+        ...userProfile
       });
     } catch (err) {
       next(err);

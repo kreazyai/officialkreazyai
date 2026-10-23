@@ -9,6 +9,7 @@ import { metaEmbeddedSignupService } from '../services/meta/metaEmbeddedSignupSe
 import { creditWalletService } from '../services/billing/creditWalletService.js';
 import { config } from '../config/env.js';
 import { logger } from '../utils/logger.js';
+import { getTenantId } from '../middleware/auth.js';
 
 export const whatsappController = {
   /**
@@ -17,7 +18,10 @@ export const whatsappController = {
    */
   async getConnection(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const connection = whatsappConnectionService.getConnection(tenantId);
       const aiHealth = await whatsappAiService.checkHealth();
       const wallet = creditWalletService.getWallet(tenantId);
@@ -41,7 +45,10 @@ export const whatsappController = {
    */
   async connect(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const workspaceId = req.headers['x-workspace-id'] || tenantId;
 
       const { authUrl, state, isSimulated } = metaAuthService.generateAuthorizationUrl(
@@ -70,7 +77,10 @@ export const whatsappController = {
    */
   async getQrSession(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const session = whatsappConnectionService.generateQrSession(tenantId);
       return successResponse(res, session, HTTP_STATUS.OK);
     } catch (err) {
@@ -84,7 +94,10 @@ export const whatsappController = {
    */
   async pairWithQr(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const { phoneNumber, deviceName } = req.body || {};
       const connection = whatsappConnectionService.pairViaQr(tenantId, { phoneNumber, deviceName });
       return successResponse(res, { connection, paired: true }, HTTP_STATUS.OK, {
@@ -102,7 +115,10 @@ export const whatsappController = {
    */
   async connectPhone(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const { phoneNumber, wabaId, phoneNumberId, accessToken } = req.body || {};
 
       if (!phoneNumber || !phoneNumber.trim()) {
@@ -132,7 +148,10 @@ export const whatsappController = {
    */
   async configureCredentials(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const { phoneNumberId, wabaId, accessToken, displayNumber } = req.body || {};
 
       if (!phoneNumberId || !accessToken) {
@@ -173,7 +192,10 @@ export const whatsappController = {
    */
   async updateAutoReply(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const { enabled } = req.body || {};
       const result = whatsappConnectionService.updateAutoReply(tenantId, Boolean(enabled));
       return successResponse(res, result, HTTP_STATUS.OK);
@@ -187,7 +209,10 @@ export const whatsappController = {
    */
   async disconnect(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const result = whatsappConnectionService.disconnect(tenantId);
       return successResponse(res, result, HTTP_STATUS.OK, { message: 'WhatsApp channel disconnected successfully' });
     } catch (err) {
@@ -201,7 +226,10 @@ export const whatsappController = {
    */
   async healthCheck(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const health = await whatsappConnectionService.runHealthCheck(tenantId);
       return successResponse(res, health);
     } catch (err) {
@@ -216,7 +244,10 @@ export const whatsappController = {
    */
   async testMessage(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const {
         messageText = 'Do you have this shirt in XL?',
         senderPhone = '+1 (555) 928-1029',
@@ -376,7 +407,10 @@ export const whatsappController = {
    */
   async getObservability(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const connection = whatsappConnectionService.getConnection(tenantId);
       const db = (await import('../config/database.js')).getDatabase();
 
@@ -427,7 +461,10 @@ export const whatsappController = {
    */
   async initiateEmbeddedSignup(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const session = metaEmbeddedSignupService.initiateSession(tenantId);
       return successResponse(res, session, HTTP_STATUS.OK);
     } catch (err) {
@@ -441,7 +478,10 @@ export const whatsappController = {
    */
   async completeEmbeddedSignup(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const { code, stateToken, sessionInfo, isCancelled } = req.body || {};
 
       const result = await metaEmbeddedSignupService.completeOnboarding(tenantId, {
@@ -474,7 +514,10 @@ export const whatsappController = {
    */
   async getWallet(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const wallet = creditWalletService.getWallet(tenantId);
       return successResponse(res, wallet, HTTP_STATUS.OK);
     } catch (err) {
@@ -488,7 +531,10 @@ export const whatsappController = {
    */
   async upgradePlan(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const { planId, billingCycle = 'MONTHLY', provider = 'INTERNAL' } = req.body || {};
 
       if (!planId) {
@@ -510,7 +556,10 @@ export const whatsappController = {
    */
   async getTransactions(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+      }
       const limit = parseInt(req.query.limit || '50', 10);
       const transactions = creditWalletService.getTransactions(tenantId, limit);
       return successResponse(res, { transactions }, HTTP_STATUS.OK);

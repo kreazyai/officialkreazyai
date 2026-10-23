@@ -1,6 +1,7 @@
 import { config } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-import { successResponse, errorResponse, HTTP_STATUS } from '../utils/response.js';
+import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
+import { getTenantId } from '../middleware/auth.js';
 import { metaAuthService } from '../services/meta/metaAuthService.js';
 import { metaAssetService } from '../services/meta/metaAssetService.js';
 import { metaConnectionService } from '../services/meta/metaConnectionService.js';
@@ -14,8 +15,11 @@ export const metaController = {
    */
   async initiateConnect(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
-      const workspaceId = req.headers['x-workspace-id'] || businessId;
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+      const workspaceId = businessId;
       const platform = (req.body?.platform || 'ALL').toUpperCase();
 
       const { authUrl, state, isSimulated } = metaAuthService.generateAuthorizationUrl(
@@ -138,8 +142,11 @@ export const metaController = {
    */
   async getConnections(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
-      const workspaceId = req.headers['x-workspace-id'] || businessId;
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+      const workspaceId = businessId;
 
       const connections = metaConnectionService.getConnections(businessId, workspaceId);
 
@@ -160,7 +167,10 @@ export const metaController = {
    */
   async testConnection(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { connectionId } = req.params;
 
       // Extract platform from connectionId (e.g. conn-whatsapp-ws-flagship-01) or find from DB
@@ -183,8 +193,11 @@ export const metaController = {
    */
   async reconnect(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
-      const workspaceId = req.headers['x-workspace-id'] || businessId;
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+      const workspaceId = businessId;
       const { connectionId } = req.params;
 
       const connections = metaConnectionService.getConnections(businessId);
@@ -203,7 +216,10 @@ export const metaController = {
    */
   async disconnect(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { connectionId } = req.params;
 
       const connections = metaConnectionService.getConnections(businessId);
@@ -225,7 +241,10 @@ export const metaController = {
    */
   async updateSettings(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { connectionId } = req.params;
 
       const connections = metaConnectionService.getConnections(businessId);
@@ -248,8 +267,11 @@ export const metaController = {
    */
   async simulateTestEvent(req, res, next) {
     try {
-      const businessId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
-      const workspaceId = req.headers['x-workspace-id'] || businessId;
+      const businessId = getTenantId(req);
+      if (!businessId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+      const workspaceId = businessId;
 
       const platform = (req.body?.platform || 'WHATSAPP').toUpperCase();
       const messageText = req.body?.messageText || 'Do you have this shirt in XL?';

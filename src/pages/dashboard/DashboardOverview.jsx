@@ -45,7 +45,7 @@ function formatMessageCount(count) {
  * 2. AI Messages (Today | This Month | This Year)
  */
 export function DashboardOverview({ user }) {
-  const tenantId = user?.business_id || 'ws-flagship-01';
+  const tenantId = user?.business_id || user?.businessId || user?.workspaceId || '';
 
   // Independent period selection states (Default: 'today')
   const [salesPeriod, setSalesPeriod] = useState('today'); // 'today' | 'this_month' | 'this_year'

@@ -19,14 +19,16 @@ export function AdminPortal({ onNavigate }) {
 
     try {
       const res = await apiClient.get('/auth/me');
-      if (res && (res.is_super_admin === true || res.role === 'SUPER_ADMIN')) {
+      const u = res?.user || res;
+      if (u && (u.is_super_admin === true || u.is_super_admin === 1 || u.role === 'SUPER_ADMIN')) {
+        apiClient.setWorkspace(null);
         setIsAuthenticated(true);
-        setAdminUser(res);
+        setAdminUser(u);
       } else {
         throw new Error('Access denied: administrative role required.');
       }
     } catch {
-      apiClient.setAuthToken(null);
+      apiClient.clearToken();
       localStorage.removeItem('kreazy_superadmin_auth');
       localStorage.removeItem('kreazy_superadmin_email');
       sessionStorage.removeItem('kreazy_superadmin_auth');
@@ -48,7 +50,7 @@ export function AdminPortal({ onNavigate }) {
   };
 
   const handleLogout = () => {
-    apiClient.setAuthToken(null);
+    apiClient.clearToken();
     localStorage.removeItem('kreazy_superadmin_auth');
     localStorage.removeItem('kreazy_superadmin_email');
     localStorage.removeItem('kreazy_superadmin_login_at');

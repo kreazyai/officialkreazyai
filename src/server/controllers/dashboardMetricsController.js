@@ -1,6 +1,7 @@
 import { getDatabase } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
+import { getTenantId } from '../middleware/auth.js';
 
 /**
  * Normalizes and validates an IANA timezone string.
@@ -118,13 +119,10 @@ export const dashboardMetricsController = {
   async getOverviewMetrics(req, res, next) {
     try {
       const db = getDatabase();
-      // Tenant isolation: authenticated business ID or fallback
-      const tenantId =
-        req.businessId ||
-        req.user?.business_id ||
-        (req.user?.is_super_admin && req.headers['x-workspace-id']) ||
-        req.headers['x-workspace-id'] ||
-        'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
 
       // Retrieve configured timezone and currency from business profile
       const profile = db.prepare(`
@@ -226,12 +224,10 @@ export const dashboardMetricsController = {
   async getAnalyticsMetrics(req, res, next) {
     try {
       const db = getDatabase();
-      const tenantId =
-        req.businessId ||
-        req.user?.business_id ||
-        (req.user?.is_super_admin && req.headers['x-workspace-id']) ||
-        req.headers['x-workspace-id'] ||
-        'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
 
       const profile = db.prepare(`
         SELECT timezone FROM business_profiles WHERE business_id = ?
@@ -401,12 +397,10 @@ export const dashboardMetricsController = {
   async getRevenueMetrics(req, res, next) {
     try {
       const db = getDatabase();
-      const tenantId =
-        req.businessId ||
-        req.user?.business_id ||
-        (req.user?.is_super_admin && req.headers['x-workspace-id']) ||
-        req.headers['x-workspace-id'] ||
-        'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
 
       const profile = db.prepare(`
         SELECT base_currency, timezone 

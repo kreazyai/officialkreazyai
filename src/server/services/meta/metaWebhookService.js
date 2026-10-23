@@ -112,7 +112,7 @@ export const metaWebhookService = {
    * - Checks if event already marked as completed (processed = 1) in meta_webhook_events.
    * - Permits in-flight messages (processed = 0) created by gateway to proceed through pipeline.
    */
-  isDuplicateEvent(eventId) {
+  isDuplicateEvent(eventId, businessId = null) {
     if (!eventId) return false;
     const db = getDatabase();
     try {
@@ -146,10 +146,11 @@ export const metaWebhookService = {
 
       // 3. If no record exists at all in meta_webhook_events (e.g. called directly without gateway ingestion):
       // Record this event as processed so subsequent standalone checks recognize it as a duplicate (idempotency protection)
+      const bid = businessId || 'system-dedup';
       db.prepare(`
         INSERT INTO meta_webhook_events (id, event_id, platform, business_id, payload, processed, created_at)
-        VALUES (?, ?, 'WHATSAPP', 'ws-flagship-01', '{}', 1, datetime('now'))
-      `).run(`evt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, eventId);
+        VALUES (?, ?, 'WHATSAPP', ?, '{}', 1, datetime('now'))
+      `).run(`evt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, eventId, bid);
 
       return false;
     } catch (err) {

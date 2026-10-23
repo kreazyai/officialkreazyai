@@ -1,6 +1,7 @@
 import { getDatabase } from '../config/database.js';
-import { successResponse, errorResponse, HTTP_STATUS } from '../utils/response.js';
+import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { knowledgeService } from '../services/whatsapp/knowledgeService.js';
+import { getTenantId } from '../middleware/auth.js';
 
 export const policyController = {
   /**
@@ -9,7 +10,10 @@ export const policyController = {
    */
   async getAll(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const db = getDatabase();
 
       const policies = db.prepare(`
@@ -31,11 +35,14 @@ export const policyController = {
    */
   async create(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { policy_type, content, status = 'ACTIVE' } = req.body || {};
 
       if (!policy_type || !content) {
-        return errorResponse(res, 'policy_type and content are required', HTTP_STATUS.BAD_REQUEST, 'VALIDATION_ERROR');
+        return errorResponse(res, 'policy_type and content are required', API_ERROR_CODES.BAD_REQUEST, HTTP_STATUS.BAD_REQUEST);
       }
 
       const db = getDatabase();
@@ -50,7 +57,7 @@ export const policyController = {
       knowledgeService.invalidateTenantCache(tenantId);
 
       const created = db.prepare('SELECT * FROM policies WHERE id = ?').get(id);
-      return successResponse(res, created, 'Policy created successfully', HTTP_STATUS.CREATED);
+      return successResponse(res, created, HTTP_STATUS.CREATED, { message: 'Policy created successfully' });
     } catch (err) {
       next(err);
     }
@@ -61,13 +68,16 @@ export const policyController = {
    */
   async getById(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { id } = req.params;
       const db = getDatabase();
 
       const policy = db.prepare('SELECT * FROM policies WHERE id = ? AND tenant_id = ?').get(id, tenantId);
       if (!policy) {
-        return errorResponse(res, 'Policy not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+        return errorResponse(res, 'Policy not found', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
       return successResponse(res, policy);
@@ -81,14 +91,17 @@ export const policyController = {
    */
   async update(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { id } = req.params;
       const { policy_type, content, status } = req.body || {};
       const db = getDatabase();
 
       const existing = db.prepare('SELECT * FROM policies WHERE id = ? AND tenant_id = ?').get(id, tenantId);
       if (!existing) {
-        return errorResponse(res, 'Policy not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+        return errorResponse(res, 'Policy not found', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
       db.prepare(`
@@ -103,7 +116,7 @@ export const policyController = {
       knowledgeService.invalidateTenantCache(tenantId);
 
       const updated = db.prepare('SELECT * FROM policies WHERE id = ?').get(id);
-      return successResponse(res, updated, 'Policy updated successfully');
+      return successResponse(res, updated, HTTP_STATUS.OK, { message: 'Policy updated successfully' });
     } catch (err) {
       next(err);
     }
@@ -114,19 +127,22 @@ export const policyController = {
    */
   async delete(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { id } = req.params;
       const db = getDatabase();
 
       const existing = db.prepare('SELECT * FROM policies WHERE id = ? AND tenant_id = ?').get(id, tenantId);
       if (!existing) {
-        return errorResponse(res, 'Policy not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+        return errorResponse(res, 'Policy not found', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
       db.prepare('DELETE FROM policies WHERE id = ? AND tenant_id = ?').run(id, tenantId);
       knowledgeService.invalidateTenantCache(tenantId);
 
-      return successResponse(res, { id, deleted: true }, 'Policy deleted successfully');
+      return successResponse(res, { id, deleted: true }, HTTP_STATUS.OK, { message: 'Policy deleted successfully' });
     } catch (err) {
       next(err);
     }

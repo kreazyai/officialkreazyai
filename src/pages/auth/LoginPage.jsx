@@ -39,7 +39,13 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
       }
       onNavigate('dashboard');
     } catch (err) {
-      setError(err?.message || 'Login failed. Please verify your credentials.');
+      if (err?.code === 'SUPER_ADMIN_PORTAL_REQUIRED' || (err?.status === 403 && err?.message?.includes('/admin'))) {
+        setError(err.message || 'Administrative accounts must sign in through the Admin Portal at /admin.');
+      } else if (err?.status === 401) {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else {
+        setError(err?.message || 'Login failed. Please verify your credentials.');
+      }
     } finally {
       setLoading(false);
     }

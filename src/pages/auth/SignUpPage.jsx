@@ -68,7 +68,11 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
       if (onLoginSuccess) onLoginSuccess(user);
       onNavigate('onboarding');
     } catch (err) {
-      setError(err?.message || 'Registration failed. Please try again.');
+      if (err?.status === 409 || err?.code === 'CONFLICT' || err?.message?.toLowerCase().includes('already exists')) {
+        setError('An account with this email already exists. Please sign in instead.');
+      } else {
+        setError(err?.message || 'Registration failed. Please check your details and try again.');
+      }
     } finally {
       setLoading(false);
     }

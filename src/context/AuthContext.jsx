@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/api';
+import { apiClient } from '../api/client';
 
 /**
  * KreazyAI Centralized Authentication Context
@@ -33,6 +34,50 @@ export function AuthProvider({ children }) {
       return 'unauthenticated';
     }
   });
+
+  // Background server-side session verification on mount
+  useEffect(() => {
+    let active = true;
+    const verify = async () => {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser?.isDemo) {
+        return;
+      }
+      const token = apiClient.getAuthToken();
+      if (!token) {
+        if (currentUser) {
+          authService.logout();
+          if (active) {
+            setUser(null);
+            setAuthStatus('unauthenticated');
+          }
+        }
+        return;
+      }
+
+      try {
+        const verifiedUser = await authService.verifySession();
+        if (active) {
+          if (verifiedUser) {
+            setUser(verifiedUser);
+            setAuthStatus('authenticated');
+          } else {
+            setUser(null);
+            setAuthStatus('unauthenticated');
+          }
+        }
+      } catch (err) {
+        if ((err?.status === 401 || err?.status === 403) && active) {
+          authService.logout();
+          setUser(null);
+          setAuthStatus('unauthenticated');
+        }
+      }
+    };
+
+    verify();
+    return () => { active = false; };
+  }, []);
 
   // Cross-tab synchronization via storage event
   useEffect(() => {

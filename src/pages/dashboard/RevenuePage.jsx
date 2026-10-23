@@ -126,7 +126,7 @@ export function RevenuePage({ user, onNavigateModule }) {
   const [selectedPeriod, setSelectedPeriod] = useState('today');
 
   const [metrics, setMetrics] = useState({
-    tenantId: user?.business_id || 'ws-flagship-01',
+    tenantId: user?.business_id || user?.businessId || user?.workspaceId || '',
     timezone: 'Asia/Dhaka',
     localDate: '',
     currency: 'BDT',

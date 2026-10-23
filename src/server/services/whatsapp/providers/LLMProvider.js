@@ -80,7 +80,7 @@ export class OllamaQwenLLMProvider extends LLMProvider {
     logger.info('[OllamaQwenLLMProvider] Invoking local Ollama Qwen3 runtime');
 
     const result = await whatsappAiService.generateCustomerReply({
-      businessId: context.businessId || context.tenantId || 'ws-flagship-01',
+      businessId: context.businessId || context.tenantId || '',
       conversationId,
       customerMessage: prompt,
       knowledge: {

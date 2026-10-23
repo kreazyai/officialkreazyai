@@ -50,19 +50,20 @@ async function sendWhatsAppTextMessage(phoneNumberId, accessToken, recipientPhon
   return data;
 }
 
+import { getDatabase } from '../config/database.js';
+
 /**
  * Lookup which tenant business owns a given Meta phone_number_id
  * so inbound webhooks can be routed to the correct workspace.
- * Falls back to the flagship demo workspace if no mapping exists yet.
  */
 function resolveBusinessIdFromPhoneNumberId(phoneNumberId) {
-  // In a production multi-tenant scenario, query the DB:
-  // const row = db.prepare('SELECT business_id FROM integrations WHERE meta_phone_number_id = ?').get(phoneNumberId);
-  // return row?.business_id || 'ws-flagship-01';
-  //
-  // For now: return a deterministic fallback so webhook routing works out of the box.
-  if (!phoneNumberId) return 'ws-flagship-01';
-  return `ws-${phoneNumberId}`.slice(0, 32) || 'ws-flagship-01';
+  if (!phoneNumberId) return null;
+  try {
+    const db = getDatabase();
+    const row = db.prepare('SELECT business_id FROM meta_connections WHERE platform_account_id = ?').get(phoneNumberId);
+    if (row && row.business_id) return row.business_id;
+  } catch {}
+  return config.isProduction ? null : (`ws-${phoneNumberId}`.slice(0, 32) || null);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

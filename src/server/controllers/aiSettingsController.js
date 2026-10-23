@@ -1,7 +1,8 @@
 import { getDatabase } from '../config/database.js';
-import { successResponse, errorResponse, HTTP_STATUS } from '../utils/response.js';
+import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { knowledgeService } from '../services/whatsapp/knowledgeService.js';
 import { logger } from '../utils/logger.js';
+import { getTenantId } from '../middleware/auth.js';
 
 export const aiSettingsController = {
   /**
@@ -10,7 +11,10 @@ export const aiSettingsController = {
    */
   async getSettings(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const settings = knowledgeService.getTenantAiSettings(tenantId);
       return successResponse(res, settings);
     } catch (err) {
@@ -24,7 +28,10 @@ export const aiSettingsController = {
    */
   async updateSettings(req, res, next) {
     try {
-      const tenantId = req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const {
         system_instructions,
         tone,

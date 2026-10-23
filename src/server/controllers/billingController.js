@@ -3,6 +3,7 @@ import { creditWalletService } from '../services/billing/creditWalletService.js'
 import { PLAN_CONFIG } from '../services/billing/planConfig.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
+import { getTenantId } from '../middleware/auth.js';
 
 /**
  * Masks an account/phone number to ensure privacy and security.
@@ -41,8 +42,10 @@ export const billingController = {
    */
   async getDetails(req, res, next) {
     try {
-      const db = getDatabase();
-      const tenantId = req.businessId || req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
 
       // Ensure base tables and records exist
       ensureCreditWallet(db, tenantId);
@@ -204,7 +207,10 @@ export const billingController = {
    */
   async changePlan(req, res, next) {
     try {
-      const tenantId = req.businessId || req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { planId, billingCycle = 'MONTHLY', provider = 'BKASH' } = req.body || {};
 
       if (!planId || !PLAN_CONFIG[planId]) {
@@ -227,8 +233,10 @@ export const billingController = {
    */
   async cancelPlan(req, res, next) {
     try {
-      const db = getDatabase();
-      const tenantId = req.businessId || req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const nowIso = new Date().toISOString();
 
       db.transaction(() => {
@@ -269,8 +277,10 @@ export const billingController = {
    */
   async submitPayment(req, res, next) {
     try {
-      const db = getDatabase();
-      const tenantId = req.businessId || req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { planId = 'growth', provider = 'bKash', senderNumber, trxId, screenshotUrl } = req.body || {};
 
       if (!senderNumber || !senderNumber.trim()) {
@@ -340,8 +350,10 @@ export const billingController = {
    */
   async updatePaymentMethod(req, res, next) {
     try {
-      const db = getDatabase();
-      const tenantId = req.businessId || req.user?.business_id || req.headers['x-workspace-id'] || 'ws-flagship-01';
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
       const { provider = 'bKash', senderNumber } = req.body || {};
 
       if (!senderNumber || !senderNumber.trim()) {

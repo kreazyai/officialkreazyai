@@ -11,7 +11,8 @@ export const API_ERROR_CODES = {
   VALIDATION_FAILED: 'VALIDATION_FAILED',
   RATE_LIMITED: 'RATE_LIMITED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
-  TENANT_MISMATCH: 'TENANT_MISMATCH'
+  TENANT_MISMATCH: 'TENANT_MISMATCH',
+  SUPER_ADMIN_PORTAL_REQUIRED: 'SUPER_ADMIN_PORTAL_REQUIRED'
 };
 
 export function successResponse(data, meta = {}) {
@@ -146,7 +147,7 @@ export function resolveApiBaseUrl() {
  */
 class ApiClient {
   constructor() {
-    this.workspaceId = safeGet('kreazy_active_workspace', 'ws-flagship-01');
+    this.workspaceId = safeGet('kreazy_active_workspace', null);
     this.token = safeGet('kreazy_auth_token', null);
     this.baseUrl = resolveApiBaseUrl();
   }
@@ -160,8 +161,12 @@ class ApiClient {
   }
 
   setWorkspace(id) {
-    this.workspaceId = id;
-    safeSet('kreazy_active_workspace', id);
+    this.workspaceId = id || null;
+    if (id) {
+      safeSet('kreazy_active_workspace', id);
+    } else {
+      safeRemove('kreazy_active_workspace');
+    }
   }
 
   getWorkspaceId() {
@@ -183,6 +188,7 @@ class ApiClient {
 
   clearToken() {
     this.setAuthToken(null);
+    this.setWorkspace(null);
   }
 
   getAuthToken() {
@@ -191,9 +197,11 @@ class ApiClient {
 
   getHeaders() {
     const headers = {
-      'Content-Type': 'application/json',
-      'X-Workspace-Id': this.workspaceId || ''
+      'Content-Type': 'application/json'
     };
+    if (this.workspaceId) {
+      headers['X-Workspace-Id'] = this.workspaceId;
+    }
     const activeToken = this.getAuthToken();
     if (activeToken) {
       headers['Authorization'] = `Bearer ${activeToken}`;

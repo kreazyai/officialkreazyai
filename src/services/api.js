@@ -637,8 +637,14 @@ export const productService = {
     }
     try {
       const res = await apiClient.get('/products');
+      if (Array.isArray(res)) {
+        return res;
+      }
       if (res && res.success && Array.isArray(res.data)) {
         return res.data;
+      }
+      if (res && Array.isArray(res.products)) {
+        return res.products;
       }
     } catch {
       // Fallback to local storage
@@ -652,11 +658,12 @@ export const productService = {
     if (!isDemo) {
       try {
         const res = await apiClient.post('/products', product);
-        if (res && res.success && res.data) {
+        const created = (res && res.data) ? res.data : res;
+        if (created && created.id) {
           const key = STORAGE_KEYS.PRODUCTS;
           const current = getStored(key, []);
-          setStored(key, [res.data, ...current]);
-          return res.data;
+          setStored(key, [created, ...current]);
+          return created;
         }
       } catch (err) {
         console.warn('Backend product creation failed, falling back:', err?.message);
@@ -681,12 +688,13 @@ export const productService = {
     if (!isDemo) {
       try {
         const res = await apiClient.put(`/products/${id}`, updates);
-        if (res && res.success && res.data) {
+        const updatedItem = (res && res.data) ? res.data : res;
+        if (updatedItem && updatedItem.id) {
           const key = STORAGE_KEYS.PRODUCTS;
           const products = getStored(key, []);
-          const updated = products.map(p => p.id === id ? { ...p, ...res.data } : p);
+          const updated = products.map(p => p.id === id ? { ...p, ...updatedItem } : p);
           setStored(key, updated);
-          return res.data;
+          return updatedItem;
         }
       } catch (err) {
         console.warn('Backend product update failed, falling back:', err?.message);
@@ -727,8 +735,14 @@ export const orderService = {
     }
     try {
       const res = await apiClient.get('/orders');
+      if (Array.isArray(res)) {
+        return res;
+      }
       if (res && res.success && Array.isArray(res.data)) {
         return res.data;
+      }
+      if (res && Array.isArray(res.orders)) {
+        return res.orders;
       }
     } catch {
       // Fallback
@@ -751,11 +765,12 @@ export const orderService = {
           shippingAddress: orderData.shippingAddress || {}
         };
         const res = await apiClient.post('/orders', payload);
-        if (res && res.success && res.data) {
+        const created = (res && res.data) ? res.data : res;
+        if (created && created.id) {
           const key = STORAGE_KEYS.ORDERS;
           const current = getStored(key, []);
-          setStored(key, [res.data, ...current]);
-          return res.data;
+          setStored(key, [created, ...current]);
+          return created;
         }
       } catch (err) {
         console.warn('Backend order creation failed, falling back:', err?.message);
@@ -1323,61 +1338,83 @@ export const authService = {
     return getStored(STORAGE_KEYS.AUTH_USER, null);
   },
   async login(email, password, isDemo = false) {
-    const isSuper = email.includes('superadmin') || email.includes('admin@kreazy.ai') || email.includes('kreazyai@gmail.com');
-    const user = {
-      id: `usr-${Date.now()}`,
-      name: email.split('@')[0] || "Store Owner",
-      email: email,
-      storeName: isSuper ? "KreazyAI Global Admin" : (isDemo ? "Kreazy Flagship Studio" : "My Retail Store"),
-      role: isSuper ? "SUPER_ADMIN" : "OWNER",
-      is_super_admin: isSuper,
-      isDemo: isDemo,
-      isNewUser: !isDemo,
+    const cleanEmail = (email || '').trim().toLowerCase();
+
+    // 1. Explicit Demo Account Handling (Local Simulation Only)
+    if (isDemo) {
+      const demoUser = {
+        id: 'usr-demo',
+        name: 'Demo Merchant',
+        email: cleanEmail || 'demo@kreazy.ai',
+        storeName: 'Kreazy Flagship Studio',
+        workspaceId: 'ws-flagship-01',
+        business_id: 'ws-flagship-01',
+        businessId: 'ws-flagship-01',
+        role: 'OWNER',
+        is_super_admin: false,
+        isDemo: true,
+        isNewUser: false,
+        isLoggedIn: true
+      };
+      setStored(STORAGE_KEYS.AUTH_USER, demoUser);
+      apiClient.setWorkspace('ws-flagship-01');
+      return demoUser;
+    }
+
+    if (!cleanEmail || !password) {
+      throw new Error('Please enter both your email address and password.');
+    }
+
+    // 2. Real Production Merchant Authentication
+    // Always call POST /auth/login for merchant/tenant sign-in.
+    // If the account belongs to a super administrator, the backend returns HTTP 403
+    // with code SUPER_ADMIN_PORTAL_REQUIRED instructing them to use the /admin portal.
+    const res = await apiClient.post('/auth/login', { email: cleanEmail, password });
+    const token = res?.token || res?.data?.token;
+    const serverUser = res?.user || res?.data?.user;
+
+    if (!token || !serverUser) {
+      throw new Error('Authentication succeeded but received an invalid session payload.');
+    }
+
+    // Set JWT token in ApiClient and localStorage
+    apiClient.setToken(token);
+
+    // Derive real business/workspace context strictly from authenticated server user
+    const businessId = serverUser.businessId || serverUser.business_id || serverUser.workspaceId || null;
+    if (businessId) {
+      apiClient.setWorkspace(businessId);
+    } else {
+      apiClient.setWorkspace(null);
+    }
+
+    const authedUser = {
+      id: serverUser.id,
+      name: serverUser.name || cleanEmail.split('@')[0],
+      email: serverUser.email || cleanEmail,
+      storeName: serverUser.businessName || serverUser.storeName || 'My Retail Store',
+      workspaceId: businessId,
+      business_id: businessId,
+      businessId: businessId,
+      role: serverUser.role || 'OWNER',
+      is_super_admin: Boolean(serverUser.is_super_admin),
+      isDemo: false,
+      isNewUser: false,
       isLoggedIn: true
     };
-    setStored(STORAGE_KEYS.AUTH_USER, user);
 
-    // If logging into a real merchant account, purge any mock demo records from real store collections
-    if (!isDemo && !isSuper) {
-      const currentProducts = getStored(STORAGE_KEYS.PRODUCTS, []);
-      const cleanProducts = currentProducts.filter(p => !['prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5'].includes(p.id) && !p.id?.startsWith('mock-'));
-      setStored(STORAGE_KEYS.PRODUCTS, cleanProducts);
+    setStored(STORAGE_KEYS.AUTH_USER, authedUser);
 
-      const currentOrders = getStored(STORAGE_KEYS.ORDERS, []);
-      const cleanOrders = currentOrders.filter(o => !['ord-1', 'ord-2', 'ord-3', 'ord-4'].includes(o.id) && !o.id?.startsWith('ORD-104'));
-      setStored(STORAGE_KEYS.ORDERS, cleanOrders);
+    // Clean any residual mock demo artifacts from real store collections
+    const currentProducts = getStored(STORAGE_KEYS.PRODUCTS, []);
+    const cleanProducts = currentProducts.filter(p => !['prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5'].includes(p.id) && !p.id?.startsWith('mock-'));
+    setStored(STORAGE_KEYS.PRODUCTS, cleanProducts);
 
-      const currentConvs = getStored(STORAGE_KEYS.CONVERSATIONS, []);
-      const cleanConvs = currentConvs.filter(c => !['conv-1', 'conv-2', 'conv-3', 'conv-4', 'conv-5'].includes(c.id));
-      setStored(STORAGE_KEYS.CONVERSATIONS, cleanConvs);
+    const currentOrders = getStored(STORAGE_KEYS.ORDERS, []);
+    const cleanOrders = currentOrders.filter(o => !['ord-1', 'ord-2', 'ord-3', 'ord-4'].includes(o.id) && !o.id?.startsWith('ORD-104'));
+    setStored(STORAGE_KEYS.ORDERS, cleanOrders);
 
-      const currentCustomers = getStored(STORAGE_KEYS.CUSTOMERS, []);
-      const cleanCustomers = currentCustomers.filter(c => !['c1', 'c2', 'c3', 'c4', 'c5'].includes(c.id) && !c.id?.startsWith('mock-'));
-      setStored(STORAGE_KEYS.CUSTOMERS, cleanCustomers);
-    }
-
-    if (!isDemo && password) {
-      const endpoint = isSuper ? '/auth/admin-login' : '/auth/login';
-      try {
-        const res = await apiClient.post(endpoint, { email, password });
-        const token = res?.token || res?.data?.token;
-        const serverUser = res?.user || res?.data?.user;
-        if (token) {
-          apiClient.setToken(token);
-        }
-        if (serverUser) {
-          user.id = serverUser.id || user.id;
-          user.workspaceId = serverUser.business_id || serverUser.workspace_id || user.workspaceId;
-          user.role = serverUser.role || user.role;
-          user.is_super_admin = Boolean(serverUser.is_super_admin);
-          setStored(STORAGE_KEYS.AUTH_USER, user);
-        }
-      } catch (err) {
-        console.warn('Backend login endpoint unavailable, preserving local authenticated session:', err?.message);
-      }
-    }
-
-    return user;
+    return authedUser;
   },
   async loginWithGoogle({ email, name, picture, googleId, storeName, credential } = {}) {
     const resolvedEmail = (email || 'merchant@gmail.com').trim().toLowerCase();
@@ -1464,38 +1501,61 @@ export const authService = {
     return user;
   },
   async registerWorkspace({ storeName, ownerName, email, password, plan = 'Growth ($119/mo)' }) {
-    const workspaces = getStored(STORAGE_KEYS.WORKSPACES, initialBusinesses);
-    const newWs = {
-      id: `ws-${Date.now()}`,
-      name: storeName || "My Retail Store",
-      owner_name: ownerName || email.split('@')[0],
-      owner_email: email,
-      plan: plan,
-      status: "ACTIVE",
-      channels_connected: [],
-      total_customers: 0,
-      total_orders: 0,
-      total_revenue: "$0.00",
-      created_at: new Date().toISOString().split('T')[0],
-      last_activity: "Just now"
-    };
-    setStored(STORAGE_KEYS.WORKSPACES, [newWs, ...workspaces]);
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanOwnerName = (ownerName || '').trim() || cleanEmail.split('@')[0];
+    const cleanStoreName = (storeName || '').trim() || `${cleanOwnerName}'s Store`;
 
-    const user = {
-      id: `usr-${Date.now()}`,
-      name: ownerName || email.split('@')[0],
-      email: email,
-      storeName: storeName || "My Retail Store",
-      workspaceId: newWs.id,
-      role: "OWNER",
+    if (!cleanEmail || !password) {
+      throw new Error('Email and password are required for registration.');
+    }
+
+    // Call real backend registration endpoint
+    // DO NOT catch and swallow errors. If email exists (409) or validation fails (400),
+    // let it throw so the user receives immediate, human-readable feedback.
+    const res = await apiClient.post('/auth/register', {
+      name: cleanOwnerName,
+      ownerName: cleanOwnerName,
+      email: cleanEmail,
+      password,
+      storeName: cleanStoreName,
+      businessName: cleanStoreName,
+      plan
+    });
+
+    const token = res?.token || res?.data?.token;
+    const serverUser = res?.user || res?.data?.user;
+
+    if (!token || !serverUser) {
+      throw new Error('Registration completed but did not return a valid authentication session.');
+    }
+
+    // Set JWT token in ApiClient
+    apiClient.setToken(token);
+
+    // Derive real business ID from server response
+    const businessId = serverUser.businessId || serverUser.business_id || serverUser.workspaceId || null;
+    if (businessId) {
+      apiClient.setWorkspace(businessId);
+    }
+
+    const registeredUser = {
+      id: serverUser.id,
+      name: serverUser.name || cleanOwnerName,
+      email: serverUser.email || cleanEmail,
+      storeName: serverUser.businessName || cleanStoreName,
+      workspaceId: businessId,
+      business_id: businessId,
+      businessId: businessId,
+      role: serverUser.role || 'OWNER',
       is_super_admin: false,
       isDemo: false,
       isNewUser: true,
       isLoggedIn: true
     };
-    setStored(STORAGE_KEYS.AUTH_USER, user);
 
-    // Reset all store operational collections so the newly registered merchant starts 100% clean and empty
+    setStored(STORAGE_KEYS.AUTH_USER, registeredUser);
+
+    // Reset local merchant storage to ensure empty slate for fresh workspace
     setStored(STORAGE_KEYS.PRODUCTS, []);
     setStored(STORAGE_KEYS.ORDERS, []);
     setStored(STORAGE_KEYS.CONVERSATIONS, []);
@@ -1507,43 +1567,59 @@ export const authService = {
         localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS);
         localStorage.removeItem(STORAGE_KEYS.CUSTOMERS);
       }
-    } catch {
-      // safe fallback
-    }
+    } catch { }
 
-    adminService.logAuditAction('MERCHANT_REGISTERED', newWs.id, { store: storeName, email });
-
-    if (password) {
-      try {
-        const res = await apiClient.post('/auth/register', {
-          name: ownerName || email.split('@')[0],
-          email,
-          password,
-          storeName: storeName || 'My Retail Store',
-          plan
-        });
-        const token = res?.token || res?.data?.token;
-        const serverUser = res?.user || res?.data?.user;
-        if (token) {
-          apiClient.setToken(token);
-        }
-        if (serverUser?.business_id) {
-          user.workspaceId = serverUser.business_id;
-          setStored(STORAGE_KEYS.AUTH_USER, user);
-        }
-      } catch (err) {
-        console.warn('Backend register endpoint unavailable, preserving local registered session:', err?.message);
-      }
-    }
-
-    return user;
+    return registeredUser;
   },
+
+  async verifySession() {
+    const token = apiClient.getAuthToken();
+    if (!token) {
+      return null;
+    }
+    try {
+      const res = await apiClient.get('/auth/me');
+      const serverUser = res?.user || res?.data?.user;
+      if (!serverUser) {
+        this.logout();
+        return null;
+      }
+      const businessId = serverUser.businessId || serverUser.business_id || serverUser.workspaceId || null;
+      if (businessId) {
+        apiClient.setWorkspace(businessId);
+      }
+      const currentUser = getStored(STORAGE_KEYS.AUTH_USER, {});
+      const verifiedUser = {
+        ...currentUser,
+        id: serverUser.id,
+        name: serverUser.name || currentUser.name,
+        email: serverUser.email || currentUser.email,
+        storeName: serverUser.businessName || currentUser.storeName || 'My Retail Store',
+        workspaceId: businessId,
+        business_id: businessId,
+        businessId: businessId,
+        role: serverUser.role || 'OWNER',
+        is_super_admin: Boolean(serverUser.is_super_admin),
+        isDemo: false,
+        isLoggedIn: true
+      };
+      setStored(STORAGE_KEYS.AUTH_USER, verifiedUser);
+      return verifiedUser;
+    } catch (err) {
+      if (err?.status === 401 || err?.status === 403) {
+        this.logout();
+        return null;
+      }
+      // Return cached user during network glitches to avoid dropping offline sessions
+      return getStored(STORAGE_KEYS.AUTH_USER, null);
+    }
+  },
+
   logout() {
     try {
-      if (apiClient && typeof apiClient.clearToken === 'function') {
+      if (apiClient) {
         apiClient.clearToken();
-      } else if (apiClient && typeof apiClient.setAuthToken === 'function') {
-        apiClient.setAuthToken(null);
+        apiClient.setWorkspace(null);
       }
     } catch (e) {
       console.warn('apiClient clearToken error:', e);
@@ -1555,19 +1631,23 @@ export const authService = {
         localStorage.removeItem('kreazy_superadmin_email');
         localStorage.removeItem('kreazy_superadmin_login_at');
         localStorage.removeItem('kreazy_auth_token');
+        localStorage.removeItem('kreazy_active_workspace');
       }
-    } catch {
-      // safe
-    }
+      if (typeof sessionStorage !== 'undefined' && sessionStorage.removeItem) {
+        sessionStorage.removeItem('kreazy_superadmin_auth');
+        sessionStorage.removeItem('kreazy_superadmin_email');
+        sessionStorage.removeItem('kreazy_auth_token');
+        sessionStorage.removeItem('kreazy_active_workspace');
+      }
+    } catch { }
     try {
       memoryStore.delete(STORAGE_KEYS.AUTH_USER);
       memoryStore.delete('kreazy_superadmin_auth');
       memoryStore.delete('kreazy_superadmin_email');
       memoryStore.delete('kreazy_superadmin_login_at');
       memoryStore.delete('kreazy_auth_token');
-    } catch {
-      // safe
-    }
+      memoryStore.delete('kreazy_active_workspace');
+    } catch { }
     return true;
   }
 };
@@ -2347,7 +2427,7 @@ let _rateLimitUntil = 0;
 /**
  * Resilient local fallback calculation for Overview Metrics
  */
-function calculateLocalOverviewMetrics(tenantId = 'ws-flagship-01') {
+function calculateLocalOverviewMetrics(tenantId = '') {
   const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
   const conversations = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
   const now = new Date();
@@ -2427,7 +2507,7 @@ function calculateLocalOverviewMetrics(tenantId = 'ws-flagship-01') {
 /**
  * Resilient local fallback calculation for Analytics Metrics
  */
-function calculateLocalAnalyticsMetrics(tenantId = 'ws-flagship-01') {
+function calculateLocalAnalyticsMetrics(tenantId = '') {
   const conversations = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
   const customers = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
   const now = Date.now();
@@ -2492,7 +2572,7 @@ function calculateLocalAnalyticsMetrics(tenantId = 'ws-flagship-01') {
 /**
  * Resilient local fallback calculation for Revenue Metrics
  */
-function calculateLocalRevenueMetrics(tenantId = 'ws-flagship-01') {
+function calculateLocalRevenueMetrics(tenantId = '') {
   const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
   const validOrders = Array.isArray(orders)
     ? orders.filter(o => !['CANCELLED', 'REFUNDED'].includes(String(o.status || '').toUpperCase()))
@@ -2580,7 +2660,7 @@ export const dashboardService = {
    * @param {boolean} force - Set to true to bypass cache.
    */
   async getOverviewMetrics(force = false) {
-    const currentTenant = apiClient.getWorkspaceId() || 'ws-flagship-01';
+    const currentTenant = apiClient.getWorkspaceId() || authService.getCurrentUser()?.business_id || authService.getCurrentUser()?.workspaceId || '';
     const now = Date.now();
 
     // 1. If currently in a server-requested cooldown period and we have cached data, return cached with stale flag
@@ -2667,7 +2747,7 @@ export const dashboardService = {
     }
     try {
       if (typeof localStorage !== 'undefined') {
-        const saved = localStorage.getItem(`kreazy_overview_cache_${tenantId || 'ws-flagship-01'}`);
+        const saved = localStorage.getItem(`kreazy_overview_cache_${tenantId || apiClient.getWorkspaceId() || 'default'}`);
         if (saved) {
           const parsed = JSON.parse(saved);
           return parsed.data;
@@ -2700,7 +2780,7 @@ export const analyticsService = {
    * @param {boolean} force - Set to true to bypass cache.
    */
   async getAnalyticsMetrics(force = false) {
-    const currentTenant = apiClient.getWorkspaceId() || 'ws-flagship-01';
+    const currentTenant = apiClient.getWorkspaceId() || authService.getCurrentUser()?.business_id || authService.getCurrentUser()?.workspaceId || '';
     const now = Date.now();
 
     // 1. If currently in a server-requested cooldown period and we have cached data, return cached with stale flag
@@ -2787,7 +2867,7 @@ export const analyticsService = {
     }
     try {
       if (typeof localStorage !== 'undefined') {
-        const saved = localStorage.getItem(`kreazy_analytics_cache_${tenantId || 'ws-flagship-01'}`);
+        const saved = localStorage.getItem(`kreazy_analytics_cache_${tenantId || apiClient.getWorkspaceId() || 'default'}`);
         if (saved) {
           const parsed = JSON.parse(saved);
           return parsed.data;
@@ -2807,7 +2887,7 @@ export const analyticsService = {
 // =====================================================================
 export const revenueService = {
   async getRevenueMetrics() {
-    const currentTenant = apiClient.getWorkspaceId() || 'ws-flagship-01';
+    const currentTenant = apiClient.getWorkspaceId() || authService.getCurrentUser()?.business_id || authService.getCurrentUser()?.workspaceId || '';
     try {
       const res = await apiClient.get('/revenue/metrics');
       const data = res?.data !== undefined ? res.data : res;

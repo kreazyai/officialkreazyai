@@ -1,12 +1,36 @@
+import http from 'http';
+import { createApp } from '../src/server/app/app.js';
+import { getDatabase, closeDatabase } from '../src/server/config/database.js';
+import { apiClient } from '../src/api/client.js';
 import { runProductionTestSuite } from '../src/services/productionTestRunner.js';
 
 console.log("============================================================");
 console.log("STARTING KREAZYAI PRODUCTION VALIDATION & GENERATIONAL TEST");
 console.log("============================================================\n");
 
+const TEST_PORT = 5096;
+
 async function main() {
+  process.env.DATABASE_URL = ':memory:';
+  process.env.PORT = String(TEST_PORT);
+  process.env.JWT_SECRET = 'test_secret_key_kreazy_2026_acceptance_suite';
+  process.env.META_WEBHOOK_VERIFY_TOKEN = 'kreazy_meta_verify_secret_2026';
+
+  getDatabase(':memory:');
+  const app = createApp();
+  const server = http.createServer(app);
+
+  await new Promise((resolve) => server.listen(TEST_PORT, resolve));
+  apiClient.setBaseUrl(`http://127.0.0.1:${TEST_PORT}/api/v1`);
+
+  let report;
   const start = Date.now();
-  const report = await runProductionTestSuite();
+  try {
+    report = await runProductionTestSuite();
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    closeDatabase();
+  }
   const elapsed = Date.now() - start;
 
   console.log(`Executed ${report.totalExecuted} tests in ${elapsed}ms.`);

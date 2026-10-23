@@ -159,7 +159,7 @@ function formatTimeAgo(dateStr) {
  * 2. NEED YOUR HELP — Customers waiting for human reply, top 3 list, and "View Messages" action.
  */
 export function AnalyticsPage({ user, onNavigateModule }) {
-  const tenantId = user?.business_id || 'ws-flagship-01';
+  const tenantId = user?.business_id || user?.businessId || user?.workspaceId || '';
 
   // Toggle: 'today' | '7_days' | '30_days' (default: 'today')
   const [selectedPeriod, setSelectedPeriod] = useState('today');

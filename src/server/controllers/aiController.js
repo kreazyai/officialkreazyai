@@ -2,12 +2,13 @@ import { getDatabase } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { aiService } from '../services/aiService.js';
 import { config } from '../config/env.js';
+import { getTenantId } from '../middleware/auth.js';
 
 export const aiController = {
   async chat(req, res, next) {
     try {
       const { message, context = {} } = req.body;
-      const businessId = req.businessId || (req.user?.is_super_admin ? (req.headers['x-workspace-id'] || 'ws-flagship-01') : null);
+      const businessId = getTenantId(req);
 
       if (!businessId) {
         return errorResponse(res, 'Authentication required: business workspace context not found.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
