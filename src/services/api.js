@@ -2343,6 +2343,231 @@ let _overviewCache = {
 };
 let _rateLimitUntil = 0;
 
+/**
+ * Resilient local fallback calculation for Overview Metrics
+ */
+function calculateLocalOverviewMetrics(tenantId = 'ws-flagship-01') {
+  const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
+  const conversations = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const curMonth = now.getMonth();
+  const curYear = now.getFullYear();
+
+  const validOrders = Array.isArray(orders)
+    ? orders.filter(o => !['CANCELLED', 'REFUNDED'].includes(String(o.status || '').toUpperCase()))
+    : [];
+
+  let salesToday = 0;
+  let salesMonth = 0;
+  let salesYear = 0;
+
+  for (const o of validOrders) {
+    const d = new Date(o.createdAt || o.date || Date.now());
+    const val = Number(o.totalAmount ?? o.total ?? 0) || 0;
+    if (d.getFullYear() === curYear) {
+      salesYear += val;
+      if (d.getMonth() === curMonth) {
+        salesMonth += val;
+        if (d.toISOString().slice(0, 10) === todayStr) {
+          salesToday += val;
+        }
+      }
+    }
+  }
+
+  let msgToday = 0;
+  let msgMonth = 0;
+  let msgYear = 0;
+
+  if (Array.isArray(conversations)) {
+    for (const c of conversations) {
+      const msgs = c.messages || [];
+      for (const m of msgs) {
+        if (m.is_ai || m.sender === 'assistant' || m.sender === 'ai') {
+          const d = new Date(m.created_at || m.timestamp || Date.now());
+          if (d.getFullYear() === curYear) {
+            msgYear += 1;
+            if (d.getMonth() === curMonth) {
+              msgMonth += 1;
+              if (d.toISOString().slice(0, 10) === todayStr) {
+                msgToday += 1;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    localDate: todayStr,
+    currency: 'BDT',
+    currencySymbol: '৳',
+    sales: {
+      today: salesToday,
+      this_month: salesMonth,
+      this_year: salesYear
+    },
+    aiMessages: {
+      today: msgToday,
+      this_month: msgMonth,
+      this_year: msgYear
+    },
+    boundaries: {
+      tomorrowStartEpoch: Math.floor(Date.now() / 1000) + 86400,
+      serverNowEpoch: Math.floor(Date.now() / 1000)
+    },
+    _isStale: false,
+    _cooldownSeconds: 0
+  };
+}
+
+/**
+ * Resilient local fallback calculation for Analytics Metrics
+ */
+function calculateLocalAnalyticsMetrics(tenantId = 'ws-flagship-01') {
+  const conversations = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
+  const customers = getStored(STORAGE_KEYS.CUSTOMERS, initialCustomersDetailed);
+  const now = Date.now();
+  const dayMs = 86400000;
+
+  function countCustomers(sinceEpoch) {
+    const matched = new Set();
+    const channels = { whatsapp: 0, facebook: 0, instagram: 0 };
+    if (Array.isArray(conversations)) {
+      for (const c of conversations) {
+        const updated = new Date(c.updatedAt || c.lastMessageTime || c.createdAt || Date.now()).getTime();
+        if (updated >= sinceEpoch) {
+          const id = c.customerId || c.customerName || c.id;
+          matched.add(id);
+          const ch = String(c.channel || '').toUpperCase();
+          if (ch.includes('WHATSAPP') || ch.includes('WA')) channels.whatsapp++;
+          else if (ch.includes('FACEBOOK') || ch.includes('FB') || ch.includes('MESSENGER')) channels.facebook++;
+          else if (ch.includes('INSTAGRAM') || ch.includes('IG')) channels.instagram++;
+        }
+      }
+    }
+    const totalCount = Math.max(matched.size, (sinceEpoch === 0 ? customers.length : 0));
+    return {
+      total: totalCount,
+      ...channels
+    };
+  }
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const waiting = Array.isArray(conversations)
+    ? conversations.filter(c =>
+        ['NEEDS_HUMAN', 'WAITING', 'NEEDS_HELP'].includes(String(c.status || '').toUpperCase())
+      ).map(c => ({
+        id: c.id,
+        name: c.customerName || 'Customer',
+        channel: (c.channel || 'WHATSAPP').toUpperCase(),
+        status: c.status,
+        lastMessage: c.lastMessage || 'Waiting for reply',
+        updatedAt: c.updatedAt || new Date().toISOString()
+      }))
+    : [];
+
+  return {
+    today: countCustomers(todayStart.getTime()),
+    '7_days': countCustomers(now - 7 * dayMs),
+    '30_days': countCustomers(now - 30 * dayMs),
+    needHelp: {
+      count: waiting.length,
+      waitingCustomers: waiting.slice(0, 3)
+    },
+    boundaries: {
+      tomorrowStartEpoch: Math.floor(Date.now() / 1000) + 86400,
+      serverNowEpoch: Math.floor(Date.now() / 1000)
+    },
+    _isStale: false,
+    _cooldownSeconds: 0
+  };
+}
+
+/**
+ * Resilient local fallback calculation for Revenue Metrics
+ */
+function calculateLocalRevenueMetrics(tenantId = 'ws-flagship-01') {
+  const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
+  const validOrders = Array.isArray(orders)
+    ? orders.filter(o => !['CANCELLED', 'REFUNDED'].includes(String(o.status || '').toUpperCase()))
+    : [];
+
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const curMonth = now.getMonth();
+  const curYear = now.getFullYear();
+
+  function buildPeriod(filterFn) {
+    const periodOrders = validOrders.filter(filterFn);
+    const channels = {
+      whatsapp: { amount: 0, orderCount: 0 },
+      facebook: { amount: 0, orderCount: 0 },
+      instagram: { amount: 0, orderCount: 0 },
+      other: { amount: 0, orderCount: 0 }
+    };
+
+    const productSales = {};
+
+    for (const order of periodOrders) {
+      const ch = String(order.channel || 'DIRECT').toLowerCase();
+      const amount = Number(order.totalAmount ?? order.total ?? 0) || 0;
+      let targetCh = 'other';
+      if (ch.includes('wa') || ch.includes('whatsapp')) targetCh = 'whatsapp';
+      else if (ch.includes('fb') || ch.includes('face') || ch.includes('messenger')) targetCh = 'facebook';
+      else if (ch.includes('ig') || ch.includes('insta')) targetCh = 'instagram';
+
+      channels[targetCh].amount += amount;
+      channels[targetCh].orderCount += 1;
+
+      const items = order.items || [];
+      for (const item of items) {
+        const name = item.productName || item.title || item.name || 'Product';
+        const qty = Number(item.quantity || 1);
+        productSales[name] = (productSales[name] || 0) + qty;
+      }
+    }
+
+    const topProducts = Object.entries(productSales)
+      .map(([name, unitsSold]) => ({ name, unitsSold }))
+      .sort((a, b) => b.unitsSold - a.unitsSold)
+      .slice(0, 3)
+      .map((p, idx) => ({ rank: idx + 1, ...p }));
+
+    return { channels, topProducts };
+  }
+
+  return {
+    tenantId,
+    timezone: 'Asia/Dhaka',
+    localDate: todayStr,
+    currency: 'BDT',
+    currencySymbol: '৳',
+    periods: {
+      today: buildPeriod(o => {
+        const d = new Date(o.createdAt || o.date || Date.now());
+        return d.toISOString().slice(0, 10) === todayStr;
+      }),
+      this_month: buildPeriod(o => {
+        const d = new Date(o.createdAt || o.date || Date.now());
+        return d.getMonth() === curMonth && d.getFullYear() === curYear;
+      }),
+      this_year: buildPeriod(o => {
+        const d = new Date(o.createdAt || o.date || Date.now());
+        return d.getFullYear() === curYear;
+      })
+    },
+    boundaries: {
+      tomorrowStartEpoch: Math.floor(Date.now() / 1000) + 86400,
+      serverNowEpoch: Math.floor(Date.now() / 1000)
+    }
+  };
+}
+
 export const dashboardService = {
   /**
    * Retrieves Overview Telemetry Metrics.
@@ -2350,7 +2575,7 @@ export const dashboardService = {
    * - In-flight request deduplication (prevents duplicate simultaneous calls).
    * - 30-second memory cache (avoids repeated roundtrips for unchanged data).
    * - Rate-limit cooldown guard (respects Retry-After).
-   * - Safe fallback to cached data during temporary outages.
+   * - Safe fallback to local calculated data during outages or static hosting.
    * @param {boolean} force - Set to true to bypass cache.
    */
   async getOverviewMetrics(force = false) {
@@ -2406,7 +2631,6 @@ export const dashboardService = {
           const cooldownSec = err.retryAfter || 60;
           _rateLimitUntil = Date.now() + (cooldownSec * 1000);
           console.warn(`[DASHBOARD SERVICE] Rate limited (429). Cooldown set for ${cooldownSec}s.`);
-          // If we have cached data, return it marked stale rather than failing the UI completely
           if (_overviewCache.data && _overviewCache.tenantId === currentTenant) {
             return {
               ..._overviewCache.data,
@@ -2414,8 +2638,17 @@ export const dashboardService = {
               _cooldownSeconds: cooldownSec
             };
           }
+          throw err;
         }
-        throw err;
+        // Resilient fallback for static hosting or unreachable backend
+        console.warn('[DASHBOARD SERVICE] API unavailable, using calculated metrics fallback:', err.message);
+        const fallback = calculateLocalOverviewMetrics(currentTenant);
+        _overviewCache = {
+          data: fallback,
+          timestamp: Date.now(),
+          tenantId: currentTenant
+        };
+        return fallback;
       } finally {
         _overviewInFlightPromise = null;
       }
@@ -2462,7 +2695,7 @@ export const analyticsService = {
    * - In-flight request deduplication.
    * - 30-second memory cache.
    * - Rate-limit cooldown guard (respects Retry-After).
-   * - Safe fallback to cached data during temporary outages.
+   * - Safe fallback to local calculated data during temporary outages or static hosting.
    * @param {boolean} force - Set to true to bypass cache.
    */
   async getAnalyticsMetrics(force = false) {
@@ -2526,8 +2759,16 @@ export const analyticsService = {
               _cooldownSeconds: cooldownSec
             };
           }
+          throw err;
         }
-        throw err;
+        console.warn('[ANALYTICS SERVICE] API unavailable, using calculated metrics fallback:', err.message);
+        const fallback = calculateLocalAnalyticsMetrics(currentTenant);
+        _analyticsCache = {
+          data: fallback,
+          timestamp: Date.now(),
+          tenantId: currentTenant
+        };
+        return fallback;
       } finally {
         _analyticsInFlightPromise = null;
       }
@@ -2561,11 +2802,23 @@ export const analyticsService = {
 };
 
 // =====================================================================
-// SIMPLIFIED REVENUE SERVICE
+// SIMPLIFIED REVENUE SERVICE (RESILIENT WITH LOCAL CALCULATION FALLBACK)
 // =====================================================================
 export const revenueService = {
   async getRevenueMetrics() {
-    return await apiClient.get('/revenue/metrics');
+    const currentTenant = apiClient.getWorkspaceId() || 'ws-flagship-01';
+    try {
+      const res = await apiClient.get('/revenue/metrics');
+      const data = res?.data !== undefined ? res.data : res;
+      if (data && data.periods) {
+        return data;
+      }
+      return calculateLocalRevenueMetrics(currentTenant);
+    } catch (err) {
+      if (err.status === 429) throw err;
+      console.warn('[REVENUE SERVICE] API unavailable, using calculated revenue fallback:', err.message);
+      return calculateLocalRevenueMetrics(currentTenant);
+    }
   }
 };
 

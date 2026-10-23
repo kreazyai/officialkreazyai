@@ -1796,6 +1796,42 @@
   border-radius: 8px;
 }
 
+/* Analytics Channel Distribution Bar */
+.analytics-channel-bar-wrap {
+  margin: 0.5rem 0 1.15rem 0;
+  width: 100%;
+}
+
+.analytics-channel-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: var(--border-subtle, #E6F0EB);
+  gap: 2px;
+}
+
+[data-theme='dark'] .analytics-channel-bar {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.analytics-bar-slice {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.analytics-bar-slice.wa-slice {
+  background: #25D366;
+}
+
+.analytics-bar-slice.fb-slice {
+  background: #0084FF;
+}
+
+.analytics-bar-slice.ig-slice {
+  background: linear-gradient(90deg, #fd5949, #d6249f);
+}
+
 /* 3-Column Channels Breakdown Row */
 .channels-breakdown-row {
   display: grid;
@@ -1808,25 +1844,28 @@
 .channel-breakdown-card {
   background: var(--bg-surface, #F8FAF9);
   border: 1px solid var(--border-subtle, #E6F0EB);
-  border-radius: 12px;
-  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  padding: 0.85rem 0.95rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 0.5rem;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
 
 .channel-breakdown-card:hover {
   border-color: var(--border-strong, #AEEBCB);
   background: var(--surface, #FFFFFF);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(9, 42, 32, 0.04);
 }
 
 .channel-card-top {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  width: 100%;
 }
 
 .channel-icon-circle {
@@ -1857,6 +1896,16 @@
   color: var(--text-primary, #09231B);
 }
 
+.channel-share-tag {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(0, 168, 89, 0.1);
+  color: #00A859;
+}
+
 .channel-count-number {
   font-family: var(--font-heading, inherit);
   font-size: 1.45rem;
@@ -1865,6 +1914,37 @@
   color: var(--text-primary, #09231B);
   line-height: 1.1;
   font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+.channel-progress-track {
+  height: 4px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 0.15rem;
+}
+
+[data-theme='dark'] .channel-progress-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.channel-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.channel-progress-fill.wa-fill {
+  background: #25D366;
+}
+
+.channel-progress-fill.fb-fill {
+  background: #0084FF;
+}
+
+.channel-progress-fill.ig-fill {
+  background: linear-gradient(90deg, #fd5949, #d6249f);
 }
 
 /* Need Your Help Status Indicators */
@@ -2275,10 +2355,10 @@
 
 /* ---------------------------------------------------------------------
    3.5. SIMPLIFIED REVENUE PAGE (Where Sales Came From & Best Selling Products)
-   Contains ONLY TWO SECTIONS:
+   Contains TWO CORE SECTIONS:
    1. Where Sales Came From (WhatsApp, Facebook, Instagram, Other)
    2. Best Selling Products (Top 3 items with units sold)
-   With one global Today | This Month | This Year date toggle.
+   With Hero Summary KPIs, channel share distribution bar, and global date toggle.
    --------------------------------------------------------------------- */
 .revenue-simple-page {
   display: flex;
@@ -2300,7 +2380,7 @@
 
 .revenue-main-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-size: clamp(1.85rem, 3.2vw, 2.35rem);
   font-weight: 850;
   letter-spacing: -0.035em;
   color: var(--text-primary);
@@ -2312,7 +2392,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.3rem 0.85rem;
+  padding: 0.32rem 0.95rem;
   background: rgba(0, 168, 89, 0.08);
   border: 1px solid rgba(0, 168, 89, 0.22);
   border-radius: 9999px;
@@ -2340,22 +2420,29 @@
   align-items: center;
   gap: 0.5rem;
   height: 38px;
-  padding: 0 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  padding: 0 1.15rem;
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-subtle, #E2E8F0);
   border-radius: 9999px;
   color: var(--text-primary);
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 650;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.revenue-refresh-button:hover {
-  background: var(--bg-surface);
+.revenue-refresh-button:hover:not(:disabled) {
+  background: var(--bg-surface, #F8FAF9);
   border-color: #00A859;
   color: #00A859;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 168, 89, 0.15);
+}
+
+.revenue-refresh-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .revenue-spin {
@@ -2410,15 +2497,15 @@
 }
 
 .revenue-toggle-btn {
-  padding: 0.45rem 1.15rem;
+  padding: 0.45rem 1.25rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 650;
   border-radius: 9999px;
   border: none;
   background: transparent;
   color: var(--text-muted, #64748B);
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   touch-action: manipulation;
   user-select: none;
   white-space: nowrap;
@@ -2432,9 +2519,111 @@
   background: #00A859;
   color: #FFFFFF;
   font-weight: 750;
-  box-shadow: 0 2px 8px rgba(0, 168, 89, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 168, 89, 0.38);
 }
 
+/* ── Hero Summary Cards ──────────────────────────────────────────────── */
+.revenue-hero-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.revenue-hero-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 1.35rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.45rem;
+  box-shadow: 0 2px 12px rgba(8, 41, 31, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+[data-theme='dark'] .revenue-hero-card {
+  background: var(--bg-card, #0d1e17);
+  border-color: rgba(214, 229, 215, 0.1);
+}
+
+.revenue-hero-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 168, 89, 0.4);
+  box-shadow: 0 8px 24px rgba(8, 41, 31, 0.06);
+}
+
+.hero-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.hero-card-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748B);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hero-icon-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-icon-pill.green {
+  background: rgba(0, 168, 89, 0.12);
+  color: #00A859;
+}
+
+.hero-icon-pill.blue {
+  background: rgba(0, 132, 255, 0.12);
+  color: #0084FF;
+}
+
+.hero-icon-pill.purple {
+  background: rgba(168, 85, 247, 0.12);
+  color: #9333EA;
+}
+
+.hero-card-val {
+  font-family: var(--font-heading);
+  font-size: clamp(1.85rem, 3.2vw, 2.45rem);
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  margin: 0.2rem 0;
+}
+
+.leading-channel-val {
+  font-size: clamp(1.5rem, 2.5vw, 1.95rem);
+  color: #00A859;
+}
+
+[data-theme='dark'] .leading-channel-val {
+  color: #6EE7B7;
+}
+
+.hero-card-footnote {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── Section Stack & Clean Cards ─────────────────────────────────────── */
 .revenue-sections-stack {
   display: flex;
   flex-direction: column;
@@ -2446,7 +2635,7 @@
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 24px;
-  padding: clamp(1.35rem, 3vw, 2.25rem);
+  padding: clamp(1.4rem, 3vw, 2.25rem);
   box-shadow: 0 4px 20px rgba(8, 41, 31, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   position: relative;
@@ -2482,6 +2671,46 @@
   color: #a7f3d0;
 }
 
+/* Multi-Channel Distribution Bar */
+.revenue-distribution-bar-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.revenue-distribution-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: #E2E8F0;
+  gap: 2px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .revenue-distribution-bar {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bar-slice {
+  height: 100%;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bar-slice.wa-slice {
+  background: #25D366;
+}
+
+.bar-slice.fb-slice {
+  background: #0084FF;
+}
+
+.bar-slice.ig-slice {
+  background: linear-gradient(90deg, #fd5949, #d6249f);
+}
+
+.bar-slice.other-slice {
+  background: #059669;
+}
+
 /* Platform Sales Grid */
 .platform-sales-grid {
   display: grid;
@@ -2503,9 +2732,10 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 0.85rem;
-  min-height: 160px;
+  min-height: 175px;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   box-sizing: border-box;
+  position: relative;
 }
 
 [data-theme='dark'] .platform-sales-card {
@@ -2574,6 +2804,34 @@
   font-weight: 500;
 }
 
+.platform-share-badge {
+  margin-left: auto;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.platform-share-badge.wa-share-badge {
+  background: rgba(37, 211, 102, 0.14);
+  color: #128C7E;
+}
+
+.platform-share-badge.fb-share-badge {
+  background: rgba(0, 132, 255, 0.14);
+  color: #0084FF;
+}
+
+.platform-share-badge.ig-share-badge {
+  background: rgba(225, 48, 108, 0.14);
+  color: #E1306C;
+}
+
+.platform-share-badge.other-share-badge {
+  background: rgba(16, 185, 129, 0.14);
+  color: #059669;
+}
+
 .platform-amount-value {
   font-family: var(--font-heading);
   font-size: clamp(2rem, 3.8vw, 2.75rem);
@@ -2595,7 +2853,42 @@
   font-weight: 500;
 }
 
-/* Best Selling Products List */
+.platform-progress-track {
+  height: 5px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 0.35rem;
+}
+
+[data-theme='dark'] .platform-progress-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.platform-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.platform-progress-fill.wa-fill {
+  background: #25D366;
+}
+
+.platform-progress-fill.fb-fill {
+  background: #0084FF;
+}
+
+.platform-progress-fill.ig-fill {
+  background: linear-gradient(90deg, #fd5949, #d6249f);
+}
+
+.platform-progress-fill.other-fill {
+  background: #059669;
+}
+
+/* ── Best Selling Products List ──────────────────────────────────────── */
 .best-selling-numbered-list {
   display: flex;
   flex-direction: column;
@@ -2611,7 +2904,7 @@
   background: #F8FAF9;
   border: 1px solid #E2E8F0;
   border-radius: 18px;
-  transition: all 0.18s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
   box-sizing: border-box;
 }
@@ -2624,8 +2917,8 @@
 .best-selling-product-item:hover {
   background: #FFFFFF;
   border-color: #00A859;
-  transform: translateX(3px);
-  box-shadow: 0 4px 16px rgba(0, 168, 89, 0.08);
+  transform: translateX(4px);
+  box-shadow: 0 4px 18px rgba(0, 168, 89, 0.1);
 }
 
 [data-theme='dark'] .best-selling-product-item:hover {
@@ -2634,23 +2927,47 @@
 }
 
 .product-rank-badge {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: #00A859;
-  color: #FFFFFF;
-  font-weight: 850;
-  font-size: 1.1rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  color: #FFFFFF;
+  font-weight: 850;
+  font-size: 0.95rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0, 168, 89, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.product-rank-badge.rank-badge-1 {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.35);
+}
+
+.product-rank-badge.rank-badge-2 {
+  background: linear-gradient(135deg, #94A3B8, #64748B);
+  box-shadow: 0 3px 8px rgba(100, 116, 139, 0.3);
+}
+
+.product-rank-badge.rank-badge-3 {
+  background: linear-gradient(135deg, #D97706, #B45309);
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
+}
+
+.rank-medal-icon {
+  font-size: 1.1rem;
+}
+
+.rank-number-text {
+  font-weight: 850;
+  font-size: 0.9rem;
 }
 
 .product-details-body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-display-name {
@@ -2661,6 +2978,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+}
+
+.product-rank-caption {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 0.15rem;
 }
 
 .product-units-sold-pill {
@@ -2686,32 +3010,43 @@
   flex-shrink: 0;
 }
 
+/* ── Best Selling Empty State ────────────────────────────────────────── */
 .best-selling-empty-box {
   display: flex;
   align-items: center;
-  gap: 1.15rem;
-  padding: 1.5rem 1.75rem;
-  background: rgba(0, 168, 89, 0.05);
+  gap: 1.25rem;
+  padding: 1.75rem 2rem;
+  background: linear-gradient(135deg, rgba(0, 168, 89, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
   border: 1px dashed rgba(0, 168, 89, 0.35);
   border-radius: 20px;
 }
 
+[data-theme='dark'] .best-selling-empty-box {
+  background: rgba(0, 168, 89, 0.04);
+  border-color: rgba(0, 168, 89, 0.3);
+}
+
 .empty-package-circle {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: rgba(0, 168, 89, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 0 0 8px rgba(0, 168, 89, 0.04);
+}
+
+.empty-state-content {
+  flex: 1;
 }
 
 .empty-state-title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 750;
   color: #065F46;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.3rem 0;
 }
 
 [data-theme='dark'] .empty-state-title {
@@ -2719,22 +3054,69 @@
 }
 
 .empty-state-desc {
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-/* Revenue Responsive Breakpoints */
-@media (max-width: 860px) {
+.empty-view-products-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  padding: 0.45rem 1rem;
+  background: #00A859;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 168, 89, 0.3);
+}
+
+.empty-view-products-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 168, 89, 0.4);
+}
+
+/* ── Revenue Responsive Breakpoints ──────────────────────────────────── */
+@media (max-width: 960px) {
+  .revenue-hero-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .revenue-hero-card.hero-top-channel-card {
+    grid-column: span 2;
+  }
+
   .platform-sales-grid,
   .platform-sales-grid.has-four-columns {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
   }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 640px) {
+  .revenue-simple-page {
+    gap: 1.25rem;
+  }
+
+  .revenue-header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .revenue-refresh-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
+
   .revenue-period-toggle {
     width: 100%;
     display: flex;
@@ -2744,23 +3126,59 @@
   .revenue-toggle-btn {
     flex: 1;
     text-align: center;
-    padding: 0.45rem 0.5rem;
+    padding: 0.5rem 0.5rem;
+    font-size: 0.82rem;
+    min-height: 40px;
   }
 
-  .revenue-header-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
+  .revenue-hero-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .revenue-hero-card.hero-top-channel-card {
+    grid-column: span 1;
+  }
+
+  .platform-sales-grid,
+  .platform-sales-grid.has-four-columns {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .platform-sales-card {
+    padding: 1.15rem 1.25rem;
+    min-height: auto;
   }
 
   .platform-amount-value {
-    font-size: 2.2rem;
+    font-size: 2.15rem;
+  }
+
+  .best-selling-product-item {
+    padding: 0.95rem 1.15rem;
+    gap: 0.85rem;
+  }
+
+  .best-selling-empty-box {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.35rem 1.4rem;
+    gap: 1rem;
   }
 }
 
 @media (max-width: 360px) {
+  .revenue-main-title {
+    font-size: 1.6rem;
+  }
+
   .platform-amount-value {
     font-size: 1.85rem;
+  }
+
+  .hero-card-val {
+    font-size: 1.65rem;
   }
 
   .product-display-name {
@@ -2770,6 +3188,11 @@
   .revenue-toggle-btn {
     font-size: 0.78rem;
     padding: 0.4rem 0.4rem;
+  }
+
+  .product-units-sold-pill {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
   }
 }
 

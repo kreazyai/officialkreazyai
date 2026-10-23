@@ -5,7 +5,11 @@ import {
   RotateCw,
   AlertCircle,
   ShoppingBag,
-  Store
+  Store,
+  TrendingUp,
+  Sparkles,
+  ArrowUpRight,
+  BarChart3
 } from 'lucide-react';
 import { revenueService } from '../../services/api';
 
@@ -93,13 +97,13 @@ function formatMoney(amount, symbol = '৳') {
 }
 
 /**
- * RevenuePage — Completely Simplified for Non-Technical & Low-Literacy Shop Owners
- * Contains ONLY TWO SECTIONS:
+ * RevenuePage — Clean, Intuitive & High-Converting for Shop Owners
+ * Contains TWO CORE SECTIONS:
  * 1. WHERE SALES CAME FROM (WhatsApp, Facebook, Instagram, Other sales amount)
  * 2. BEST SELLING PRODUCTS (Top 3 products with units sold)
- * With one global Today | This Month | This Year date toggle.
+ * With Hero Summary KPIs, visual distribution, and global Today | This Month | This Year date toggle.
  */
-export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
+export function RevenuePage({ user, onNavigateModule }) {
   // Global Period Toggle: 'today' | 'this_month' | 'this_year' (default: today)
   const [selectedPeriod, setSelectedPeriod] = useState('today');
 
@@ -187,13 +191,15 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
     }
   }, [metrics.boundaries]);
 
-  // Initial load, real-time polling every 10 seconds, and window focus listeners
+  // Initial load, background polling every 45s (visibility-aware), and window focus listeners
   useEffect(() => {
     fetchMetrics(false);
 
     const interval = setInterval(() => {
-      fetchMetrics(false);
-    }, 10000);
+      if (document.visibilityState === 'visible') {
+        fetchMetrics(false);
+      }
+    }, 45000);
 
     const handleFocus = () => {
       if (document.visibilityState === 'visible') {
@@ -234,6 +240,34 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
       ? 'this month'
       : 'this year';
 
+  // Derived Summary Metrics
+  const totalPeriodRevenue =
+    (channels.whatsapp?.amount || 0) +
+    (channels.facebook?.amount || 0) +
+    (channels.instagram?.amount || 0) +
+    (channels.other?.amount || 0);
+
+  const totalPeriodOrders =
+    (channels.whatsapp?.orderCount || 0) +
+    (channels.facebook?.orderCount || 0) +
+    (channels.instagram?.orderCount || 0) +
+    (channels.other?.orderCount || 0);
+
+  const averageOrderValue = totalPeriodOrders > 0
+    ? totalPeriodRevenue / totalPeriodOrders
+    : 0;
+
+  // Channel share percentages
+  const getChannelShare = (amt) => {
+    if (totalPeriodRevenue <= 0) return 0;
+    return Math.round(((amt || 0) / totalPeriodRevenue) * 100);
+  };
+
+  const waShare = getChannelShare(channels.whatsapp?.amount);
+  const fbShare = getChannelShare(channels.facebook?.amount);
+  const igShare = getChannelShare(channels.instagram?.amount);
+  const otherShare = getChannelShare(channels.other?.amount);
+
   return (
     <div className="revenue-simple-page" id="revenue-page-root">
       {/* ── Top Header Row ──────────────────────────────────────────────── */}
@@ -269,7 +303,7 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
         </button>
       </div>
 
-      {/* ── Error Banner (if offline / fetch failed) ─────────────────────── */}
+      {/* ── Error Banner (only if offline and zero cached data) ─────────── */}
       {error && !metrics.boundaries && (
         <div className="revenue-error-box" role="alert">
           <AlertCircle size={18} />
@@ -324,8 +358,69 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
         </div>
       </div>
 
+      {/* ── HERO SUMMARY CARDS: Total Sales, Total Orders, AOV ──────────── */}
+      <div className="revenue-hero-summary-grid">
+        <div className="revenue-hero-card hero-sales-card">
+          <div className="hero-card-header">
+            <span className="hero-card-label">Total Revenue ({periodLabelText})</span>
+            <div className="hero-icon-pill green">
+              <TrendingUp size={16} />
+            </div>
+          </div>
+          <div className="hero-card-val">
+            {loading ? '···' : formatMoney(totalPeriodRevenue, currencySymbol)}
+          </div>
+          <div className="hero-card-footnote">
+            {totalPeriodOrders > 0
+              ? `${totalPeriodOrders} order${totalPeriodOrders === 1 ? '' : 's'} across channels`
+              : 'Awaiting first order in this period'}
+          </div>
+        </div>
+
+        <div className="revenue-hero-card hero-orders-card">
+          <div className="hero-card-header">
+            <span className="hero-card-label">Orders Placed</span>
+            <div className="hero-icon-pill blue">
+              <ShoppingBag size={16} />
+            </div>
+          </div>
+          <div className="hero-card-val">
+            {loading ? '···' : totalPeriodOrders.toLocaleString()}
+          </div>
+          <div className="hero-card-footnote">
+            {totalPeriodOrders > 0
+              ? `Avg order: ${formatMoney(averageOrderValue, currencySymbol)}`
+              : 'Direct messaging channel orders'}
+          </div>
+        </div>
+
+        <div className="revenue-hero-card hero-top-channel-card">
+          <div className="hero-card-header">
+            <span className="hero-card-label">Leading Channel</span>
+            <div className="hero-icon-pill purple">
+              <Sparkles size={16} />
+            </div>
+          </div>
+          <div className="hero-card-val leading-channel-val">
+            {totalPeriodRevenue > 0 ? (
+              waShare >= fbShare && waShare >= igShare ? 'WhatsApp' :
+              fbShare >= igShare ? 'Facebook' : 'Instagram'
+            ) : (
+              'All Standby'
+            )}
+          </div>
+          <div className="hero-card-footnote">
+            {totalPeriodRevenue > 0 ? (
+              `${Math.max(waShare, fbShare, igShare)}% of total revenue volume`
+            ) : (
+              'Ready for conversational sales'
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* ═════════════════════════════════════════════════════════════════════
-          ONLY TWO SECTIONS:
+          TWO MAIN SECTIONS:
           1. WHERE SALES CAME FROM
           2. BEST SELLING PRODUCTS
           ═════════════════════════════════════════════════════════════════════ */}
@@ -352,6 +447,42 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
             </div>
           </div>
 
+          {/* Visual Channel Contribution Bar (Visible when sales exist) */}
+          {totalPeriodRevenue > 0 && (
+            <div className="revenue-distribution-bar-wrapper">
+              <div className="revenue-distribution-bar" title="Channel revenue proportion">
+                {waShare > 0 && (
+                  <div
+                    className="bar-slice wa-slice"
+                    style={{ width: `${waShare}%` }}
+                    title={`WhatsApp: ${waShare}% (${formatMoney(channels.whatsapp?.amount, currencySymbol)})`}
+                  />
+                )}
+                {fbShare > 0 && (
+                  <div
+                    className="bar-slice fb-slice"
+                    style={{ width: `${fbShare}%` }}
+                    title={`Facebook: ${fbShare}% (${formatMoney(channels.facebook?.amount, currencySymbol)})`}
+                  />
+                )}
+                {igShare > 0 && (
+                  <div
+                    className="bar-slice ig-slice"
+                    style={{ width: `${igShare}%` }}
+                    title={`Instagram: ${igShare}% (${formatMoney(channels.instagram?.amount, currencySymbol)})`}
+                  />
+                )}
+                {otherShare > 0 && (
+                  <div
+                    className="bar-slice other-slice"
+                    style={{ width: `${otherShare}%` }}
+                    title={`Other: ${otherShare}% (${formatMoney(channels.other?.amount, currencySymbol)})`}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
           <div
             className={`platform-sales-grid ${hasOtherSales ? 'has-four-columns' : ''}`}
             aria-label="Sales Amount by Platform"
@@ -366,6 +497,9 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                   <span className="platform-name">WhatsApp</span>
                   <span className="platform-sub">Messaging sales</span>
                 </div>
+                {waShare > 0 && (
+                  <span className="platform-share-badge wa-share-badge">{waShare}%</span>
+                )}
               </div>
               <div className="platform-amount-value" id="revenue-wa-amount">
                 {loading ? '···' : formatMoney(channels.whatsapp?.amount, currencySymbol)}
@@ -377,6 +511,11 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                   ? `${channels.whatsapp?.orderCount} order${channels.whatsapp?.orderCount === 1 ? '' : 's'}`
                   : `No WhatsApp sales ${periodLabelText}`}
               </div>
+              {totalPeriodRevenue > 0 && (
+                <div className="platform-progress-track">
+                  <div className="platform-progress-fill wa-fill" style={{ width: `${waShare}%` }} />
+                </div>
+              )}
             </div>
 
             {/* Facebook Messenger */}
@@ -389,6 +528,9 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                   <span className="platform-name">Facebook</span>
                   <span className="platform-sub">Messenger sales</span>
                 </div>
+                {fbShare > 0 && (
+                  <span className="platform-share-badge fb-share-badge">{fbShare}%</span>
+                )}
               </div>
               <div className="platform-amount-value" id="revenue-fb-amount">
                 {loading ? '···' : formatMoney(channels.facebook?.amount, currencySymbol)}
@@ -400,6 +542,11 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                   ? `${channels.facebook?.orderCount} order${channels.facebook?.orderCount === 1 ? '' : 's'}`
                   : `No Facebook sales ${periodLabelText}`}
               </div>
+              {totalPeriodRevenue > 0 && (
+                <div className="platform-progress-track">
+                  <div className="platform-progress-fill fb-fill" style={{ width: `${fbShare}%` }} />
+                </div>
+              )}
             </div>
 
             {/* Instagram */}
@@ -412,6 +559,9 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                   <span className="platform-name">Instagram</span>
                   <span className="platform-sub">Direct DM sales</span>
                 </div>
+                {igShare > 0 && (
+                  <span className="platform-share-badge ig-share-badge">{igShare}%</span>
+                )}
               </div>
               <div className="platform-amount-value" id="revenue-ig-amount">
                 {loading ? '···' : formatMoney(channels.instagram?.amount, currencySymbol)}
@@ -423,6 +573,11 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                   ? `${channels.instagram?.orderCount} order${channels.instagram?.orderCount === 1 ? '' : 's'}`
                   : `No Instagram sales ${periodLabelText}`}
               </div>
+              {totalPeriodRevenue > 0 && (
+                <div className="platform-progress-track">
+                  <div className="platform-progress-fill ig-fill" style={{ width: `${igShare}%` }} />
+                </div>
+              )}
             </div>
 
             {/* Other / Store (displayed when qualifying unclassified sales exist) */}
@@ -436,6 +591,9 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                     <span className="platform-name">Other / Direct</span>
                     <span className="platform-sub">Store & web sales</span>
                   </div>
+                  {otherShare > 0 && (
+                    <span className="platform-share-badge other-share-badge">{otherShare}%</span>
+                  )}
                 </div>
                 <div className="platform-amount-value" id="revenue-other-amount">
                   {loading ? '···' : formatMoney(channels.other?.amount, currencySymbol)}
@@ -445,6 +603,11 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
                     ? 'Loading…'
                     : `${channels.other?.orderCount} order${channels.other?.orderCount === 1 ? '' : 's'}`}
                 </div>
+                {totalPeriodRevenue > 0 && (
+                  <div className="platform-progress-track">
+                    <div className="platform-progress-fill other-fill" style={{ width: `${otherShare}%` }} />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -475,34 +638,48 @@ export function RevenuePage({ user, onNavigateModule: _onNavigateModule }) {
           {/* Numbered List for Top 3 Best-Selling Products */}
           {topProducts.length > 0 ? (
             <div className="best-selling-numbered-list" aria-label="Top 3 best selling products">
-              {topProducts.map((product, idx) => (
-                <div key={product.name + idx} className="best-selling-product-item">
-                  <div className="product-rank-badge" aria-label={`Rank ${product.rank || idx + 1}`}>
-                    {product.rank || idx + 1}
+              {topProducts.map((product, idx) => {
+                const rankNum = product.rank || idx + 1;
+                const medal = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : '🥉';
+                return (
+                  <div key={product.name + idx} className={`best-selling-product-item rank-${rankNum}`}>
+                    <div className={`product-rank-badge rank-badge-${rankNum}`} aria-label={`Rank ${rankNum}`}>
+                      <span className="rank-medal-icon">{medal}</span>
+                      <span className="rank-number-text">#{rankNum}</span>
+                    </div>
+                    <div className="product-details-body">
+                      <span className="product-display-name">{product.name}</span>
+                      <span className="product-rank-caption">Top seller #{rankNum}</span>
+                    </div>
+                    <div className="product-units-sold-pill">
+                      <Package size={14} className="units-pill-icon" />
+                      <span>{product.unitsSold} sold</span>
+                    </div>
                   </div>
-                  <div className="product-details-body">
-                    <span className="product-display-name">{product.name}</span>
-                  </div>
-                  <div className="product-units-sold-pill">
-                    <Package size={14} className="units-pill-icon" />
-                    <span>
-                      {product.unitsSold} sold
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            /* Clean Empty Message when no products sold */
+            /* Premium, Inspiring Empty State when no products sold */
             <div className="best-selling-empty-box">
               <div className="empty-package-circle">
-                <ShoppingBag size={24} color="#00A859" />
+                <ShoppingBag size={26} color="#00A859" />
               </div>
-              <div>
+              <div className="empty-state-content">
                 <p className="empty-state-title">No products sold yet {periodLabelText}</p>
                 <p className="empty-state-desc">
-                  When customers purchase products through your messaging channels, the top 3 best sellers will be listed here.
+                  When customers purchase products through your WhatsApp, Facebook, or Instagram channels, your top 3 best sellers will be listed here with live unit counts.
                 </p>
+                {onNavigateModule && (
+                  <button
+                    type="button"
+                    onClick={() => onNavigateModule('products')}
+                    className="empty-view-products-btn"
+                  >
+                    <span>View Products Catalog</span>
+                    <ArrowUpRight size={14} />
+                  </button>
+                )}
               </div>
             </div>
           )}

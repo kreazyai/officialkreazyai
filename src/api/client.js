@@ -200,7 +200,9 @@ class ApiClient {
         err.status = response.status;
         err.code = json?.error?.code || (response.status === 429 ? 'RATE_LIMITED' : 'HTTP_ERROR');
         const retryHeader = response.headers?.get('Retry-After') || response.headers?.get('retry-after');
-        err.retryAfter = parseInt(retryHeader || json?.error?.retryAfter || '60', 10);
+        err.retryAfter = response.status === 429
+          ? parseInt(retryHeader || json?.error?.retryAfter || '60', 10)
+          : (retryHeader ? parseInt(retryHeader, 10) : null);
         err.data = json;
         throw err;
       }

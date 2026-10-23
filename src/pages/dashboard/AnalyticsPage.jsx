@@ -227,9 +227,12 @@ export function AnalyticsPage({ user, onNavigateModule }) {
       }
     } catch (err) {
       console.error('[ANALYTICS] Failed to fetch metrics:', err);
-      const retrySec = err.retryAfter || (err.status === 429 ? 60 : 0);
+      const isRateLimited = err.status === 429 || err.code === 'RATE_LIMITED';
+      const retrySec = isRateLimited ? (err.retryAfter || 60) : 0;
       if (retrySec > 0) {
         setCooldownSeconds(retrySec);
+      } else {
+        setCooldownSeconds(0);
       }
       setError(err.message || 'Unable to update latest analytics telemetry.');
     } finally {
@@ -322,6 +325,11 @@ export function AnalyticsPage({ user, onNavigateModule }) {
   const needHelpCount = Number(metrics.needHelp?.count) || 0;
   const waitingList = metrics.needHelp?.waitingCustomers || [];
   const hasData = Boolean(metrics.boundaries);
+
+  const totalCustomers = currentCustomerData.total || 0;
+  const waCustomerShare = totalCustomers > 0 ? Math.round(((currentCustomerData.whatsapp || 0) / totalCustomers) * 100) : 0;
+  const fbCustomerShare = totalCustomers > 0 ? Math.round(((currentCustomerData.facebook || 0) / totalCustomers) * 100) : 0;
+  const igCustomerShare = totalCustomers > 0 ? Math.round(((currentCustomerData.instagram || 0) / totalCustomers) * 100) : 0;
 
   return (
     <div className="analytics-simple-page" id="analytics-page-root">
@@ -433,6 +441,23 @@ export function AnalyticsPage({ user, onNavigateModule }) {
             </div>
           </div>
 
+          {/* Channel Contribution Visualizer when customers exist */}
+          {totalCustomers > 0 && (
+            <div className="analytics-channel-bar-wrap">
+              <div className="analytics-channel-bar" title="Customer channels distribution">
+                {waCustomerShare > 0 && (
+                  <div className="analytics-bar-slice wa-slice" style={{ width: `${waCustomerShare}%` }} title={`WhatsApp: ${waCustomerShare}%`} />
+                )}
+                {fbCustomerShare > 0 && (
+                  <div className="analytics-bar-slice fb-slice" style={{ width: `${fbCustomerShare}%` }} title={`Facebook: ${fbCustomerShare}%`} />
+                )}
+                {igCustomerShare > 0 && (
+                  <div className="analytics-bar-slice ig-slice" style={{ width: `${igCustomerShare}%` }} title={`Instagram: ${igCustomerShare}%`} />
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Channel Breakdown Row Underneath */}
           <div className="channels-breakdown-row" aria-label="Channel Breakdown">
             {/* WhatsApp */}
@@ -442,10 +467,18 @@ export function AnalyticsPage({ user, onNavigateModule }) {
                   <WhatsAppIcon size={18} />
                 </div>
                 <span className="channel-name-label">WhatsApp</span>
+                {totalCustomers > 0 && waCustomerShare > 0 && (
+                  <span className="channel-share-tag">{waCustomerShare}%</span>
+                )}
               </div>
               <div className="channel-count-number" id="count-wa-customers">
                 {loading && !hasData ? '·' : currentCustomerData.whatsapp.toLocaleString()}
               </div>
+              {totalCustomers > 0 && (
+                <div className="channel-progress-track">
+                  <div className="channel-progress-fill wa-fill" style={{ width: `${waCustomerShare}%` }} />
+                </div>
+              )}
             </div>
 
             {/* Facebook Messenger */}
@@ -455,10 +488,18 @@ export function AnalyticsPage({ user, onNavigateModule }) {
                   <MessengerIcon size={18} />
                 </div>
                 <span className="channel-name-label">Facebook</span>
+                {totalCustomers > 0 && fbCustomerShare > 0 && (
+                  <span className="channel-share-tag">{fbCustomerShare}%</span>
+                )}
               </div>
               <div className="channel-count-number" id="count-fb-customers">
                 {loading && !hasData ? '·' : currentCustomerData.facebook.toLocaleString()}
               </div>
+              {totalCustomers > 0 && (
+                <div className="channel-progress-track">
+                  <div className="channel-progress-fill fb-fill" style={{ width: `${fbCustomerShare}%` }} />
+                </div>
+              )}
             </div>
 
             {/* Instagram */}
@@ -468,10 +509,18 @@ export function AnalyticsPage({ user, onNavigateModule }) {
                   <InstagramIcon size={18} />
                 </div>
                 <span className="channel-name-label">Instagram</span>
+                {totalCustomers > 0 && igCustomerShare > 0 && (
+                  <span className="channel-share-tag">{igCustomerShare}%</span>
+                )}
               </div>
               <div className="channel-count-number" id="count-ig-customers">
                 {loading && !hasData ? '·' : currentCustomerData.instagram.toLocaleString()}
               </div>
+              {totalCustomers > 0 && (
+                <div className="channel-progress-track">
+                  <div className="channel-progress-fill ig-fill" style={{ width: `${igCustomerShare}%` }} />
+                </div>
+              )}
             </div>
           </div>
         </section>

@@ -112,9 +112,12 @@ export function DashboardOverview({ user }) {
       }
     } catch (err) {
       console.error('[OVERVIEW] Failed to retrieve metrics:', err);
-      const retrySec = err.retryAfter || (err.status === 429 ? 60 : 0);
+      const isRateLimited = err.status === 429 || err.code === 'RATE_LIMITED';
+      const retrySec = isRateLimited ? (err.retryAfter || 60) : 0;
       if (retrySec > 0) {
         setCooldownSeconds(retrySec);
+      } else {
+        setCooldownSeconds(0);
       }
       setError(err.message || 'Unable to update latest telemetry.');
     } finally {
