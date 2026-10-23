@@ -376,73 +376,10 @@ export function RevenuePage({ user, onNavigateModule }) {
         </div>
       </div>
 
-      {/* ── HERO SUMMARY CARDS: Total Sales, Total Orders, AOV ──────────── */}
-      <div className="revenue-hero-summary-grid">
-        <div className="revenue-hero-card hero-sales-card">
-          <div className="hero-card-header">
-            <span className="hero-card-label">Total Revenue ({periodLabelText})</span>
-            <div className="hero-icon-pill green">
-              <TrendingUp size={16} />
-            </div>
-          </div>
-          <div className="hero-card-val">
-            {loading ? '···' : <MoneyDisplay amount={totalPeriodRevenue} symbol={currencySymbol} />}
-          </div>
-          <div className="hero-card-footnote">
-            {totalPeriodOrders > 0
-              ? `${totalPeriodOrders} order${totalPeriodOrders === 1 ? '' : 's'} across channels`
-              : `Awaiting first order ${periodLabelText}`}
-          </div>
-        </div>
-
-        <div className="revenue-hero-card hero-orders-card">
-          <div className="hero-card-header">
-            <span className="hero-card-label">Orders Placed</span>
-            <div className="hero-icon-pill blue">
-              <ShoppingBag size={16} />
-            </div>
-          </div>
-          <div className="hero-card-val">
-            {loading ? '···' : totalPeriodOrders.toLocaleString()}
-          </div>
-          <div className="hero-card-footnote">
-            {totalPeriodOrders > 0 ? (
-              <span>Avg order: <MoneyDisplay amount={averageOrderValue} symbol={currencySymbol} /></span>
-            ) : (
-              'Direct messaging channel orders'
-            )}
-          </div>
-        </div>
-
-        <div className="revenue-hero-card hero-top-channel-card">
-          <div className="hero-card-header">
-            <span className="hero-card-label">Leading Channel</span>
-            <div className="hero-icon-pill purple">
-              <Sparkles size={16} />
-            </div>
-          </div>
-          <div className="hero-card-val leading-channel-val">
-            {totalPeriodRevenue > 0 ? (
-              waShare >= fbShare && waShare >= igShare ? 'WhatsApp' :
-              fbShare >= igShare ? 'Facebook' : 'Instagram'
-            ) : (
-              'All Standby'
-            )}
-          </div>
-          <div className="hero-card-footnote">
-            {totalPeriodRevenue > 0 ? (
-              `${Math.max(waShare, fbShare, igShare)}% of total revenue volume`
-            ) : (
-              'Ready for conversational sales'
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* ═════════════════════════════════════════════════════════════════════
-          TWO MAIN SECTIONS:
-          1. WHERE SALES CAME FROM
-          2. BEST SELLING PRODUCTS
+          TWO CLEAN SECTIONS ONLY:
+          1. WHERE SALES CAME FROM (WhatsApp, Facebook, Instagram, Other)
+          2. BEST SELLING PRODUCTS (Top 3 items sold)
           ═════════════════════════════════════════════════════════════════════ */}
       <div className="revenue-sections-stack">
         {/* ─────────────────────────────────────────────────────────────────
@@ -454,9 +391,6 @@ export function RevenuePage({ user, onNavigateModule }) {
           id="section-where-sales-came-from"
         >
           <div className="card-top-heading-row">
-            <div className="section-icon-badge green-badge">
-              <BarChart3 size={20} />
-            </div>
             <div className="section-title-wrap">
               <h2 id="heading-sales-channels" className="section-title-text">
                 Where Sales Came From
@@ -465,58 +399,16 @@ export function RevenuePage({ user, onNavigateModule }) {
                 Sales generated across messaging platforms {periodLabelText}
               </p>
             </div>
-            <div className="section-right-badge">
-              <span className="live-channel-badge">
-                <span className="channel-live-dot" />
-                Live Channel Tracking
+            <div className="section-total-badge" title={`Total revenue ${periodLabelText}`}>
+              <span className="section-total-label">Total Revenue ({periodLabelText}):</span>
+              <span className="section-total-value">
+                {loading ? '···' : <MoneyDisplay amount={totalPeriodRevenue} symbol={currencySymbol} />}
               </span>
+              {totalPeriodOrders > 0 && (
+                <span className="section-total-orders">({totalPeriodOrders} order{totalPeriodOrders === 1 ? '' : 's'})</span>
+              )}
             </div>
           </div>
-
-          {/* Visual Channel Contribution Bar */}
-          {totalPeriodRevenue > 0 ? (
-            <div className="revenue-distribution-bar-wrapper">
-              <div className="revenue-distribution-bar" title="Channel revenue proportion">
-                {waShare > 0 && (
-                  <div
-                    className="bar-slice wa-slice"
-                    style={{ width: `${waShare}%` }}
-                    title={`WhatsApp: ${waShare}% (${formatMoney(channels.whatsapp?.amount, currencySymbol)})`}
-                  />
-                )}
-                {fbShare > 0 && (
-                  <div
-                    className="bar-slice fb-slice"
-                    style={{ width: `${fbShare}%` }}
-                    title={`Facebook: ${fbShare}% (${formatMoney(channels.facebook?.amount, currencySymbol)})`}
-                  />
-                )}
-                {igShare > 0 && (
-                  <div
-                    className="bar-slice ig-slice"
-                    style={{ width: `${igShare}%` }}
-                    title={`Instagram: ${igShare}% (${formatMoney(channels.instagram?.amount, currencySymbol)})`}
-                  />
-                )}
-                {otherShare > 0 && (
-                  <div
-                    className="bar-slice other-slice"
-                    style={{ width: `${otherShare}%` }}
-                    title={`Other: ${otherShare}% (${formatMoney(channels.other?.amount, currencySymbol)})`}
-                  />
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="revenue-distribution-standby-wrapper">
-              <div className="revenue-distribution-standby-bar">
-                <div className="standby-pulse-fill" />
-              </div>
-              <div className="standby-bar-caption">
-                All 3 conversational channels active and ready for orders
-              </div>
-            </div>
-          )}
 
           <div
             className={`platform-sales-grid ${hasOtherSales ? 'has-four-columns' : ''}`}
@@ -530,16 +422,12 @@ export function RevenuePage({ user, onNavigateModule }) {
                 </div>
                 <div className="platform-header-text">
                   <span className="platform-name">WhatsApp</span>
-                  <span className="platform-sub">Messaging sales</span>
                 </div>
-                {waShare > 0 ? (
+                {waShare > 0 && (
                   <span className="platform-share-badge wa-share-badge">{waShare}%</span>
-                ) : (
-                  <span className="platform-standby-badge">● Ready</span>
                 )}
               </div>
               <div className="platform-amount-wrap">
-                <span className="platform-metric-label">Sales Volume</span>
                 <div className="platform-amount-value" id="revenue-wa-amount">
                   {loading ? '···' : <MoneyDisplay amount={channels.whatsapp?.amount} symbol={currencySymbol} />}
                 </div>
@@ -551,12 +439,6 @@ export function RevenuePage({ user, onNavigateModule }) {
                   ? `${channels.whatsapp?.orderCount} order${channels.whatsapp?.orderCount === 1 ? '' : 's'}`
                   : `0 orders recorded ${periodLabelText}`}
               </div>
-              <div className="platform-progress-track">
-                <div
-                  className="platform-progress-fill wa-fill"
-                  style={{ width: waShare > 0 ? `${waShare}%` : '0%' }}
-                />
-              </div>
             </div>
 
             {/* Facebook Messenger */}
@@ -567,16 +449,12 @@ export function RevenuePage({ user, onNavigateModule }) {
                 </div>
                 <div className="platform-header-text">
                   <span className="platform-name">Facebook</span>
-                  <span className="platform-sub">Messenger sales</span>
                 </div>
-                {fbShare > 0 ? (
+                {fbShare > 0 && (
                   <span className="platform-share-badge fb-share-badge">{fbShare}%</span>
-                ) : (
-                  <span className="platform-standby-badge">● Ready</span>
                 )}
               </div>
               <div className="platform-amount-wrap">
-                <span className="platform-metric-label">Sales Volume</span>
                 <div className="platform-amount-value" id="revenue-fb-amount">
                   {loading ? '···' : <MoneyDisplay amount={channels.facebook?.amount} symbol={currencySymbol} />}
                 </div>
@@ -588,12 +466,6 @@ export function RevenuePage({ user, onNavigateModule }) {
                   ? `${channels.facebook?.orderCount} order${channels.facebook?.orderCount === 1 ? '' : 's'}`
                   : `0 orders recorded ${periodLabelText}`}
               </div>
-              <div className="platform-progress-track">
-                <div
-                  className="platform-progress-fill fb-fill"
-                  style={{ width: fbShare > 0 ? `${fbShare}%` : '0%' }}
-                />
-              </div>
             </div>
 
             {/* Instagram */}
@@ -604,16 +476,12 @@ export function RevenuePage({ user, onNavigateModule }) {
                 </div>
                 <div className="platform-header-text">
                   <span className="platform-name">Instagram</span>
-                  <span className="platform-sub">Direct DM sales</span>
                 </div>
-                {igShare > 0 ? (
+                {igShare > 0 && (
                   <span className="platform-share-badge ig-share-badge">{igShare}%</span>
-                ) : (
-                  <span className="platform-standby-badge">● Ready</span>
                 )}
               </div>
               <div className="platform-amount-wrap">
-                <span className="platform-metric-label">Sales Volume</span>
                 <div className="platform-amount-value" id="revenue-ig-amount">
                   {loading ? '···' : <MoneyDisplay amount={channels.instagram?.amount} symbol={currencySymbol} />}
                 </div>
@@ -624,12 +492,6 @@ export function RevenuePage({ user, onNavigateModule }) {
                   : channels.instagram?.amount > 0
                   ? `${channels.instagram?.orderCount} order${channels.instagram?.orderCount === 1 ? '' : 's'}`
                   : `0 orders recorded ${periodLabelText}`}
-              </div>
-              <div className="platform-progress-track">
-                <div
-                  className="platform-progress-fill ig-fill"
-                  style={{ width: igShare > 0 ? `${igShare}%` : '0%' }}
-                />
               </div>
             </div>
 
@@ -642,16 +504,12 @@ export function RevenuePage({ user, onNavigateModule }) {
                   </div>
                   <div className="platform-header-text">
                     <span className="platform-name">Other / Direct</span>
-                    <span className="platform-sub">Store & web sales</span>
                   </div>
-                  {otherShare > 0 ? (
+                  {otherShare > 0 && (
                     <span className="platform-share-badge other-share-badge">{otherShare}%</span>
-                  ) : (
-                    <span className="platform-standby-badge">● Ready</span>
                   )}
                 </div>
                 <div className="platform-amount-wrap">
-                  <span className="platform-metric-label">Sales Volume</span>
                   <div className="platform-amount-value" id="revenue-other-amount">
                     {loading ? '···' : <MoneyDisplay amount={channels.other?.amount} symbol={currencySymbol} />}
                   </div>
@@ -660,12 +518,6 @@ export function RevenuePage({ user, onNavigateModule }) {
                   {loading
                     ? 'Loading…'
                     : `${channels.other?.orderCount} order${channels.other?.orderCount === 1 ? '' : 's'}`}
-                </div>
-                <div className="platform-progress-track">
-                  <div
-                    className="platform-progress-fill other-fill"
-                    style={{ width: otherShare > 0 ? `${otherShare}%` : '0%' }}
-                  />
                 </div>
               </div>
             )}
@@ -681,9 +533,6 @@ export function RevenuePage({ user, onNavigateModule }) {
           id="section-best-selling-products"
         >
           <div className="card-top-heading-row">
-            <div className="section-icon-badge mint-badge">
-              <Package size={22} />
-            </div>
             <div className="section-title-wrap">
               <h2 id="heading-best-selling" className="section-title-text">
                 Best Selling Products
@@ -719,26 +568,16 @@ export function RevenuePage({ user, onNavigateModule }) {
               })}
             </div>
           ) : (
-            /* Premium, Inspiring Empty State when no products sold */
-            <div className="best-selling-empty-box">
-              <div className="empty-package-circle">
-                <ShoppingBag size={28} color="#0FA968" />
+            /* Clean, Compact, Modern Empty State */
+            <div className="best-selling-empty-compact">
+              <div className="empty-compact-icon-wrap">
+                <ShoppingBag size={20} color="#0FA968" />
               </div>
-              <div className="empty-state-content">
-                <p className="empty-state-title">No products sold yet {periodLabelText}</p>
-                <p className="empty-state-desc">
-                  When customers purchase products through your WhatsApp, Facebook, or Instagram channels, your top 3 best sellers will be listed here with live unit counts.
-                </p>
-                {onNavigateModule && (
-                  <button
-                    type="button"
-                    onClick={() => onNavigateModule('products')}
-                    className="empty-view-products-btn"
-                  >
-                    <span>View Products Catalog</span>
-                    <ArrowUpRight size={14} />
-                  </button>
-                )}
+              <div className="empty-compact-text">
+                <span className="empty-compact-title">No products sold yet {periodLabelText}</span>
+                <span className="empty-compact-desc">
+                  Your top 3 best-selling items will appear here automatically when orders are confirmed.
+                </span>
               </div>
             </div>
           )}
