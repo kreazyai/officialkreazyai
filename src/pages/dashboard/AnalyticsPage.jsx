@@ -100,7 +100,7 @@ function CustomerInitialsAvatar({ name = 'Customer', size = 38 }) {
       style={{
         width: size,
         height: size,
-        borderRadius: '50%',
+        borderRadius: 0,
         backgroundColor: `hsl(${hue}, 40%, 25%)`,
         color: `hsl(${hue}, 85%, 90%)`,
         display: 'flex',

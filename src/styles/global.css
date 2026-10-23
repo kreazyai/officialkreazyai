@@ -10,6 +10,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-radius: 0 !important;
 }
 
 html {
@@ -496,3 +497,72 @@ input:focus, select:focus, textarea:focus, .form-input:focus, .form-select:focus
   outline: none;
   box-shadow: 0 0 0 3px rgba(15, 169, 104, 0.15);
 }
+
+/* =====================================================================
+   SHARP RECTANGLE ARCHITECTURE — ZERO CURVATURE ENFORCEMENT
+   Guarantees 100% rectangular geometry across the entire website:
+   no rounded or curvy boxes, buttons, inputs, modals, cards, badges, or pills.
+   ===================================================================== */
+*,
+*::before,
+*::after,
+button,
+a,
+input,
+select,
+textarea,
+dialog,
+div,
+span,
+header,
+nav,
+footer,
+aside,
+main,
+section,
+article,
+table,
+thead,
+tbody,
+tr,
+th,
+td,
+.btn,
+.btn-sm,
+.btn-md,
+.btn-lg,
+.btn-primary,
+.btn-secondary,
+.btn-subtle,
+.btn-ghost,
+.btn-outline,
+.btn-icon,
+.card,
+.glass-panel,
+.glass-panel-elevated,
+.card-nested,
+.capsule-pill,
+.badge,
+.pill,
+.tag,
+.chip,
+.tab,
+.tabs,
+.segmented-control,
+.modal,
+.modal-content,
+.dialog,
+.drawer,
+.dropdown,
+.dropdown-menu,
+.alert,
+.banner,
+.toast,
+.tooltip,
+.avatar,
+.user-avatar,
+.slider,
+.switch {
+  border-radius: 0px !important;
+}
+

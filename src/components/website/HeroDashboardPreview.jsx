@@ -107,10 +107,10 @@ export function HeroDashboardPreview({ onExploreApp }) {
               {/* Thread 1 - Selected */}
               <div className="mockup-thread active">
                 <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem', border: '1px solid var(--border-medium)' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: 0, backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem', border: '1px solid var(--border-medium)' }}>
                     MV
                   </div>
-                  <span style={{ position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#22c55e', border: '2px solid #0e1611' }}></span>
+                  <span style={{ position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', borderRadius: 0, backgroundColor: '#22c55e', border: '2px solid #0e1611' }}></span>
                 </div>
                 <div style={{ minWidth: 0, flexGrow: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
@@ -126,10 +126,10 @@ export function HeroDashboardPreview({ onExploreApp }) {
               {/* Thread 2 */}
               <div className="mockup-thread">
                 <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#202E23', color: '#A1B2A5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: 0, backgroundColor: '#202E23', color: '#A1B2A5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     ER
                   </div>
-                  <span style={{ position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#22c55e', border: '2px solid #0e1611' }}></span>
+                  <span style={{ position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', borderRadius: 0, backgroundColor: '#22c55e', border: '2px solid #0e1611' }}></span>
                 </div>
                 <div style={{ minWidth: 0, flexGrow: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
@@ -145,7 +145,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
               {/* Thread 3 */}
               <div className="mockup-thread">
                 <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#202E23', color: '#A1B2A5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: 0, backgroundColor: '#202E23', color: '#A1B2A5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                     JB
                   </div>
                 </div>
@@ -167,10 +167,10 @@ export function HeroDashboardPreview({ onExploreApp }) {
               <div className="mockup-chat-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ position: 'relative' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: 0, backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                       MV
                     </div>
-                    <span style={{ position: 'absolute', bottom: '0', right: '0', width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#22c55e', border: '2px solid #101913' }}></span>
+                    <span style={{ position: 'absolute', bottom: '0', right: '0', width: '9px', height: '9px', borderRadius: 0, backgroundColor: '#22c55e', border: '2px solid #101913' }}></span>
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#F1F5F3' }}>Marcus Vance</div>
@@ -181,7 +181,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', padding: '0.3rem 0.75rem', borderRadius: '20px', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#86efac', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.28)' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', padding: '0.3rem 0.75rem', borderRadius: 0, backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#86efac', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.28)' }}>
                     <span className="mockup-status-dot-pulse" style={{ width: '6px', height: '6px' }}></span> AI Copilot Live
                   </span>
                 </div>
@@ -192,7 +192,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                 
                 {/* 1. Customer Incoming Bubble */}
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem', maxWidth: '78%', alignSelf: 'flex-start' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: 0, backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
                     MV
                   </div>
                   <div>
@@ -215,7 +215,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
 
                 {/* 3. Customer Incoming Bubble */}
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem', maxWidth: '78%', alignSelf: 'flex-start' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: 0, backgroundColor: '#2D3E30', color: '#F1F5F3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
                     MV
                   </div>
                   <div>
@@ -240,7 +240,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                       <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px' }}>
                         Color: Olive • Size: L • Paid via Stripe
                       </div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#86efac', padding: '0.2rem 0.55rem', borderRadius: '6px', fontWeight: 600 }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', backgroundColor: 'rgba(74, 222, 128, 0.2)', color: '#86efac', padding: '0.2rem 0.55rem', borderRadius: 0, fontWeight: 600 }}>
                         <Check size={12} /> Order #KZ-1049 Confirmed
                       </div>
                     </div>
@@ -258,7 +258,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
 
               {/* Chat Input Simulated - Modern Messenger Style */}
               <div className="mockup-chat-input-bar">
-                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '24px', padding: '0.45rem 1rem', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: 0, padding: '0.45rem 1rem', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <input 
                     type="text" 
                     readOnly 
@@ -270,7 +270,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                   type="button" 
                   className="btn btn-sm btn-primary" 
                   onClick={onExploreApp}
-                  style={{ borderRadius: '20px', padding: '0.45rem 1.15rem', fontSize: '0.825rem', whiteSpace: 'nowrap' }}
+                  style={{ borderRadius: 0, padding: '0.45rem 1.15rem', fontSize: '0.825rem', whiteSpace: 'nowrap' }}
                 >
                   Take Over Chat
                 </button>
@@ -306,13 +306,13 @@ export function HeroDashboardPreview({ onExploreApp }) {
             </div>
 
             {/* Simulated Live Action Feed */}
-            <div style={{ border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', backgroundColor: 'rgba(14, 22, 17, 0.85)' }}>
+            <div style={{ border: '1px solid var(--border-medium)', borderRadius: 0, padding: '1.25rem', backgroundColor: 'rgba(14, 22, 17, 0.85)' }}>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1rem', color: '#F1F5F3' }}>
                 Live Agentic Action Timeline
               </div>
               <div className="activity-feed">
                 <div className="activity-item">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.95rem', backgroundColor: 'rgba(18, 28, 22, 0.75)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.95rem', backgroundColor: 'rgba(18, 28, 22, 0.75)', border: '1px solid var(--border-subtle)', borderRadius: 0, fontSize: '0.85rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                       <Badge variant="whatsapp">WhatsApp</Badge>
                       <span><strong style={{ color: '#F1F5F3' }}>AI Order Generated:</strong> Order #KZ-1049 for Marcus Vance ($89.00)</span>
@@ -321,7 +321,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                   </div>
                 </div>
                 <div className="activity-item">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.95rem', backgroundColor: 'rgba(18, 28, 22, 0.75)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.95rem', backgroundColor: 'rgba(18, 28, 22, 0.75)', border: '1px solid var(--border-subtle)', borderRadius: 0, fontSize: '0.85rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                       <Badge variant="instagram">Instagram</Badge>
                       <span><strong style={{ color: '#F1F5F3' }}>Knowledge Answered:</strong> Dishwasher tolerance answered for Minimalist Carafe</span>
@@ -330,7 +330,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                   </div>
                 </div>
                 <div className="activity-item">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.95rem', backgroundColor: 'rgba(18, 28, 22, 0.75)', border: '1px solid var(--border-subtle)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.95rem', backgroundColor: 'rgba(18, 28, 22, 0.75)', border: '1px solid var(--border-subtle)', borderRadius: 0, fontSize: '0.85rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                       <Badge variant="facebook">Facebook</Badge>
                       <span><strong style={{ color: '#F1F5F3' }}>Safe Escalation:</strong> Customer requested exchange sizing nuance. Escalated to team.</span>

@@ -39,7 +39,7 @@ export function CopilotBadge({ label = 'AI Copilot Live', className = '' }) {
         alignItems: 'center',
         gap: '6px',
         padding: '0.28rem 0.65rem',
-        borderRadius: '9999px',
+        borderRadius: 0,
         backgroundColor: 'rgba(143, 166, 83, 0.15)',
         border: '1px solid rgba(143, 166, 83, 0.3)',
         color: '#B8C58A',

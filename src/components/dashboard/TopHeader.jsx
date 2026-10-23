@@ -85,7 +85,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
             {unreadCount > 0 && (
               <span style={{
                 position: 'absolute', top: '6px', right: '6px',
-                minWidth: '16px', height: '16px', borderRadius: '10px',
+                minWidth: '16px', height: '16px', borderRadius: 0,
                 backgroundColor: '#e11d48', color: '#ffffff',
                 fontSize: '10px', fontWeight: 800, display: 'flex',
                 alignItems: 'center', justifyContent: 'center', padding: '0 3px',
@@ -111,7 +111,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   width: 'min(340px, calc(100vw - 2rem))',
                   backgroundColor: 'var(--bg-card, #ffffff)',
                   border: '1px solid var(--border-medium, #D9E9E1)',
-                  borderRadius: 'var(--radius-lg, 12px)',
+                  borderRadius: 0,
                   boxShadow: '0 12px 32px rgba(9, 42, 32, 0.12)',
                   zIndex: 850,
                   padding: '0.75rem 0',
@@ -130,7 +130,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                     {unreadCount > 0 && (
                       <span style={{
                         background: 'rgba(225, 29, 72, 0.12)', color: '#e11d48',
-                        padding: '1px 6px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 800
+                        padding: '1px 6px', borderRadius: 0, fontSize: '0.7rem', fontWeight: 800
                       }}>
                         {unreadCount} new
                       </span>
@@ -224,7 +224,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               alignItems: 'center',
               gap: '0.65rem',
               padding: '0.3rem 0.75rem 0.3rem 0.35rem',
-              borderRadius: 'var(--radius-full)',
+              borderRadius: 0,
               background: 'var(--mint-soft)',
               border: '1px solid var(--border)',
               cursor: 'pointer',
@@ -236,7 +236,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               style={{
                 width: '30px',
                 height: '30px',
-                borderRadius: '50%',
+                borderRadius: 0,
                 backgroundColor: 'var(--primary-dark)',
                 color: '#FFFFFF',
                 display: 'flex',
@@ -269,7 +269,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               marginLeft: '0.35rem',
               width: '26px',
               height: '26px',
-              borderRadius: '50%',
+              borderRadius: 0,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -296,7 +296,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   width: 'min(220px, calc(100vw - 2rem))',
                   backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-medium)',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: 0,
                   boxShadow: 'var(--shadow-lg)',
                   zIndex: 850,
                   padding: '0.5rem 0'

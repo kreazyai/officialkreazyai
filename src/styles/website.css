@@ -181,7 +181,7 @@
 .nav-btn-signin {
   height: 38px !important;
   padding: 0 1.1rem !important;
-  border-radius: 999px !important;
+  border-radius: 0 !important;
   color: var(--text-primary) !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
@@ -198,7 +198,7 @@
 .nav-btn-signup {
   height: 38px !important;
   padding: 0 1.35rem !important;
-  border-radius: 999px !important;
+  border-radius: 0 !important;
   background: var(--primary-dark) !important;
   color: #FFFFFF !important;
   font-size: 0.875rem !important;
@@ -2349,7 +2349,7 @@
 
   .solution-showcase-box {
     padding: 1.25rem !important;
-    border-radius: 18px !important;
+    border-radius: 0 !important;
   }
 
   .solution-showcase-box .btn {

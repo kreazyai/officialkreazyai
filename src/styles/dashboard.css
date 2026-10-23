@@ -3386,7 +3386,7 @@
     white-space: nowrap !important;
     flex-shrink: 0 !important;
     padding: 0.45rem 0.85rem !important;
-    border-radius: 9999px !important;
+    border-radius: 0 !important;
     border: 1px solid var(--border-medium) !important;
     background: var(--bg-canvas-alt) !important;
     font-size: 0.8rem !important;
@@ -5095,7 +5095,7 @@
   /* Card paddings and header flex */
   .card {
     padding: 1rem 0.85rem !important;
-    border-radius: 14px !important;
+    border-radius: 0 !important;
   }
 
   .card-header-flex {
@@ -5132,7 +5132,7 @@
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 0.2rem !important;
-    border-radius: 8px !important;
+    border-radius: 0 !important;
     min-width: 0 !important;
   }
 
@@ -5178,7 +5178,7 @@
 
   .automation-cell {
     padding: 0.55rem !important;
-    border-radius: 8px !important;
+    border-radius: 0 !important;
   }
 
   .auto-cell-label {
@@ -5251,7 +5251,7 @@
 
   .convo-stat-box {
     padding: 0.5rem !important;
-    border-radius: 8px !important;
+    border-radius: 0 !important;
   }
 
   .stat-label {
@@ -5266,7 +5266,7 @@
   .table-responsive-wrapper {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    border-radius: 10px !important;
+    border-radius: 0 !important;
     margin: 0 -0.1rem;
   }
 

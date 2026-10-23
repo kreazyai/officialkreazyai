@@ -165,7 +165,7 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
                 onClick={() => handleLinkClick(item.id)}
                 style={{
                   padding: '0.85rem 1rem',
-                  borderRadius: '8px',
+                  borderRadius: 0,
                   fontWeight: isActive ? 700 : 500,
                   backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
                   color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
