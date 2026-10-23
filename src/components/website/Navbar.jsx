@@ -3,11 +3,32 @@ import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
 import { LanguageSelector } from '../common/LanguageSelector';
 import { useLanguage } from '../../context/LanguageContext';
+import { TopDiscountBanner } from './TopDiscountBanner';
 
-export function Navbar({ currentPage, onNavigate, user, onLogout }) {
+export function Navbar({
+  currentPage,
+  onNavigate,
+  user,
+  onLogout,
+  showDiscountBanner = true,
+  discountPercent = 10,
+  badgeText,
+  promoPrefix,
+  promoMessage,
+  ctaText,
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem('kreazy_discount_banner_dismissed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const { t } = useLanguage();
+
+  const isBannerVisible = showDiscountBanner && !bannerDismissed;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,7 +67,18 @@ export function Navbar({ currentPage, onNavigate, user, onLogout }) {
 
   return (
     <>
-      <header className={`site-nav ${scrolled ? 'scrolled' : ''}`}>
+      <header className={`site-nav ${scrolled ? 'scrolled' : ''} ${isBannerVisible ? 'has-discount-banner' : ''}`}>
+        {isBannerVisible && (
+          <TopDiscountBanner
+            onNavigate={onNavigate}
+            discountPercent={discountPercent}
+            badgeText={badgeText}
+            promoPrefix={promoPrefix}
+            promoMessage={promoMessage}
+            ctaText={ctaText}
+            onDismiss={() => setBannerDismissed(true)}
+          />
+        )}
         <div className="container site-nav-inner">
           {/* Left: Kreazy AI Logo */}
           <div

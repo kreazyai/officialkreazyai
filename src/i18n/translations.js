@@ -28,6 +28,14 @@ export const translations = {
       signOut: 'Sign Out',
       selectLanguage: 'Select Language'
     },
+    banner: {
+      badge: 'Limited Time Offer!',
+      prefix: 'Get',
+      discount: '10% OFF',
+      suffix: 'on Kreazy AI',
+      cta: 'Claim Offer',
+      dismiss: 'Dismiss discount banner'
+    },
     hero: {
       badge: 'Meta Cloud Live • Autonomous AI Omnichannel Hub',
       headlineBlack: 'Your Business',
@@ -374,6 +382,14 @@ export const translations = {
       signOut: 'লগ আউট',
       selectLanguage: 'ভাষা নির্বাচন করুন'
     },
+    banner: {
+      badge: 'সীমিত সময়ের অফার!',
+      prefix: 'পান',
+      discount: '১০% ছাড়',
+      suffix: 'Kreazy AI-তে',
+      cta: 'অফার নিন',
+      dismiss: 'ব্যানার বন্ধ করুন'
+    },
     hero: {
       badge: 'মেটা ক্লাউড লাইভ • স্বয়ংক্রিয় এআই অমনিচ্যানেল হাব',
       headlineBlack: 'আপনার ব্যবসার',
@@ -719,6 +735,14 @@ export const translations = {
       dashboard: 'Panel de Control',
       signOut: 'Cerrar Sesión',
       selectLanguage: 'Seleccionar Idioma'
+    },
+    banner: {
+      badge: '¡Oferta por tiempo limitado!',
+      prefix: 'Obtén',
+      discount: '10% DE DESCUENTO',
+      suffix: 'en Kreazy AI',
+      cta: 'Reclamar Oferta',
+      dismiss: 'Cerrar banner'
     },
     hero: {
       badge: 'Meta Cloud Live • Hub Omnicanal de Agentes IA Autónomos',
