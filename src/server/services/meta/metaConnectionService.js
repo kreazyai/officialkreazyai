@@ -1,3 +1,4 @@
+import { config } from '../../config/env.js';
 import { getDatabase, ensureMetaConnections } from '../../config/database.js';
 import { logger } from '../../utils/logger.js';
 import { sanitizeConnection } from '../../utils/encryption.js';
@@ -25,31 +26,93 @@ export const metaConnectionService = {
         ELSE 4 END
     `).all(businessId);
 
-    return rows.map(r => sanitizeConnection(r));
+    return rows.map(r => {
+      // If DB has an active encrypted token, sanitizeConnection handles it directly
+      if (r.platform === 'MESSENGER' && (!r.encrypted_access_token || r.status === 'NOT_CONNECTED')) {
+        const pageId = config.messenger?.pageId;
+        const pageAccessToken = config.messenger?.pageAccessToken;
+        const tenantId = config.messenger?.tenantId;
+
+        // Strict multi-tenant isolation: only reflect CONNECTED if businessId matches configured tenantId and tenant exists
+        if (pageId && pageAccessToken && tenantId && businessId === tenantId) {
+          const tenant = db.prepare('SELECT id FROM businesses WHERE id = ?').get(businessId);
+          if (tenant) {
+            const sanitized = sanitizeConnection(r);
+            return {
+              ...sanitized,
+              status: 'CONNECTED',
+              hasToken: true,
+              has_token: true,
+              page_id: pageId,
+              page_name: r.page_name || 'Test Facebook Page',
+              webhook_status: 'ACTIVE'
+            };
+          }
+        }
+      }
+      return sanitizeConnection(r);
+    });
   },
 
   /**
    * Get connection by platform with decrypted token for internal server dispatch only
    */
   getConnectionWithToken(businessId, platform) {
+    if (!businessId) return null;
     const db = getDatabase();
+    const plat = (platform || '').toUpperCase();
     const row = db.prepare(`
       SELECT * FROM meta_connections 
       WHERE business_id = ? AND platform = ?
-    `).get(businessId, platform.toUpperCase());
+    `).get(businessId, plat);
 
-    if (!row || !row.encrypted_access_token) return null;
+    // 1. Preserved encrypted database-based OAuth connection takes precedence
+    if (row && row.encrypted_access_token && row.status !== 'NOT_CONNECTED') {
+      const token = metaTokenService.decrypt(
+        row.encrypted_access_token,
+        row.token_iv,
+        row.token_tag
+      );
 
-    const token = metaTokenService.decrypt(
-      row.encrypted_access_token,
-      row.token_iv,
-      row.token_tag
-    );
+      return {
+        ...row,
+        decryptedAccessToken: token
+      };
+    }
 
-    return {
-      ...row,
-      decryptedAccessToken: token
-    };
+    // 2. Optional Render environment test page integration fallback for Messenger
+    if (plat === 'MESSENGER') {
+      const pageId = config.messenger?.pageId;
+      const pageAccessToken = config.messenger?.pageAccessToken;
+      const tenantId = config.messenger?.tenantId;
+
+      if (pageId && pageAccessToken && tenantId) {
+        // Enforce exact tenant matching - strictly prevent cross-tenant token access
+        if (businessId === tenantId) {
+          // Validate that the tenant actually exists in the database
+          const tenant = db.prepare('SELECT id FROM businesses WHERE id = ?').get(businessId);
+          if (tenant) {
+            return {
+              id: row?.id || `conn-messenger-${businessId}`,
+              business_id: businessId,
+              workspace_id: row?.workspace_id || businessId,
+              platform: 'MESSENGER',
+              status: 'CONNECTED',
+              page_id: pageId,
+              page_name: row?.page_name || 'Test Facebook Page',
+              auto_reply_enabled: row?.auto_reply_enabled !== undefined ? row.auto_reply_enabled : 1,
+              ai_confidence_threshold: row?.ai_confidence_threshold || 0.75,
+              decryptedAccessToken: pageAccessToken,
+              isEnvConfigured: true
+            };
+          } else {
+            logger.warn(`[MESSENGER TEST INTEGRATION] Tenant "${businessId}" does not exist in businesses table. Access denied.`);
+          }
+        }
+      }
+    }
+
+    return null;
   },
 
   /**
@@ -275,7 +338,7 @@ export const metaConnectionService = {
     }
 
     // Step 3: Webhook Validation
-    if (conn.webhook_status === 'ACTIVE') {
+    if (conn.webhook_status === 'ACTIVE' || conn.isEnvConfigured) {
       diagnostics.webhookActive = true;
     } else {
       diagnostics.issues.push({

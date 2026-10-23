@@ -206,8 +206,34 @@ export const metaWebhookService = {
       }
 
       if (row) {
-        logger.info(`[TENANT RESOLVED] Mapped ${platform} asset "${assetId}" to tenant: ${row.business_id}`);
-        return { businessId: row.business_id, workspaceId: row.workspace_id || row.business_id };
+        const tenantExists = db.prepare('SELECT id FROM businesses WHERE id = ?').get(row.business_id);
+        if (tenantExists) {
+          logger.info(`[TENANT RESOLVED] Mapped ${platform} asset "${assetId}" to tenant: ${row.business_id}`);
+          return { businessId: row.business_id, workspaceId: row.workspace_id || row.business_id };
+        } else {
+          logger.warn(`[TENANT RESOLUTION FAILED] Database tenant "${row.business_id}" for asset "${assetId}" does not exist in businesses table.`);
+        }
+      }
+
+      // Check optional Render environment test Facebook Page configuration for MESSENGER
+      if (platform === 'MESSENGER') {
+        const pageId = config.messenger?.pageId;
+        const pageAccessToken = config.messenger?.pageAccessToken;
+        const tenantId = config.messenger?.tenantId;
+
+        if (pageId && pageAccessToken && tenantId) {
+          // Strict exact match on Page ID
+          if (assetId === pageId) {
+            // Validate that the mapped tenant exists in businesses table
+            const tenant = db.prepare('SELECT id FROM businesses WHERE id = ?').get(tenantId);
+            if (tenant) {
+              logger.info(`[TENANT RESOLVED] Mapped MESSENGER test page "${assetId}" to tenant: ${tenantId}`);
+              return { businessId: tenantId, workspaceId: tenantId };
+            } else {
+              logger.warn(`[TENANT RESOLUTION FAILED] Messenger test tenant "${tenantId}" does not exist in businesses table. Rejecting webhook.`);
+            }
+          }
+        }
       }
     } catch (err) {
       logger.error('Error resolving tenant from asset ID:', err.message);

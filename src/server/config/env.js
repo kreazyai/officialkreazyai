@@ -84,6 +84,12 @@ export const config = {
     accessToken: process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_ACCESS_TOKEN || '',
     apiBaseUrl: process.env.WHATSAPP_API_BASE_URL || 'https://graph.facebook.com/v21.0',
     redirectUri: process.env.META_REDIRECT_URI || 'http://localhost:5000/api/v1/meta/oauth/callback'
+  },
+
+  messenger: {
+    pageId: process.env.MESSENGER_PAGE_ID || '',
+    pageAccessToken: process.env.MESSENGER_PAGE_ACCESS_TOKEN || '',
+    tenantId: process.env.MESSENGER_TENANT_ID || ''
   }
 };
 
@@ -108,6 +114,58 @@ export function validateWhatsAppConfig() {
     hasPhoneNumberId,
     hasWabaId,
     hasVerifyToken
+  };
+}
+
+/**
+ * Validates the optional Messenger test integration configuration.
+ * @param {object} [env=process.env]
+ * @param {{ db?: any }} [options={}]
+ * @returns {{ isConfigured: boolean, hasPageId: boolean, hasPageAccessToken: boolean, hasTenantId: boolean, isValid: boolean, errors: string[] }}
+ */
+export function validateMessengerConfig(env = process.env, options = {}) {
+  const errors = [];
+  const targetEnv = env || {};
+  const pageId = (targetEnv.MESSENGER_PAGE_ID || '').trim();
+  const pageAccessToken = (targetEnv.MESSENGER_PAGE_ACCESS_TOKEN || '').trim();
+  const tenantId = (targetEnv.MESSENGER_TENANT_ID || '').trim();
+
+  const hasPageId = Boolean(pageId);
+  const hasPageAccessToken = Boolean(pageAccessToken);
+  const hasTenantId = Boolean(tenantId);
+  const isConfigured = hasPageId && hasPageAccessToken && hasTenantId;
+  const isPartiallyConfigured = (hasPageId || hasPageAccessToken || hasTenantId) && !isConfigured;
+
+  if (isPartiallyConfigured) {
+    const missing = [];
+    if (!hasPageId) missing.push('MESSENGER_PAGE_ID');
+    if (!hasPageAccessToken) missing.push('MESSENGER_PAGE_ACCESS_TOKEN');
+    if (!hasTenantId) missing.push('MESSENGER_TENANT_ID');
+    errors.push(`Incomplete Messenger test configuration: ${missing.join(', ')} must be provided.`);
+  }
+
+  if (hasPageAccessToken && INSECURE_DEFAULT_SECRETS.includes(pageAccessToken)) {
+    errors.push('MESSENGER_PAGE_ACCESS_TOKEN cannot be a known insecure default secret.');
+  }
+
+  if (options.db && isConfigured) {
+    try {
+      const tenant = options.db.prepare('SELECT id FROM businesses WHERE id = ?').get(tenantId);
+      if (!tenant) {
+        errors.push(`MESSENGER_TENANT_ID "${tenantId}" does not exist in businesses table.`);
+      }
+    } catch {
+      // Table may not exist yet
+    }
+  }
+
+  return {
+    isConfigured,
+    hasPageId,
+    hasPageAccessToken,
+    hasTenantId,
+    isValid: errors.length === 0,
+    errors
   };
 }
 
@@ -177,6 +235,12 @@ export function validateProductionEnv(env = process.env, options = {}) {
     } catch {
       // Table may not exist yet before migrations
     }
+  }
+
+  // 5. MESSENGER Test Integration (Optional, but if any var is set, must be valid and complete)
+  const messengerValidation = validateMessengerConfig(targetEnv, options);
+  if (!messengerValidation.isValid) {
+    errors.push(...messengerValidation.errors);
   }
 
   const valid = errors.length === 0;

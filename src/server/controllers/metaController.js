@@ -97,7 +97,12 @@ export const metaController = {
       }
 
       if (platform === 'INSTAGRAM' || platform === 'ALL') {
-        metaConnectionService.saveConnectionFromOAuth(businessId, workspaceId, 'INSTAGRAM', tokenResult, {
+        const instagramTokenData = {
+          accessToken: primaryPage?.accessToken || tokenResult.accessToken,
+          expiresIn: tokenResult.expiresIn
+        };
+
+        metaConnectionService.saveConnectionFromOAuth(businessId, workspaceId, 'INSTAGRAM', instagramTokenData, {
           pageId: primaryPage?.id || 'page_mock_9921',
           pageName: primaryPage?.name || 'Kreazy Official Store',
           instagramAccountId: igAccount?.id || 'ig_mock_3342',
@@ -107,7 +112,12 @@ export const metaController = {
       }
 
       if (platform === 'MESSENGER' || platform === 'ALL') {
-        metaConnectionService.saveConnectionFromOAuth(businessId, workspaceId, 'MESSENGER', tokenResult, {
+        const messengerTokenData = {
+          accessToken: primaryPage?.accessToken || tokenResult.accessToken,
+          expiresIn: tokenResult.expiresIn
+        };
+
+        metaConnectionService.saveConnectionFromOAuth(businessId, workspaceId, 'MESSENGER', messengerTokenData, {
           pageId: primaryPage?.id || 'page_mock_9921',
           pageName: primaryPage?.name || 'Kreazy Official Store',
           scopes: ['pages_show_list', 'pages_messaging', 'pages_manage_metadata']

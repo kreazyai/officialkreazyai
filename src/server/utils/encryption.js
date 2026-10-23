@@ -70,6 +70,10 @@ export function sanitizeConnection(conn) {
     encrypted_access_token,
     token_iv,
     token_tag,
+    decryptedAccessToken,
+    pageAccessToken,
+    accessToken,
+    token,
     ...safeRecord
   } = conn;
 
@@ -88,11 +92,13 @@ export function sanitizeConnection(conn) {
     diagnostics = {};
   }
 
+  const hasToken = Boolean(encrypted_access_token || conn.hasToken || conn.has_token || conn.isEnvConfigured);
+
   return {
     ...safeRecord,
     scopes,
     diagnostics,
-    hasToken: Boolean(encrypted_access_token),
-    has_token: Boolean(encrypted_access_token)
+    hasToken,
+    has_token: hasToken
   };
 }

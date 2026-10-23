@@ -14,10 +14,11 @@
     "test:meta": "node ./scripts/test-meta-integration.mjs",
     "test:whatsapp": "node ./scripts/test-whatsapp-production.mjs",
     "test:recovery": "node ./scripts/test-smart-sales-recovery.mjs",
+    "test:messenger": "node ./scripts/test-messenger-integration.mjs",
     "test:security": "node ./scripts/test-production-security.mjs",
     "test:server": "node ./scripts/test-backend-foundation.mjs",
     "test:e2e": "node ./scripts/test-full-stack-flow.mjs",
-    "test:all": "node ./scripts/test-production-security.mjs && node ./scripts/run-production-tests.mjs && node ./scripts/test-meta-integration.mjs && node ./scripts/test-whatsapp-production.mjs && node ./scripts/test-backend-foundation.mjs && node ./scripts/test-full-stack-flow.mjs",
+    "test:all": "node ./scripts/test-production-security.mjs && node ./scripts/test-messenger-integration.mjs && node ./scripts/run-production-tests.mjs && node ./scripts/test-meta-integration.mjs && node ./scripts/test-whatsapp-production.mjs && node ./scripts/test-backend-foundation.mjs && node ./scripts/test-full-stack-flow.mjs",
     "audit:pdf": "node ./scripts/generate-full-audit-pdf.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
