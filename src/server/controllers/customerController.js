@@ -7,7 +7,7 @@ export const customerController = {
       const db = getDatabase();
       const businessId = req.businessId;
 
-      const customers = db.prepare(`
+      const customers = await db.prepare(`
         SELECT id, business_id, first_name, last_name, full_name, email, phone, customer_status, customer_type, source, total_orders, total_spent, contacts, addresses, social_accounts, tags, notes, created_at, updated_at
         FROM customers
         WHERE business_id = ?
@@ -35,7 +35,7 @@ export const customerController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const customer = db.prepare(`
+      const customer = await db.prepare(`
         SELECT * FROM customers WHERE id = ? AND business_id = ?
       `).get(id, businessId);
 
@@ -44,7 +44,7 @@ export const customerController = {
       }
 
       // Fetch customer orders
-      const orders = db.prepare(`
+      const orders = await db.prepare(`
         SELECT id, status, total, created_at FROM orders 
         WHERE business_id = ? AND (customer_id = ? OR customer_email = ? OR customer_phone = ?)
         ORDER BY created_at DESC
@@ -76,7 +76,7 @@ export const customerController = {
       }
 
       const db = getDatabase();
-      const customer = db.prepare('SELECT * FROM customers WHERE id = ? AND business_id = ?').get(id, businessId);
+      const customer = await db.prepare('SELECT * FROM customers WHERE id = ? AND business_id = ?').get(id, businessId);
 
       if (!customer) {
         return errorResponse(res, 'Customer not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -92,7 +92,7 @@ export const customerController = {
 
       const updatedNotes = [newNote, ...existingNotes];
 
-      db.prepare(`
+      await db.prepare(`
         UPDATE customers SET notes = ?, updated_at = ? WHERE id = ? AND business_id = ?
       `).run(JSON.stringify(updatedNotes), new Date().toISOString(), id, businessId);
 

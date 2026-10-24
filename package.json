@@ -20,7 +20,10 @@
     "test:admin": "node ./scripts/test-admin-login-flow.mjs",
     "test:server": "node ./scripts/test-backend-foundation.mjs",
     "test:e2e": "node ./scripts/test-full-stack-flow.mjs",
-    "test:all": "node ./scripts/test-production-security.mjs && node ./scripts/test-auth-end-to-end.mjs && node ./scripts/test-admin-login-flow.mjs && node ./scripts/test-messenger-integration.mjs && node ./scripts/run-production-tests.mjs && node ./scripts/test-meta-integration.mjs && node ./scripts/test-whatsapp-production.mjs && node ./scripts/test-backend-foundation.mjs && node ./scripts/test-full-stack-flow.mjs",
+    "test:postgres": "node ./scripts/test-postgres-migration.mjs",
+    "test:all": "node ./scripts/test-production-security.mjs && node ./scripts/test-auth-end-to-end.mjs && node ./scripts/test-admin-login-flow.mjs && node ./scripts/test-messenger-integration.mjs && node ./scripts/test-postgres-migration.mjs && node ./scripts/run-production-tests.mjs && node ./scripts/test-meta-integration.mjs && node ./scripts/test-whatsapp-production.mjs && node ./scripts/test-backend-foundation.mjs && node ./scripts/test-full-stack-flow.mjs",
+    "db:export": "node ./scripts/export-live-sqlite.mjs",
+    "db:migrate": "node ./scripts/migrate-sqlite-to-postgres.mjs",
     "audit:pdf": "node ./scripts/generate-full-audit-pdf.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
@@ -37,6 +40,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^1.48.0",
     "multer": "^2.4.0",
+    "pg": "^8.23.1",
     "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

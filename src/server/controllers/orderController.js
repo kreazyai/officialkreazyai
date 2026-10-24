@@ -9,35 +9,37 @@ export const orderController = {
       const db = getDatabase();
       const businessId = req.businessId;
 
-      const orders = db.prepare(`
+      const orders = await db.prepare(`
         SELECT id, business_id, customer_id, customer_name, customer_email, customer_phone, status, channel, subtotal, discount, total, shipping_address, created_at, updated_at
         FROM orders
         WHERE business_id = ?
         ORDER BY created_at DESC
       `).all(businessId);
 
-      const getItems = db.prepare(`
-        SELECT id, product_id, product_name, product_sku, quantity, unit_price, total_price
-        FROM order_items
-        WHERE order_id = ?
-      `);
+      const parsed = await Promise.all((orders || []).map(async o => {
+        const items = (await db.prepare(`
+          SELECT id, product_id, product_name, product_sku, quantity, unit_price, total_price
+          FROM order_items
+          WHERE order_id = ?
+        `).all(o.id)) || [];
 
-      const parsed = orders.map(o => ({
-        ...o,
-        customer: {
-          name: o.customer_name || 'Customer',
-          email: o.customer_email || '',
-          phone: o.customer_phone || '',
-          handle: o.customer_phone || o.customer_email || '+15550000000',
-          channel: o.channel || 'whatsapp'
-        },
-        email: o.customer_email,
-        phone: o.customer_phone,
-        date: o.created_at,
-        createdAt: o.created_at,
-        paymentMethod: 'COD / Direct Chat',
-        shippingAddress: JSON.parse(o.shipping_address || '{}'),
-        items: getItems.all(o.id)
+        return {
+          ...o,
+          customer: {
+            name: o.customer_name || 'Customer',
+            email: o.customer_email || '',
+            phone: o.customer_phone || '',
+            handle: o.customer_phone || o.customer_email || '+15550000000',
+            channel: o.channel || 'whatsapp'
+          },
+          email: o.customer_email,
+          phone: o.customer_phone,
+          date: o.created_at,
+          createdAt: o.created_at,
+          paymentMethod: 'COD / Direct Chat',
+          shippingAddress: JSON.parse(o.shipping_address || '{}'),
+          items
+        };
       }));
 
       return successResponse(res, parsed);
@@ -52,7 +54,7 @@ export const orderController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const order = db.prepare(`
+      const order = await db.prepare(`
         SELECT * FROM orders WHERE id = ? AND business_id = ?
       `).get(id, businessId);
 
@@ -60,7 +62,7 @@ export const orderController = {
         return errorResponse(res, 'Order not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(id);
+      const items = (await db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(id)) || [];
 
       return successResponse(res, {
         ...order,
@@ -115,7 +117,7 @@ export const orderController = {
       const verifiedItems = [];
 
       // Atomic Transaction: Stock check & deduction
-      const orderTransaction = db.transaction(() => {
+      const orderTransaction = db.transaction(async () => {
         for (const item of items) {
           const qty = parseInt(item.quantity || 1, 10);
           if (qty <= 0) {
@@ -124,11 +126,11 @@ export const orderController = {
 
           let product = null;
           if (item.productId) {
-            product = db.prepare('SELECT * FROM products WHERE id = ? AND business_id = ?').get(item.productId, businessId);
+            product = await db.prepare('SELECT * FROM products WHERE id = ? AND business_id = ?').get(item.productId, businessId);
           } else if (item.sku) {
-            product = db.prepare('SELECT * FROM products WHERE sku = ? AND business_id = ?').get(item.sku, businessId);
+            product = await db.prepare('SELECT * FROM products WHERE sku = ? AND business_id = ?').get(item.sku, businessId);
           } else if (item.name) {
-            product = db.prepare('SELECT * FROM products WHERE name LIKE ? AND business_id = ?').get(`%${item.name}%`, businessId);
+            product = await db.prepare('SELECT * FROM products WHERE name LIKE ? AND business_id = ?').get(`%${item.name}%`, businessId);
           }
 
           const unitPrice = product ? product.price : parseFloat(item.price || item.unitPrice || 0);
@@ -143,7 +145,7 @@ export const orderController = {
             // Deduct stock
             const newStock = product.stock - qty;
             const newStatus = newStock > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK';
-            db.prepare('UPDATE products SET stock = ?, status = ?, updated_at = ? WHERE id = ?').run(newStock, newStatus, now, product.id);
+            await db.prepare('UPDATE products SET stock = ?, status = ?, updated_at = ? WHERE id = ?').run(newStock, newStatus, now, product.id);
           }
 
           verifiedItems.push({
@@ -161,7 +163,7 @@ export const orderController = {
         const finalTotal = Math.max(0, subtotal - safeDiscount);
 
         // Insert Order
-        db.prepare(`
+        await db.prepare(`
           INSERT INTO orders (id, business_id, customer_name, customer_email, customer_phone, status, channel, subtotal, discount, total, shipping_address, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
@@ -187,17 +189,17 @@ export const orderController = {
         `);
 
         for (const vi of verifiedItems) {
-          insertItem.run(vi.id, orderId, vi.productId, vi.name, vi.sku, vi.quantity, vi.unitPrice, vi.totalPrice);
+          await insertItem.run(vi.id, orderId, vi.productId, vi.name, vi.sku, vi.quantity, vi.unitPrice, vi.totalPrice);
         }
 
         // Update customer statistics if matching customer exists or auto-upsert customer
-        const customer = db.prepare(`
+        const customer = await db.prepare(`
           SELECT id, total_spent, total_orders FROM customers 
           WHERE business_id = ? AND (email = ? OR phone = ?)
         `).get(businessId, customerEmail.trim(), customerPhone.trim());
 
         if (customer) {
-          db.prepare(`
+          await db.prepare(`
             UPDATE customers 
             SET total_spent = total_spent + ?, total_orders = total_orders + 1, updated_at = ?
             WHERE id = ?
@@ -205,7 +207,7 @@ export const orderController = {
         } else if (customerName) {
           // Auto create customer in CRM
           const newCustId = `c-${Date.now()}`;
-          db.prepare(`
+          await db.prepare(`
             INSERT INTO customers (id, business_id, full_name, email, phone, source, total_orders, total_spent, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
           `).run(newCustId, businessId, customerName.trim(), customerEmail.trim(), customerPhone.trim(), channel, finalTotal, now, now);
@@ -213,16 +215,16 @@ export const orderController = {
       });
 
       try {
-        orderTransaction();
+        await orderTransaction();
       } catch (txnError) {
         return errorResponse(res, txnError.message, API_ERROR_CODES.CONFLICT, HTTP_STATUS.CONFLICT);
       }
 
-      const createdOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+      const createdOrder = await db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
 
       // Attribute confirmed order to any active/recent recovery attempt
       try {
-        const custRecord = db.prepare('SELECT id FROM customers WHERE business_id = ? AND (email = ? OR phone = ?)').get(businessId, customerEmail.trim(), customerPhone.trim());
+        const custRecord = await db.prepare('SELECT id FROM customers WHERE business_id = ? AND (email = ? OR phone = ?)').get(businessId, customerEmail.trim(), customerPhone.trim());
         recoveryAttributionService.attributeOrder({
           tenantId: businessId,
           orderId,
@@ -234,7 +236,7 @@ export const orderController = {
       } catch (attrErr) {
         logger.warn('[ORDER CONTROLLER] Recovery attribution error:', attrErr.message);
       }
-      const itemsCreated = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(orderId);
+      const itemsCreated = await db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(orderId);
 
       logger.info(`Order ${orderId} created for ${customerName} (Total: $${createdOrder.total})`);
 
@@ -268,7 +270,7 @@ export const orderController = {
       }
 
       const db = getDatabase();
-      const order = db.prepare('SELECT * FROM orders WHERE id = ? AND business_id = ?').get(id, businessId);
+      const order = await db.prepare('SELECT * FROM orders WHERE id = ? AND business_id = ?').get(id, businessId);
 
       if (!order) {
         return errorResponse(res, 'Order not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -279,18 +281,18 @@ export const orderController = {
 
       // If cancelling an order, automatically restore product stock
       if (targetStatus === 'CANCELLED' && order.status !== 'CANCELLED') {
-        const items = db.prepare('SELECT product_id, quantity FROM order_items WHERE order_id = ?').all(id);
+        const items = await db.prepare('SELECT product_id, quantity FROM order_items WHERE order_id = ?').all(id);
         for (const it of items) {
           if (it.product_id) {
-            db.prepare("UPDATE products SET stock = stock + ?, status = 'IN_STOCK', updated_at = ? WHERE id = ?").run(it.quantity, now, it.product_id);
+            await db.prepare("UPDATE products SET stock = stock + ?, status = 'IN_STOCK', updated_at = ? WHERE id = ?").run(it.quantity, now, it.product_id);
           }
         }
       }
 
-      db.prepare('UPDATE orders SET status = ?, updated_at = ? WHERE id = ? AND business_id = ?').run(targetStatus, now, id, businessId);
+      await db.prepare('UPDATE orders SET status = ?, updated_at = ? WHERE id = ? AND business_id = ?').run(targetStatus, now, id, businessId);
 
-      const updated = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
-      const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(id);
+      const updated = await db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
+      const items = await db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(id);
 
       return successResponse(res, {
         ...updated,

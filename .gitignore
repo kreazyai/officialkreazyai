@@ -30,8 +30,10 @@ dist-ssr
 
 # Database
 data/
+backups/
 *.db
 *.db-journal
+*.dump
 
 # Python
 __pycache__/

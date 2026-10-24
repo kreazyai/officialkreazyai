@@ -31,7 +31,7 @@ export const authController = {
 
       const db = getDatabase();
       const normalizedEmail = email.trim().toLowerCase();
-      const existingUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
+      const existingUser = await db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
 
       if (existingUser) {
         return errorResponse(
@@ -48,77 +48,146 @@ export const authController = {
       const passwordHash = await bcrypt.hash(password, 10);
       const userId = `usr-${Date.now()}`;
 
-      // Transactional creation of Business, User, and default AI Config
-      const registerTransaction = db.transaction(() => {
-        db.prepare(`
-          INSERT INTO businesses (id, name, slug, owner_name, owner_email, plan, status, channels_connected, total_revenue, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          businessId,
-          storeName.trim(),
-          slug,
-          resolvedOwnerName,
-          normalizedEmail,
-          plan,
-          'ACTIVE',
-          JSON.stringify([]),
-          0.0,
-          now,
-          now
-        );
+      // Transactional creation of Business, User, default AI Config, and Trial Wallet
+      if (db.isPostgres) {
+        await db.transaction(async (trx) => {
+          await trx.prepare(`
+            INSERT INTO businesses (id, name, slug, owner_name, owner_email, plan, status, channels_connected, total_revenue, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            businessId,
+            storeName.trim(),
+            slug,
+            resolvedOwnerName,
+            normalizedEmail,
+            plan,
+            'ACTIVE',
+            JSON.stringify([]),
+            0.0,
+            now,
+            now
+          );
 
-        db.prepare(`
-          INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          userId,
-          businessId,
-          normalizedEmail,
-          passwordHash,
-          resolvedOwnerName,
-          'OWNER',
-          0,
-          now,
-          now
-        );
+          await trx.prepare(`
+            INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            userId,
+            businessId,
+            normalizedEmail,
+            passwordHash,
+            resolvedOwnerName,
+            'OWNER',
+            0,
+            now,
+            now
+          );
 
-        db.prepare(`
-          INSERT INTO ai_configs (id, business_id, assistant_name, brand_voice, return_days, return_policy, shipping_info, max_discount, auto_reply_enabled, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          `aiconfig-${Date.now()}`,
-          businessId,
-          `${storeName.trim()} AI Assistant`,
-          'Professional, courteous, helpful',
-          '14',
-          'Returns accepted within 14 days of receipt on unused items with tags attached.',
-          'Standard shipping 2-4 business days. Free delivery over $75.',
-          10.0,
-          1,
-          now,
-          now
-        );
+          await trx.prepare(`
+            INSERT INTO ai_configs (id, business_id, assistant_name, brand_voice, return_days, return_policy, shipping_info, max_discount, auto_reply_enabled, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            `aiconfig-${Date.now()}`,
+            businessId,
+            `${storeName.trim()} AI Assistant`,
+            'Professional, courteous, helpful',
+            '14',
+            'Returns accepted within 14 days of receipt on unused items with tags attached.',
+            'Standard shipping 2-4 business days. Free delivery over $75.',
+            10.0,
+            1,
+            now,
+            now
+          );
 
-        db.prepare(`
-          INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          `audit-${Date.now()}`,
-          businessId,
-          normalizedEmail,
-          'OWNER',
-          'MERCHANT_REGISTERED',
-          'business',
-          businessId,
-          JSON.stringify({ storeName, plan }),
-          now
-        );
+          await trx.prepare(`
+            INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            `audit-${Date.now()}`,
+            businessId,
+            normalizedEmail,
+            'OWNER',
+            'MERCHANT_REGISTERED',
+            'business',
+            businessId,
+            JSON.stringify({ storeName, plan }),
+            now
+          );
 
-        // Initialize 7-Day Free Trial AI Credit Wallet (125 credits, 5 credits/reply)
-        ensureCreditWallet(db, businessId, now);
-      });
+          await ensureCreditWallet(trx, businessId, now);
+        });
+      } else {
+        const registerTransaction = db.transaction(() => {
+          db.prepare(`
+            INSERT INTO businesses (id, name, slug, owner_name, owner_email, plan, status, channels_connected, total_revenue, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            businessId,
+            storeName.trim(),
+            slug,
+            resolvedOwnerName,
+            normalizedEmail,
+            plan,
+            'ACTIVE',
+            JSON.stringify([]),
+            0.0,
+            now,
+            now
+          );
 
-      registerTransaction();
+          db.prepare(`
+            INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            userId,
+            businessId,
+            normalizedEmail,
+            passwordHash,
+            resolvedOwnerName,
+            'OWNER',
+            0,
+            now,
+            now
+          );
+
+          db.prepare(`
+            INSERT INTO ai_configs (id, business_id, assistant_name, brand_voice, return_days, return_policy, shipping_info, max_discount, auto_reply_enabled, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            `aiconfig-${Date.now()}`,
+            businessId,
+            `${storeName.trim()} AI Assistant`,
+            'Professional, courteous, helpful',
+            '14',
+            'Returns accepted within 14 days of receipt on unused items with tags attached.',
+            'Standard shipping 2-4 business days. Free delivery over $75.',
+            10.0,
+            1,
+            now,
+            now
+          );
+
+          db.prepare(`
+            INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            `audit-${Date.now()}`,
+            businessId,
+            normalizedEmail,
+            'OWNER',
+            'MERCHANT_REGISTERED',
+            'business',
+            businessId,
+            JSON.stringify({ storeName, plan }),
+            now
+          );
+
+          ensureCreditWallet(db, businessId, now);
+        });
+
+        registerTransaction();
+      }
 
       const token = jwt.sign(
         { userId, businessId, role: 'OWNER', email: normalizedEmail },
@@ -158,7 +227,7 @@ export const authController = {
       const normalizedEmail = email.trim().toLowerCase();
 
       // Find user
-      const user = db.prepare(`
+      const user = await db.prepare(`
         SELECT u.id, u.business_id, u.email, u.password_hash, u.name, u.role, u.is_super_admin, b.name as store_name
         FROM users u
         LEFT JOIN businesses b ON u.business_id = b.id
@@ -408,7 +477,7 @@ export const authController = {
 
       const db = getDatabase();
 
-      const user = db.prepare(`
+      const user = await db.prepare(`
         SELECT id, business_id, email, password_hash, name, role, is_super_admin
         FROM users
         WHERE (LOWER(email) = ? OR LOWER(name) = ?) AND (is_super_admin = 1 OR role = 'SUPER_ADMIN')
@@ -444,7 +513,7 @@ export const authController = {
       };
 
       // Record administrative login audit event
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
@@ -469,7 +538,7 @@ export const authController = {
   async getMe(req, res, next) {
     try {
       const db = getDatabase();
-      const user = db.prepare(`
+      const user = await db.prepare(`
         SELECT u.id, u.business_id, u.email, u.name, u.role, u.is_super_admin, b.name as store_name, b.plan, b.status as business_status
         FROM users u
         LEFT JOIN businesses b ON u.business_id = b.id

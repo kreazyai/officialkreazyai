@@ -247,11 +247,13 @@ export function createApp() {
   });
 
   // 6. Health Check Endpoints (Phase 1 Requirement)
-  app.get('/api/health', (req, res) => {
+  app.get('/api/health', async (req, res) => {
     let dbStatus = 'HEALTHY';
+    let dbEngine = 'SQLite 3 (WAL Mode)';
     try {
       const db = getDatabase();
-      db.prepare('SELECT 1').get();
+      dbEngine = db.isPostgres ? 'PostgreSQL (Neon Connection Pool)' : 'SQLite 3 (WAL Mode)';
+      await db.prepare('SELECT 1').get();
     } catch {
       dbStatus = 'DEGRADED';
     }
@@ -264,6 +266,7 @@ export function createApp() {
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
       database: dbStatus,
+      databaseEngine: dbEngine,
       nodeVersion: process.version,
       memoryUsage: {
         rss: `${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`,
@@ -272,14 +275,24 @@ export function createApp() {
     });
   });
 
-  app.get('/api/health/db', (req, res) => {
+  app.get('/api/health/db', async (req, res) => {
     try {
       const db = getDatabase();
-      const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+      let tableNames = [];
+      if (db.isPostgres) {
+        const result = await db.query(
+          "SELECT table_name as name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY table_name"
+        );
+        tableNames = result.rows.map(t => t.name);
+      } else {
+        const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
+        tableNames = tables.map(t => t.name);
+      }
       return successResponse(res, {
         status: 'CONNECTED',
-        tablesCount: tables.length,
-        tables: tables.map(t => t.name)
+        databaseEngine: db.isPostgres ? 'PostgreSQL' : 'SQLite 3',
+        tablesCount: tableNames.length,
+        tables: tableNames
       });
     } catch (err) {
       return errorResponse(res, `Database unhealthy: ${err.message}`, 'DB_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);

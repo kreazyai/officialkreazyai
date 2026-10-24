@@ -125,7 +125,7 @@ export const dashboardMetricsController = {
       }
 
       // Retrieve configured timezone and currency from business profile
-      const profile = db.prepare(`
+      const profile = await db.prepare(`
         SELECT base_currency, timezone 
         FROM business_profiles 
         WHERE business_id = ?
@@ -151,9 +151,9 @@ export const dashboardMetricsController = {
           AND CAST(strftime('%s', created_at) AS INTEGER) >= ?
       `);
 
-      const salesToday = salesQuery.get(tenantId, bounds.todayEpoch);
-      const salesMonth = salesQuery.get(tenantId, bounds.monthEpoch);
-      const salesYear = salesQuery.get(tenantId, bounds.yearEpoch);
+      const salesToday = await salesQuery.get(tenantId, bounds.todayEpoch);
+      const salesMonth = await salesQuery.get(tenantId, bounds.monthEpoch);
+      const salesYear = await salesQuery.get(tenantId, bounds.yearEpoch);
 
       // ─────────────────────────────────────────────────────────────────
       // 2. AI-GENERATED MESSAGES CALCULATION
@@ -174,9 +174,9 @@ export const dashboardMetricsController = {
           AND CAST(strftime('%s', m.created_at) AS INTEGER) >= ?
       `);
 
-      const aiToday = aiQuery.get(tenantId, tenantId, bounds.todayEpoch);
-      const aiMonth = aiQuery.get(tenantId, tenantId, bounds.monthEpoch);
-      const aiYear = aiQuery.get(tenantId, tenantId, bounds.yearEpoch);
+      const aiToday = await aiQuery.get(tenantId, tenantId, bounds.todayEpoch);
+      const aiMonth = await aiQuery.get(tenantId, tenantId, bounds.monthEpoch);
+      const aiYear = await aiQuery.get(tenantId, tenantId, bounds.yearEpoch);
 
       const responsePayload = {
         tenantId,
@@ -229,7 +229,7 @@ export const dashboardMetricsController = {
         return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
       }
 
-      const profile = db.prepare(`
+      const profile = await db.prepare(`
         SELECT timezone FROM business_profiles WHERE business_id = ?
       `).get(tenantId);
 
@@ -249,7 +249,7 @@ export const dashboardMetricsController = {
 
       for (const [periodKey, startEpoch] of Object.entries(periodEpochs)) {
         // Overall unique customer total (deduplicates verified linked identities, channel-scoped for unlinked)
-        const totalUnique = db.prepare(`
+        const totalUnique = (await db.prepare(`
           SELECT COUNT(DISTINCT COALESCE(NULLIF(c.customer_id, ''), c.channel || ':' || COALESCE(c.customer_name, c.id))) as count
           FROM conversations c
           WHERE c.business_id = ?
@@ -262,10 +262,10 @@ export const dashboardMetricsController = {
                   AND CAST(strftime('%s', m.created_at) AS INTEGER) >= ?
               )
             )
-        `).get(tenantId, startEpoch, startEpoch)?.count || 0;
+        `).get(tenantId, startEpoch, startEpoch))?.count || 0;
 
         // WhatsApp unique customers
-        const whatsappUnique = db.prepare(`
+        const whatsappUnique = (await db.prepare(`
           SELECT COUNT(DISTINCT COALESCE(NULLIF(c.customer_id, ''), c.customer_name)) as count
           FROM conversations c
           WHERE c.business_id = ?
@@ -279,10 +279,10 @@ export const dashboardMetricsController = {
                   AND CAST(strftime('%s', m.created_at) AS INTEGER) >= ?
               )
             )
-        `).get(tenantId, startEpoch, startEpoch)?.count || 0;
+        `).get(tenantId, startEpoch, startEpoch))?.count || 0;
 
         // Facebook Messenger unique customers
-        const facebookUnique = db.prepare(`
+        const facebookUnique = (await db.prepare(`
           SELECT COUNT(DISTINCT COALESCE(NULLIF(c.customer_id, ''), c.customer_name)) as count
           FROM conversations c
           WHERE c.business_id = ?
@@ -296,10 +296,10 @@ export const dashboardMetricsController = {
                   AND CAST(strftime('%s', m.created_at) AS INTEGER) >= ?
               )
             )
-        `).get(tenantId, startEpoch, startEpoch)?.count || 0;
+        `).get(tenantId, startEpoch, startEpoch))?.count || 0;
 
         // Instagram unique customers
-        const instagramUnique = db.prepare(`
+        const instagramUnique = (await db.prepare(`
           SELECT COUNT(DISTINCT COALESCE(NULLIF(c.customer_id, ''), c.customer_name)) as count
           FROM conversations c
           WHERE c.business_id = ?
@@ -313,7 +313,7 @@ export const dashboardMetricsController = {
                   AND CAST(strftime('%s', m.created_at) AS INTEGER) >= ?
               )
             )
-        `).get(tenantId, startEpoch, startEpoch)?.count || 0;
+        `).get(tenantId, startEpoch, startEpoch))?.count || 0;
 
         customersData[periodKey] = {
           total: totalUnique,
@@ -326,7 +326,7 @@ export const dashboardMetricsController = {
       // ─────────────────────────────────────────────────────────────
       // SECTION 2: NEED YOUR HELP (Active outstanding human attention)
       // ─────────────────────────────────────────────────────────────
-      const waitingRows = db.prepare(`
+      const waitingRows = await db.prepare(`
         SELECT c.id, c.customer_name, c.channel, c.status, c.updated_at,
                (SELECT m.text FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC, m.rowid DESC LIMIT 1) as last_msg_text,
                (SELECT m.text FROM messages m WHERE m.conversation_id = c.id AND (m.sender = 'customer' OR m.is_ai = 0 OR m.direction = 'INBOUND') ORDER BY m.created_at DESC, m.rowid DESC LIMIT 1) as last_customer_msg,
@@ -402,7 +402,7 @@ export const dashboardMetricsController = {
         return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
       }
 
-      const profile = db.prepare(`
+      const profile = await db.prepare(`
         SELECT base_currency, timezone 
         FROM business_profiles 
         WHERE business_id = ?
@@ -428,7 +428,7 @@ export const dashboardMetricsController = {
         // Qualifying sales: UPPER(status) NOT IN ('CANCELLED', 'REFUNDED')
         // Strict tenant isolation: business_id = ?
         // ─────────────────────────────────────────────────────────────
-        const channelRows = db.prepare(`
+        const channelRows = await db.prepare(`
           SELECT
             CASE
               WHEN UPPER(COALESCE(channel, '')) = 'WHATSAPP' THEN 'whatsapp'
@@ -466,7 +466,7 @@ export const dashboardMetricsController = {
         // Qualifying sales: UPPER(o.status) NOT IN ('CANCELLED', 'REFUNDED')
         // Preserves historical snapshot: COALESCE(NULLIF(oi.product_name, ''), p.name, 'Product')
         // ─────────────────────────────────────────────────────────────
-        const topProductsRows = db.prepare(`
+        const topProductsRows = await db.prepare(`
           SELECT
             COALESCE(NULLIF(oi.product_name, ''), p.name, 'Product') as name,
             COALESCE(SUM(oi.quantity), 0) as units_sold

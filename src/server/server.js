@@ -12,7 +12,12 @@ async function bootstrap() {
     }
 
     // 1. Initialize Relational Database
-    getDatabase();
+    const db = getDatabase();
+    if (db.isPostgres) {
+      const { runPostgresMigrations, ensurePostgresSuperAdmin } = await import('./config/database.js');
+      await runPostgresMigrations(db);
+      await ensurePostgresSuperAdmin(db);
+    }
 
     // 2. Instantiate Express App
     const app = createApp();

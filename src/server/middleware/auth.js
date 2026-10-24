@@ -29,7 +29,7 @@ export function getTenantId(req) {
   return null;
 }
 
-export function authenticate(req, res, next) {
+export async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -47,7 +47,7 @@ export function authenticate(req, res, next) {
     const decoded = jwt.verify(token, config.auth.jwtSecret);
     const db = getDatabase();
 
-    const user = db.prepare(`
+    const user = await db.prepare(`
       SELECT id, business_id, email, name, role, is_super_admin 
       FROM users 
       WHERE id = ?
@@ -105,7 +105,7 @@ export function authenticate(req, res, next) {
 /**
  * Optional authentication: populates req.user if valid token provided, but doesn't reject if not
  */
-export function optionalAuth(req, res, next) {
+export async function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return next();
@@ -115,7 +115,7 @@ export function optionalAuth(req, res, next) {
   try {
     const decoded = jwt.verify(token, config.auth.jwtSecret);
     const db = getDatabase();
-    const user = db.prepare('SELECT id, business_id, email, name, role, is_super_admin FROM users WHERE id = ?').get(decoded.userId);
+    const user = await db.prepare('SELECT id, business_id, email, name, role, is_super_admin FROM users WHERE id = ?').get(decoded.userId);
     if (user) {
       req.user = user;
       const requestedWorkspace = req.headers['x-workspace-id'] || req.headers['x-tenant-id'];

@@ -229,6 +229,10 @@ adminRouter.get('/leads', adminController.getAllLeads);
 adminRouter.patch('/leads/:id/status', adminController.updateLeadStatus);
 adminRouter.delete('/leads/:id', adminController.deleteLead);
 
+// Secure Super-Admin Database Backup & Extraction (SQLite-to-PostgreSQL Migration)
+adminRouter.get('/database/export', adminController.exportDatabase);
+adminRouter.get('/database/backup', adminController.exportDatabase);
+
 apiRouter.use('/admin', adminRouter);
 
 // =====================================================================

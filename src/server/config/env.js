@@ -42,7 +42,8 @@ export const config = {
     .map(o => o.trim()),
 
   database: {
-    url: process.env.DATABASE_URL || './data/kreazy.db'
+    url: process.env.DATABASE_URL || './data/kreazy.db',
+    postgresUrl: process.env.POSTGRES_URL || (process.env.DATABASE_URL?.startsWith('postgres') ? process.env.DATABASE_URL : '')
   },
 
   auth: {

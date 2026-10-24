@@ -55,10 +55,50 @@ export function resolveDbPath(rawPath) {
   return path.resolve(__dirname, '../../../', clean);
 }
 
+import { 
+  getPostgresPool, 
+  closePostgresPool, 
+  PostgresDatabaseAdapter, 
+  runPostgresMigrations, 
+  ensurePostgresSuperAdmin, 
+  POSTGRES_TABLES_ORDERED, 
+  POSTGRES_SCHEMA_SQL, 
+  translateSqlForPostgres, 
+  normalizeParams 
+} from '../db/postgres.js';
+
+export { 
+  getPostgresPool, 
+  closePostgresPool, 
+  PostgresDatabaseAdapter, 
+  runPostgresMigrations, 
+  ensurePostgresSuperAdmin, 
+  POSTGRES_TABLES_ORDERED, 
+  POSTGRES_SCHEMA_SQL, 
+  translateSqlForPostgres 
+};
+
 export function getDatabase(dbPath = null) {
   if (dbInstance) return dbInstance;
 
   const targetPath = dbPath || config.database.url;
+  const postgresUrl = (process.env.POSTGRES_URL || config.database?.postgresUrl || '').trim();
+
+  // If POSTGRES_URL is configured and caller did not explicitly request in-memory SQLite (e.g. fast unit tests)
+  if (dbPath !== ':memory:' && postgresUrl) {
+    logger.info('Initializing PostgreSQL connection adapter via POSTGRES_URL...');
+    const pool = getPostgresPool(postgresUrl);
+    const adapter = new PostgresDatabaseAdapter(pool);
+    runPostgresMigrations(adapter).catch(err => {
+      logger.error('PostgreSQL background migration error:', err.message);
+    });
+    ensurePostgresSuperAdmin(adapter).catch(err => {
+      logger.warn('PostgreSQL super admin check warning:', err.message);
+    });
+    dbInstance = adapter;
+    return dbInstance;
+  }
+
   const resolvedDbPath = resolveDbPath(targetPath);
 
   if (resolvedDbPath !== ':memory:') {
@@ -75,6 +115,62 @@ export function getDatabase(dbPath = null) {
   db.pragma('foreign_keys = ON');
   db.pragma('journal_mode = WAL');
   db.pragma('synchronous = NORMAL');
+
+  // Unified Query Helper Methods
+  db.isPostgres = false;
+  db.query = async (sql, params = []) => {
+    const norm = normalizeParams(params);
+    const rows = db.prepare(sql).all(...norm);
+    return { rows, rowCount: rows.length };
+  };
+  db.queryOne = async (sql, params = []) => {
+    const norm = normalizeParams(params);
+    const row = db.prepare(sql).get(...norm);
+    return row !== undefined ? row : null;
+  };
+  db.queryAll = async (sql, params = []) => {
+    const norm = normalizeParams(params);
+    return db.prepare(sql).all(...norm);
+  };
+  db.execute = async (sql, params = []) => {
+    const norm = normalizeParams(params);
+    const res = db.prepare(sql).run(...norm);
+    return { changes: res.changes, rowCount: res.changes };
+  };
+
+  db.transaction = (fn) => {
+    const syncRunner = (...args) => {
+      db.exec('BEGIN');
+      try {
+        const res = fn(...args);
+        if (res && typeof res.then === 'function') {
+          return res.then(
+            (val) => {
+              db.exec('COMMIT');
+              return val;
+            },
+            (err) => {
+              try { db.exec('ROLLBACK'); } catch {}
+              throw err;
+            }
+          );
+        }
+        db.exec('COMMIT');
+        return res;
+      } catch (err) {
+        try { db.exec('ROLLBACK'); } catch {}
+        throw err;
+      }
+    };
+
+    syncRunner.then = (onFulfilled, onRejected) => {
+      return Promise.resolve().then(() => syncRunner()).then(onFulfilled, onRejected);
+    };
+    syncRunner.catch = (onRejected) => {
+      return syncRunner.then(null, onRejected);
+    };
+    return syncRunner;
+  };
 
   runMigrations(db);
   seedInitialData(db);

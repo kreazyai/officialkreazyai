@@ -7,14 +7,14 @@ export const productController = {
       const db = getDatabase();
       const businessId = req.businessId;
 
-      const products = db.prepare(`
+      const products = await db.prepare(`
         SELECT id, business_id, sku, name, category, price, stock, status, variants, image_url, ai_knowledge, created_at, updated_at
         FROM products
         WHERE business_id = ?
         ORDER BY created_at DESC
       `).all(businessId);
 
-      const parsed = products.map(p => ({
+      const parsed = (products || []).map(p => ({
         ...p,
         variants: JSON.parse(p.variants || '[]')
       }));
@@ -31,7 +31,7 @@ export const productController = {
       const { id } = req.params;
       const businessId = req.businessId;
 
-      const product = db.prepare(`
+      const product = await db.prepare(`
         SELECT id, business_id, sku, name, category, price, stock, status, variants, image_url, ai_knowledge, created_at, updated_at
         FROM products
         WHERE id = ? AND business_id = ?
@@ -71,7 +71,7 @@ export const productController = {
       const db = getDatabase();
 
       // Check SKU collision within this tenant
-      const existingSku = db.prepare('SELECT id FROM products WHERE business_id = ? AND sku = ?').get(businessId, finalSku);
+      const existingSku = await db.prepare('SELECT id FROM products WHERE business_id = ? AND sku = ?').get(businessId, finalSku);
       if (existingSku) {
         return errorResponse(res, `A product with SKU "${finalSku}" already exists in your catalog.`, API_ERROR_CODES.CONFLICT, HTTP_STATUS.CONFLICT);
       }
@@ -80,7 +80,7 @@ export const productController = {
       const now = new Date().toISOString();
       const status = safeStock > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK';
 
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO products (id, business_id, sku, name, category, price, stock, status, variants, image_url, ai_knowledge, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
@@ -99,11 +99,11 @@ export const productController = {
         now
       );
 
-      const created = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+      const created = await db.prepare('SELECT * FROM products WHERE id = ?').get(id);
 
       return successResponse(res, {
         ...created,
-        variants: JSON.parse(created.variants || '[]')
+        variants: JSON.parse(created?.variants || '[]')
       }, HTTP_STATUS.CREATED);
     } catch (err) {
       next(err);
@@ -116,7 +116,7 @@ export const productController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const existing = db.prepare('SELECT * FROM products WHERE id = ? AND business_id = ?').get(id, businessId);
+      const existing = await db.prepare('SELECT * FROM products WHERE id = ? AND business_id = ?').get(id, businessId);
       if (!existing) {
         return errorResponse(res, 'Product not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
@@ -136,13 +136,13 @@ export const productController = {
 
       // Check SKU uniqueness if changed
       if (finalSku !== existing.sku) {
-        const skuCollision = db.prepare('SELECT id FROM products WHERE business_id = ? AND sku = ? AND id != ?').get(businessId, finalSku, id);
+        const skuCollision = await db.prepare('SELECT id FROM products WHERE business_id = ? AND sku = ? AND id != ?').get(businessId, finalSku, id);
         if (skuCollision) {
           return errorResponse(res, `Another product already uses SKU "${finalSku}".`, API_ERROR_CODES.CONFLICT, HTTP_STATUS.CONFLICT);
         }
       }
 
-      db.prepare(`
+      await db.prepare(`
         UPDATE products 
         SET name = ?, price = ?, stock = ?, sku = ?, category = ?, variants = ?, ai_knowledge = ?, image_url = ?, status = ?, updated_at = ?
         WHERE id = ? AND business_id = ?
@@ -161,11 +161,11 @@ export const productController = {
         businessId
       );
 
-      const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+      const updated = await db.prepare('SELECT * FROM products WHERE id = ?').get(id);
 
       return successResponse(res, {
         ...updated,
-        variants: JSON.parse(updated.variants || '[]')
+        variants: JSON.parse(updated?.variants || '[]')
       });
     } catch (err) {
       next(err);
@@ -178,12 +178,12 @@ export const productController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const existing = db.prepare('SELECT id FROM products WHERE id = ? AND business_id = ?').get(id, businessId);
+      const existing = await db.prepare('SELECT id FROM products WHERE id = ? AND business_id = ?').get(id, businessId);
       if (!existing) {
         return errorResponse(res, 'Product not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      db.prepare('DELETE FROM products WHERE id = ? AND business_id = ?').run(id, businessId);
+      await db.prepare('DELETE FROM products WHERE id = ? AND business_id = ?').run(id, businessId);
       return successResponse(res, { deleted: true, id });
     } catch (err) {
       next(err);

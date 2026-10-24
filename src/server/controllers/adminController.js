@@ -1,4 +1,5 @@
-import { getDatabase } from '../config/database.js';
+import fs from 'fs';
+import { getDatabase, resolveDbPath, POSTGRES_TABLES_ORDERED } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { config } from '../config/env.js';
 
@@ -755,6 +756,88 @@ export const adminController = {
       `).run(`audit-${Date.now()}`, id, req.user?.email || 'admin@kreazyai.com', id, JSON.stringify({ previousStatus: biz.status, nextStatus }));
 
       return successResponse(res, { id, status: nextStatus, updated: true });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Secure Super-Admin Only Database Backup & Export
+   * Exports all 42 tables and metadata in topological dependency order.
+   * Can export as structured JSON or download raw SQLite file if format=binary.
+   */
+  async exportDatabase(req, res, next) {
+    try {
+      if (!req.user || (!req.user.is_super_admin && req.user.role !== 'SUPER_ADMIN')) {
+        return errorResponse(
+          res,
+          'Unauthorized: Database backup requires Super Administrator privileges.',
+          API_ERROR_CODES.FORBIDDEN,
+          HTTP_STATUS.FORBIDDEN
+        );
+      }
+
+      const db = getDatabase();
+      const format = (req.query.format || 'json').toLowerCase();
+
+      // Log database export event in audit_logs
+      try {
+        const auditSql = `
+          INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, details, created_at)
+          VALUES (?, NULL, ?, 'SUPER_ADMIN', 'DATABASE_BACKUP_EXPORTED', 'DATABASE', ?, datetime('now'))
+        `;
+        await db.prepare(auditSql).run(
+          `audit-export-${Date.now()}`,
+          req.user.email,
+          JSON.stringify({ format, ip: req.ip, userAgent: req.headers['user-agent'] })
+        );
+      } catch {
+        // Non-blocking audit failure
+      }
+
+      // If binary format requested and SQLite file exists on disk
+      if (format === 'binary' && !db.isPostgres) {
+        const dbPath = resolveDbPath(config.database?.url);
+        if (dbPath !== ':memory:' && fs.existsSync(dbPath)) {
+          const filename = `kreazy_production_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.db`;
+          res.setHeader('Content-Type', 'application/x-sqlite3');
+          res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+          const fileStream = fs.createReadStream(dbPath);
+          return fileStream.pipe(res);
+        }
+      }
+
+      // Standard JSON export across all tables in topological dependency order
+      const exportData = {
+        metadata: {
+          exportedAt: new Date().toISOString(),
+          databaseEngine: db.isPostgres ? 'PostgreSQL' : 'SQLite 3',
+          exportedBy: req.user.email,
+          schemaVersion: '1.0.0',
+          tableCount: POSTGRES_TABLES_ORDERED.length,
+          tablesCount: POSTGRES_TABLES_ORDERED.length
+        },
+        counts: {},
+        tableCounts: {},
+        tables: {}
+      };
+
+      for (const table of POSTGRES_TABLES_ORDERED) {
+        try {
+          const rows = await db.prepare(`SELECT * FROM ${table}`).all();
+          exportData.tables[table] = rows || [];
+          exportData.tableCounts[table] = (rows || []).length;
+          exportData.counts[table] = (rows || []).length;
+        } catch {
+          exportData.tables[table] = [];
+          exportData.tableCounts[table] = 0;
+          exportData.counts[table] = 0;
+        }
+      }
+
+      exportData.metadata.totalRecords = Object.values(exportData.tableCounts).reduce((a, b) => a + b, 0);
+
+      return successResponse(res, exportData);
     } catch (err) {
       next(err);
     }
