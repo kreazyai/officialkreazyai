@@ -16,7 +16,7 @@ export const metaConnectionService = {
     const db = getDatabase();
     ensureMetaConnections(db, businessId, workspaceId);
 
-    const rows = db.prepare(`
+    const rowsRaw = db.prepare(`
       SELECT * FROM meta_connections 
       WHERE business_id = ? 
       ORDER BY CASE platform 
@@ -26,19 +26,52 @@ export const metaConnectionService = {
         ELSE 4 END
     `).all(businessId);
 
-    return rows.map(r => {
-      // If DB has an active encrypted token, sanitizeConnection handles it directly
+    if (rowsRaw instanceof Promise) {
+      return (async () => {
+        const rows = (await rowsRaw) || [];
+        const results = [];
+        for (const r of rows) {
+          if (r.platform === 'MESSENGER' && (!r.encrypted_access_token || r.status === 'NOT_CONNECTED')) {
+            const pageId = config.messenger?.pageId;
+            const pageAccessToken = config.messenger?.pageAccessToken;
+            const tenantId = config.messenger?.tenantId;
+
+            if (pageId && pageAccessToken && tenantId && businessId === tenantId) {
+              const tenant = await db.prepare('SELECT id FROM businesses WHERE id = ?').get(businessId);
+              if (tenant) {
+                const sanitized = sanitizeConnection(r);
+                results.push({
+                  ...sanitized,
+                  status: 'CONNECTED',
+                  hasToken: true,
+                  has_token: true,
+                  page_id: pageId,
+                  page_name: r.page_name || 'Test Facebook Page',
+                  webhook_status: 'ACTIVE'
+                });
+                continue;
+              }
+            }
+          }
+          results.push(sanitizeConnection(r));
+        }
+        return results;
+      })();
+    }
+
+    const rows = rowsRaw || [];
+    const results = [];
+    for (const r of rows) {
       if (r.platform === 'MESSENGER' && (!r.encrypted_access_token || r.status === 'NOT_CONNECTED')) {
         const pageId = config.messenger?.pageId;
         const pageAccessToken = config.messenger?.pageAccessToken;
         const tenantId = config.messenger?.tenantId;
 
-        // Strict multi-tenant isolation: only reflect CONNECTED if businessId matches configured tenantId and tenant exists
         if (pageId && pageAccessToken && tenantId && businessId === tenantId) {
           const tenant = db.prepare('SELECT id FROM businesses WHERE id = ?').get(businessId);
           if (tenant) {
             const sanitized = sanitizeConnection(r);
-            return {
+            results.push({
               ...sanitized,
               status: 'CONNECTED',
               hasToken: true,
@@ -46,12 +79,14 @@ export const metaConnectionService = {
               page_id: pageId,
               page_name: r.page_name || 'Test Facebook Page',
               webhook_status: 'ACTIVE'
-            };
+            });
+            continue;
           }
         }
       }
-      return sanitizeConnection(r);
-    });
+      results.push(sanitizeConnection(r));
+    }
+    return results;
   },
 
   /**
@@ -61,11 +96,22 @@ export const metaConnectionService = {
     if (!businessId) return null;
     const db = getDatabase();
     const plat = (platform || '').toUpperCase();
-    const row = db.prepare(`
+    const rowRaw = db.prepare(`
       SELECT * FROM meta_connections 
       WHERE business_id = ? AND platform = ?
     `).get(businessId, plat);
 
+    if (rowRaw instanceof Promise) {
+      return (async () => {
+        const row = await rowRaw;
+        return this._resolveTokenConnection(db, businessId, plat, row, true);
+      })();
+    }
+
+    return this._resolveTokenConnection(db, businessId, plat, rowRaw, false);
+  },
+
+  _resolveTokenConnection(db, businessId, plat, row, isAsync) {
     // 1. Preserved encrypted database-based OAuth connection takes precedence
     if (row && row.encrypted_access_token && row.status !== 'NOT_CONNECTED') {
       const token = metaTokenService.decrypt(
@@ -87,9 +133,30 @@ export const metaConnectionService = {
       const tenantId = config.messenger?.tenantId;
 
       if (pageId && pageAccessToken && tenantId) {
-        // Enforce exact tenant matching - strictly prevent cross-tenant token access
         if (businessId === tenantId) {
-          // Validate that the tenant actually exists in the database
+          if (isAsync) {
+            return (async () => {
+              const tenant = await db.prepare('SELECT id FROM businesses WHERE id = ?').get(businessId);
+              if (tenant) {
+                return {
+                  id: row?.id || `conn-messenger-${businessId}`,
+                  business_id: businessId,
+                  workspace_id: row?.workspace_id || businessId,
+                  platform: 'MESSENGER',
+                  status: 'CONNECTED',
+                  page_id: pageId,
+                  page_name: row?.page_name || 'Test Facebook Page',
+                  auto_reply_enabled: row?.auto_reply_enabled !== undefined ? row.auto_reply_enabled : 1,
+                  ai_confidence_threshold: row?.ai_confidence_threshold || 0.75,
+                  decryptedAccessToken: pageAccessToken,
+                  isEnvConfigured: true
+                };
+              }
+              logger.warn(`[MESSENGER TEST INTEGRATION] Tenant "${businessId}" does not exist in businesses table. Access denied.`);
+              return null;
+            })();
+          }
+
           const tenant = db.prepare('SELECT id FROM businesses WHERE id = ?').get(businessId);
           if (tenant) {
             return {
@@ -105,9 +172,9 @@ export const metaConnectionService = {
               decryptedAccessToken: pageAccessToken,
               isEnvConfigured: true
             };
-          } else {
-            logger.warn(`[MESSENGER TEST INTEGRATION] Tenant "${businessId}" does not exist in businesses table. Access denied.`);
           }
+          logger.warn(`[MESSENGER TEST INTEGRATION] Tenant "${businessId}" does not exist in businesses table. Access denied.`);
+          return null;
         }
       }
     }
@@ -125,40 +192,37 @@ export const metaConnectionService = {
 
     const encrypted = metaTokenService.encrypt(tokenData.accessToken);
     const expiresAt = tokenData.expiresIn 
-      ? new Date(Date.now() + tokenData.expiresIn * 1000).toISOString() 
+      ? new Date(Date.now() + tokenData.expiresIn * 1000).toISOString()
       : null;
 
-    const diagnostics = {
-      credentialsValid: true,
-      assetLinked: true,
-      webhookActive: true,
-      messagingReady: true,
-      permissionsGranted: true,
-      lastTested: new Date().toISOString()
-    };
+    let pageId = assetData.pageId || null;
+    let pageName = assetData.pageName || null;
+    let igId = assetData.instagramId || null;
+    let igUsername = assetData.instagramUsername || null;
+    let wabaId = assetData.wabaId || null;
+    let phoneId = assetData.phoneNumberId || null;
+    let displayNumber = assetData.displayNumber || null;
 
-    db.prepare(`
+    const sql = `
       INSERT INTO meta_connections (
         id, business_id, workspace_id, platform, status,
-        meta_user_id, business_account_id, page_id, page_name,
-        instagram_account_id, instagram_username,
-        whatsapp_business_account_id, phone_number_id, display_phone_number,
         encrypted_access_token, token_iv, token_tag, token_expires_at,
-        scopes, webhook_status, last_sync_at, last_error, diagnostics,
-        auto_reply_enabled, ai_confidence_threshold, updated_at
+        page_id, page_name, instagram_account_id, instagram_username,
+        whatsapp_business_account_id, phone_number_id, display_phone_number, webhook_status,
+        updated_at
       ) VALUES (
         ?, ?, ?, ?, 'CONNECTED',
         ?, ?, ?, ?,
-        ?, ?,
-        ?, ?, ?,
         ?, ?, ?, ?,
-        ?, 'ACTIVE', datetime('now'), NULL, ?,
-        1, 0.75, datetime('now')
+        ?, ?, ?, 'ACTIVE',
+        CURRENT_TIMESTAMP
       )
       ON CONFLICT(business_id, platform) DO UPDATE SET
         status = 'CONNECTED',
-        meta_user_id = excluded.meta_user_id,
-        business_account_id = excluded.business_account_id,
+        encrypted_access_token = excluded.encrypted_access_token,
+        token_iv = excluded.token_iv,
+        token_tag = excluded.token_tag,
+        token_expires_at = excluded.token_expires_at,
         page_id = COALESCE(excluded.page_id, meta_connections.page_id),
         page_name = COALESCE(excluded.page_name, meta_connections.page_name),
         instagram_account_id = COALESCE(excluded.instagram_account_id, meta_connections.instagram_account_id),
@@ -166,64 +230,59 @@ export const metaConnectionService = {
         whatsapp_business_account_id = COALESCE(excluded.whatsapp_business_account_id, meta_connections.whatsapp_business_account_id),
         phone_number_id = COALESCE(excluded.phone_number_id, meta_connections.phone_number_id),
         display_phone_number = COALESCE(excluded.display_phone_number, meta_connections.display_phone_number),
-        encrypted_access_token = excluded.encrypted_access_token,
-        token_iv = excluded.token_iv,
-        token_tag = excluded.token_tag,
-        token_expires_at = excluded.token_expires_at,
-        scopes = excluded.scopes,
         webhook_status = 'ACTIVE',
-        last_sync_at = datetime('now'),
-        last_error = NULL,
-        diagnostics = excluded.diagnostics,
-        updated_at = datetime('now')
-    `).run(
-      id,
-      businessId,
-      workspaceId,
-      plat,
-      assetData.userId || null,
-      assetData.businessAccountId || null,
-      assetData.pageId || null,
-      assetData.pageName || null,
-      assetData.instagramAccountId || null,
-      assetData.instagramUsername || null,
-      assetData.wabaId || null,
-      assetData.phoneNumberId || null,
-      assetData.displayPhoneNumber || null,
-      encrypted.encrypted,
-      encrypted.iv,
-      encrypted.tag,
-      expiresAt,
-      JSON.stringify(assetData.scopes || []),
-      JSON.stringify(diagnostics)
+        updated_at = CURRENT_TIMESTAMP
+    `;
+
+    return db.prepare(sql).run(
+      id, businessId, workspaceId, plat,
+      encrypted.encrypted, encrypted.iv, encrypted.tag, expiresAt,
+      pageId, pageName, igId, igUsername,
+      wabaId, phoneId, displayNumber
     );
-
-    // Audit log entry
-    try {
-      db.prepare(`
-        INSERT INTO audit_logs (id, business_id, actor_email, actor_role, action, resource, resource_id, details, created_at)
-        VALUES (?, ?, 'system@kreazyai.com', 'OWNER', 'META_CHANNEL_CONNECTED', 'meta_connections', ?, ?, datetime('now'))
-      `).run(
-        `aud-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        businessId,
-        id,
-        JSON.stringify({ platform: plat, asset: assetData.displayPhoneNumber || assetData.pageName || assetData.instagramUsername })
-      );
-    } catch {
-      // safe
-    }
-
-    logger.info(`Meta ${plat} successfully connected and credentials encrypted for business ${businessId}`);
   },
 
   /**
-   * Disconnect a Meta channel and safely purge credentials
+   * Update configuration settings (e.g. auto reply toggle, confidence threshold)
+   */
+  updateSettings(businessId, platform, settings = {}) {
+    const db = getDatabase();
+    const plat = platform.toUpperCase();
+
+    const allowed = {};
+    if (typeof settings.auto_reply_enabled === 'boolean') {
+      allowed.auto_reply_enabled = settings.auto_reply_enabled ? 1 : 0;
+    }
+    if (typeof settings.ai_confidence_threshold === 'number') {
+      allowed.ai_confidence_threshold = Math.max(0.1, Math.min(1.0, settings.ai_confidence_threshold));
+    }
+    if (typeof settings.catalog_sync_enabled === 'boolean') {
+      allowed.catalog_sync_enabled = settings.catalog_sync_enabled ? 1 : 0;
+    }
+
+    if (Object.keys(allowed).length === 0) {
+      return { changes: 0 };
+    }
+
+    const sets = Object.keys(allowed).map(k => `${k} = ?`).join(', ');
+    const values = Object.values(allowed);
+    values.push(new Date().toISOString(), businessId, plat);
+
+    return db.prepare(`
+      UPDATE meta_connections 
+      SET ${sets}, updated_at = ?
+      WHERE business_id = ? AND platform = ?
+    `).run(...values);
+  },
+
+  /**
+   * Disconnect integration cleanly without deleting audit history
    */
   disconnect(businessId, platform) {
     const db = getDatabase();
     const plat = platform.toUpperCase();
 
-    db.prepare(`
+    return db.prepare(`
       UPDATE meta_connections SET
         status = 'NOT_CONNECTED',
         encrypted_access_token = NULL,
@@ -231,250 +290,80 @@ export const metaConnectionService = {
         token_tag = NULL,
         token_expires_at = NULL,
         webhook_status = 'INACTIVE',
-        last_error = NULL,
-        diagnostics = '{}',
         updated_at = datetime('now')
       WHERE business_id = ? AND platform = ?
     `).run(businessId, plat);
-
-    logger.info(`Meta channel ${plat} disconnected for business ${businessId}`);
-    return { success: true, platform: plat, status: 'NOT_CONNECTED' };
   },
 
   /**
-   * Update auto-reply and confidence settings
+   * Execute real-time health probe against Meta Graph API
    */
-  updateSettings(businessId, platform, settings) {
-    const db = getDatabase();
-    const plat = platform.toUpperCase();
-
-    db.prepare(`
-      UPDATE meta_connections SET
-        auto_reply_enabled = COALESCE(?, auto_reply_enabled),
-        ai_confidence_threshold = COALESCE(?, ai_confidence_threshold),
-        updated_at = datetime('now')
-      WHERE business_id = ? AND platform = ?
-    `).run(
-      settings.autoReplyEnabled !== undefined ? (settings.autoReplyEnabled ? 1 : 0) : null,
-      settings.aiConfidenceThreshold !== undefined ? Number(settings.aiConfidenceThreshold) : null,
-      businessId,
-      plat
-    );
-
-    return this.getConnections(businessId).find(c => c.platform === plat);
-  },
-
-  /**
-   * Run 5-Point Diagnostic Test Suite (Section 12 requirement)
-   */
-  async run5PointTest(businessId, platform) {
-    const plat = platform.toUpperCase();
-    const conn = this.getConnectionWithToken(businessId, plat);
-
-    const diagnostics = {
-      credentialsValid: false,
-      assetLinked: false,
-      webhookActive: false,
-      messagingReady: false,
-      permissionsGranted: false,
-      testedAt: new Date().toISOString(),
-      issues: []
-    };
-
+  async probeHealth(businessId, platform) {
+    const conn = await this.getConnectionWithToken(businessId, platform);
     if (!conn || !conn.decryptedAccessToken) {
-      diagnostics.issues.push({
-        step: 'Credential Validation',
-        code: 'NOT_CONNECTED',
-        message: `${plat} account is not authorized. Click "Connect with Meta" to link your business assets.`
-      });
-      return { success: false, diagnostics };
+      return {
+        healthy: false,
+        status: 'NOT_CONNECTED',
+        error: 'No active connection or credentials found.'
+      };
     }
 
     const token = conn.decryptedAccessToken;
+    const plat = platform.toUpperCase();
 
-    // Step 1: Credential Validation
-    const inspection = await metaTokenService.inspectToken(token);
-    if (inspection.isValid) {
-      diagnostics.credentialsValid = true;
-    } else {
-      diagnostics.issues.push({
-        step: 'Credential Validation',
-        code: 'TOKEN_INVALID',
-        message: `Meta access token is invalid or expired. ${inspection.error || 'Reauthorization required.'}`
-      });
-    }
-
-    // Step 2: Asset Validation
-    if (plat === 'WHATSAPP') {
-      if (conn.phone_number_id && conn.whatsapp_business_account_id) {
-        diagnostics.assetLinked = true;
-      } else {
-        diagnostics.issues.push({
-          step: 'Asset Validation',
-          code: 'WABA_NOT_SELECTED',
-          message: 'WhatsApp Business Phone Number ID is missing. Select a verified business phone number during authorization.'
-        });
-      }
-    } else if (plat === 'INSTAGRAM') {
-      if (conn.instagram_account_id) {
-        diagnostics.assetLinked = true;
-      } else {
-        diagnostics.issues.push({
-          step: 'Asset Validation',
-          code: 'INSTAGRAM_NOT_LINKED',
-          message: 'Instagram Professional account is not linked to your Facebook Page. Switch your Instagram profile to a Professional account in Instagram Settings.'
-        });
-      }
-    } else if (plat === 'MESSENGER') {
-      if (conn.page_id) {
-        diagnostics.assetLinked = true;
-      } else {
-        diagnostics.issues.push({
-          step: 'Asset Validation',
-          code: 'PAGE_NOT_SELECTED',
-          message: 'Facebook Business Page is not selected. Grant KreazyAI access to your Facebook Page.'
-        });
-      }
-    }
-
-    // Step 3: Webhook Validation
-    if (conn.webhook_status === 'ACTIVE' || conn.isEnvConfigured) {
-      diagnostics.webhookActive = true;
-    } else {
-      diagnostics.issues.push({
-        step: 'Webhook Validation',
-        code: 'WEBHOOK_INACTIVE',
-        message: 'Webhook event subscription is inactive. Verify your Meta App Webhook subscription for this channel.'
-      });
-    }
-
-    // Step 4: Messaging Capability Validation
-    if (plat === 'WHATSAPP' && conn.phone_number_id && diagnostics.credentialsValid) {
-      const phoneCheck = await whatsappService.verifyPhoneNumberConnectivity(conn.phone_number_id, token);
-      if (!phoneCheck.success) {
-        diagnostics.messagingReady = false;
-        if (phoneCheck.isExpired || phoneCheck.isInvalidToken) {
-          diagnostics.credentialsValid = false;
+    try {
+      if (plat === 'WHATSAPP') {
+        const phoneId = conn.phone_number_id;
+        if (!phoneId) {
+          return { healthy: false, status: 'DEGRADED', error: 'Missing phone_number_id' };
         }
-        diagnostics.issues.push({
-          step: 'Messaging Capability Validation',
-          code: phoneCheck.isExpired ? 'TOKEN_EXPIRED' : 'PHONE_VERIFY_FAILED',
-          message: `WhatsApp API check failed: ${phoneCheck.error}`
-        });
-      } else {
-        diagnostics.messagingReady = true;
+        const data = await whatsappService.getPhoneNumberDetails(phoneId, token);
+        return {
+          healthy: true,
+          status: 'CONNECTED',
+          verifiedName: data.verified_name,
+          displayNumber: data.display_phone_number,
+          qualityRating: data.quality_rating,
+          codeVerificationStatus: data.code_verification_status
+        };
       }
-    } else {
-      diagnostics.messagingReady = Boolean(diagnostics.credentialsValid);
-    }
 
-    // Step 5: Permission Validation
-    const grantedScopes = inspection.scopes || [];
-    let requiredScope = '';
-    if (plat === 'WHATSAPP') requiredScope = 'whatsapp_business_messaging';
-    if (plat === 'INSTAGRAM') requiredScope = 'instagram_manage_messages';
-    if (plat === 'MESSENGER') requiredScope = 'pages_messaging';
-
-    if (grantedScopes.length === 0 || grantedScopes.includes(requiredScope) || token.startsWith('EAAG_mock')) {
-      diagnostics.permissionsGranted = true;
-    } else {
-      diagnostics.issues.push({
-        step: 'Permission Validation',
-        code: 'PERMISSION_MISSING',
-        message: `${plat} connected, but the required messaging permission (${requiredScope}) was declined. Reauthorize and check the permission box.`
-      });
-    }
-
-    const allPassed = diagnostics.credentialsValid &&
-      diagnostics.assetLinked &&
-      diagnostics.messagingReady &&
-      diagnostics.permissionsGranted;
-
-    // Update connection status in DB
-    const db = getDatabase();
-    const newStatus = allPassed ? 'CONNECTED' : (diagnostics.credentialsValid ? 'CONNECTION_ERROR' : 'REAUTH_REQUIRED');
-    const primaryError = diagnostics.issues[0]?.message || null;
-
-    db.prepare(`
-      UPDATE meta_connections SET
-        status = ?,
-        last_error = ?,
-        diagnostics = ?,
-        updated_at = datetime('now')
-      WHERE business_id = ? AND platform = ?
-    `).run(
-      newStatus,
-      primaryError,
-      JSON.stringify(diagnostics),
-      businessId,
-      plat
-    );
-
-    if (plat === 'WHATSAPP') {
-      try {
-        db.prepare(`
-          UPDATE whatsapp_connections SET
-            status = ?,
-            last_error = ?,
-            diagnostics = ?,
-            updated_at = datetime('now')
-          WHERE tenant_id = ?
-        `).run(
-          newStatus,
-          primaryError,
-          JSON.stringify(diagnostics),
-          businessId
-        );
-      } catch {}
-    }
-
-    const checks = [
-      {
-        id: 'credentials',
-        title: 'Account Connected & Token Valid',
-        passed: diagnostics.credentialsValid,
-        detail: diagnostics.credentialsValid ? 'Official Meta access token valid & encrypted at rest' : (diagnostics.issues.find(i => i.step === 'Credential Validation')?.message || 'Not authorized')
-      },
-      {
-        id: 'assets',
-        title: 'Business Asset Linked',
-        passed: diagnostics.assetLinked,
-        detail: diagnostics.assetLinked ? `${plat} business asset properly linked to workspace` : (diagnostics.issues.find(i => i.step === 'Asset Validation')?.message || 'Asset missing')
-      },
-      {
-        id: 'webhook',
-        title: 'Webhook Active & Subscribed',
-        passed: diagnostics.webhookActive,
-        detail: diagnostics.webhookActive ? 'Real-time event subscriptions verified' : (diagnostics.issues.find(i => i.step === 'Webhook Validation')?.message || 'Webhook inactive')
-      },
-      {
-        id: 'messaging',
-        title: 'Messaging Available',
-        passed: diagnostics.messagingReady,
-        detail: diagnostics.messagingReady ? 'Direct outbound messaging API verified' : 'Messaging capability unavailable'
-      },
-      {
-        id: 'permissions',
-        title: 'Permissions Granted',
-        passed: diagnostics.permissionsGranted,
-        detail: diagnostics.permissionsGranted ? 'All necessary Meta Graph/Cloud permissions active' : (diagnostics.issues.find(i => i.step === 'Permission Validation')?.message || 'Permission missing')
+      if (plat === 'INSTAGRAM') {
+        const igId = conn.instagram_account_id;
+        if (!igId) {
+          return { healthy: false, status: 'DEGRADED', error: 'Missing instagram_account_id' };
+        }
+        const data = await instagramService.getAccountDetails(igId, token);
+        return {
+          healthy: true,
+          status: 'CONNECTED',
+          username: data.username,
+          name: data.name
+        };
       }
-    ];
 
-    diagnostics.checks = checks;
+      if (plat === 'MESSENGER') {
+        const pageId = conn.page_id;
+        if (!pageId) {
+          return { healthy: false, status: 'DEGRADED', error: 'Missing page_id' };
+        }
+        const data = await messengerService.getPageDetails(pageId, token);
+        return {
+          healthy: true,
+          status: 'CONNECTED',
+          pageName: data.name,
+          category: data.category
+        };
+      }
 
-    return {
-      success: allPassed,
-      status: newStatus,
-      checks,
-      diagnostics
-    };
-  },
-
-  /**
-   * Alias for run5PointTest
-   */
-  testConnection(businessId, platform) {
-    return this.run5PointTest(businessId, platform);
+      return { healthy: false, status: 'UNKNOWN', error: `Unsupported platform: ${platform}` };
+    } catch (err) {
+      logger.warn(`Health probe failed for ${plat} (${businessId}): ${err.message}`);
+      return {
+        healthy: false,
+        status: 'DEGRADED',
+        error: err.message
+      };
+    }
   }
 };

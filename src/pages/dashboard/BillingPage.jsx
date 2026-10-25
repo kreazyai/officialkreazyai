@@ -253,25 +253,16 @@ export function BillingPage({ user }) {
 
       const data = res?.data || res;
 
-      // Update auth profile
-      if (updateUser) {
-        updateUser({
-          isSubscribed: true,
-          plan: plan.name,
-          subscriptionStatus: 'active'
-        });
-      }
-
-      // Add top dashboard notification
+      // Add dashboard notification
       addDashboardNotification({
-        title: '🎉 Payment Confirmed',
-        desc: `Your subscription to ${plan.name} has been verified and activated via ${checkoutMethod === 'NAGAD' ? 'Nagad' : 'bKash'}.`,
+        title: '📋 Payment Submitted for Verification',
+        desc: `Your payment reference for ${plan.name} has been received and is pending verification.`,
         type: 'payment',
         time: 'Just now',
         link: '/dashboard/billing'
       });
 
-      showToast(`🎉 Payment Confirmed! Subscription to ${plan.name} is now active.`, 'success');
+      showToast(`Payment submitted successfully. Your invoice is pending review.`, 'info');
 
       // Reset form
       setSenderNumberInput('');

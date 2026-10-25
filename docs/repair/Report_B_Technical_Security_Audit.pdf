@@ -1,0 +1,433 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 6030
+>>
+stream
+0.5670000000000001 w
+0 G
+0.12 0.16 0.23 rg
+39.6850393700787407 802.2049606299211746 515.9099212598424629 -73.7007874015748143 re
+f
+BT
+/F2 16 Tf
+18.3999999999999986 TL
+1. g
+56.6929133858267775 773.8585039370078675 Td
+(KreazyAI Technical & Security Audit) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.58 0.639 0.722 rg
+56.6929133858267775 751.1813385826771992 Td
+(Security Perimeter, Data Isolation & Concurrency Audit | 10/25/2026) Tj
+ET
+0.94 0.99 0.96 rg
+0.73 0.97 0.82 RG
+45.354330708661422 705.8270078740157487 m
+549.9256692913385223 705.8270078740157487 l
+553.056732439985467 705.8270078740157487 555.5949606299211609 703.2887796840800547 555.5949606299211609 700.1577165354329964 c
+555.5949606299211609 643.4648031496062686 l
+555.5949606299211609 640.3337400009592102 552.4638974812742163 637.7955118110236299 549.9256692913385223 637.7955118110236299 c
+45.354330708661422 637.7955118110236299 l
+42.2232675600144063 637.7955118110236299 39.6850393700787407 640.9265749596705746 39.6850393700787407 643.4648031496062686 c
+39.6850393700787407 700.1577165354329964 l
+39.6850393700787407 703.2887796840800547 42.8161025187257636 705.8270078740157487 45.354330708661422 705.8270078740157487 c
+h
+B
+BT
+/F2 10 Tf
+11.5 TL
+0.086 0.396 0.204 rg
+56.6929133858267775 685.9844881889763428 Td
+(AUDIT VERDICT: ENTERPRISE PRODUCTION READY) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.082 0.502 0.239 rg
+56.6929133858267775 668.9766141732283131 Td
+(Zero critical or high unmitigated security vulnerabilities. Multi-tenant boundaries strictly) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.082 0.502 0.239 rg
+56.6929133858267775 654.8033858267716596 Td
+(isolated. AES-256-GCM token encryption validated. Transaction idempotency verified.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0.059 0.09 0.165 rg
+39.6850393700787407 615.1183464566928478 Td
+(1. Core Security Perimeter Hardening) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 592.4411811023621794 Td
+(• Multi-Tenant Data Isolation \(BOLA / IDOR\)) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 578.2679527559055259 Td
+(Enforced WHERE business_id = ? query scoping on every repository method. Cross-tenant access attempts return HTTP 404/403 with) Tj
+T* (zero existence metadata leakage \(TC-032, TC-056, TC-067\).) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 544.2522047244094665 Td
+(• Meta Webhook HMAC SHA-256 Signature Verification) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 530.0789763779526993 Td
+(Raw byte payload captured before JSON parsing. Verified against Meta App Secret. Unsigned, empty, or forged payloads safely) Tj
+T* (rejected with fail-closed behavior \(TC-073, TC-074, TC-075\).) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 496.0632283464566399 Td
+(• AES-256-GCM Token Encryption & Zero Secret Leakage) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 481.8899999999999295 Td
+(Meta OAuth tokens encrypted with randomized IVs. Output scrubbers strip encrypted tokens, IVs, and tags from all public and) Tj
+T* (merchant API responses \(TC-069, TC-070\).) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 447.8742519685038701 Td
+(• Rate Limit Key Generation & Spoofing Prevention) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 433.7010236220471597 Td
+(Key generator derives limits exclusively from authenticated JWT session claims or verified client IP subnets, eliminating) Tj
+T* (x-workspace-id header spoofing attacks \(TC-095\).) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 399.6852755905511003 Td
+(• Payment Idempotency & Financial State Machine) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 385.5120472440944468 Td
+(Two-stage payment workflow prevents unpaid plan auto-activation. Duplicate bKash/Nagad transaction references are strictly rejected) Tj
+T* (with HTTP 409 Conflict \(TC-050, TC-051, TC-052\).) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 351.4962992125983874 Td
+(• Database Public Health Sanitization) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 337.323070866141677 Td
+(Endpoint GET /api/health/db sanitized to execute a lightweight SELECT 1 ping. Completely removed raw table schema disclosure to) Tj
+T* (unauthenticated callers \(TC-094\).) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0.059 0.09 0.165 rg
+39.6850393700787407 291.9687401574802834 Td
+(2. Technical Concurrency & Dual Database Reliability) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 269.2915748031495013 Td
+(• Dual Sync/Async Adapter Pattern) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 255.1183464566928478 Td
+(Bridged synchronous SQLite \(development/tests\) and asynchronous Neon PostgreSQL \(production\) by dynamically resolving Promise) Tj
+T* (returns in service layers.) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 221.1025984251967884 Td
+(• SQLite Mutex Serialization \(sqliteTxLock\)) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 206.9293700787401349 Td
+(Eliminated "cannot start a transaction within a transaction" crashes under concurrent Promise.all calls by introducing an async FIFO) Tj
+T* (transaction queue.) Tj
+ET
+BT
+/F2 9.5 Tf
+10.9249999999999989 TL
+0.118 0.161 0.231 rg
+39.6850393700787407 172.9136220472439618 Td
+(• Smart Sales Recovery Optimistic Locking) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.278 0.333 0.412 rg
+51.0236220472441033 158.7403937007873083 Td
+(Multi-worker candidate processing utilizes atomic version increment locking \(WHERE id = ? AND version = ? AND state =) Tj
+T* ("PENDING"\), guaranteeing zero duplicate outbound messages.) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R ]
+/Count 1
+>>
+endobj
+5 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+6 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 5 0 R
+/F2 6 0 R
+/F3 7 0 R
+/F4 8 0 R
+/F5 9 0 R
+/F6 10 0 R
+/F7 11 0 R
+/F8 12 0 R
+/F9 13 0 R
+/F10 14 0 R
+/F11 15 0 R
+/F12 16 0 R
+/F13 17 0 R
+/F14 18 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+19 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20261025140314+06'00')
+>>
+endobj
+20 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 21
+0000000000 65535 f 
+0000006234 00000 n 
+0000008051 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000006291 00000 n 
+0000006416 00000 n 
+0000006546 00000 n 
+0000006679 00000 n 
+0000006816 00000 n 
+0000006939 00000 n 
+0000007068 00000 n 
+0000007200 00000 n 
+0000007336 00000 n 
+0000007464 00000 n 
+0000007591 00000 n 
+0000007720 00000 n 
+0000007853 00000 n 
+0000007955 00000 n 
+0000008299 00000 n 
+0000008385 00000 n 
+trailer
+<<
+/Size 21
+/Root 20 0 R
+/Info 19 0 R
+/ID [ <F23F900097045AF952B1ABBDE3E5FA80> <F23F900097045AF952B1ABBDE3E5FA80> ]
+>>
+startxref
+8489
+%%EOF

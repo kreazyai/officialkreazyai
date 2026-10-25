@@ -25,6 +25,7 @@
     "db:export": "node ./scripts/export-live-sqlite.mjs",
     "db:migrate": "node ./scripts/migrate-sqlite-to-postgres.mjs",
     "audit:pdf": "node ./scripts/generate-full-audit-pdf.mjs",
+    "test:pdf": "node ./scripts/generate-test-cases-pdf.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

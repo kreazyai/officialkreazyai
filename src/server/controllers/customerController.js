@@ -14,7 +14,8 @@ export const customerController = {
         ORDER BY created_at DESC
       `).all(businessId);
 
-      const parsed = customers.map(c => ({
+      const custList = Array.isArray(customers) ? customers : [];
+      const parsed = custList.map(c => ({
         ...c,
         contacts: JSON.parse(c.contacts || '[]'),
         addresses: JSON.parse(c.addresses || '[]'),

@@ -1,6 +1,7 @@
-import { config } from '../../config/env.js';
+﻿import { config } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
 import { getDatabase } from '../../config/database.js';
+import { knowledgeService } from './knowledgeService.js';
 
 /**
  * Lightweight in-process async queue for controlling Ollama inference concurrency.
@@ -101,6 +102,46 @@ export const whatsappAiService = {
    * @param {string} text
    * @returns {string}
    */
+
+  // STEP187: LLM output safety validation
+  validateCustomerOutput(answer, question = '') {
+    const text = String(answer || '').trim();
+    const lower = text.toLowerCase();
+
+    if (!text) return { safe: false, reason: 'EMPTY' };
+    if (text.length > 650) {
+      return { safe: false, reason: 'EXCESSIVE_LENGTH' };
+    }
+
+    const q = String(question || '').trim().toLowerCase();
+    if (q.length >= 12 && lower === q) {
+      return { safe: false, reason: 'QUESTION_REPEATED' };
+    }
+
+    // Detect repeated long fragments, including Banglish loops.
+    if (/(.{15,100}?)\s*\1\s*\1/i.test(text)) {
+      return { safe: false, reason: 'REPETITION_LOOP' };
+    }
+
+    // Only verified database/policy handlers should state these facts.
+    const unsupportedClaims = [
+      /\b(?:free shipping|free delivery|no delivery fee)\b/i,
+      /\b(?:we do not offer|we don't offer|we never accept)\s+(?:returns|refunds)\b/i,
+      /\b(?:cash on delivery|cod)\s+(?:is|isn't|is not)\s+(?:available|unavailable)\b/i,
+      /\b(?:i have|we have|i've|we've)\s+(?:cancelled|canceled|refunded|placed|confirmed)\s+(?:your|the)\s+order\b/i,
+      /\b(?:your order has been|your refund has been)\s+(?:cancelled|canceled|approved|processed|confirmed)\b/i,
+      /\b(?:discount|coupon)\s+(?:has been|is)\s+(?:approved|activated|applied)\b/i,
+      /(?:\$|৳|€|£)\s*\d+(?:\.\d+)?/i,
+      /\b\d+(?:\.\d+)?\s*(?:USD|BDT|taka)\b/i
+    ];
+
+    if (unsupportedClaims.some(re => re.test(text))) {
+      return { safe: false, reason: 'UNVERIFIED_CLAIM' };
+    }
+
+    return { safe: true, reason: 'OK' };
+  },
+
   cleanAiOutput(text) {
     if (!text) return '';
     return text
@@ -123,7 +164,13 @@ export const whatsappAiService = {
       .slice(0, 15)
       .map(p => {
         const stockStatus = p.stock > 0 ? `${p.stock} units in stock` : 'OUT OF STOCK';
-        const price = `$${Number(p.price || 0).toFixed(2)}`;
+        const price =
+  p.price == null
+    ? 'Price not provided'
+    : `${Number(p.price).toFixed(2)} ${p.currency || '(currency not provided)'}`;
+  p.price == null
+    ? 'Price not provided'
+    : `${Number(p.price).toFixed(2)} ${p.currency || '(currency not provided)'}`;
         const sku = p.sku ? `[SKU: ${p.sku}]` : '';
         const cat = p.category ? `(${p.category})` : '';
         return `• ${p.name} ${sku} ${cat}: Price ${price}, Stock: ${stockStatus}`;
@@ -152,24 +199,16 @@ export const whatsappAiService = {
 LANGUAGE RULE:
 ${langInstruction}
 
-STRICT OPERATIONAL RULES:
-1. TRUTHFULNESS & ANTI-HALLUCINATION:
-   - ONLY provide prices, availability, and products explicitly listed in the STORE CATALOG below.
-   - If an item is OUT OF STOCK (stock = 0), explicitly state that it is currently out of stock.
-   - If a customer asks for a specific color, style, or product NOT in the catalog (e.g. asking for "black shirts" when no black shirt is listed), clearly state that we do not currently have that specific item or color in stock.
-   - NEVER substitute or recommend an unrelated product as if it were what the customer asked for.
-   - NEVER invent or guess discounts, delivery dates, or prices.
-2. HUMAN ASSISTANCE & ORDER LIMITATION:
-   - If you cannot answer or the customer asks for a human/manager/agent, politely offer to connect them with a human team member.
-   - You cannot directly charge cards or finalize orders in chat. Guide the customer to complete payment or provide address for COD.
-3. CONCISENESS & DIRECTNESS:
-   - Keep answers concise, clear, and direct (1 to 2 sentences max).
-   - Directly answer the customer's question first.
-   - Be courteous, warm, and professional.
-   - Do NOT output your internal thoughts, instructions, or <think> tags.
+PRODUCT DATA ACCURACY RULES:
+- Keep product names EXACTLY as written in the verified catalog.
+- Never translate, transliterate, shorten, or change product names.
+- Reply in the customer's language, but preserve original product names.
+- Never copy a price or stock quantity from one product to another.
+- If the requested product is missing, say its price and availability are unknown.
+- Never invent currency, prices, stock, discounts, or delivery charges.
 
 STORE POLICIES:
-${policySummary || 'Standard delivery in 2-4 business days. Returns accepted within 14 days in original condition.'}
+${policySummary || 'No verified delivery or return policy provided. Do not invent policy details.'}
 
 FREQUENTLY ASKED QUESTIONS:
 ${faqSummary || 'Contact our support team for specialized assistance.'}
@@ -182,18 +221,19 @@ ${catalogSummary || 'No products currently listed.'}`;
    * Fetches recent conversation history for a specific conversation
    * @param {string} conversationId
    * @param {number} limit
-   * @returns {Array<{ role: 'user' | 'assistant', content: string }>}
+   * @returns {Promise<Array<{ role: 'user' | 'assistant', content: string }>>}
    */
-  getConversationHistory(conversationId, limit = 6) {
-    if (!conversationId) return [];
+  async getConversationHistory(conversationId, tenantId, limit = 6) {
+    if (!conversationId || !tenantId) return [];
     try {
       const db = getDatabase();
-      const rows = db.prepare(`
+
+      const rows = (await db.prepare(`
         SELECT sender, text, is_ai, direction FROM messages
-        WHERE conversation_id = ? AND text IS NOT NULL AND text != ''
+        WHERE conversation_id = ? AND tenant_id = ? AND text IS NOT NULL AND text != ''
         ORDER BY created_at DESC
         LIMIT ?
-      `).all(conversationId, limit);
+      `).all(conversationId, tenantId, limit)) || [];
 
       // Order chronological (oldest to newest)
       return rows.reverse().map(r => ({
@@ -224,9 +264,260 @@ ${catalogSummary || 'No products currently listed.'}`;
       const timeoutMs = config.ai.ollamaTimeoutMs || 45000;
 
       const db = getDatabase();
+      
+      
+      
+      // STEP179: Verified delivery-fee guard
+      const isDeliveryFeeQuestion =
+        /(?:delivery|shipping)\s*(?:charge|fee|cost|price)|(?:charge|fee|cost)\s*(?:for\s*)?(?:delivery|shipping)|ডেলিভারি\s*(?:চার্জ|খরচ|ফি)|শিপিং\s*(?:চার্জ|খরচ|ফি)/i
+          .test(customerMessage);
+
+      if (isDeliveryFeeQuestion) {
+        const policy = await knowledgeService.getPolicy(
+          businessId, 'SHIPPING_POLICY'
+        );
+
+        const bn = language === 'BANGLA';
+        const bng = language === 'BANGLISH';
+
+        // Do not treat a general shipping policy as a verified fee.
+        // An explicit fee field should be implemented separately.
+        const replyText = bn
+          ? 'ডেলিভারি চার্জের নিশ্চিত তথ্য পাওয়া যায়নি। সঠিক চার্জ জানতে দোকানের প্রতিনিধির সঙ্গে যোগাযোগ করুন।'
+          : bng
+            ? 'Delivery charge er confirmed information nei. Exact charge jante store support er sathe jogajog korun.'
+            : 'I cannot confirm the delivery charge. Please contact store support for the exact fee.';
+
+        return {
+          success: true,
+          replyText,
+          model: 'verified-policy',
+          tokensGenerated: 0,
+          durationMs: Date.now() - startTime,
+          groundedIn: {
+            productCount: 0,
+            faqCount: 0,
+            policyCount: policy ? 1 : 0
+          }
+        };
+      }
+
+      
+      // STEP182: Safe commerce intent handling
+      const message = String(customerMessage || '').toLowerCase();
+      const bn = language === 'BANGLA';
+      const bng = language === 'BANGLISH';
+
+      const safeReply = (replyText, productCount = 0) => ({
+        success: true,
+        replyText,
+        model: 'verified-commerce',
+        tokensGenerated: 0,
+        durationMs: Date.now() - startTime,
+        groundedIn: {
+          productCount,
+          faqCount: 0,
+          policyCount: 0
+        }
+      });
+
+      // Catalog overview: preserve exact database product names.
+      const asksCatalog =
+        /what do you sell|what products|show.*products|কি কি পণ্য|কী কী পণ্য|কি কি প্রোডাক্ট|কি product ache|ki ki product ache|ki ki product|product list/i
+          .test(message);
+
+      if (asksCatalog) {
+        const catalog = await knowledgeService.getTenantKnowledge(businessId);
+        const products = (catalog.products || []).slice(0, 8);
+
+        if (!products.length) {
+          return safeReply(
+            bn ? 'এই মুহূর্তে পণ্যের তালিকা পাওয়া যাচ্ছে না।' :
+            bng ? 'Ekhon product list pawa jacche na.' :
+            'The product catalog is currently unavailable.'
+          );
+        }
+
+        const names = products.map(p => p.name).join(', ');
+
+        return safeReply(
+          bn ? 'আমাদের পণ্যগুলো হলো: ' + names + '।' :
+          bng ? 'Amader products: ' + names + '.' :
+          'Our products include: ' + names + '.',
+          products.length
+        );
+      }
+
+      // Cancellation: do not promise an action that wasn't performed.
+      if (/cancel|বাতিল/i.test(message) &&
+          /order|অর্ডার/i.test(message)) {
+        return safeReply(
+          bn
+            ? 'অর্ডার বাতিলের অনুরোধ করতে অর্ডার নম্বর দিন। বাতিল নিশ্চিত করতে আমাদের টিম যাচাই করবে।'
+            : bng
+              ? 'Order cancel request er jonno order number din. Amader team verify korbe.'
+              : 'Please share your order number so our team can review your cancellation request. The order has not been cancelled yet.'
+        );
+      }
+
+      // Cash on delivery: do not invent payment methods.
+      if (/cash on delivery|ক্যাশ অন ডেলিভারি|\bcod\b/i.test(message)) {
+        return safeReply(
+          bn
+            ? 'ক্যাশ অন ডেলিভারি সুবিধা আছে কি না নিশ্চিত তথ্য পাওয়া যায়নি। অনুগ্রহ করে দোকানের প্রতিনিধির সঙ্গে যোগাযোগ করুন।'
+            : bng
+              ? 'Cash on delivery available kina confirm kora jayni. Store support er sathe jogajog korun.'
+              : 'Cash on delivery availability is not verified. Please contact store support.'
+        );
+      }
+
+      // Discount requests: never issue or approve discounts.
+      if (/discount|ছাড়|ডিসকাউন্ট|coupon|promo code/i.test(message)) {
+        return safeReply(
+          bn
+            ? 'আপনার অনুরোধটি বুঝেছি। কোনো ছাড় বা কুপন অনুমোদন করতে পারছি না। বর্তমান অফার জানতে দোকানের টিমের সঙ্গে যোগাযোগ করুন।'
+            : bng
+              ? 'Discount ba coupon approve korte parchi na. Current offer jante store team er sathe jogajog korun.'
+              : 'I cannot approve a discount or issue a coupon. Please contact the store team to verify current offers.'
+        );
+      }
+
+      // Return eligibility: do not invent return windows.
+      if (/return|refund|রিটার্ন|ফেরত/i.test(message)) {
+        const policy = await knowledgeService.getPolicy(
+          businessId, 'RETURN_POLICY'
+        );
+
+        if (policy?.content) {
+          return {
+            ...safeReply(String(policy.content)),
+            model: 'verified-policy',
+            groundedIn: {
+              productCount: 0,
+              faqCount: 0,
+              policyCount: 1
+            }
+          };
+        }
+
+        return safeReply(
+          bn
+            ? 'রিটার্ন বা রিফান্ডের নিশ্চিত নীতিমালা পাওয়া যায়নি। দোকানের প্রতিনিধির সঙ্গে যোগাযোগ করুন।'
+            : bng
+              ? 'Return/refund policy confirm kora jayni. Store support er sathe jogajog korun.'
+              : 'I cannot verify the return or refund policy. Please contact store support.'
+        );
+      }
+
+      // Verified catalog facts must not be generated by the LLM.
+      const productMatch = await knowledgeService.findProduct(
+        businessId,
+        { queryText: customerMessage }
+      );
+
+      const asksPrice =
+        /দাম|মূল্য|price|cost|how much|dam koto|daam/i.test(customerMessage);
+      const asksStock =
+        /স্টক|stock|available|availability|do you have|আছে|পাওয়া যাবে/i
+          .test(customerMessage);
+
+      const bangla = language === 'BANGLA';
+      const banglish = language === 'BANGLISH';
+
+      const verifiedReply = (replyText, count = 0) => ({
+        success: true,
+        replyText,
+        model: 'verified-database',
+        tokensGenerated: 0,
+        durationMs: Date.now() - startTime,
+        groundedIn: { productCount: count, faqCount: 0, policyCount: 0 }
+      });
+
+      if (productMatch.ambiguous) {
+        const names = (productMatch.candidates || [])
+          .map(p => p.name).join(', ');
+        return verifiedReply(
+          bangla
+            ? 'একাধিক পণ্য মিলেছে: ' + names + '। কোনটি জানতে চান?'
+            : banglish
+              ? 'Ekadhik product match koreche: ' + names +
+                '. Kon product ta jante chan?'
+              : 'I found multiple matching products: ' + names +
+                '. Which one do you mean?'
+        );
+      }
+
+      if (productMatch.matched &&
+          productMatch.confidence >= 0.95 &&
+          (asksPrice || asksStock)) {
+
+        const p = productMatch.product;
+        const parts = [];
+
+        if (asksPrice) {
+          const price = p.price == null || !Number.isFinite(Number(p.price))
+            ? null
+            : Number(p.price).toFixed(2) +
+              (p.currency ? ' ' + p.currency : '');
+
+          parts.push(
+            price == null
+              ? (bangla ? 'দাম নিশ্চিত নয়' :
+                 banglish ? 'Dam confirm kora jayni' :
+                 'Price is not confirmed')
+              : (bangla ? 'দাম ' :
+                 banglish ? 'Dam ' : 'Price: ') + price
+          );
+        }
+
+        if (asksStock) {
+          const quantity = Number(p.stock);
+
+          if (p.stock == null || !Number.isFinite(quantity)) {
+            parts.push(
+              bangla ? 'স্টক নিশ্চিত নয়' :
+              banglish ? 'Stock confirm kora jayni' :
+              'Stock is not confirmed'
+            );
+          } else if (quantity <= 0) {
+            parts.push(
+              bangla ? 'বর্তমানে স্টকে নেই' :
+              banglish ? 'Ekhon out of stock' :
+              'Currently out of stock'
+            );
+          } else {
+            parts.push(
+              bangla ? 'স্টকে ' + quantity + 'টি আছে' :
+              banglish ? quantity + ' pcs stock e ache' :
+              quantity + ' units in stock'
+            );
+          }
+        }
+
+        return verifiedReply(
+          p.name + ': ' +
+          parts.join(bangla ? ' এবং ' : ', ') +
+          (bangla ? '।' : '.'),
+          1
+        );
+      }
+
+      if (!productMatch.matched &&
+          !productMatch.ambiguous &&
+          (asksPrice || asksStock) &&
+          /[A-Za-z0-9]{3,}/.test(customerMessage)) {
+
+        return verifiedReply(
+          bangla
+            ? 'এই পণ্যের দাম বা স্টক নিশ্চিত করা যায়নি। সঠিক নাম বা SKU দিন।'
+            : banglish
+              ? 'Ei product er price ba stock confirm kora jayni. Name ba SKU din.'
+              : 'I could not verify this product in our catalog. Please share its exact name or SKU.'
+        );
+      }
 
       // Retrieve business profile
-      const business = db.prepare('SELECT id, name FROM businesses WHERE id = ?').get(businessId) || {
+      const business = (await db.prepare('SELECT id, name FROM businesses WHERE id = ?').get(businessId)) || {
         id: businessId,
         name: 'Kreazy Store'
       };
@@ -237,26 +528,26 @@ ${catalogSummary || 'No products currently listed.'}`;
       let faqs = knowledge?.faqs;
 
       if (!products) {
-        products = db.prepare(`
-          SELECT id, sku, name, category, price, stock, status, variants, ai_knowledge 
-          FROM products 
+        products = (await db.prepare(`
+          SELECT id, sku, name, category, price, currency, stock, status, variants, ai_knowledge
+          FROM products
           WHERE (business_id = ? OR tenant_id = ?) AND status != 'DISCONTINUED'
           LIMIT 25
-        `).all(businessId, businessId);
+        `).all(businessId, businessId)) || [];
       }
 
       if (!policies) {
-        policies = db.prepare(`
-          SELECT policy_type, content FROM policies 
+        policies = (await db.prepare(`
+          SELECT policy_type, content FROM policies
           WHERE tenant_id = ? AND status = 'ACTIVE'
-        `).all(businessId);
+        `).all(businessId)) || [];
       }
 
       if (!faqs) {
-        faqs = db.prepare(`
-          SELECT question, answer, category FROM faqs 
+        faqs = (await db.prepare(`
+          SELECT question, answer, category FROM faqs
           WHERE tenant_id = ? AND status = 'ACTIVE'
-        `).all(businessId);
+        `).all(businessId)) || [];
       }
 
       const systemPrompt = this.buildGroundedSystemPrompt({
@@ -268,7 +559,7 @@ ${catalogSummary || 'No products currently listed.'}`;
       });
 
       // Load previous messages in this conversation for multi-turn coherence
-      const priorHistory = this.getConversationHistory(conversationId, 6);
+      const priorHistory = await this.getConversationHistory(conversationId, businessId, 6);
 
       // Build message payload
       const messages = [
@@ -342,6 +633,35 @@ ${catalogSummary || 'No products currently listed.'}`;
       const rawContent = data?.message?.content || '';
       const cleanedReply = this.cleanAiOutput(rawContent);
 
+      // STEP187: validate only free-form model output, not verified DB replies.
+      const outputCheck = this.validateCustomerOutput(
+        cleanedReply,
+        customerMessage
+      );
+
+      if (!outputCheck.safe) {
+        return {
+          success: true,
+          replyText:
+            language === 'BANGLA'
+              ? 'এই বিষয়ে নিশ্চিত তথ্য দিতে পারছি না। অনুগ্রহ করে দোকানের প্রতিনিধির সঙ্গে যোগাযোগ করুন।'
+              : language === 'BANGLISH'
+                ? 'Ei bishoye confirmed information nei. Doya kore store support er sathe jogajog korun.'
+                : 'I cannot verify that information. Please contact store support for confirmation.',
+          model: 'safe-fallback',
+          tokensGenerated: 0,
+          durationMs: Date.now() - startTime,
+          groundedIn: {
+            productCount: 0,
+            faqCount: 0,
+            policyCount: 0
+          },
+          safetyReason: outputCheck.reason
+        };
+      }
+
+
+
       if (!cleanedReply) {
         logger.warn('[WhatsApp AI] Ollama returned empty content');
         return {
@@ -370,3 +690,4 @@ ${catalogSummary || 'No products currently listed.'}`;
     });
   }
 };
+

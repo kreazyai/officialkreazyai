@@ -225,7 +225,7 @@ export const orderController = {
       // Attribute confirmed order to any active/recent recovery attempt
       try {
         const custRecord = await db.prepare('SELECT id FROM customers WHERE business_id = ? AND (email = ? OR phone = ?)').get(businessId, customerEmail.trim(), customerPhone.trim());
-        recoveryAttributionService.attributeOrder({
+        await recoveryAttributionService.attributeOrder({
           tenantId: businessId,
           orderId,
           orderValue: createdOrder.total,

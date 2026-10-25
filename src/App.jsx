@@ -85,6 +85,7 @@ export const VALID_DASHBOARD_MODULES = [
   'customers',
   'integrations',
   'ai-assistant',
+  'recovery',
   'analytics',
   'revenue',
   'billing',
@@ -161,10 +162,75 @@ function getRouteStateFromUrl() {
   if (root === 'book-demo') return { page: 'book-demo', dashboardModule: null, rawPath: pathname };
   if (root === 'founder-meeting') return { page: 'founder-meeting', dashboardModule: null, rawPath: pathname };
   if (root === 'faq' || root === 'resources') return { page: 'faq', dashboardModule: null, rawPath: pathname };
-  if (root === 'legal-privacy') return { page: 'legal-privacy', dashboardModule: null, rawPath: pathname };
-  if (root === 'legal-terms') return { page: 'legal-terms', dashboardModule: null, rawPath: pathname };
+  if (root === 'legal-privacy' || root === 'privacy') return { page: 'legal-privacy', dashboardModule: null, rawPath: pathname };
+  if (root === 'legal-terms' || root === 'terms') return { page: 'legal-terms', dashboardModule: null, rawPath: pathname };
 
-  return { page: 'home', dashboardModule: null, rawPath: pathname };
+  return { page: 'not-found', dashboardModule: null, rawPath: pathname };
+}
+
+function PublicNotFound({ onNavigate }) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '70vh',
+      padding: '2.5rem 1.5rem',
+      textAlign: 'center'
+    }}>
+      <div style={{
+        maxWidth: '520px',
+        width: '100%',
+        padding: '3rem 2rem',
+        backgroundColor: 'var(--bg-card, #131722)',
+        border: '1px solid var(--border-medium, rgba(255,255,255,0.08))',
+        borderRadius: '16px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
+      }}>
+        <div style={{
+          fontSize: '4.5rem',
+          fontWeight: 900,
+          color: 'var(--primary-accent, #bdd394)',
+          lineHeight: 1,
+          marginBottom: '1rem'
+        }}>
+          404
+        </div>
+        <h1 style={{
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: 'var(--text-primary, #ffffff)',
+          marginBottom: '0.75rem'
+        }}>
+          Page Not Found
+        </h1>
+        <p style={{
+          color: 'var(--text-secondary, #94a3b8)',
+          fontSize: '0.95rem',
+          lineHeight: 1.6,
+          marginBottom: '2rem'
+        }}>
+          The page you requested does not exist or may have been relocated.
+        </p>
+        <button
+          onClick={() => onNavigate('home')}
+          style={{
+            backgroundColor: 'var(--primary-accent, #bdd394)',
+            color: '#0f172a',
+            padding: '12px 28px',
+            borderRadius: '8px',
+            fontWeight: 600,
+            fontSize: '14px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          Return to Home
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function DashboardNotFound({ invalidModule, onNavigateOverview }) {
@@ -403,6 +469,10 @@ function AppContent() {
                 <AiAssistantPage />
               )}
 
+              {currentDashboardModule === 'recovery' && (
+                <RecoveryPage user={user} onNavigateModule={handleNavigateModule} />
+              )}
+
               {currentDashboardModule === 'analytics' && (
                 <AnalyticsPage user={user} onNavigateModule={handleNavigateModule} />
               )}
@@ -521,6 +591,10 @@ function AppContent() {
 
               {routeState.page === 'legal-terms' && (
                 <LegalPage initialTab="terms" />
+              )}
+
+              {routeState.page === 'not-found' && (
+                <PublicNotFound onNavigate={handleNavigate} />
               )}
             </Suspense>
           </main>

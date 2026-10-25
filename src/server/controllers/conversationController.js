@@ -8,12 +8,14 @@ export const conversationController = {
       const db = getDatabase();
       const businessId = req.businessId;
 
-      const conversations = db.prepare(`
+      const conversations = await db.prepare(`
         SELECT id, business_id, customer_id, customer_name, customer_avatar, channel, unread, status, last_message_time, created_at, updated_at
         FROM conversations
         WHERE business_id = ?
         ORDER BY updated_at DESC
       `).all(businessId);
+
+      const convList = Array.isArray(conversations) ? conversations : [];
 
       const getMessages = db.prepare(`
         SELECT id, conversation_id, sender, sender_name, text, is_ai, channel, created_at
@@ -23,13 +25,17 @@ export const conversationController = {
         LIMIT 50
       `);
 
-      const result = conversations.map(c => ({
-        ...c,
-        messages: getMessages.all(c.id).map(m => ({
-          ...m,
-          isAi: Boolean(m.is_ai),
-          time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }))
+      const result = await Promise.all(convList.map(async c => {
+        const msgs = await getMessages.all(c.id);
+        const msgList = Array.isArray(msgs) ? msgs : [];
+        return {
+          ...c,
+          messages: msgList.map(m => ({
+            ...m,
+            isAi: Boolean(m.is_ai),
+            time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }))
+        };
       }));
 
       return successResponse(res, result);
@@ -44,18 +50,20 @@ export const conversationController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const conversation = db.prepare('SELECT * FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
+      const conversation = await db.prepare('SELECT * FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
       if (!conversation) {
         return errorResponse(res, 'Conversation not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      const messages = db.prepare(`
+      const messages = await db.prepare(`
         SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC LIMIT 50
       `).all(id);
 
+      const msgList = Array.isArray(messages) ? messages : [];
+
       return successResponse(res, {
         ...conversation,
-        messages: messages.map(m => ({
+        messages: msgList.map(m => ({
           ...m,
           isAi: Boolean(m.is_ai),
           time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -77,7 +85,7 @@ export const conversationController = {
       }
 
       const db = getDatabase();
-      const conversation = db.prepare('SELECT * FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
+      const conversation = await db.prepare('SELECT * FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
       if (!conversation) {
         return errorResponse(res, 'Conversation not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
@@ -86,17 +94,19 @@ export const conversationController = {
       const msgId = `msg-${Date.now()}`;
       const senderName = req.user?.name || 'Agent';
 
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO messages (id, conversation_id, sender, sender_name, text, is_ai, channel, created_at)
         VALUES (?, ?, ?, ?, ?, 0, ?, ?)
       `).run(msgId, id, sender, senderName, text.trim(), conversation.channel, now);
 
-      db.prepare('UPDATE conversations SET last_message_time = ?, updated_at = ?, unread = 0 WHERE id = ?').run('Just now', now, id);
+      await db.prepare('UPDATE conversations SET last_message_time = ?, updated_at = ?, unread = 0 WHERE id = ?').run('Just now', now, id);
 
-      const messages = db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC').all(id);
+      const messages = await db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC').all(id);
+      const msgList = Array.isArray(messages) ? messages : [];
+
       return successResponse(res, {
         conversationId: id,
-        messages: messages.map(m => ({
+        messages: msgList.map(m => ({
           ...m,
           isAi: Boolean(m.is_ai),
           time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -115,7 +125,7 @@ export const conversationController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const conversation = db.prepare('SELECT id FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
+      const conversation = await db.prepare('SELECT id FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
       if (!conversation) {
         return errorResponse(res, 'Conversation not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
@@ -129,9 +139,9 @@ export const conversationController = {
       sets.push('updated_at = ?');
       vals.push(now, id);
 
-      db.prepare(`UPDATE conversations SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+      await db.prepare(`UPDATE conversations SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
 
-      const updated = db.prepare('SELECT * FROM conversations WHERE id = ?').get(id);
+      const updated = await db.prepare('SELECT * FROM conversations WHERE id = ?').get(id);
       return successResponse(res, updated);
     } catch (err) {
       next(err);
@@ -146,12 +156,12 @@ export const conversationController = {
       const businessId = req.businessId;
       const db = getDatabase();
 
-      const conversation = db.prepare('SELECT * FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
+      const conversation = await db.prepare('SELECT * FROM conversations WHERE id = ? AND business_id = ?').get(id, businessId);
       if (!conversation) {
         return errorResponse(res, 'Conversation not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      const lastMsg = db.prepare(`
+      const lastMsg = await db.prepare(`
         SELECT text FROM messages WHERE conversation_id = ? AND sender = 'customer'
         ORDER BY created_at DESC LIMIT 1
       `).get(id);
@@ -192,32 +202,32 @@ export const conversationController = {
       const db = getDatabase();
       const now = new Date().toISOString();
 
-      let customer = db.prepare('SELECT id FROM customers WHERE business_id = ? AND (email = ? OR phone = ?)').get(targetBusinessId, email.trim(), phone.trim());
+      let customer = await db.prepare('SELECT id FROM customers WHERE business_id = ? AND (email = ? OR phone = ?)').get(targetBusinessId, email.trim(), phone.trim());
       let customerId = customer?.id;
 
       if (!customerId) {
         customerId = `c-${Date.now()}`;
-        db.prepare(`
+        await db.prepare(`
           INSERT INTO customers (id, business_id, full_name, email, phone, source, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `).run(customerId, targetBusinessId, customerName.trim(), email.trim(), phone.trim(), channel, now, now);
       }
 
-      let conversation = db.prepare('SELECT id FROM conversations WHERE business_id = ? AND customer_id = ?').get(targetBusinessId, customerId);
+      let conversation = await db.prepare('SELECT id FROM conversations WHERE business_id = ? AND customer_id = ?').get(targetBusinessId, customerId);
       let convId = conversation?.id;
 
       if (!convId) {
         convId = `conv-${Date.now()}`;
-        db.prepare(`
+        await db.prepare(`
           INSERT INTO conversations (id, business_id, customer_id, customer_name, channel, unread, status, last_message_time, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, 1, 'ACTIVE', 'Just now', ?, ?)
         `).run(convId, targetBusinessId, customerId, customerName.trim(), channel, now, now);
       } else {
-        db.prepare('UPDATE conversations SET unread = unread + 1, last_message_time = ?, updated_at = ? WHERE id = ?').run('Just now', now, convId);
+        await db.prepare('UPDATE conversations SET unread = unread + 1, last_message_time = ?, updated_at = ? WHERE id = ?').run('Just now', now, convId);
       }
 
       const msgId = `msg-${Date.now()}`;
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO messages (id, conversation_id, sender, sender_name, text, is_ai, channel, created_at)
         VALUES (?, ?, 'customer', ?, ?, 0, ?, ?)
       `).run(msgId, convId, customerName.trim(), text.trim(), channel, now);
@@ -229,14 +239,15 @@ export const conversationController = {
 
       if (aiReply?.reply) {
         const aiMsgId = `msg-${Date.now() + 1}`;
-        db.prepare(`
+        await db.prepare(`
           INSERT INTO messages (id, conversation_id, sender, sender_name, text, is_ai, channel, created_at)
           VALUES (?, ?, 'ai', 'Kreazy AI', ?, 1, ?, ?)
         `).run(aiMsgId, convId, aiReply.reply, channel, new Date().toISOString());
       }
 
-      const allMsgs = db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC').all(convId);
-      return successResponse(res, { conversationId: convId, customerId, messages: allMsgs, aiResponse: aiReply }, HTTP_STATUS.CREATED);
+      const allMsgs = await db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC').all(convId);
+      const msgList = Array.isArray(allMsgs) ? allMsgs : [];
+      return successResponse(res, { conversationId: convId, customerId, messages: msgList, aiResponse: aiReply }, HTTP_STATUS.CREATED);
     } catch (err) {
       next(err);
     }

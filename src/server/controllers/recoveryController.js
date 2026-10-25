@@ -19,8 +19,8 @@ export const recoveryController = {
         return errorResponse(res, 'Tenant context missing.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
       }
 
-      const metrics = recoveryAttributionService.getOverviewMetrics(tenantId);
-      const settings = recoverySettingsService.getSettings(tenantId);
+      const metrics = await recoveryAttributionService.getOverviewMetrics(tenantId);
+      const settings = await recoverySettingsService.getSettings(tenantId);
 
       return successResponse(res, {
         metrics,
@@ -45,7 +45,7 @@ export const recoveryController = {
       const tenantId = req.businessId;
       const { stage, channel, search, page = 1, limit = 20 } = req.query;
 
-      const result = recoveryCandidateService.queryCandidates(tenantId, {
+      const result = await recoveryCandidateService.queryCandidates(tenantId, {
         stage,
         channel,
         search,
@@ -67,7 +67,7 @@ export const recoveryController = {
       const tenantId = req.businessId;
       const { id } = req.params;
 
-      const candidate = recoveryCandidateService.getById(tenantId, id);
+      const candidate = await recoveryCandidateService.getById(tenantId, id);
       if (!candidate) {
         return errorResponse(res, 'Recovery candidate not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
@@ -88,14 +88,14 @@ export const recoveryController = {
       const { reason = 'MANUAL_CANCELLATION' } = req.body || {};
 
       const db = getDatabase();
-      const candidate = db.prepare('SELECT * FROM recovery_candidates WHERE tenant_id = ? AND id = ?').get(tenantId, id);
+      const candidate = await db.prepare('SELECT * FROM recovery_candidates WHERE tenant_id = ? AND id = ?').get(tenantId, id);
 
       if (!candidate) {
         return errorResponse(res, 'Recovery candidate not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      recoveryCandidateService.cancelActiveCandidates(tenantId, candidate.conversation_id, reason);
-      const updated = recoveryCandidateService.getById(tenantId, id);
+      await recoveryCandidateService.cancelActiveCandidates(tenantId, candidate.conversation_id, reason);
+      const updated = await recoveryCandidateService.getById(tenantId, id);
 
       return successResponse(res, updated, 'Candidate cancelled successfully.');
     } catch (err) {
@@ -112,21 +112,22 @@ export const recoveryController = {
       const { id } = req.params;
 
       const db = getDatabase();
-      const candidate = db.prepare('SELECT * FROM recovery_candidates WHERE tenant_id = ? AND id = ?').get(tenantId, id);
+      const candidate = await db.prepare('SELECT * FROM recovery_candidates WHERE tenant_id = ? AND id = ?').get(tenantId, id);
 
       if (!candidate) {
         return errorResponse(res, 'Recovery candidate not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
+      const now = new Date().toISOString();
       // Reset to PENDING and eligible now
-      db.prepare(`
+      await db.prepare(`
         UPDATE recovery_candidates
-        SET stage = 'SCHEDULED', state = 'PENDING', eligible_at = datetime('now'), version = version + 1, updated_at = datetime('now')
+        SET stage = 'SCHEDULED', state = 'PENDING', eligible_at = ?, version = version + 1, updated_at = ?
         WHERE id = ?
-      `).run(id);
+      `).run(now, now, id);
 
       // Trigger immediate processing
-      const refreshed = db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(id);
+      const refreshed = await db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(id);
       const result = await recoverySchedulerService.processCandidate(refreshed);
 
       return successResponse(res, { candidateId: id, result }, 'Candidate retry triggered successfully.');
@@ -141,7 +142,7 @@ export const recoveryController = {
   async getSettings(req, res, next) {
     try {
       const tenantId = req.businessId;
-      const settings = recoverySettingsService.getSettings(tenantId);
+      const settings = await recoverySettingsService.getSettings(tenantId);
       return successResponse(res, settings);
     } catch (err) {
       next(err);
@@ -156,7 +157,7 @@ export const recoveryController = {
       const tenantId = req.businessId;
       const updates = req.body || {};
 
-      const updated = recoverySettingsService.updateSettings(tenantId, updates);
+      const updated = await recoverySettingsService.updateSettings(tenantId, updates);
       return successResponse(res, updated, 'Recovery settings updated successfully.');
     } catch (err) {
       next(err);
@@ -188,17 +189,21 @@ export const recoveryController = {
 
       const whereClause = conditions.join(' AND ');
 
-      const count = db.prepare(`SELECT COUNT(*) as total FROM recovery_events WHERE ${whereClause}`).get(...params).total;
-      const rows = db.prepare(`
+      const countRow = await db.prepare(`SELECT COUNT(*) as total FROM recovery_events WHERE ${whereClause}`).get(...params);
+      const total = Number(countRow?.total || 0);
+
+      const rows = await db.prepare(`
         SELECT * FROM recovery_events 
         WHERE ${whereClause} 
         ORDER BY event_at DESC 
         LIMIT ? OFFSET ?
       `).all(...params, parseInt(limit, 10), offset);
 
+      const eventRows = Array.isArray(rows) ? rows : [];
+
       return successResponse(res, {
-        events: rows.map(r => ({ ...r, metadata: JSON.parse(r.metadata || '{}') })),
-        total: count,
+        events: eventRows.map(r => ({ ...r, metadata: JSON.parse(r.metadata || '{}') })),
+        total,
         page: parseInt(page, 10),
         limit: parseInt(limit, 10)
       });
@@ -221,10 +226,11 @@ export const recoveryController = {
       }
 
       const db = getDatabase();
-      const catalog = db.prepare('SELECT id, name, sku, price, stock FROM products WHERE business_id = ? OR tenant_id = ? LIMIT 20').all(tenantId, tenantId);
-      const settings = recoverySettingsService.getSettings(tenantId);
+      const catalog = await db.prepare('SELECT id, name, sku, price, stock FROM products WHERE business_id = ? OR tenant_id = ? LIMIT 20').all(tenantId, tenantId);
+      const catalogList = Array.isArray(catalog) ? catalog : [];
+      const settings = await recoverySettingsService.getSettings(tenantId);
 
-      const classification = await highIntentDetector.classifyMessage(messageText, { catalog });
+      const classification = await highIntentDetector.classifyMessage(messageText, { catalog: catalogList });
 
       let draftMessage = null;
       if (classification.eligibleForRecovery) {

@@ -22,19 +22,83 @@ export const DEFAULT_RECOVERY_SETTINGS = {
   control_group_ratio: 0.10 // 10% holdout for lift calculation
 };
 
+function formatSettings(settings) {
+  if (!settings) {
+    return {
+      ...DEFAULT_RECOVERY_SETTINGS,
+      channels: JSON.parse(DEFAULT_RECOVERY_SETTINGS.channels),
+      enabled: false,
+      dry_run: true,
+      quiet_hours_enabled: true
+    };
+  }
+  return {
+    ...settings,
+    channels: typeof settings.channels === 'string' ? JSON.parse(settings.channels || '{}') : settings.channels,
+    enabled: Boolean(settings.enabled),
+    dry_run: Boolean(settings.dry_run),
+    quiet_hours_enabled: Boolean(settings.quiet_hours_enabled)
+  };
+}
+
 export const recoverySettingsService = {
   /**
    * Get settings for a tenant, initializing default row if absent.
+   * Compatible with both sync SQLite and async PostgreSQL calls.
    * @param {string} tenantId
-   * @returns {object}
+   * @returns {object|Promise<object>}
    */
   getSettings(tenantId) {
     if (!tenantId) throw new Error('Tenant ID is required for recovery settings.');
     const db = getDatabase();
 
-    let settings = db.prepare('SELECT * FROM recovery_settings WHERE tenant_id = ?').get(tenantId);
+    const initial = db.prepare('SELECT * FROM recovery_settings WHERE tenant_id = ?').get(tenantId);
+
+    // If running against async database (PostgreSQL)
+    if (initial instanceof Promise) {
+      return (async () => {
+        let settings = await initial;
+        if (!settings) {
+          const id = `recset-${tenantId}`;
+          const now = new Date().toISOString();
+          await db.prepare(`
+            INSERT INTO recovery_settings (
+              id, tenant_id, enabled, dry_run, channels, min_intent_score, inactivity_minutes,
+              quiet_hours_enabled, quiet_hours_start, quiet_hours_end, timezone,
+              max_daily_attempts_per_lead, max_daily_tenant_attempts, consent_policy,
+              model_provider, model_name, max_tokens, temperature, discount_offer_percent,
+              control_group_ratio, created_at, updated_at
+            ) VALUES (
+              ?, ?, ?, ?, ?, ?, ?,
+              ?, ?, ?, ?,
+              ?, ?, ?,
+              ?, ?, ?, ?, ?,
+              ?, ?, ?
+            )
+            ON CONFLICT (tenant_id) DO NOTHING
+          `).run(
+            id, tenantId, DEFAULT_RECOVERY_SETTINGS.enabled, DEFAULT_RECOVERY_SETTINGS.dry_run,
+            DEFAULT_RECOVERY_SETTINGS.channels, DEFAULT_RECOVERY_SETTINGS.min_intent_score,
+            DEFAULT_RECOVERY_SETTINGS.inactivity_minutes, DEFAULT_RECOVERY_SETTINGS.quiet_hours_enabled,
+            DEFAULT_RECOVERY_SETTINGS.quiet_hours_start, DEFAULT_RECOVERY_SETTINGS.quiet_hours_end,
+            DEFAULT_RECOVERY_SETTINGS.timezone, DEFAULT_RECOVERY_SETTINGS.max_daily_attempts_per_lead,
+            DEFAULT_RECOVERY_SETTINGS.max_daily_tenant_attempts, DEFAULT_RECOVERY_SETTINGS.consent_policy,
+            DEFAULT_RECOVERY_SETTINGS.model_provider, DEFAULT_RECOVERY_SETTINGS.model_name,
+            DEFAULT_RECOVERY_SETTINGS.max_tokens, DEFAULT_RECOVERY_SETTINGS.temperature,
+            DEFAULT_RECOVERY_SETTINGS.discount_offer_percent, DEFAULT_RECOVERY_SETTINGS.control_group_ratio,
+            now, now
+          );
+          settings = await db.prepare('SELECT * FROM recovery_settings WHERE tenant_id = ?').get(tenantId);
+        }
+        return formatSettings(settings);
+      })();
+    }
+
+    // Synchronous execution path (SQLite)
+    let settings = initial;
     if (!settings) {
       const id = `recset-${tenantId}`;
+      const now = new Date().toISOString();
       db.prepare(`
         INSERT OR IGNORE INTO recovery_settings (
           id, tenant_id, enabled, dry_run, channels, min_intent_score, inactivity_minutes,
@@ -47,57 +111,54 @@ export const recoverySettingsService = {
           ?, ?, ?, ?,
           ?, ?, ?,
           ?, ?, ?, ?, ?,
-          ?, datetime('now'), datetime('now')
+          ?, ?, ?
         )
       `).run(
-        id,
-        tenantId,
-        DEFAULT_RECOVERY_SETTINGS.enabled,
-        DEFAULT_RECOVERY_SETTINGS.dry_run,
-        DEFAULT_RECOVERY_SETTINGS.channels,
-        DEFAULT_RECOVERY_SETTINGS.min_intent_score,
-        DEFAULT_RECOVERY_SETTINGS.inactivity_minutes,
-        DEFAULT_RECOVERY_SETTINGS.quiet_hours_enabled,
-        DEFAULT_RECOVERY_SETTINGS.quiet_hours_start,
-        DEFAULT_RECOVERY_SETTINGS.quiet_hours_end,
-        DEFAULT_RECOVERY_SETTINGS.timezone,
-        DEFAULT_RECOVERY_SETTINGS.max_daily_attempts_per_lead,
-        DEFAULT_RECOVERY_SETTINGS.max_daily_tenant_attempts,
-        DEFAULT_RECOVERY_SETTINGS.consent_policy,
-        DEFAULT_RECOVERY_SETTINGS.model_provider,
-        DEFAULT_RECOVERY_SETTINGS.model_name,
-        DEFAULT_RECOVERY_SETTINGS.max_tokens,
-        DEFAULT_RECOVERY_SETTINGS.temperature,
-        DEFAULT_RECOVERY_SETTINGS.discount_offer_percent,
-        DEFAULT_RECOVERY_SETTINGS.control_group_ratio
+        id, tenantId, DEFAULT_RECOVERY_SETTINGS.enabled, DEFAULT_RECOVERY_SETTINGS.dry_run,
+        DEFAULT_RECOVERY_SETTINGS.channels, DEFAULT_RECOVERY_SETTINGS.min_intent_score,
+        DEFAULT_RECOVERY_SETTINGS.inactivity_minutes, DEFAULT_RECOVERY_SETTINGS.quiet_hours_enabled,
+        DEFAULT_RECOVERY_SETTINGS.quiet_hours_start, DEFAULT_RECOVERY_SETTINGS.quiet_hours_end,
+        DEFAULT_RECOVERY_SETTINGS.timezone, DEFAULT_RECOVERY_SETTINGS.max_daily_attempts_per_lead,
+        DEFAULT_RECOVERY_SETTINGS.max_daily_tenant_attempts, DEFAULT_RECOVERY_SETTINGS.consent_policy,
+        DEFAULT_RECOVERY_SETTINGS.model_provider, DEFAULT_RECOVERY_SETTINGS.model_name,
+        DEFAULT_RECOVERY_SETTINGS.max_tokens, DEFAULT_RECOVERY_SETTINGS.temperature,
+        DEFAULT_RECOVERY_SETTINGS.discount_offer_percent, DEFAULT_RECOVERY_SETTINGS.control_group_ratio,
+        now, now
       );
       settings = db.prepare('SELECT * FROM recovery_settings WHERE tenant_id = ?').get(tenantId);
     }
 
-    return {
-      ...settings,
-      channels: typeof settings.channels === 'string' ? JSON.parse(settings.channels || '{}') : settings.channels,
-      enabled: Boolean(settings.enabled),
-      dry_run: Boolean(settings.dry_run),
-      quiet_hours_enabled: Boolean(settings.quiet_hours_enabled)
-    };
+    return formatSettings(settings);
   },
 
   /**
    * Update tenant recovery settings with strict validation.
+   * Compatible with both sync SQLite and async PostgreSQL calls.
    * @param {string} tenantId
    * @param {object} updates
-   * @returns {object} updated settings
+   * @returns {object|Promise<object>} updated settings
    */
   updateSettings(tenantId, updates = {}) {
     if (!tenantId) throw new Error('Tenant ID is required for recovery settings update.');
     const current = this.getSettings(tenantId);
+
+    if (current instanceof Promise) {
+      return (async () => {
+        const resolvedCurrent = await current;
+        return this._applyUpdates(tenantId, updates, resolvedCurrent, true);
+      })();
+    }
+
+    return this._applyUpdates(tenantId, updates, current, false);
+  },
+
+  _applyUpdates(tenantId, updates, current, isAsync) {
     const db = getDatabase();
 
     const enabled = updates.enabled !== undefined ? (updates.enabled ? 1 : 0) : (current.enabled ? 1 : 0);
     const dryRun = updates.dry_run !== undefined ? (updates.dry_run ? 1 : 0) : (current.dry_run ? 1 : 0);
     const channels = updates.channels ? JSON.stringify(updates.channels) : JSON.stringify(current.channels);
-    
+
     const minIntentScore = typeof updates.min_intent_score === 'number'
       ? Math.max(0.1, Math.min(1.0, updates.min_intent_score))
       : current.min_intent_score;
@@ -135,24 +196,37 @@ export const recoverySettingsService = {
       ? Math.max(0, Math.min(0.5, updates.control_group_ratio))
       : current.control_group_ratio;
 
-    db.prepare(`
+    const now = new Date().toISOString();
+
+    const sql = `
       UPDATE recovery_settings
       SET enabled = ?, dry_run = ?, channels = ?, min_intent_score = ?,
           inactivity_minutes = ?, quiet_hours_enabled = ?, quiet_hours_start = ?,
           quiet_hours_end = ?, timezone = ?, max_daily_attempts_per_lead = ?,
           max_daily_tenant_attempts = ?, consent_policy = ?, model_provider = ?,
           model_name = ?, max_tokens = ?, temperature = ?, discount_offer_percent = ?,
-          control_group_ratio = ?, updated_at = datetime('now')
+          control_group_ratio = ?, updated_at = ?
       WHERE tenant_id = ?
-    `).run(
+    `;
+
+    const args = [
       enabled, dryRun, channels, minIntentScore,
       inactivityMinutes, quietHoursEnabled, quietHoursStart,
       quietHoursEnd, timezone, maxDailyAttemptsPerLead,
       maxDailyTenantAttempts, consentPolicy, modelProvider,
       modelName, maxTokens, temperature, discountOfferPercent,
-      controlGroupRatio, tenantId
-    );
+      controlGroupRatio, now, tenantId
+    ];
 
+    if (isAsync) {
+      return (async () => {
+        await db.prepare(sql).run(...args);
+        logger.info(`[RECOVERY SETTINGS] Updated settings for tenant ${tenantId}. Enabled: ${enabled}, DryRun: ${dryRun}`);
+        return await this.getSettings(tenantId);
+      })();
+    }
+
+    db.prepare(sql).run(...args);
     logger.info(`[RECOVERY SETTINGS] Updated settings for tenant ${tenantId}. Enabled: ${enabled}, DryRun: ${dryRun}`);
     return this.getSettings(tenantId);
   },
@@ -164,7 +238,7 @@ export const recoverySettingsService = {
    * @returns {boolean}
    */
   isQuietHour(settings, now = new Date()) {
-    if (!settings.quiet_hours_enabled) return false;
+    if (!settings || !settings.quiet_hours_enabled) return false;
 
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {

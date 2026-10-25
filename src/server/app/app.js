@@ -73,11 +73,6 @@ export function getRateLimitKey(req) {
     }
   }
 
-  const wsHeader = req.headers['x-workspace-id'];
-  if (wsHeader && typeof wsHeader === 'string' && wsHeader.trim()) {
-    return `ws_${wsHeader.trim()}`;
-  }
-
   const clientIp = getClientIp(req);
   return ipKeyGenerator(clientIp, 64);
 }
@@ -278,24 +273,25 @@ export function createApp() {
   app.get('/api/health/db', async (req, res) => {
     try {
       const db = getDatabase();
-      let tableNames = [];
-      if (db.isPostgres) {
-        const result = await db.query(
-          "SELECT table_name as name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY table_name"
-        );
-        tableNames = result.rows.map(t => t.name);
-      } else {
-        const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
-        tableNames = tables.map(t => t.name);
-      }
+      
+      await db.prepare('SELECT 1').get();
+
+      const countSql = db.isPostgres
+        ? "SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'"
+        : "SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'";
+
+      const countRow = await db.prepare(countSql).get();
+      const tablesCount = Number(countRow?.count ?? 0);
+    
       return successResponse(res, {
         status: 'CONNECTED',
-        databaseEngine: db.isPostgres ? 'PostgreSQL' : 'SQLite 3',
-        tablesCount: tableNames.length,
-        tables: tableNames
+        connected: true,
+        databaseEngine: db.isPostgres ? 'PostgreSQL' : 'SQLite',
+        tablesCount
       });
     } catch (err) {
-      return errorResponse(res, `Database unhealthy: ${err.message}`, 'DB_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      logger.error('[HEALTH/DB] Database check failed:', err.message);
+      return errorResponse(res, 'Database unavailable.', 'DB_ERROR', HTTP_STATUS.SERVICE_UNAVAILABLE);
     }
   });
 

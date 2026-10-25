@@ -51,6 +51,9 @@ authRouter.get('/admin-login/', (req, res) => {
   return errorResponse(res, 'Admin login requires HTTP POST with email and password.', API_ERROR_CODES.METHOD_NOT_ALLOWED, HTTP_STATUS.METHOD_NOT_ALLOWED);
 });
 authRouter.post('/google', authController.googleAuth);
+authRouter.get('/google/config', authController.googleConfig);
+authRouter.post('/forgot-password', authController.forgotPassword);
+authRouter.post('/reset-password', authController.resetPassword);
 authRouter.get('/me', authenticate, authController.getMe);
 apiRouter.use('/auth', authRouter);
 
@@ -233,6 +236,10 @@ adminRouter.delete('/leads/:id', adminController.deleteLead);
 adminRouter.get('/database/export', adminController.exportDatabase);
 adminRouter.get('/database/backup', adminController.exportDatabase);
 
+// Billing & Payment Invoices Verification
+adminRouter.get('/invoices', adminController.getInvoices);
+adminRouter.patch('/invoices/:id/verify', adminController.verifyInvoice);
+
 apiRouter.use('/admin', adminRouter);
 
 // =====================================================================
@@ -244,6 +251,7 @@ settingsRouter.use(authenticate);
 // User profile
 settingsRouter.get('/profile', settingsController.getProfile);
 settingsRouter.patch('/profile', settingsController.updateProfile);
+settingsRouter.put('/profile', settingsController.updateProfile);
 settingsRouter.patch('/password', settingsController.changePassword);
 settingsRouter.post('/avatar', avatarUpload.single('avatar'), settingsController.uploadAvatar, handleUploadError);
 settingsRouter.delete('/avatar', settingsController.removeAvatar);
@@ -269,6 +277,7 @@ settingsRouter.delete('/team/:id', settingsController.removeMember);
 // Notification preferences
 settingsRouter.get('/notifications', settingsController.getNotificationPrefs);
 settingsRouter.patch('/notifications', settingsController.updateNotificationPrefs);
+settingsRouter.put('/notifications', settingsController.updateNotificationPrefs);
 
 // API key management
 settingsRouter.get('/api-keys', settingsController.getApiKeys);
@@ -306,7 +315,9 @@ billingRouter.use(authenticate);
 billingRouter.get('/details', billingController.getDetails);
 billingRouter.post('/change-plan', billingController.changePlan);
 billingRouter.post('/cancel-plan', billingController.cancelPlan);
+billingRouter.post('/cancel', billingController.cancelPlan);
 billingRouter.post('/submit-payment', billingController.submitPayment);
+billingRouter.post('/pay', billingController.submitPayment);
 billingRouter.post('/update-method', billingController.updatePaymentMethod);
 apiRouter.use('/billing', billingRouter);
 

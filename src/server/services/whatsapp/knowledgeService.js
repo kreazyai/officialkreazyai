@@ -1,4 +1,4 @@
-import { getDatabase } from '../../config/database.js';
+﻿import { getDatabase } from '../../config/database.js';
 import { logger } from '../../utils/logger.js';
 import { visionService } from './visionService.js';
 
@@ -9,7 +9,7 @@ export const knowledgeService = {
   /**
    * Invalidates or warms up the in-memory knowledge cache for a tenant.
    * Called immediately when FAQs, policies, or products change.
-   * @param {string} tenantId 
+   * @param {string} tenantId
    */
   invalidateTenantCache(tenantId) {
     if (!tenantId) return;
@@ -20,15 +20,25 @@ export const knowledgeService = {
   /**
    * Retrieves all authoritative knowledge assets strictly isolated for a single tenant.
    * Cross-tenant leakage is strictly prevented.
+   * Compatible with both synchronous SQLite calls and asynchronous PostgreSQL queries.
    * @param {string} tenantId
    */
   getTenantKnowledge(tenantId) {
     if (!tenantId) return { faqs: [], policies: [], products: [] };
     const db = getDatabase();
     try {
-      const faqs = db.prepare("SELECT * FROM faqs WHERE tenant_id = ? AND status = 'ACTIVE'").all(tenantId);
-      const policies = db.prepare("SELECT * FROM policies WHERE tenant_id = ? AND status = 'ACTIVE'").all(tenantId);
-      const products = db.prepare("SELECT * FROM products WHERE (tenant_id = ? OR business_id = ?) AND status != 'DISCONTINUED'").all(tenantId, tenantId);
+      const faqsRaw = db.prepare("SELECT * FROM faqs WHERE tenant_id = ? AND status = 'ACTIVE'").all(tenantId);
+      if (faqsRaw instanceof Promise) {
+        return (async () => {
+          const faqs = (await faqsRaw) || [];
+          const policies = (await db.prepare("SELECT * FROM policies WHERE tenant_id = ? AND status = 'ACTIVE'").all(tenantId)) || [];
+          const products = (await db.prepare("SELECT * FROM products WHERE (tenant_id = ? OR business_id = ?) AND status != 'DISCONTINUED'").all(tenantId, tenantId)) || [];
+          return { faqs, policies, products };
+        })();
+      }
+      const faqs = faqsRaw || [];
+      const policies = db.prepare("SELECT * FROM policies WHERE tenant_id = ? AND status = 'ACTIVE'").all(tenantId) || [];
+      const products = db.prepare("SELECT * FROM products WHERE (tenant_id = ? OR business_id = ?) AND status != 'DISCONTINUED'").all(tenantId, tenantId) || [];
       return { faqs, policies, products };
     } catch (err) {
       logger.error(`Error loading knowledge for tenant ${tenantId}:`, err.message);
@@ -39,26 +49,44 @@ export const knowledgeService = {
   /**
    * Retrieves tenant AI Settings (system prompt, tone, threshold, handoff rules)
    * with platform security guardrails enforced.
-   * @param {string} tenantId 
+   * @param {string} tenantId
    */
   getTenantAiSettings(tenantId) {
     if (!tenantId) return this._getDefaultAiSettings('unknown');
     const db = getDatabase();
 
     try {
-      const row = db.prepare(`
+      const raw = db.prepare(`
         SELECT * FROM ai_settings WHERE tenant_id = ?
       `).get(tenantId);
 
-      if (row) {
+      if (raw instanceof Promise) {
+        return (async () => {
+          const row = await raw;
+          if (row) {
+            return {
+              id: row.id,
+              tenant_id: row.tenant_id,
+              system_instructions: row.system_instructions || 'Assist shoppers professionally with store products and policies.',
+              tone: row.tone || 'professional, courteous',
+              language_settings: JSON.parse(row.language_settings || '["bn","en","banglish"]'),
+              confidence_threshold: row.confidence_threshold !== undefined ? row.confidence_threshold : 0.75,
+              handoff_rules: JSON.parse(row.handoff_rules || '{}')
+            };
+          }
+          return this._getDefaultAiSettings(tenantId);
+        })();
+      }
+
+      if (raw) {
         return {
-          id: row.id,
-          tenant_id: row.tenant_id,
-          system_instructions: row.system_instructions || 'Assist shoppers professionally with store products and policies.',
-          tone: row.tone || 'professional, courteous',
-          language_settings: JSON.parse(row.language_settings || '["bn","en","banglish"]'),
-          confidence_threshold: row.confidence_threshold !== undefined ? row.confidence_threshold : 0.75,
-          handoff_rules: JSON.parse(row.handoff_rules || '{}')
+          id: raw.id,
+          tenant_id: raw.tenant_id,
+          system_instructions: raw.system_instructions || 'Assist shoppers professionally with store products and policies.',
+          tone: raw.tone || 'professional, courteous',
+          language_settings: JSON.parse(raw.language_settings || '["bn","en","banglish"]'),
+          confidence_threshold: raw.confidence_threshold !== undefined ? raw.confidence_threshold : 0.75,
+          handoff_rules: JSON.parse(raw.handoff_rules || '{}')
         };
       }
     } catch (err) {
@@ -83,9 +111,8 @@ export const knowledgeService = {
   /**
    * Tenant-isolated FAQ retrieval.
    * Matches question against tenant's FAQs only.
-   * @param {string} tenantId 
-   * @param {string} queryText 
-   * @returns {{ matched: boolean, faq?: object, score: number }}
+   * @param {string} tenantId
+   * @param {string} queryText
    */
   findMatchingFaq(tenantId, queryText) {
     if (!tenantId || !queryText) return { matched: false, score: 0 };
@@ -93,48 +120,59 @@ export const knowledgeService = {
     const cleanQuery = queryText.toLowerCase().trim();
 
     try {
-      const faqs = db.prepare(`
+      const raw = db.prepare(`
         SELECT id, question, answer, category FROM faqs
         WHERE tenant_id = ? AND status = 'ACTIVE'
       `).all(tenantId);
 
-      let bestMatch = null;
-      let highestScore = 0;
+      const computeMatch = (faqs) => {
+        let bestMatch = null;
+        let highestScore = 0;
 
-      for (const f of faqs) {
-        const qLower = f.question.toLowerCase();
-        let score = 0;
+        for (const f of faqs || []) {
+          const qLower = (f.question || '').toLowerCase();
+          let score = 0;
 
-        // Exact or strong substring match
-        if (cleanQuery.includes(qLower) || qLower.includes(cleanQuery)) {
-          score = 0.95;
-        } else {
-          // Token overlap score
-          const queryTokens = cleanQuery.split(/\s+/).filter(w => w.length > 2);
-          const faqTokens = qLower.split(/\s+/).filter(w => w.length > 2);
-          const matches = queryTokens.filter(t => faqTokens.includes(t));
-          score = matches.length / Math.max(queryTokens.length, 1);
+          // Exact or strong substring match
+          if (cleanQuery.includes(qLower) || qLower.includes(cleanQuery)) {
+            score = 0.95;
+          } else {
+            // Token overlap score
+            const queryTokens = cleanQuery.split(/\s+/).filter(w => w.length > 2);
+            const faqTokens = qLower.split(/\s+/).filter(w => w.length > 2);
+            const matches = queryTokens.filter(t => faqTokens.includes(t));
+            score = matches.length / Math.max(queryTokens.length, 1);
+          }
+
+          if (score > highestScore && score >= 0.5) {
+            highestScore = score;
+            bestMatch = f;
+          }
         }
 
-        if (score > highestScore && score >= 0.5) {
-          highestScore = score;
-          bestMatch = f;
+        if (bestMatch) {
+          return { matched: true, faq: bestMatch, score: highestScore };
         }
+        return { matched: false, score: 0 };
+      };
+
+      if (raw instanceof Promise) {
+        return (async () => {
+          const faqs = (await raw) || [];
+          return computeMatch(faqs);
+        })();
       }
 
-      if (bestMatch) {
-        return { matched: true, faq: bestMatch, score: highestScore };
-      }
+      return computeMatch(raw || []);
     } catch (err) {
       logger.error('Error finding matching FAQ:', err.message);
+      return { matched: false, score: 0 };
     }
-
-    return { matched: false, score: 0 };
   },
 
   /**
    * Tenant-isolated Policy retrieval.
-   * @param {string} tenantId 
+   * @param {string} tenantId
    * @param {string} policyType 'RETURN_POLICY' | 'SHIPPING_POLICY' | etc.
    */
   getPolicy(tenantId, policyType) {
@@ -142,13 +180,19 @@ export const knowledgeService = {
     const db = getDatabase();
 
     try {
-      const row = db.prepare(`
+      const raw = db.prepare(`
         SELECT id, policy_type, content FROM policies
         WHERE tenant_id = ? AND policy_type = ? AND status = 'ACTIVE'
         LIMIT 1
       `).get(tenantId, policyType.toUpperCase());
 
-      return row || null;
+      if (raw instanceof Promise) {
+        return (async () => {
+          return (await raw) || null;
+        })();
+      }
+
+      return raw || null;
     } catch (err) {
       logger.error('Error fetching policy:', err.message);
       return null;
@@ -159,8 +203,8 @@ export const knowledgeService = {
    * Product Search & Intelligence:
    * Supports text-to-product and image-to-product matching.
    * ALWAYS validates price and stock from the authoritative DB record.
-   * @param {string} tenantId 
-   * @param {{ queryText?: string, media?: object }} input 
+   * @param {string} tenantId
+   * @param {{ queryText?: string, media?: object }} input
    * @returns {Promise<{ matched: boolean, product?: object, confidence: number, reason: string }>}
    */
   async findProduct(tenantId, { queryText = '', media = null }) {
@@ -168,11 +212,11 @@ export const knowledgeService = {
     const db = getDatabase();
 
     // 1. Fetch only this tenant's authoritative product catalog
-    const products = db.prepare(`
+    const products = (await db.prepare(`
       SELECT id, sku, name, description, price, currency, stock, category, attributes, ai_knowledge
       FROM products
       WHERE (business_id = ? OR tenant_id = ?) AND status != 'DISCONTINUED'
-    `).all(tenantId, tenantId);
+    `).all(tenantId, tenantId)) || [];
 
     if (products.length === 0) {
       return { matched: false, confidence: 0, reason: 'No products in tenant catalog' };
@@ -187,7 +231,7 @@ export const knowledgeService = {
       let highestRank = 0;
 
       for (const prod of products) {
-        const prodName = prod.name.toLowerCase();
+        const prodName = (prod.name || '').toLowerCase();
         const prodCat = (prod.category || '').toLowerCase();
         let matchPoints = 0;
 
@@ -215,7 +259,10 @@ export const knowledgeService = {
 
       if (bestProduct && highestRank >= 0.4) {
         // Authoritative database check
-        const authoritative = db.prepare('SELECT price, stock, status FROM products WHERE id = ?').get(bestProduct.id);
+        const authoritative = await db.prepare('SELECT price, stock, status FROM products WHERE id = ? AND (business_id = ? OR tenant_id = ?) AND status != \'DISCONTINUED\'').get(bestProduct.id, tenantId, tenantId);
+        if (!authoritative) {
+          return { matched: false, confidence: 0, reason: 'Product verification failed' };
+        }
         bestProduct.price = authoritative.price;
         bestProduct.stock = authoritative.stock;
 
@@ -228,52 +275,65 @@ export const knowledgeService = {
       }
     }
 
-    // 3. Case B: Text-to-Product query
-    const qLower = (queryText || '').toLowerCase();
-    const commonColors = [
-      'black', 'white', 'red', 'blue', 'green', 'yellow', 'brown', 'pink',
-      'grey', 'gray', 'purple', 'orange', 'navy', 'beige', 'khaki',
-      'কালো', 'সাদা', 'লাল', 'নীল', 'সবুজ', 'হলুদ'
-    ];
-    const requestedColors = commonColors.filter(c => qLower.includes(c));
+        // 3. Case B: Tenant-scoped text-to-product matching
+    const query = String(queryText || '').toLowerCase().trim();
+    const queryWords = new Set(query.match(/[\p{L}\p{N}]+/gu) || []);
 
-    for (const prod of products) {
-      const prodName = prod.name.toLowerCase();
-      const sku = (prod.sku || '').toLowerCase();
-      const prodText = `${prodName} ${prod.description || ''} ${prod.ai_knowledge || ''} ${prod.category || ''} ${prod.variants || ''}`.toLowerCase();
+    const fullMatches = products.filter(p => {
+      const name = String(p.name || '').toLowerCase().trim();
+      return name.length > 0 && query.includes(name);
+    });
 
-      // If user specified a color, product MUST have that color
-      if (requestedColors.length > 0) {
-        const hasColor = requestedColors.some(c => prodText.includes(c));
-        if (!hasColor) {
-          continue; // Color mismatch - do NOT false-match
-        }
+    const skuMatches = products.filter(p => {
+      const sku = String(p.sku || '').toLowerCase().trim();
+      return sku.length > 0 && queryWords.has(sku);
+    });
+
+    const partialMatches = products.filter(p => {
+      const words = String(p.name || '').toLowerCase()
+        .match(/[\p{L}\p{N}]+/gu) || [];
+      return words.some(word => word.length >= 4 && queryWords.has(word));
+    });
+
+    const matches = skuMatches.length ? skuMatches
+      : fullMatches.length ? fullMatches
+      : partialMatches;
+
+    if (matches.length > 1) {
+      return {
+        matched: false,
+        ambiguous: true,
+        confidence: 0,
+        reason: 'Multiple products matched',
+        candidates: matches.slice(0, 5).map(p => ({ id: p.id, name: p.name }))
+      };
+    }
+
+    if (matches.length === 1) {
+      const product = matches[0];
+
+      const authoritative = await db.prepare(`
+        SELECT price, currency, stock, status
+        FROM products
+        WHERE id = ?
+          AND (business_id = ? OR tenant_id = ?)
+          AND status != 'DISCONTINUED'
+      `).get(product.id, tenantId, tenantId);
+
+      if (!authoritative) {
+        return { matched: false, confidence: 0, reason: 'Product verification failed' };
       }
 
-      const isNameMatch = qLower.includes(prodName) || (prodName.length > 5 && qLower.includes(prodName.slice(0, 8)));
-      const isSkuMatch = sku && qLower.includes(sku);
-      const isSpecificMatch =
-        (qLower.includes('linen') && prodName.includes('linen')) ||
-        (qLower.includes('trouser') && prodName.includes('trouser')) ||
-        (qLower.includes('mockneck') && prodName.includes('mockneck')) ||
-        (qLower.includes('crossbody') && prodName.includes('crossbody')) ||
-        (qLower.includes('cardigan') && prodName.includes('cardigan'));
-
-      if (isNameMatch || isSkuMatch || isSpecificMatch) {
-        // Authoritative record verification
-        const authoritative = db.prepare('SELECT price, stock, status FROM products WHERE id = ?').get(prod.id);
-        prod.price = authoritative.price;
-        prod.stock = authoritative.stock;
-
-        return {
-          matched: true,
-          product: prod,
-          confidence: isSkuMatch ? 0.99 : (isNameMatch ? 0.96 : 0.88),
-          reason: isSkuMatch ? 'Exact SKU Match' : 'Catalog Name Match'
-        };
-      }
+      return {
+        matched: true,
+        product: { ...product, ...authoritative },
+        confidence: skuMatches.length ? 0.99 : fullMatches.length ? 0.98 : 0.96,
+        reason: skuMatches.length ? 'SKU Match' : fullMatches.length ? 'Full Name Match' : 'Partial Name Match'
+      };
     }
 
     return { matched: false, confidence: 0, reason: 'No product matched in tenant catalog' };
   }
 };
+
+

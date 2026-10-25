@@ -64,10 +64,10 @@ export const whatsappPipeline = {
     logger.info(`[TENANT RESOLVED] WhatsApp message ${extMsgId || 'N/A'} mapped to business/tenant: ${tenantId}`);
 
     // Verify tenant exists and connection is active
-    let conn = whatsappConnectionService.getConnectionWithToken(tenantId);
+    let conn = await whatsappConnectionService.getConnectionWithToken(tenantId);
     if (!conn) {
       // In test suites with synthetic in-memory tokens or mocks
-      const waConn = db.prepare('SELECT * FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+      const waConn = await db.prepare('SELECT * FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
       if (waConn && (waConn.status === 'CONNECTED' || waConn.status === 'NOT_CONNECTED')) {
         conn = {
           ...waConn,
@@ -107,7 +107,7 @@ export const whatsappPipeline = {
     let creditReservation = null;
 
     if (!isSimulatedTest) {
-      const creditCheck = creditWalletService.canSendAiReply(tenantId);
+      const creditCheck = await creditWalletService.canSendAiReply(tenantId);
       if (!creditCheck.canSend) {
         logger.warn(`[BILLING] Auto-reply paused for tenant ${tenantId}: ${creditCheck.reason}`);
         return {
@@ -118,7 +118,7 @@ export const whatsappPipeline = {
         };
       }
 
-      const resResult = creditWalletService.reserveCredits(tenantId, 5, extMsgId);
+      const resResult = await creditWalletService.reserveCredits(tenantId, 5, extMsgId);
       if (!resResult.success) {
         logger.warn(`[BILLING] Credit reservation failed for tenant ${tenantId}: ${resResult.error}`);
         return {
@@ -130,7 +130,7 @@ export const whatsappPipeline = {
       creditReservation = resResult;
     }
 
-    const aiSettings = knowledgeService.getTenantAiSettings(tenantId);
+    const aiSettings = await knowledgeService.getTenantAiSettings(tenantId);
     const confidenceThreshold = aiSettings.confidence_threshold || 0.75;
 
     // ─────────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ export const whatsappPipeline = {
     let customer = null;
 
     if (cleanPhone) {
-      customer = db.prepare(`
+      customer = await db.prepare(`
         SELECT id, full_name, phone FROM customers 
         WHERE (business_id = ? OR tenant_id = ?) AND phone = ?
         LIMIT 1
@@ -151,7 +151,7 @@ export const whatsappPipeline = {
     if (!customer) {
       const custId = `cust-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       const fullName = sender?.name || (cleanPhone ? `Customer +${cleanPhone}` : 'WhatsApp Shopper');
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO customers (id, business_id, tenant_id, full_name, phone, source, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, 'WHATSAPP', datetime('now'), datetime('now'))
       `).run(custId, tenantId, tenantId, fullName, cleanPhone);
@@ -162,14 +162,14 @@ export const whatsappPipeline = {
     // STEP 3: CONVERSATION RESOLUTION (Tenant-Scoped)
     // ─────────────────────────────────────────────────────────────────
     const convId = externalConversationId || `wa_conv_${cleanPhone || Date.now()}`;
-    let conversation = db.prepare(`
+    let conversation = await db.prepare(`
       SELECT id, status FROM conversations 
       WHERE (business_id = ? OR tenant_id = ?) AND id = ?
       LIMIT 1
     `).get(tenantId, tenantId, convId);
 
     if (!conversation) {
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO conversations (
           id, business_id, tenant_id, customer_id, customer_name,
           channel, status, unread, last_message_time, created_at, updated_at
@@ -184,7 +184,7 @@ export const whatsappPipeline = {
     const inMsgId = `msg-in-${externalMessageId ? externalMessageId.replace(/[^a-zA-Z0-9_-]/g, '_') : Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const mediaRef = attachments.length > 0 ? JSON.stringify(attachments) : null;
 
-    db.prepare(`
+    await db.prepare(`
       INSERT OR IGNORE INTO messages (
         id, conversation_id, sender, sender_name, text, is_ai, channel,
         tenant_id, direction, message_type, media_reference, external_message_id, created_at
@@ -255,13 +255,13 @@ export const whatsappPipeline = {
       let order = null;
 
       if (searchId) {
-        order = db.prepare(`
+        order = await db.prepare(`
           SELECT * FROM orders 
           WHERE (business_id = ? OR tenant_id = ?) AND (id LIKE ? OR id = ?)
           LIMIT 1
         `).get(tenantId, tenantId, `%${searchId}%`, searchId);
       } else if (cleanPhone) {
-        order = db.prepare(`
+        order = await db.prepare(`
           SELECT * FROM orders 
           WHERE (business_id = ? OR tenant_id = ?) AND customer_phone = ?
           ORDER BY created_at DESC LIMIT 1
@@ -287,8 +287,8 @@ export const whatsappPipeline = {
     // ─────────────────────────────────────────────────────────────────
     if (!replyText) {
       if (intent === WHATSAPP_INTENTS.RETURN_REFUND) {
-        const pol = knowledgeService.getPolicy(tenantId, 'RETURN_POLICY');
-        const faqMatch = knowledgeService.findMatchingFaq(tenantId, normalizedText);
+        const pol = await knowledgeService.getPolicy(tenantId, 'RETURN_POLICY');
+        const faqMatch = await knowledgeService.findMatchingFaq(tenantId, normalizedText);
         if (faqMatch.matched) {
           sourceType = 'DETERMINISTIC_LOGIC';
           replyText = faqMatch.faq.answer;
@@ -301,8 +301,8 @@ export const whatsappPipeline = {
           confidence = 0.95;
         }
       } else if (intent === WHATSAPP_INTENTS.DELIVERY) {
-        const pol = knowledgeService.getPolicy(tenantId, 'SHIPPING_POLICY');
-        const faqMatch = knowledgeService.findMatchingFaq(tenantId, normalizedText);
+        const pol = await knowledgeService.getPolicy(tenantId, 'SHIPPING_POLICY');
+        const faqMatch = await knowledgeService.findMatchingFaq(tenantId, normalizedText);
         if (faqMatch.matched) {
           sourceType = 'DETERMINISTIC_LOGIC';
           replyText = faqMatch.faq.answer;
@@ -315,7 +315,7 @@ export const whatsappPipeline = {
           confidence = 0.95;
         }
       } else if (intent === WHATSAPP_INTENTS.FAQ) {
-        const faqMatch = knowledgeService.findMatchingFaq(tenantId, normalizedText);
+        const faqMatch = await knowledgeService.findMatchingFaq(tenantId, normalizedText);
         if (faqMatch.matched) {
           sourceType = 'DETERMINISTIC_LOGIC';
           replyText = faqMatch.faq.answer;
@@ -328,9 +328,9 @@ export const whatsappPipeline = {
     // ─────────────────────────────────────────────────────────────────
     // DYNAMIC QWEN3 AI CONVERSATIONAL GENERATION (Grounded in Tenant Knowledge)
     // ─────────────────────────────────────────────────────────────────
-    if (!replyText && rawMessageText) {
+    if (!replyText && rawMessageText && messageType !== 'image' && attachments.length === 0) {
       try {
-        const tenantKnowledge = knowledgeService.getTenantKnowledge(tenantId);
+        const tenantKnowledge = await knowledgeService.getTenantKnowledge(tenantId);
         const aiResult = await whatsappAiService.generateCustomerReply({
           businessId: tenantId,
           conversationId: convId,
@@ -427,7 +427,7 @@ export const whatsappPipeline = {
     }
 
     if (isEscalated) {
-      db.prepare(`
+      await db.prepare(`
         UPDATE conversations SET status = 'NEEDS_HUMAN', updated_at = datetime('now')
         WHERE id = ?
       `).run(convId);
@@ -461,7 +461,7 @@ export const whatsappPipeline = {
           error: 'Dispatch blocked: Recipient phone number is a placeholder test number'
         };
         if (creditReservation) {
-          creditWalletService.releaseReservation(tenantId, creditReservation.reservationId, 'PLACEHOLDER_RECIPIENT');
+          await creditWalletService.releaseReservation(tenantId, creditReservation.reservationId, 'PLACEHOLDER_RECIPIENT');
         }
       } else if (cleanPhone && decryptedToken && outboundPhoneId) {
         dispatchResult = await whatsappService.sendTextMessage(
@@ -474,12 +474,12 @@ export const whatsappPipeline = {
         if (dispatchResult.success) {
           logger.info(`[REPLY SENT] WhatsApp message dispatched successfully via Meta Cloud API to +${cleanPhone} (Message ID: ${dispatchResult.messageId})`);
           if (creditReservation) {
-            creditWalletService.commitReservation(tenantId, creditReservation.reservationId, extMsgId, dispatchResult.messageId);
+            await creditWalletService.commitReservation(tenantId, creditReservation.reservationId, extMsgId, dispatchResult.messageId);
           }
         } else {
           logger.warn(`[REPLY FAILED] Outbound WhatsApp dispatch failed to +${cleanPhone}: ${dispatchResult.error} (Code: ${dispatchResult.errorCode || 'N/A'})`);
           if (creditReservation) {
-            creditWalletService.releaseReservation(tenantId, creditReservation.reservationId, dispatchResult.error || 'DISPATCH_FAILED');
+            await creditWalletService.releaseReservation(tenantId, creditReservation.reservationId, dispatchResult.error || 'DISPATCH_FAILED');
           }
 
           // If Meta returned authentication error (code 190 / 401), automatically mark tenant as REAUTH_REQUIRED!
@@ -494,8 +494,8 @@ export const whatsappPipeline = {
                 lastError: authErrMsg,
                 failedAt: new Date().toISOString()
               });
-              db.prepare("UPDATE whatsapp_connections SET status = 'REAUTH_REQUIRED', last_error = ?, diagnostics = ?, updated_at = datetime('now') WHERE tenant_id = ?").run(authErrMsg, diagStr, tenantId);
-              db.prepare("UPDATE meta_connections SET status = 'REAUTH_REQUIRED', last_error = ?, diagnostics = ?, updated_at = datetime('now') WHERE business_id = ? AND platform = 'WHATSAPP'").run(authErrMsg, diagStr, tenantId);
+              await db.prepare("UPDATE whatsapp_connections SET status = 'REAUTH_REQUIRED', last_error = ?, diagnostics = ?, updated_at = ? WHERE tenant_id = ?").run(authErrMsg, diagStr, new Date().toISOString(), tenantId);
+              await db.prepare("UPDATE meta_connections SET status = 'REAUTH_REQUIRED', last_error = ?, diagnostics = ?, updated_at = ? WHERE business_id = ? AND platform = 'WHATSAPP'").run(authErrMsg, diagStr, new Date().toISOString(), tenantId);
               logger.warn(`[TENANT AUTH] Marked tenant ${tenantId} as REAUTH_REQUIRED due to Meta error ${dispatchResult.errorCode}`);
             } catch (statusErr) {
               logger.error('Failed to update tenant status to REAUTH_REQUIRED:', statusErr.message);
@@ -505,7 +505,7 @@ export const whatsappPipeline = {
       } else {
         logger.warn('[REPLY FAILED] Outbound dispatch skipped: Missing token or phone number');
         if (creditReservation) {
-          creditWalletService.releaseReservation(tenantId, creditReservation.reservationId, 'MISSING_CREDENTIALS');
+          await creditWalletService.releaseReservation(tenantId, creditReservation.reservationId, 'MISSING_CREDENTIALS');
         }
       }
     }
@@ -514,7 +514,7 @@ export const whatsappPipeline = {
     // STEP 10: DELIVERY / RESULT PERSISTENCE
     // ─────────────────────────────────────────────────────────────────
     const outMsgId = `msg-out-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO messages (
         id, conversation_id, sender, sender_name, text, is_ai, channel,
         tenant_id, direction, message_type, status, external_message_id, created_at
@@ -529,7 +529,7 @@ export const whatsappPipeline = {
     );
 
     // Update conversation timestamp
-    db.prepare(`
+    await db.prepare(`
       UPDATE conversations 
       SET last_message_time = datetime('now'), updated_at = datetime('now')
       WHERE id = ?
@@ -537,7 +537,7 @@ export const whatsappPipeline = {
 
     // Update WhatsApp connection timestamp & event tracking
     try {
-      db.prepare(`
+      await db.prepare(`
         UPDATE whatsapp_connections 
         SET last_event_at = datetime('now'), webhook_status = 'ACTIVE', updated_at = datetime('now')
         WHERE tenant_id = ?
@@ -547,7 +547,7 @@ export const whatsappPipeline = {
     // Evaluate High-Intent Sales Recovery Lead
     if (!isEscalated && rawMessageText && customer) {
       try {
-        const catalog = db.prepare('SELECT id, name, sku, price, stock FROM products WHERE (business_id = ? OR tenant_id = ?) LIMIT 30').all(tenantId, tenantId);
+        const catalog = await db.prepare('SELECT id, name, sku, price, stock FROM products WHERE (business_id = ? OR tenant_id = ?) LIMIT 30').all(tenantId, tenantId);
         highIntentDetector.classifyMessage(rawMessageText, { catalog }).then(recClassification => {
           if (recClassification && recClassification.eligibleForRecovery) {
             recoveryCandidateService.registerIntent({

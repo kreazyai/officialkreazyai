@@ -16,14 +16,14 @@ export const faqController = {
       }
       const db = getDatabase();
 
-      const faqs = db.prepare(`
+      const faqs = await db.prepare(`
         SELECT id, tenant_id, question, answer, category, status, created_at, updated_at
         FROM faqs
         WHERE tenant_id = ?
         ORDER BY created_at DESC
       `).all(tenantId);
 
-      return successResponse(res, faqs);
+      return successResponse(res, Array.isArray(faqs) ? faqs : []);
     } catch (err) {
       next(err);
     }
@@ -49,7 +49,7 @@ export const faqController = {
       const id = `faq-${tenantId}-${Date.now()}`;
       const now = new Date().toISOString();
 
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO faqs (id, tenant_id, question, answer, category, status, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(id, tenantId, question.trim(), answer.trim(), category, status, now, now);
@@ -57,7 +57,7 @@ export const faqController = {
       // Invalidate live knowledge index
       knowledgeService.invalidateTenantCache(tenantId);
 
-      const created = db.prepare('SELECT * FROM faqs WHERE id = ?').get(id);
+      const created = await db.prepare('SELECT * FROM faqs WHERE id = ?').get(id);
       return successResponse(res, created, HTTP_STATUS.CREATED, { message: 'FAQ created successfully' });
     } catch (err) {
       next(err);
@@ -76,7 +76,7 @@ export const faqController = {
       const { id } = req.params;
       const db = getDatabase();
 
-      const faq = db.prepare('SELECT * FROM faqs WHERE id = ? AND tenant_id = ?').get(id, tenantId);
+      const faq = await db.prepare('SELECT * FROM faqs WHERE id = ? AND tenant_id = ?').get(id, tenantId);
       if (!faq) {
         return errorResponse(res, 'FAQ not found', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
@@ -100,24 +100,25 @@ export const faqController = {
       const { question, answer, category, status } = req.body || {};
       const db = getDatabase();
 
-      const existing = db.prepare('SELECT * FROM faqs WHERE id = ? AND tenant_id = ?').get(id, tenantId);
+      const existing = await db.prepare('SELECT * FROM faqs WHERE id = ? AND tenant_id = ?').get(id, tenantId);
       if (!existing) {
         return errorResponse(res, 'FAQ not found', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      db.prepare(`
+      const now = new Date().toISOString();
+      await db.prepare(`
         UPDATE faqs SET
           question = COALESCE(?, question),
           answer = COALESCE(?, answer),
           category = COALESCE(?, category),
           status = COALESCE(?, status),
-          updated_at = datetime('now')
+          updated_at = ?
         WHERE id = ? AND tenant_id = ?
-      `).run(question, answer, category, status, id, tenantId);
+      `).run(question, answer, category, status, now, id, tenantId);
 
       knowledgeService.invalidateTenantCache(tenantId);
 
-      const updated = db.prepare('SELECT * FROM faqs WHERE id = ?').get(id);
+      const updated = await db.prepare('SELECT * FROM faqs WHERE id = ?').get(id);
       return successResponse(res, updated, HTTP_STATUS.OK, { message: 'FAQ updated successfully' });
     } catch (err) {
       next(err);
@@ -136,12 +137,12 @@ export const faqController = {
       const { id } = req.params;
       const db = getDatabase();
 
-      const existing = db.prepare('SELECT * FROM faqs WHERE id = ? AND tenant_id = ?').get(id, tenantId);
+      const existing = await db.prepare('SELECT * FROM faqs WHERE id = ? AND tenant_id = ?').get(id, tenantId);
       if (!existing) {
         return errorResponse(res, 'FAQ not found', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       }
 
-      db.prepare('DELETE FROM faqs WHERE id = ? AND tenant_id = ?').run(id, tenantId);
+      await db.prepare('DELETE FROM faqs WHERE id = ? AND tenant_id = ?').run(id, tenantId);
       knowledgeService.invalidateTenantCache(tenantId);
 
       return successResponse(res, { id, deleted: true }, HTTP_STATUS.OK, { message: 'FAQ deleted successfully' });

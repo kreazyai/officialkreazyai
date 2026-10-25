@@ -41,3 +41,11 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
+# Scratch & Backup files
+*.bak
+*.bak.*
+*.backup.js
+.kreazyai-*
+kreazyai-*.txt
+kreazyai-*.json
+

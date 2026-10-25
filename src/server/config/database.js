@@ -1256,7 +1256,11 @@ export function seedInitialData(db) {
     ) VALUES (?, ?, ?, 'WHATSAPP', 'CONNECTED', '109283741', '2983710492817', '+1 (555) 839-2041', ?, ?, ?, 1, 0.75, '{"verified":true}', ?, ?)
   `).run(`conn-wa-${flagshipId}`, flagshipId, flagshipId, seedToken.encrypted, seedToken.iv, seedToken.tag, now, now);
 
-  // Initialize secondary tenant empty connection records
+  // Initialize secondary tenant user & empty connection records
+  db.prepare(`
+    INSERT OR IGNORE INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 'OWNER', 0, ?, ?)
+  `).run('usr-artisan', artisanId, 'artisan@copenhagenbotanicals.com', demoUserPassHash, 'Artisan Botanicals Owner', now, now);
   ensureWhatsAppConnection(db, artisanId);
   ensureMetaConnections(db, artisanId, artisanId);
 
@@ -1273,14 +1277,14 @@ export function seedInitialData(db) {
 /**
  * Ensures baseline billing subscription and invoice records exist for a tenant workspace.
  */
-export function ensureBillingData(db, tenantId, now = new Date()) {
+export async function ensureBillingData(db, tenantId, now = new Date()) {
   // Never seed sample billing data in production
   if (config.isProduction) {
     return;
   }
   try {
-    const existingSub = db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
-    const existingInvoice = db.prepare('SELECT * FROM billing_invoices WHERE tenant_id = ?').get(tenantId);
+    const existingSub = await db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
+    const existingInvoice = await db.prepare('SELECT * FROM billing_invoices WHERE tenant_id = ?').get(tenantId);
 
     const nowDate = now instanceof Date ? now : new Date(now || Date.now());
     const nowIso = nowDate.toISOString();
@@ -1288,24 +1292,26 @@ export function ensureBillingData(db, tenantId, now = new Date()) {
     const periodEndIso = nextMonth.toISOString();
 
     if (!existingSub) {
-      db.prepare(`
-        INSERT OR IGNORE INTO subscriptions (
+      await db.prepare(`
+        INSERT INTO subscriptions (
           id, tenant_id, plan_id, status, credits_allowance, billing_cycle,
           currency, amount, current_period_start, current_period_end,
           cancel_at_period_end, payment_provider, external_subscription_id,
           created_at, updated_at
         ) VALUES (?, ?, 'growth', 'ACTIVE', 25000, 'MONTHLY', 'USD', 119.00, ?, ?, 0, 'bKash', ?, ?, ?)
+        ON CONFLICT(tenant_id) DO NOTHING
       `).run(`sub-${tenantId}`, tenantId, nowIso, periodEndIso, `sub_ext_${Date.now()}`, nowIso, nowIso);
     }
 
     if (!existingInvoice) {
       const invNum = tenantId === 'ws-flagship-01' ? 'INV-2026-001' : `INV-${nowDate.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      db.prepare(`
-        INSERT OR IGNORE INTO billing_invoices (
+      await db.prepare(`
+        INSERT INTO billing_invoices (
           id, tenant_id, invoice_number, plan_id, plan_name, amount, currency,
           amount_formatted, status, payment_method, payment_provider, sender_number,
           trx_id, cleared_at, created_at, updated_at
         ) VALUES (?, ?, ?, 'growth', 'Growth Plan', 119.00, 'USD', '$119.00 (৳14,280 BDT)', 'Confirmed', 'bKash 01643792804 (Send money)', 'bKash', '01643792804', 'BL98XJ28K9', ?, ?, ?)
+        ON CONFLICT(id) DO NOTHING
       `).run(`inv-${tenantId}-${Date.now()}`, tenantId, invNum, nowIso, nowIso, nowIso);
     }
   } catch (err) {
@@ -1316,14 +1322,16 @@ export function ensureBillingData(db, tenantId, now = new Date()) {
 /**
  * Ensures dedicated WhatsApp connection record exists for a tenant workspace.
  */
-export function ensureWhatsAppConnection(db, tenantId) {
+export async function ensureWhatsAppConnection(db, tenantId) {
   const id = `waconn-${tenantId}`;
+  const nowIso = new Date().toISOString();
   try {
-    db.prepare(`
-      INSERT OR IGNORE INTO whatsapp_connections (
+    await db.prepare(`
+      INSERT INTO whatsapp_connections (
         id, tenant_id, status, webhook_status, diagnostics, created_at, updated_at
-      ) VALUES (?, ?, 'NOT_CONNECTED', 'INACTIVE', '{}', datetime('now'), datetime('now'))
-    `).run(id, tenantId);
+      ) VALUES (?, ?, 'NOT_CONNECTED', 'INACTIVE', '{}', ?, ?)
+      ON CONFLICT(tenant_id) DO NOTHING
+    `).run(id, tenantId, nowIso, nowIso);
   } catch {
     // safe fallback
   }
@@ -1333,9 +1341,9 @@ export function ensureWhatsAppConnection(db, tenantId) {
  * Ensures a 7-Day Free Trial AI Credit Wallet exists for a tenant.
  * Grants 125 trial credits with a 7-day expiration from account creation.
  */
-export function ensureCreditWallet(db, tenantId, createdAt = null) {
+export async function ensureCreditWallet(db, tenantId, createdAt = null) {
   if (!tenantId) return null;
-  const existing = db.prepare('SELECT * FROM ai_credit_wallets WHERE tenant_id = ?').get(tenantId);
+  const existing = await db.prepare('SELECT * FROM ai_credit_wallets WHERE tenant_id = ?').get(tenantId);
   if (existing) return existing;
 
   const now = new Date();
@@ -1348,23 +1356,25 @@ export function ensureCreditWallet(db, tenantId, createdAt = null) {
   const status = isExpired ? 'TRIAL_EXPIRED' : 'TRIAL_ACTIVE';
 
   try {
-    db.prepare(`
-      INSERT OR IGNORE INTO ai_credit_wallets (
+    await db.prepare(`
+      INSERT INTO ai_credit_wallets (
         tenant_id, trial_started_at, trial_expires_at, trial_credits_granted,
         credits_balance, credits_reserved, credits_used, successful_replies_count,
         subscription_tier, subscription_status, monthly_credit_allowance,
         created_at, updated_at
       ) VALUES (?, ?, ?, 125, 125, 0, 0, 0, 'FREE_TRIAL', ?, 0, ?, ?)
+      ON CONFLICT(tenant_id) DO NOTHING
     `).run(tenantId, startIso, expiresIso, status, nowIso, nowIso);
 
     // Initial trial grant entry in transaction ledger
-    db.prepare(`
-      INSERT OR IGNORE INTO credit_transactions (
+    await db.prepare(`
+      INSERT INTO credit_transactions (
         id, tenant_id, amount, type, balance_after, reference_id, description, created_at
       ) VALUES (?, ?, 125, 'TRIAL_GRANT', 125, 'TRIAL_INITIAL', 'Welcome 7-Day Free Trial: 125 AI Credits (25 replies max)', ?)
+      ON CONFLICT(id) DO NOTHING
     `).run(`ctx-grant-${tenantId}-${Date.now()}`, tenantId, nowIso);
 
-    return db.prepare('SELECT * FROM ai_credit_wallets WHERE tenant_id = ?').get(tenantId);
+    return await db.prepare('SELECT * FROM ai_credit_wallets WHERE tenant_id = ?').get(tenantId);
   } catch (err) {
     logger.warn(`Failed to initialize credit wallet for tenant ${tenantId}:`, err.message);
     return null;

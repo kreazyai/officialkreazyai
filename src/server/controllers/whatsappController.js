@@ -22,9 +22,9 @@ export const whatsappController = {
       if (!tenantId) {
         return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
       }
-      const connection = whatsappConnectionService.getConnection(tenantId);
+      const connection = await whatsappConnectionService.getConnection(tenantId);
       const aiHealth = await whatsappAiService.checkHealth();
-      const wallet = creditWalletService.getWallet(tenantId);
+      const wallet = await creditWalletService.getWallet(tenantId);
 
       return successResponse(res, {
         connection,
@@ -411,17 +411,17 @@ export const whatsappController = {
       if (!tenantId) {
         return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
       }
-      const connection = whatsappConnectionService.getConnection(tenantId);
+      const connection = await whatsappConnectionService.getConnection(tenantId);
       const db = (await import('../config/database.js')).getDatabase();
 
-      const lastInbound = db.prepare(`
+      const lastInbound = await db.prepare(`
         SELECT created_at FROM messages
         WHERE (tenant_id = ? OR conversation_id IN (SELECT id FROM conversations WHERE business_id = ?))
           AND direction = 'INBOUND'
         ORDER BY created_at DESC LIMIT 1
       `).get(tenantId, tenantId);
 
-      const lastOutbound = db.prepare(`
+      const lastOutbound = await db.prepare(`
         SELECT created_at, status FROM messages
         WHERE (tenant_id = ? OR conversation_id IN (SELECT id FROM conversations WHERE business_id = ?))
           AND direction = 'OUTBOUND'
@@ -518,7 +518,7 @@ export const whatsappController = {
       if (!tenantId) {
         return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
       }
-      const wallet = creditWalletService.getWallet(tenantId);
+      const wallet = await creditWalletService.getWallet(tenantId);
       return successResponse(res, wallet, HTTP_STATUS.OK);
     } catch (err) {
       next(err);
@@ -541,7 +541,7 @@ export const whatsappController = {
         return errorResponse(res, 'planId is required (trial, standard, or pro)', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
       }
 
-      const result = creditWalletService.upgradeSubscription(tenantId, planId, billingCycle, provider);
+      const result = await creditWalletService.upgradeSubscription(tenantId, planId, billingCycle, provider);
       return successResponse(res, result, HTTP_STATUS.OK, {
         message: `Plan successfully upgraded to ${result.plan}`
       });
@@ -561,7 +561,7 @@ export const whatsappController = {
         return errorResponse(res, 'Tenant context required.', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
       }
       const limit = parseInt(req.query.limit || '50', 10);
-      const transactions = creditWalletService.getTransactions(tenantId, limit);
+      const transactions = await creditWalletService.getTransactions(tenantId, limit);
       return successResponse(res, { transactions }, HTTP_STATUS.OK);
     } catch (err) {
       next(err);

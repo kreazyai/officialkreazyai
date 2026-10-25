@@ -14,14 +14,15 @@ export const recoverySchedulerService = {
   async processCandidate(candidate) {
     const db = getDatabase();
     const tenantId = candidate.tenant_id;
-    const settings = recoverySettingsService.getSettings(tenantId);
+    const settings = await recoverySettingsService.getSettings(tenantId);
+    const now = new Date().toISOString();
 
     // 1. Atomic Locking: claim candidate
-    const lockResult = db.prepare(`
+    const lockResult = await db.prepare(`
       UPDATE recovery_candidates
-      SET state = 'PROCESSING', version = version + 1, updated_at = datetime('now')
+      SET state = 'PROCESSING', version = version + 1, updated_at = ?
       WHERE id = ? AND version = ? AND state = 'PENDING'
-    `).run(candidate.id, candidate.version);
+    `).run(now, candidate.id, candidate.version);
 
     if (lockResult.changes === 0) {
       logger.info(`[RECOVERY SCHEDULER] Candidate ${candidate.id} already claimed by another worker.`);
@@ -29,14 +30,14 @@ export const recoverySchedulerService = {
     }
 
     // Refresh candidate record
-    const claimedCandidate = db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(candidate.id);
+    const claimedCandidate = await db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(candidate.id);
 
     try {
       // 2. Check if Tenant Recovery Feature is Enabled (or in Dry-Run mode)
       if (!settings.enabled && !settings.dry_run) {
-        db.prepare(`
-          UPDATE recovery_candidates SET state = 'PENDING', updated_at = datetime('now') WHERE id = ?
-        `).run(claimedCandidate.id);
+        await db.prepare(`
+          UPDATE recovery_candidates SET state = 'PENDING', updated_at = ? WHERE id = ?
+        `).run(new Date().toISOString(), claimedCandidate.id);
         logger.info(`[RECOVERY SCHEDULER] Recovery automation disabled for tenant ${tenantId}. Candidate postponed.`);
         return { skipped: true, reason: 'FEATURE_DISABLED' };
       }
@@ -51,20 +52,19 @@ export const recoverySchedulerService = {
           postponedDate.setDate(postponedDate.getDate() + 1);
         }
         const newEligibleAt = postponedDate.toISOString();
+        const postNow = new Date().toISOString();
 
-        db.transaction(() => {
-          db.prepare(`
-            UPDATE recovery_candidates 
-            SET eligible_at = ?, state = 'PENDING', version = version + 1, updated_at = datetime('now')
-            WHERE id = ?
-          `).run(newEligibleAt, claimedCandidate.id);
+        await db.prepare(`
+          UPDATE recovery_candidates 
+          SET eligible_at = ?, state = 'PENDING', version = version + 1, updated_at = ?
+          WHERE id = ?
+        `).run(newEligibleAt, postNow, claimedCandidate.id);
 
-          const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-          db.prepare(`
-            INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-            VALUES (?, ?, ?, 'RESCHEDULED', ?, datetime('now'))
-          `).run(evId, tenantId, claimedCandidate.id, JSON.stringify({ reason: 'QUIET_HOURS', newEligibleAt }));
-        })();
+        const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        await db.prepare(`
+          INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+          VALUES (?, ?, ?, 'RESCHEDULED', ?, ?)
+        `).run(evId, tenantId, claimedCandidate.id, JSON.stringify({ reason: 'QUIET_HOURS', newEligibleAt }), postNow);
 
         logger.info(`[RECOVERY SCHEDULER] Quiet hours active for tenant ${tenantId}. Candidate ${claimedCandidate.id} rescheduled to ${newEligibleAt}`);
         return { postponed: true, reason: 'QUIET_HOURS', newEligibleAt };
@@ -72,68 +72,68 @@ export const recoverySchedulerService = {
 
       // 4. Suppression Rule Checks
       // 4A: Check if customer replied after candidate was created
-      const newerInbound = db.prepare(`
+      const newerInbound = await db.prepare(`
         SELECT id, created_at, text FROM messages 
         WHERE conversation_id = ? AND sender != 'ai' AND direction = 'INBOUND' AND created_at > ?
         LIMIT 1
       `).get(claimedCandidate.conversation_id, claimedCandidate.last_customer_message_at);
 
       if (newerInbound) {
-        recoveryCandidateService.cancelActiveCandidates(tenantId, claimedCandidate.conversation_id, 'NEWER_CUSTOMER_MESSAGE');
+        await recoveryCandidateService.cancelActiveCandidates(tenantId, claimedCandidate.conversation_id, 'NEWER_CUSTOMER_MESSAGE');
         return { cancelled: true, reason: 'NEWER_CUSTOMER_MESSAGE' };
       }
 
       // 4B: Check Conversation Status (Human Handoff or Closed)
-      const conv = db.prepare('SELECT status FROM conversations WHERE id = ?').get(claimedCandidate.conversation_id);
+      const conv = await db.prepare('SELECT status FROM conversations WHERE id = ?').get(claimedCandidate.conversation_id);
       if (conv && (conv.status === 'NEEDS_HUMAN' || conv.status === 'CLOSED')) {
-        recoveryCandidateService.cancelActiveCandidates(tenantId, claimedCandidate.conversation_id, `CONVERSATION_${conv.status}`);
+        await recoveryCandidateService.cancelActiveCandidates(tenantId, claimedCandidate.conversation_id, `CONVERSATION_${conv.status}`);
         return { cancelled: true, reason: `CONVERSATION_${conv.status}` };
       }
 
       // 4C: Check if Customer has placed an order since candidate creation
       if (claimedCandidate.customer_id) {
-        const orderPlaced = db.prepare(`
+        const orderPlaced = await db.prepare(`
           SELECT id FROM orders 
           WHERE (business_id = ? OR tenant_id = ?) AND customer_id = ? AND created_at >= ?
           LIMIT 1
         `).get(tenantId, tenantId, claimedCandidate.customer_id, claimedCandidate.created_at);
 
         if (orderPlaced) {
-          recoveryCandidateService.cancelActiveCandidates(tenantId, claimedCandidate.conversation_id, 'ORDER_ALREADY_PLACED');
+          await recoveryCandidateService.cancelActiveCandidates(tenantId, claimedCandidate.conversation_id, 'ORDER_ALREADY_PLACED');
           return { cancelled: true, reason: 'ORDER_ALREADY_PLACED' };
         }
       }
 
       // 4D: Daily limits check
       const todayStart = new Date().toISOString().slice(0, 10);
-      const attemptsCount = db.prepare(`
+      const attemptsRow = await db.prepare(`
         SELECT COUNT(*) as count FROM recovery_attempts 
         WHERE candidate_id = ? AND created_at >= ?
-      `).get(claimedCandidate.id, todayStart).count;
+      `).get(claimedCandidate.id, todayStart);
+      const attemptsCount = Number(attemptsRow?.count || 0);
 
       if (attemptsCount >= (settings.max_daily_attempts_per_lead || 2)) {
-        db.prepare(`
-          UPDATE recovery_candidates SET stage = 'EXPIRED', state = 'COMPLETED', updated_at = datetime('now') WHERE id = ?
-        `).run(claimedCandidate.id);
+        await db.prepare(`
+          UPDATE recovery_candidates SET stage = 'EXPIRED', state = 'COMPLETED', updated_at = ? WHERE id = ?
+        `).run(new Date().toISOString(), claimedCandidate.id);
         return { cancelled: true, reason: 'MAX_DAILY_ATTEMPTS_EXCEEDED' };
       }
 
       // 5. Holdout Control Group Check
       if (claimedCandidate.is_control_group) {
         logger.info(`[RECOVERY CONTROL GROUP] Candidate ${claimedCandidate.id} held out in control group. Message NOT sent.`);
-        db.transaction(() => {
-          db.prepare(`
-            UPDATE recovery_candidates
-            SET stage = 'DISPATCHED', state = 'COMPLETED', version = version + 1, updated_at = datetime('now')
-            WHERE id = ?
-          `).run(claimedCandidate.id);
+        const holdNow = new Date().toISOString();
+        await db.prepare(`
+          UPDATE recovery_candidates
+          SET stage = 'DISPATCHED', state = 'COMPLETED', version = version + 1, updated_at = ?
+          WHERE id = ?
+        `).run(holdNow, claimedCandidate.id);
 
-          const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-          db.prepare(`
-            INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-            VALUES (?, ?, ?, 'MESSAGE_DISPATCHED', ?, datetime('now'))
-          `).run(evId, tenantId, claimedCandidate.id, JSON.stringify({ isControlGroup: true, note: 'Observed control holdout' }));
-        })();
+        const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        await db.prepare(`
+          INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+          VALUES (?, ?, ?, 'MESSAGE_DISPATCHED', ?, ?)
+        `).run(evId, tenantId, claimedCandidate.id, JSON.stringify({ isControlGroup: true, note: 'Observed control holdout' }), holdNow);
 
         return { success: true, controlGroup: true };
       }
@@ -155,10 +155,12 @@ export const recoverySchedulerService = {
 
       return result;
     } catch (procErr) {
-      logger.error(`[RECOVERY SCHEDULER ERROR] Failed to process candidate ${claimedCandidate.id}:`, procErr.message);
-      db.prepare(`
-        UPDATE recovery_candidates SET state = 'FAILED', updated_at = datetime('now') WHERE id = ?
-      `).run(claimedCandidate.id);
+      logger.error(`[RECOVERY SCHEDULER ERROR] Failed to process candidate ${claimedCandidate?.id}:`, procErr.message);
+      if (claimedCandidate?.id) {
+        await db.prepare(`
+          UPDATE recovery_candidates SET state = 'FAILED', updated_at = ? WHERE id = ?
+        `).run(new Date().toISOString(), claimedCandidate.id);
+      }
       throw procErr;
     }
   },
@@ -172,7 +174,7 @@ export const recoverySchedulerService = {
     const db = getDatabase();
     const now = new Date().toISOString();
 
-    const candidates = db.prepare(`
+    const candidates = await db.prepare(`
       SELECT * FROM recovery_candidates
       WHERE stage = 'SCHEDULED' 
         AND state = 'PENDING'
@@ -181,11 +183,13 @@ export const recoverySchedulerService = {
       LIMIT ?
     `).all(now, limit);
 
+    const candList = Array.isArray(candidates) ? candidates : [];
+
     let processed = 0;
     let successes = 0;
     let errors = 0;
 
-    for (const cand of candidates) {
+    for (const cand of candList) {
       try {
         const res = await this.processCandidate(cand);
         processed++;

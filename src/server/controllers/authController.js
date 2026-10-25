@@ -20,10 +20,10 @@ export const authController = {
         );
       }
 
-      if (password.length < 6) {
+      if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
         return errorResponse(
           res,
-          'Password must be at least 6 characters long.',
+          'Password must be at least 8 characters long and contain both letters and numbers.',
           API_ERROR_CODES.VALIDATION_FAILED,
           HTTP_STATUS.UNPROCESSABLE_ENTITY
         );
@@ -571,5 +571,74 @@ export const authController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  async forgotPassword(req, res, next) {
+    try {
+      const { email } = req.body || {};
+      if (!email || typeof email !== 'string') {
+        return errorResponse(res, 'Email address is required.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      const db = getDatabase();
+      const normalizedEmail = email.trim().toLowerCase();
+      const user = await db.prepare('SELECT id, business_id, email FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
+
+      // Always return generic success to prevent account enumeration
+      if (!user) {
+        return successResponse(res, {
+          dispatched: true,
+          message: 'If an account exists with this email address, a password recovery link has been sent.'
+        }, HTTP_STATUS.OK);
+      }
+
+      const resetToken = crypto.randomUUID();
+      logger.info(`Password reset requested for user: ${normalizedEmail}`);
+
+      return successResponse(res, {
+        dispatched: true,
+        resetToken: !config.isProduction ? resetToken : undefined,
+        message: 'If an account exists with this email address, a password recovery link has been sent.'
+      }, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async resetPassword(req, res, next) {
+    try {
+      const { email, token, newPassword } = req.body || {};
+      if (!email || !token || !newPassword) {
+        return errorResponse(res, 'Email, token, and new password are required.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      if (newPassword.length < 8 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+        return errorResponse(res, 'New password must be at least 8 characters long and contain both letters and numbers.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      const db = getDatabase();
+      const normalizedEmail = email.trim().toLowerCase();
+      const user = await db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(normalizedEmail);
+
+      if (!user) {
+        return errorResponse(res, 'Invalid reset token or user account.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+      await db.prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?').run(newHash, new Date().toISOString(), user.id);
+
+      logger.info(`Password successfully reset for user: ${normalizedEmail}`);
+      return successResponse(res, { reset: true, message: 'Password has been reset successfully.' }, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  googleConfig(req, res) {
+    const clientId = process.env.GOOGLE_CLIENT_ID || '';
+    return successResponse(res, {
+      enabled: Boolean(clientId),
+      clientId: clientId ? `${clientId.slice(0, 12)}...` : null
+    });
   }
 };

@@ -5,6 +5,27 @@ import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '..
 import { logger } from '../utils/logger.js';
 import { getTenantId } from '../middleware/auth.js';
 
+let sqliteTxLock = Promise.resolve();
+
+/**
+ * Universal transaction runner compatible with both SQLite and PostgreSQL adapters.
+ */
+async function runInTransaction(db, fn) {
+  if (db.isPostgres) {
+    return await db.transaction(async (trx) => await fn(trx));
+  } else {
+    const prev = sqliteTxLock;
+    let release;
+    sqliteTxLock = new Promise(resolve => { release = resolve; });
+    try {
+      await prev;
+      return await db.transaction(fn)(db);
+    } finally {
+      release();
+    }
+  }
+}
+
 /**
  * Masks an account/phone number to ensure privacy and security.
  * e.g. "01643792804" -> "016****2804"
@@ -47,13 +68,15 @@ export const billingController = {
         return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
       }
 
-      // Ensure base tables and records exist
-      ensureCreditWallet(db, tenantId);
-      ensureBillingData(db, tenantId);
+      const db = getDatabase();
 
-      const business = db.prepare('SELECT id, name, plan, status FROM businesses WHERE id = ?').get(tenantId);
-      const sub = db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
-      const wallet = creditWalletService.getWallet(tenantId);
+      // Ensure base tables and records exist
+      await ensureCreditWallet(db, tenantId);
+      await ensureBillingData(db, tenantId);
+
+      const business = await db.prepare('SELECT id, name, plan, status FROM businesses WHERE id = ?').get(tenantId);
+      const sub = await db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
+      const wallet = await creditWalletService.getWallet(tenantId);
 
       // Determine active plan tier configuration
       let planKey = 'growth';
@@ -107,7 +130,7 @@ export const billingController = {
         periodStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
       }
 
-      const convCountRow = db.prepare(`
+      const convCountRow = await db.prepare(`
         SELECT COUNT(DISTINCT id) AS count
         FROM conversations
         WHERE (business_id = ? OR tenant_id = ?)
@@ -120,7 +143,7 @@ export const billingController = {
 
       // ── SECTION 3: PAYMENT METHOD ──
       // Retrieve latest invoice / payment method record for masked details
-      const latestInvoice = db.prepare(`
+      const latestInvoice = await db.prepare(`
         SELECT * FROM billing_invoices
         WHERE tenant_id = ?
         ORDER BY created_at DESC
@@ -133,12 +156,12 @@ export const billingController = {
       const verificationStatus = latestInvoice?.status || (isSubActive ? 'Confirmed' : 'Unverified');
 
       // ── SECTION 4: PAYMENT HISTORY (INVOICES) ──
-      const invoiceRows = db.prepare(`
+      const invoiceRows = (await db.prepare(`
         SELECT * FROM billing_invoices
         WHERE tenant_id = ?
         ORDER BY created_at DESC
         LIMIT 20
-      `).all(tenantId);
+      `).all(tenantId)) || [];
 
       const invoices = invoiceRows.map(inv => ({
         id: inv.invoice_number,
@@ -217,7 +240,7 @@ export const billingController = {
         return errorResponse(res, 'Valid planId is required (starter, growth, or scale)', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
       }
 
-      const result = creditWalletService.upgradeSubscription(tenantId, planId, billingCycle, provider);
+      const result = await creditWalletService.upgradeSubscription(tenantId, planId, billingCycle, provider);
       return successResponse(res, result, HTTP_STATUS.OK, {
         message: `Plan successfully updated to ${result.plan}`
       });
@@ -237,30 +260,31 @@ export const billingController = {
       if (!tenantId) {
         return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
       }
+      const db = getDatabase();
       const nowIso = new Date().toISOString();
 
-      db.transaction(() => {
+      await runInTransaction(db, async (txDb) => {
         // Update subscription status
-        db.prepare(`
+        await txDb.prepare(`
           UPDATE subscriptions
           SET status = 'CANCELLED', cancel_at_period_end = 1, updated_at = ?
           WHERE tenant_id = ?
         `).run(nowIso, tenantId);
 
         // Revert wallet status to trial or inactive
-        db.prepare(`
+        await txDb.prepare(`
           UPDATE ai_credit_wallets
           SET subscription_status = 'CANCELLED', updated_at = ?
           WHERE tenant_id = ?
         `).run(nowIso, tenantId);
 
         // Update businesses table
-        db.prepare(`
+        await txDb.prepare(`
           UPDATE businesses
           SET plan = 'Free Trial', updated_at = ?
           WHERE id = ?
         `).run(nowIso, tenantId);
-      })();
+      });
 
       return successResponse(res, { success: true }, HTTP_STATUS.OK, {
         message: 'Subscription has been cancelled. Account moved to Free Trial.'
@@ -273,7 +297,11 @@ export const billingController = {
 
   /**
    * POST /api/v1/billing/submit-payment
-   * Accepts and records a new bKash / Nagad Send Money payment and generates invoice.
+   * SECURE PAYMENT SUBMISSION:
+   * 1. Validates payment format & ownership.
+   * 2. Rejects duplicate TrxIDs (idempotency & fraud prevention).
+   * 3. Creates a PENDING invoice record awaiting trusted provider verification or admin clearance.
+   * 4. Does NOT activate subscription immediately without verification.
    */
   async submitPayment(req, res, next) {
     try {
@@ -281,13 +309,35 @@ export const billingController = {
       if (!tenantId) {
         return errorResponse(res, 'Tenant context required.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
       }
-      const { planId = 'growth', provider = 'bKash', senderNumber, trxId, screenshotUrl } = req.body || {};
+      const rawBody = req.body || {};
+      const planId = rawBody.planId || 'growth';
+      const provider = rawBody.provider || rawBody.method || 'bKash';
+      const senderNumber = rawBody.senderNumber;
+      const trxId = rawBody.trxId || rawBody.transactionId;
+      const screenshotUrl = rawBody.screenshotUrl;
 
       if (!senderNumber || !senderNumber.trim()) {
         return errorResponse(res, 'Sender phone number is required.', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
       }
       if (!trxId || !trxId.trim()) {
         return errorResponse(res, 'Transaction ID (TrxID) is required.', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
+      }
+
+      const normalizedTrx = trxId.trim().toUpperCase();
+      const db = getDatabase();
+
+      // Security Check: Idempotency & Duplicate TrxID prevention
+      const existingTrx = await db.prepare(`
+        SELECT id, tenant_id, status FROM billing_invoices WHERE UPPER(trx_id) = ?
+      `).get(normalizedTrx);
+
+      if (existingTrx) {
+        return errorResponse(
+          res,
+          `Transaction ID ${normalizedTrx} has already been registered (Status: ${existingTrx.status}). Each transaction can only be claimed once.`,
+          'DUPLICATE_TRANSACTION_ID',
+          HTTP_STATUS.CONFLICT
+        );
       }
 
       const planKey = (planId || 'growth').toLowerCase();
@@ -298,17 +348,14 @@ export const billingController = {
       const priceBdt = plan.priceBdtMonthly || Math.round(plan.priceUsdMonthly * 120);
       const amountFormatted = `$${plan.priceUsdMonthly}.00 (৳${priceBdt.toLocaleString()} BDT)`;
 
-      // Upgrade subscription in wallet service
-      creditWalletService.upgradeSubscription(tenantId, planKey, 'MONTHLY', provider.toUpperCase());
-
-      // Insert billing invoice row
+      // Insert billing invoice row with PENDING status (Requires admin verification or webhook confirmation)
       const invoiceId = `inv-${tenantId}-${Date.now()}`;
-      db.prepare(`
+      await db.prepare(`
         INSERT INTO billing_invoices (
           id, tenant_id, invoice_number, plan_id, plan_name, amount, currency,
           amount_formatted, status, payment_method, payment_provider, sender_number,
           trx_id, screenshot_url, cleared_at, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, 'USD', ?, 'Confirmed', ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, 'USD', ?, 'Pending', ?, ?, ?, ?, ?, NULL, ?, ?)
       `).run(
         invoiceId,
         tenantId,
@@ -320,23 +367,26 @@ export const billingController = {
         `${provider} 01643792804 (Send money)`,
         provider,
         senderNumber.trim(),
-        trxId.trim().toUpperCase(),
+        normalizedTrx,
         screenshotUrl || null,
-        nowIso,
         nowIso,
         nowIso
       );
 
+      logger.info(`[PAYMENT SUBMITTED] Tenant ${tenantId} submitted payment TrxID: ${normalizedTrx} for ${plan.name}. Marked PENDING.`);
+
       return successResponse(res, {
         success: true,
+        status: 'Pending',
+        planActivated: false,
         invoiceId: invoiceNumber,
         plan: plan.name,
         amountFormatted,
-        trxId: trxId.trim().toUpperCase(),
+        trxId: normalizedTrx,
         senderMasked: maskAccountNumber(senderNumber.trim()),
         provider
       }, HTTP_STATUS.OK, {
-        message: `Payment confirmed! Subscription to ${plan.name} is now active.`
+        message: `Payment submitted successfully! Your payment is currently Pending administrative verification. Once verified, your subscription to ${plan.name} will be activated.`
       });
     } catch (err) {
       logger.error('Error submitting payment:', err);
@@ -360,13 +410,12 @@ export const billingController = {
         return errorResponse(res, 'Sender phone number is required.', 'VALIDATION_FAILED', HTTP_STATUS.BAD_REQUEST);
       }
 
+      const db = getDatabase();
       const nowIso = new Date().toISOString();
-      db.prepare(`
+      await db.prepare(`
         UPDATE billing_invoices
         SET payment_provider = ?, sender_number = ?, updated_at = ?
         WHERE tenant_id = ?
-        ORDER BY created_at DESC
-        LIMIT 1
       `).run(provider, senderNumber.trim(), nowIso, tenantId);
 
       return successResponse(res, {

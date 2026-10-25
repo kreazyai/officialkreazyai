@@ -150,6 +150,92 @@ export function normalizeParams(params) {
 }
 
 /**
+ * Preserves backward compatibility for legacy field casing in rows (e.g. WABA_id).
+ */
+export function normalizeRowCompat(row) {
+  if (!row || typeof row !== 'object') return row;
+  if ('waba_id' in row && !('WABA_id' in row)) {
+    row.WABA_id = row.waba_id;
+  }
+  return row;
+}
+
+/**
+ * Explicit column mappings for known schema casing and naming differences between SQLite and PostgreSQL.
+ */
+export const EXPLICIT_COLUMN_MAPPINGS = Object.freeze({
+  whatsapp_connections: {
+    'WABA_id': 'waba_id',
+    'waba_id': 'waba_id'
+  }
+});
+
+/**
+ * Maps a source SQLite record to the exact destination PostgreSQL columns.
+ * Preserves all values, handles case normalization, and tracks unmapped keys.
+ * @param {string} tableName
+ * @param {object} row
+ * @param {object|null} [destColumns=null]
+ * @returns {{ mappedRow: object, unmappedKeys: string[], remappedKeys: Array<{ from: string, to: string }> }}
+ */
+export function mapRowToDestination(tableName, row, destColumns = null) {
+  const explicitMap = EXPLICIT_COLUMN_MAPPINGS[tableName] || {};
+  let destColsMap = destColumns;
+  if (!destColsMap && typeof parseCanonicalPostgresSchema === 'function') {
+    const canonical = parseCanonicalPostgresSchema();
+    if (canonical[tableName]?.columns) {
+      destColsMap = canonical[tableName].columns;
+    }
+  }
+  destColsMap = destColsMap || {};
+
+  const lowerMap = {};
+  for (const c of Object.keys(destColsMap)) {
+    lowerMap[c.toLowerCase()] = c;
+  }
+
+  const mappedRow = {};
+  const unmappedKeys = [];
+  const remappedKeys = [];
+
+  for (const [key, val] of Object.entries(row)) {
+    if (val === undefined) continue;
+
+    // 1. Explicit mapping override
+    if (explicitMap[key]) {
+      const targetCol = explicitMap[key];
+      mappedRow[targetCol] = val;
+      if (key !== targetCol) {
+        remappedKeys.push({ from: key, to: targetCol });
+      }
+      continue;
+    }
+
+    // 2. Exact match in destination schema
+    if (Object.keys(destColsMap).length > 0) {
+      if (destColsMap[key]) {
+        mappedRow[key] = val;
+        continue;
+      }
+      const lowerKey = key.toLowerCase();
+      if (lowerMap[lowerKey]) {
+        const actualCol = lowerMap[lowerKey];
+        mappedRow[actualCol] = val;
+        if (key !== actualCol) {
+          remappedKeys.push({ from: key, to: actualCol });
+        }
+        continue;
+      }
+      unmappedKeys.push(key);
+    } else {
+      mappedRow[key] = val;
+    }
+  }
+
+  return { mappedRow, unmappedKeys, remappedKeys };
+}
+
+/**
  * PostgreSQL Statement Wrapper mimicking better-sqlite3 API while using pg.Pool.
  * Enables drop-in compatibility for existing backend queries.
  */
@@ -168,7 +254,7 @@ export class PostgresPreparedStatement {
   async get(...args) {
     const params = normalizeParams(args);
     const result = await this.pool.query(this.translatedSql, params);
-    return result.rows && result.rows.length > 0 ? result.rows[0] : undefined;
+    return result.rows && result.rows.length > 0 ? normalizeRowCompat(result.rows[0]) : undefined;
   }
 
   /**
@@ -179,7 +265,7 @@ export class PostgresPreparedStatement {
   async all(...args) {
     const params = normalizeParams(args);
     const result = await this.pool.query(this.translatedSql, params);
-    return result.rows || [];
+    return (result.rows || []).map(normalizeRowCompat);
   }
 
   /**
@@ -230,7 +316,7 @@ export class PostgresDatabaseAdapter {
    */
   async queryOne(sql, params = []) {
     const res = await this.query(sql, params);
-    return res.rows && res.rows.length > 0 ? res.rows[0] : null;
+    return res.rows && res.rows.length > 0 ? normalizeRowCompat(res.rows[0]) : null;
   }
 
   /**
@@ -240,7 +326,7 @@ export class PostgresDatabaseAdapter {
    */
   async queryAll(sql, params = []) {
     const res = await this.query(sql, params);
-    return res.rows || [];
+    return (res.rows || []).map(normalizeRowCompat);
   }
 
   /**
@@ -1125,6 +1211,191 @@ SELECT
   created_at 
 FROM meta_webhook_events;
 `;
+
+let canonicalSchemaCache = null;
+
+/**
+ * Parses POSTGRES_SCHEMA_SQL to extract tables, columns, data types, nullability, defaults, primary keys, and foreign keys.
+ * @returns {Record<string, { tableName: string, columns: Record<string, { name: string, type: string, isNullable: boolean, hasDefault: boolean, isPrimaryKey: boolean, raw: string }>, primaryKey: string | null, foreignKeys: Array<{ column: string, referencedTable: string, referencedColumn: string }>, uniqueConstraints: Array<string[]> }>}
+ */
+export function parseCanonicalPostgresSchema() {
+  if (canonicalSchemaCache) return canonicalSchemaCache;
+
+  const tableSchemas = {};
+  const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:\"?([a-zA-Z0-9_]+)\"?)\s*\(([\s\S]*?)\);/gi;
+  let match;
+  while ((match = tableRegex.exec(POSTGRES_SCHEMA_SQL)) !== null) {
+    const tableName = match[1];
+    const body = match[2];
+    const columns = {};
+    const foreignKeys = [];
+    let primaryKey = null;
+    const uniqueConstraints = [];
+
+    const lines = body.split('\n');
+    for (let rawLine of lines) {
+      const line = rawLine.trim().replace(/,$/, '');
+      if (!line || line.startsWith('--')) continue;
+
+      const pkMatch = /^PRIMARY\s+KEY\s*\(([^)]+)\)/i.exec(line);
+      if (pkMatch) {
+        primaryKey = pkMatch[1].replace(/\"/g, '').trim();
+        continue;
+      }
+
+      const uqMatch = /^UNIQUE\s*\(([^)]+)\)/i.exec(line);
+      if (uqMatch) {
+        uniqueConstraints.push(uqMatch[1].split(',').map(s => s.replace(/\"/g, '').trim()));
+        continue;
+      }
+
+      const fkMatch = /^FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)/i.exec(line);
+      if (fkMatch) {
+        foreignKeys.push({
+          column: fkMatch[1].replace(/\"/g, '').trim(),
+          referencedTable: fkMatch[2],
+          referencedColumn: fkMatch[3].replace(/\"/g, '').trim()
+        });
+        continue;
+      }
+
+      const parts = line.split(/\s+/);
+      const colName = parts[0].replace(/\"/g, '');
+      const colType = parts[1] || '';
+      const isPk = /PRIMARY\s+KEY/i.test(line);
+      if (isPk) primaryKey = colName;
+      const isNullable = !/NOT\s+NULL/i.test(line);
+      const hasDefault = /DEFAULT\b/i.test(line);
+
+      const inlineFk = /REFERENCES\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)/i.exec(line);
+      if (inlineFk) {
+        foreignKeys.push({
+          column: colName,
+          referencedTable: inlineFk[1],
+          referencedColumn: inlineFk[2].replace(/\"/g, '').trim()
+        });
+      }
+
+      columns[colName] = {
+        name: colName,
+        type: colType,
+        isNullable,
+        hasDefault,
+        isPrimaryKey: isPk,
+        raw: line
+      };
+    }
+
+    tableSchemas[tableName] = {
+      tableName,
+      columns,
+      primaryKey,
+      foreignKeys,
+      uniqueConstraints
+    };
+  }
+
+  canonicalSchemaCache = tableSchemas;
+  return tableSchemas;
+}
+
+/**
+ * Introspects destination PostgreSQL database via information_schema or falls back to canonical schema.
+ * @param {import('pg').Pool|null} pool
+ * @returns {Promise<Record<string, { tableName: string, columns: Record<string, { name: string, type: string, isNullable: boolean, hasDefault: boolean, isPrimaryKey: boolean }>, primaryKey: string | null, foreignKeys: Array<{ column: string, referencedTable: string, referencedColumn: string }>, uniqueConstraints: Array<string[]> }>>}
+ */
+export async function introspectPostgresSchema(pool = null) {
+  const canonical = parseCanonicalPostgresSchema();
+  if (!pool) return canonical;
+
+  try {
+    const colRes = await pool.query(`
+      SELECT 
+        table_name, 
+        column_name, 
+        data_type, 
+        is_nullable, 
+        column_default,
+        character_maximum_length
+      FROM information_schema.columns 
+      WHERE table_schema = 'public'
+      ORDER BY table_name, ordinal_position;
+    `);
+
+    if (!colRes.rows || colRes.rows.length === 0) {
+      return canonical;
+    }
+
+    const constrRes = await pool.query(`
+      SELECT
+        tc.table_name,
+        tc.constraint_name,
+        tc.constraint_type,
+        kcu.column_name,
+        ccu.table_name AS foreign_table_name,
+        ccu.column_name AS foreign_column_name
+      FROM information_schema.table_constraints AS tc
+      JOIN information_schema.key_column_usage AS kcu
+        ON tc.constraint_name = kcu.constraint_name
+        AND tc.table_schema = kcu.table_schema
+      LEFT JOIN information_schema.constraint_column_usage AS ccu
+        ON ccu.constraint_name = tc.constraint_name
+        AND ccu.table_schema = tc.table_schema
+      WHERE tc.table_schema = 'public';
+    `);
+
+    const liveSchemas = {};
+    for (const row of colRes.rows) {
+      const tbl = row.table_name;
+      if (!liveSchemas[tbl]) {
+        liveSchemas[tbl] = {
+          tableName: tbl,
+          columns: {},
+          primaryKey: null,
+          foreignKeys: [],
+          uniqueConstraints: []
+        };
+      }
+      liveSchemas[tbl].columns[row.column_name] = {
+        name: row.column_name,
+        type: row.data_type,
+        isNullable: row.is_nullable === 'YES',
+        hasDefault: row.column_default !== null,
+        isPrimaryKey: false
+      };
+    }
+
+    for (const c of constrRes.rows) {
+      const tbl = c.table_name;
+      if (!liveSchemas[tbl]) continue;
+
+      if (c.constraint_type === 'PRIMARY KEY') {
+        liveSchemas[tbl].primaryKey = c.column_name;
+        if (liveSchemas[tbl].columns[c.column_name]) {
+          liveSchemas[tbl].columns[c.column_name].isPrimaryKey = true;
+        }
+      } else if (c.constraint_type === 'FOREIGN KEY' && c.foreign_table_name) {
+        liveSchemas[tbl].foreignKeys.push({
+          column: c.column_name,
+          referencedTable: c.foreign_table_name,
+          referencedColumn: c.foreign_column_name
+        });
+      }
+    }
+
+    // Merge with canonical definitions if any table isn't in DB yet
+    for (const [tbl, cSchema] of Object.entries(canonical)) {
+      if (!liveSchemas[tbl]) {
+        liveSchemas[tbl] = cSchema;
+      }
+    }
+
+    return liveSchemas;
+  } catch (err) {
+    logger.warn('Failed to query information_schema, using canonical schema definitions:', err.message);
+    return canonical;
+  }
+}
 
 /**
  * Executes complete PostgreSQL schema migrations.

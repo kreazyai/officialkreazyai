@@ -11,12 +11,12 @@ export const whatsappConnectionService = {
    * Retrieves connection with decrypted access token for tenant.
    * Multi-Tenant Isolation: Strictly queries records for tenantId. Never falls back to another tenant or mock token.
    */
-  getConnectionWithToken(tenantId) {
+  async getConnectionWithToken(tenantId) {
     if (!tenantId) return null;
     const db = getDatabase();
 
     // 1. Check meta_connections
-    const metaConn = metaConnectionService.getConnectionWithToken(tenantId, 'WHATSAPP');
+    const metaConn = await metaConnectionService.getConnectionWithToken(tenantId, 'WHATSAPP');
     if (metaConn && metaConn.decryptedAccessToken) {
       if ((metaConn.decryptedAccessToken.startsWith('EAAG_mock') || !metaConn.decryptedAccessToken) && config.whatsapp?.accessToken) {
         return {
@@ -31,7 +31,7 @@ export const whatsappConnectionService = {
 
     // 2. Check dedicated whatsapp_connections table
     try {
-      const waRow = db.prepare('SELECT * FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+      const waRow = await db.prepare('SELECT * FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
       if (waRow && waRow.credential_reference) {
         let cred = null;
         try {
@@ -41,11 +41,12 @@ export const whatsappConnectionService = {
         if (cred && cred.cipher && cred.iv && cred.tag) {
           const token = metaTokenService.decrypt(cred.cipher, cred.iv, cred.tag);
           if (token) {
+            const wabaIdVal = waRow.waba_id || waRow.WABA_id;
             if (token.startsWith('EAAG_mock') && config.whatsapp?.accessToken) {
               return {
                 ...waRow,
                 business_id: tenantId,
-                whatsapp_business_account_id: config.whatsapp.wabaId || waRow.WABA_id,
+                whatsapp_business_account_id: config.whatsapp.wabaId || wabaIdVal,
                 phone_number_id: config.whatsapp.phoneNumberId || waRow.phone_number_id,
                 display_phone_number: waRow.display_number,
                 decryptedAccessToken: config.whatsapp.accessToken,
@@ -55,7 +56,7 @@ export const whatsappConnectionService = {
             return {
               ...waRow,
               business_id: tenantId,
-              whatsapp_business_account_id: waRow.WABA_id,
+              whatsapp_business_account_id: wabaIdVal,
               phone_number_id: waRow.phone_number_id,
               display_phone_number: waRow.display_number,
               decryptedAccessToken: token,
@@ -91,48 +92,34 @@ export const whatsappConnectionService = {
   getConnection(tenantId) {
     if (!tenantId) return null;
     const db = getDatabase();
-    ensureWhatsAppConnection(db, tenantId);
 
-    // Try dedicated whatsapp_connections table first
-    let row = db.prepare(`
-      SELECT 
-        id, tenant_id, WABA_id, phone_number_id, display_number, status,
-        webhook_status, last_event_at, last_error, diagnostics,
-        auto_reply_enabled, ai_confidence_threshold, created_at, updated_at,
-        CASE WHEN credential_reference IS NOT NULL AND credential_reference != '' THEN 1 ELSE 0 END as has_credential
-      FROM whatsapp_connections
-      WHERE tenant_id = ?
-    `).get(tenantId);
-
-    // Fall back to meta_connections WHATSAPP record if whatsapp_connections is empty or unpopulated
-    if (!row || row.status === 'NOT_CONNECTED') {
-      const metaWa = metaConnectionService.getConnections(tenantId).find(c => c.platform === 'WHATSAPP');
-      if (metaWa && metaWa.status !== 'NOT_CONNECTED') {
-        let parsedMetaDiag = {};
+    const fetchDetails = (row) => {
+      if (row) {
+        row.WABA_id = row.WABA_id || row.waba_id;
+        row.waba_id = row.waba_id || row.WABA_id;
+        let parsedDiag = {};
         try {
-          parsedMetaDiag = typeof metaWa.diagnostics === 'string' ? JSON.parse(metaWa.diagnostics) : (metaWa.diagnostics || {});
+          parsedDiag = typeof row.diagnostics === 'string' ? JSON.parse(row.diagnostics) : (row.diagnostics || {});
         } catch {}
+
         return {
-          id: metaWa.id,
-          tenant_id: tenantId,
-          WABA_id: metaWa.whatsapp_business_account_id,
-          phone_number_id: metaWa.phone_number_id,
-          display_number: metaWa.display_phone_number,
-          status: metaWa.status,
-          webhook_status: metaWa.webhook_status,
-          last_event_at: metaWa.last_webhook_at,
-          last_error: metaWa.last_error,
-          diagnostics: parsedMetaDiag,
-          auto_reply_enabled: metaWa.auto_reply_enabled,
-          ai_confidence_threshold: metaWa.ai_confidence_threshold,
-          created_at: metaWa.created_at,
-          updated_at: metaWa.updated_at,
-          has_credential: metaWa.has_token ? 1 : 0
+          id: row.id,
+          tenant_id: row.tenant_id,
+          WABA_id: row.WABA_id,
+          phone_number_id: row.phone_number_id,
+          display_number: row.display_number,
+          status: row.status,
+          webhook_status: row.webhook_status,
+          last_event_at: row.last_event_at,
+          last_error: row.last_error,
+          diagnostics: parsedDiag,
+          auto_reply_enabled: row.auto_reply_enabled,
+          ai_confidence_threshold: row.ai_confidence_threshold,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          has_credential: row.has_credential
         };
       }
-    }
-
-    if (!row) {
       return {
         id: `waconn-${tenantId}`,
         tenant_id: tenantId,
@@ -148,17 +135,83 @@ export const whatsappConnectionService = {
         ai_confidence_threshold: 0.75,
         has_credential: 0
       };
+    };
+
+    const initial = db.prepare(`
+      SELECT 
+        id, tenant_id, WABA_id, phone_number_id, display_number, status,
+        webhook_status, last_event_at, last_error, diagnostics,
+        auto_reply_enabled, ai_confidence_threshold, created_at, updated_at,
+        CASE WHEN credential_reference IS NOT NULL AND credential_reference != '' THEN 1 ELSE 0 END as has_credential
+      FROM whatsapp_connections
+      WHERE tenant_id = ?
+    `).get(tenantId);
+
+    if (initial instanceof Promise) {
+      return (async () => {
+        let row = await initial;
+        if (!row || row.status === 'NOT_CONNECTED') {
+          const metaConns = await metaConnectionService.getConnections(tenantId);
+          const metaWa = (metaConns || []).find(c => c.platform === 'WHATSAPP');
+          if (metaWa && metaWa.status !== 'NOT_CONNECTED') {
+            let parsedMetaDiag = {};
+            try {
+              parsedMetaDiag = typeof metaWa.diagnostics === 'string' ? JSON.parse(metaWa.diagnostics) : (metaWa.diagnostics || {});
+            } catch {}
+            return {
+              id: metaWa.id,
+              tenant_id: tenantId,
+              WABA_id: metaWa.whatsapp_business_account_id,
+              phone_number_id: metaWa.phone_number_id,
+              display_number: metaWa.display_phone_number,
+              status: metaWa.status,
+              webhook_status: metaWa.webhook_status,
+              last_event_at: metaWa.last_webhook_at,
+              last_error: metaWa.last_error,
+              diagnostics: parsedMetaDiag,
+              auto_reply_enabled: metaWa.auto_reply_enabled,
+              ai_confidence_threshold: metaWa.ai_confidence_threshold,
+              created_at: metaWa.created_at,
+              updated_at: metaWa.updated_at,
+              has_credential: metaWa.has_token ? 1 : 0
+            };
+          }
+        }
+        return fetchDetails(row);
+      })();
     }
 
-    let parsedDiag = {};
-    try {
-      parsedDiag = typeof row.diagnostics === 'string' ? JSON.parse(row.diagnostics) : (row.diagnostics || {});
-    } catch {}
+    if (!initial || initial.status === 'NOT_CONNECTED') {
+      const metaConns = metaConnectionService.getConnections(tenantId);
+      if (metaConns && Array.isArray(metaConns)) {
+        const metaWa = metaConns.find(c => c.platform === 'WHATSAPP');
+        if (metaWa && metaWa.status !== 'NOT_CONNECTED') {
+          let parsedMetaDiag = {};
+          try {
+            parsedMetaDiag = typeof metaWa.diagnostics === 'string' ? JSON.parse(metaWa.diagnostics) : (metaWa.diagnostics || {});
+          } catch {}
+          return {
+            id: metaWa.id,
+            tenant_id: tenantId,
+            WABA_id: metaWa.whatsapp_business_account_id,
+            phone_number_id: metaWa.phone_number_id,
+            display_number: metaWa.display_phone_number,
+            status: metaWa.status,
+            webhook_status: metaWa.webhook_status,
+            last_event_at: metaWa.last_webhook_at,
+            last_error: metaWa.last_error,
+            diagnostics: parsedMetaDiag,
+            auto_reply_enabled: metaWa.auto_reply_enabled,
+            ai_confidence_threshold: metaWa.ai_confidence_threshold,
+            created_at: metaWa.created_at,
+            updated_at: metaWa.updated_at,
+            has_credential: metaWa.has_token ? 1 : 0
+          };
+        }
+      }
+    }
 
-    return {
-      ...row,
-      diagnostics: parsedDiag
-    };
+    return fetchDetails(initial);
   },
 
   /**
@@ -427,8 +480,8 @@ export const whatsappConnectionService = {
    * Verifies credentials, phone identity, and outbound messaging readiness.
    */
   async runHealthCheck(tenantId) {
-    const conn = this.getConnectionWithToken(tenantId);
-    const waDetails = this.getConnection(tenantId);
+    const conn = await this.getConnectionWithToken(tenantId);
+    const waDetails = await this.getConnection(tenantId);
     const waAiHealth = await whatsappAiService.checkHealth();
 
     let metaApiConnectivity = { ok: false, error: null };

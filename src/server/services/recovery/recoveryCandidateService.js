@@ -23,30 +23,41 @@ export const CANDIDATE_STATES = {
 export const recoveryCandidateService = {
   /**
    * Process a classified message and create or update a recovery candidate.
-   * @param {object} params
-   * @returns {object|null} Candidate record or null if not eligible
+   * Compatible with both sync SQLite and async PostgreSQL.
    */
-  registerIntent({
-    tenantId,
-    conversationId,
-    channel = 'WHATSAPP',
-    customerId = null,
-    classification,
-    messageText,
-    messageTime = new Date().toISOString()
-  }) {
-    if (!tenantId || !conversationId) {
+  registerIntent(params) {
+    const { tenantId } = params;
+    if (!tenantId || !params.conversationId) {
       throw new Error('Tenant ID and Conversation ID are required.');
     }
 
-    const settings = recoverySettingsService.getSettings(tenantId);
+    const settingsRes = recoverySettingsService.getSettings(tenantId);
+    if (settingsRes instanceof Promise) {
+      return (async () => {
+        const settings = await settingsRes;
+        return this._executeRegisterIntent(params, settings);
+      })();
+    }
+
+    return this._executeRegisterIntent(params, settingsRes);
+  },
+
+  async _executeRegisterIntentAsync(params, settings) {
+    const {
+      tenantId,
+      conversationId,
+      channel = 'WHATSAPP',
+      customerId = null,
+      classification,
+      messageText,
+      messageTime = new Date().toISOString()
+    } = params;
+
     if (!classification || !classification.eligibleForRecovery || classification.intentScore < settings.min_intent_score) {
       return null;
     }
 
     const db = getDatabase();
-
-    // Check if channel is enabled in tenant settings
     const channelsConfig = typeof settings.channels === 'string' ? JSON.parse(settings.channels || '{}') : settings.channels;
     const channelKey = (channel || 'whatsapp').toLowerCase();
     if (channelsConfig[channelKey] === false) {
@@ -57,190 +68,279 @@ export const recoveryCandidateService = {
     const inactivityMinutes = settings.inactivity_minutes || 30;
     const eligibleAt = new Date(new Date(messageTime).getTime() + inactivityMinutes * 60 * 1000).toISOString();
     const deduplicationKey = `${tenantId}_${conversationId}_${messageTime}`;
-
-    // Holdout control group assignment
     const isControlGroup = Math.random() < (settings.control_group_ratio || 0.10) ? 1 : 0;
-
     const candidateId = `cand-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const now = new Date().toISOString();
 
-    const candidate = db.transaction(() => {
-      // Check if an active candidate already exists for this conversation
-      const existing = db.prepare(`
-        SELECT * FROM recovery_candidates 
-        WHERE tenant_id = ? AND conversation_id = ? AND stage IN ('IDENTIFIED', 'SCHEDULED', 'EVALUATING')
-        LIMIT 1
-      `).get(tenantId, conversationId);
+    const existing = await db.prepare(`
+      SELECT * FROM recovery_candidates 
+      WHERE tenant_id = ? AND conversation_id = ? AND stage IN ('IDENTIFIED', 'SCHEDULED', 'EVALUATING')
+      LIMIT 1
+    `).get(tenantId, conversationId);
 
-      if (existing) {
-        // Update existing candidate with newer message and refresh inactivity delay
-        db.prepare(`
-          UPDATE recovery_candidates
-          SET intent_score = MAX(intent_score, ?),
-              intent_category = ?,
-              intent_reason = ?,
-              buying_signals = ?,
-              product_identifiers = ?,
-              detected_language = ?,
-              last_customer_message_text = ?,
-              last_customer_message_at = ?,
-              eligible_at = ?,
-              stage = 'SCHEDULED',
-              state = 'PENDING',
-              version = version + 1,
-              updated_at = datetime('now')
-          WHERE id = ?
-        `).run(
-          classification.intentScore,
-          classification.intentCategory,
-          classification.explanation,
-          JSON.stringify(classification.buyingSignals || []),
-          JSON.stringify(classification.productIdentifiers || []),
-          classification.language || 'en',
-          messageText,
-          messageTime,
-          eligibleAt,
-          existing.id
-        );
-
-        // Record reschedule event
-        const eventId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-        db.prepare(`
-          INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-          VALUES (?, ?, ?, 'RESCHEDULED', ?, datetime('now'))
-        `).run(
-          eventId,
-          tenantId,
-          existing.id,
-          JSON.stringify({
-            inactivityMinutes,
-            eligibleAt,
-            intentScore: classification.intentScore,
-            intentCategory: classification.intentCategory
-          })
-        );
-
-        return db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(existing.id);
-      }
-
-      // Insert fresh candidate
-      db.prepare(`
-        INSERT INTO recovery_candidates (
-          id, tenant_id, conversation_id, channel, customer_id,
-          intent_score, intent_category, intent_reason, buying_signals,
-          product_identifiers, detected_language, last_customer_message_text,
-          last_customer_message_at, eligible_at, stage, state, version,
-          is_control_group, deduplication_key, created_at, updated_at
-        ) VALUES (
-          ?, ?, ?, ?, ?,
-          ?, ?, ?, ?,
-          ?, ?, ?,
-          ?, ?, 'SCHEDULED', 'PENDING', 1,
-          ?, ?, datetime('now'), datetime('now')
-        )
+    if (existing) {
+      await db.prepare(`
+        UPDATE recovery_candidates
+        SET intent_score = MAX(intent_score, ?),
+            intent_category = ?,
+            intent_reason = ?,
+            buying_signals = ?,
+            product_identifiers = ?,
+            detected_language = ?,
+            last_customer_message_text = ?,
+            last_customer_message_at = ?,
+            eligible_at = ?,
+            stage = 'SCHEDULED',
+            state = 'PENDING',
+            version = version + 1,
+            updated_at = ?
+        WHERE id = ?
       `).run(
-        candidateId,
-        tenantId,
-        conversationId,
-        channel,
-        customerId,
-        classification.intentScore,
-        classification.intentCategory,
-        classification.explanation,
-        JSON.stringify(classification.buyingSignals || []),
-        JSON.stringify(classification.productIdentifiers || []),
-        classification.language || 'en',
-        messageText,
-        messageTime,
-        eligibleAt,
-        isControlGroup,
-        deduplicationKey
+        classification.intentScore, classification.intentCategory, classification.explanation,
+        JSON.stringify(classification.buyingSignals || []), JSON.stringify(classification.productIdentifiers || []),
+        classification.language || 'en', messageText, messageTime, eligibleAt, now, existing.id
       );
 
-      // Record INTENT_DETECTED and SCHEDULED events
-      const ev1 = `ev-${Date.now()}-1`;
+      const eventId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      await db.prepare(`
+        INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+        VALUES (?, ?, ?, 'RESCHEDULED', ?, ?)
+      `).run(
+        eventId, tenantId, existing.id,
+        JSON.stringify({ inactivityMinutes, eligibleAt, intentScore: classification.intentScore, intentCategory: classification.intentCategory }),
+        now
+      );
+
+      return await db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(existing.id);
+    }
+
+    await db.prepare(`
+      INSERT INTO recovery_candidates (
+        id, tenant_id, conversation_id, channel, customer_id,
+        intent_score, intent_category, intent_reason, buying_signals,
+        product_identifiers, detected_language, last_customer_message_text,
+        last_customer_message_at, eligible_at, stage, state, version,
+        is_control_group, deduplication_key, created_at, updated_at
+      ) VALUES (
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, 'SCHEDULED', 'PENDING', 1,
+        ?, ?, ?, ?
+      )
+    `).run(
+      candidateId, tenantId, conversationId, channel, customerId,
+      classification.intentScore, classification.intentCategory, classification.explanation,
+      JSON.stringify(classification.buyingSignals || []), JSON.stringify(classification.productIdentifiers || []),
+      classification.language || 'en', messageText, messageTime, eligibleAt, isControlGroup, deduplicationKey,
+      now, now
+    );
+
+    const ev1 = `ev-${Date.now()}-1`;
+    await db.prepare(`
+      INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+      VALUES (?, ?, ?, 'INTENT_DETECTED', ?, ?)
+    `).run(
+      ev1, tenantId, candidateId,
+      JSON.stringify({ intentScore: classification.intentScore, intentCategory: classification.intentCategory, buyingSignals: classification.buyingSignals, isControlGroup: Boolean(isControlGroup) }),
+      now
+    );
+
+    const ev2 = `ev-${Date.now()}-2`;
+    await db.prepare(`
+      INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+      VALUES (?, ?, ?, 'SCHEDULED', ?, ?)
+    `).run(
+      ev2, tenantId, candidateId,
+      JSON.stringify({ eligibleAt, inactivityMinutes }),
+      now
+    );
+
+    return await db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(candidateId);
+  },
+
+  _executeRegisterIntent(params, settings) {
+    const db = getDatabase();
+    if (db.isPostgres) {
+      return this._executeRegisterIntentAsync(params, settings);
+    }
+
+    const {
+      tenantId,
+      conversationId,
+      channel = 'WHATSAPP',
+      customerId = null,
+      classification,
+      messageText,
+      messageTime = new Date().toISOString()
+    } = params;
+
+    if (!classification || !classification.eligibleForRecovery || classification.intentScore < settings.min_intent_score) {
+      return null;
+    }
+
+    const channelsConfig = typeof settings.channels === 'string' ? JSON.parse(settings.channels || '{}') : settings.channels;
+    const channelKey = (channel || 'whatsapp').toLowerCase();
+    if (channelsConfig[channelKey] === false) {
+      logger.info(`[CANDIDATE SKIPPED] Channel ${channel} is disabled in tenant ${tenantId} recovery settings.`);
+      return null;
+    }
+
+    const inactivityMinutes = settings.inactivity_minutes || 30;
+    const eligibleAt = new Date(new Date(messageTime).getTime() + inactivityMinutes * 60 * 1000).toISOString();
+    const deduplicationKey = `${tenantId}_${conversationId}_${messageTime}`;
+    const isControlGroup = Math.random() < (settings.control_group_ratio || 0.10) ? 1 : 0;
+    const candidateId = `cand-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const now = new Date().toISOString();
+
+    const existing = db.prepare(`
+      SELECT * FROM recovery_candidates 
+      WHERE tenant_id = ? AND conversation_id = ? AND stage IN ('IDENTIFIED', 'SCHEDULED', 'EVALUATING')
+      LIMIT 1
+    `).get(tenantId, conversationId);
+
+    if (existing) {
+      db.prepare(`
+        UPDATE recovery_candidates
+        SET intent_score = MAX(intent_score, ?),
+            intent_category = ?,
+            intent_reason = ?,
+            buying_signals = ?,
+            product_identifiers = ?,
+            detected_language = ?,
+            last_customer_message_text = ?,
+            last_customer_message_at = ?,
+            eligible_at = ?,
+            stage = 'SCHEDULED',
+            state = 'PENDING',
+            version = version + 1,
+            updated_at = ?
+        WHERE id = ?
+      `).run(
+        classification.intentScore, classification.intentCategory, classification.explanation,
+        JSON.stringify(classification.buyingSignals || []), JSON.stringify(classification.productIdentifiers || []),
+        classification.language || 'en', messageText, messageTime, eligibleAt, now, existing.id
+      );
+
+      const eventId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       db.prepare(`
         INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-        VALUES (?, ?, ?, 'INTENT_DETECTED', ?, datetime('now'))
+        VALUES (?, ?, ?, 'RESCHEDULED', ?, ?)
       `).run(
-        ev1,
-        tenantId,
-        candidateId,
-        JSON.stringify({
-          intentScore: classification.intentScore,
-          intentCategory: classification.intentCategory,
-          buyingSignals: classification.buyingSignals,
-          isControlGroup: Boolean(isControlGroup)
-        })
+        eventId, tenantId, existing.id,
+        JSON.stringify({ inactivityMinutes, eligibleAt, intentScore: classification.intentScore, intentCategory: classification.intentCategory }),
+        now
       );
 
-      const ev2 = `ev-${Date.now()}-2`;
-      db.prepare(`
-        INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-        VALUES (?, ?, ?, 'SCHEDULED', ?, datetime('now'))
-      `).run(
-        ev2,
-        tenantId,
-        candidateId,
-        JSON.stringify({
-          eligibleAt,
-          inactivityMinutes
-        })
-      );
+      return db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(existing.id);
+    }
 
-      return db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(candidateId);
-    })();
+    db.prepare(`
+      INSERT INTO recovery_candidates (
+        id, tenant_id, conversation_id, channel, customer_id,
+        intent_score, intent_category, intent_reason, buying_signals,
+        product_identifiers, detected_language, last_customer_message_text,
+        last_customer_message_at, eligible_at, stage, state, version,
+        is_control_group, deduplication_key, created_at, updated_at
+      ) VALUES (
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, 'SCHEDULED', 'PENDING', 1,
+        ?, ?, ?, ?
+      )
+    `).run(
+      candidateId, tenantId, conversationId, channel, customerId,
+      classification.intentScore, classification.intentCategory, classification.explanation,
+      JSON.stringify(classification.buyingSignals || []), JSON.stringify(classification.productIdentifiers || []),
+      classification.language || 'en', messageText, messageTime, eligibleAt, isControlGroup, deduplicationKey,
+      now, now
+    );
 
-    logger.info(`[RECOVERY CANDIDATE] Lead ${candidate.id} registered for conv ${conversationId} (Eligible: ${eligibleAt}, Control: ${Boolean(isControlGroup)})`);
-    return candidate;
+    const ev1 = `ev-${Date.now()}-1`;
+    db.prepare(`
+      INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+      VALUES (?, ?, ?, 'INTENT_DETECTED', ?, ?)
+    `).run(
+      ev1, tenantId, candidateId,
+      JSON.stringify({ intentScore: classification.intentScore, intentCategory: classification.intentCategory, buyingSignals: classification.buyingSignals, isControlGroup: Boolean(isControlGroup) }),
+      now
+    );
+
+    const ev2 = `ev-${Date.now()}-2`;
+    db.prepare(`
+      INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+      VALUES (?, ?, ?, 'SCHEDULED', ?, ?)
+    `).run(
+      ev2, tenantId, candidateId,
+      JSON.stringify({ eligibleAt, inactivityMinutes }),
+      now
+    );
+
+    return db.prepare('SELECT * FROM recovery_candidates WHERE id = ?').get(candidateId);
   },
 
   /**
    * Cancel candidate if customer replies, purchases, escalates, or opts out.
-   * @param {string} tenantId
-   * @param {string} conversationId
-   * @param {string} reason
-   * @returns {number} number of candidates cancelled
    */
   cancelActiveCandidates(tenantId, conversationId, reason = 'CUSTOMER_REPLIED') {
     const db = getDatabase();
 
-    const activeList = db.prepare(`
+    const activeListRaw = db.prepare(`
       SELECT id, stage FROM recovery_candidates
       WHERE tenant_id = ? AND conversation_id = ? AND stage IN ('IDENTIFIED', 'SCHEDULED', 'EVALUATING')
     `).all(tenantId, conversationId);
 
-    if (activeList.length === 0) return 0;
+    if (activeListRaw instanceof Promise) {
+      return (async () => {
+        const activeList = await activeListRaw;
+        const candidates = Array.isArray(activeList) ? activeList : [];
+        if (candidates.length === 0) return 0;
 
-    db.transaction(() => {
-      for (const cand of activeList) {
-        db.prepare(`
-          UPDATE recovery_candidates
-          SET stage = 'CANCELLED',
-              state = 'COMPLETED',
-              cancel_reason = ?,
-              version = version + 1,
-              updated_at = datetime('now')
-          WHERE id = ?
-        `).run(reason, cand.id);
+        const now = new Date().toISOString();
+        for (const cand of candidates) {
+          await db.prepare(`
+            UPDATE recovery_candidates
+            SET stage = 'CANCELLED', state = 'COMPLETED', cancel_reason = ?, version = version + 1, updated_at = ?
+            WHERE id = ?
+          `).run(reason, now, cand.id);
 
-        // Cancel any pending outbox items
-        db.prepare(`
-          UPDATE recovery_outbox
-          SET status = 'CANCELLED', updated_at = datetime('now')
-          WHERE candidate_id = ? AND status = 'QUEUED'
-        `).run(cand.id);
+          await db.prepare(`
+            UPDATE recovery_outbox SET status = 'CANCELLED', updated_at = ? WHERE candidate_id = ? AND status = 'QUEUED'
+          `).run(now, cand.id);
 
-        // Record CANCELLED event
-        const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-        db.prepare(`
-          INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-          VALUES (?, ?, ?, 'CANCELLED', ?, datetime('now'))
-        `).run(evId, tenantId, cand.id, JSON.stringify({ reason }));
-      }
-    })();
+          const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+          await db.prepare(`
+            INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+            VALUES (?, ?, ?, 'CANCELLED', ?, ?)
+          `).run(evId, tenantId, cand.id, JSON.stringify({ reason }), now);
+        }
+        return candidates.length;
+      })();
+    }
 
-    logger.info(`[RECOVERY CANCELLED] Cancelled ${activeList.length} candidate(s) for conv ${conversationId} due to: ${reason}`);
-    return activeList.length;
+    const candidates = Array.isArray(activeListRaw) ? activeListRaw : [];
+    if (candidates.length === 0) return 0;
+
+    const now = new Date().toISOString();
+    for (const cand of candidates) {
+      db.prepare(`
+        UPDATE recovery_candidates
+        SET stage = 'CANCELLED', state = 'COMPLETED', cancel_reason = ?, version = version + 1, updated_at = ?
+        WHERE id = ?
+      `).run(reason, now, cand.id);
+
+      db.prepare(`
+        UPDATE recovery_outbox SET status = 'CANCELLED', updated_at = ? WHERE candidate_id = ? AND status = 'QUEUED'
+      `).run(now, cand.id);
+
+      const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      db.prepare(`
+        INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+        VALUES (?, ?, ?, 'CANCELLED', ?, ?)
+      `).run(evId, tenantId, cand.id, JSON.stringify({ reason }), now);
+    }
+    return candidates.length;
   },
 
   /**
@@ -248,31 +348,39 @@ export const recoveryCandidateService = {
    */
   markReplied(tenantId, conversationId) {
     const db = getDatabase();
-    const candidate = db.prepare(`
+    const candidateRaw = db.prepare(`
       SELECT id FROM recovery_candidates
       WHERE tenant_id = ? AND conversation_id = ? AND stage = 'DISPATCHED'
       ORDER BY updated_at DESC LIMIT 1
     `).get(tenantId, conversationId);
 
-    if (!candidate) return false;
+    if (candidateRaw instanceof Promise) {
+      return (async () => {
+        const candidate = await candidateRaw;
+        if (!candidate) return false;
+        const now = new Date().toISOString();
+        await db.prepare(`
+          UPDATE recovery_candidates SET stage = 'REPLIED', version = version + 1, updated_at = ? WHERE id = ?
+        `).run(now, candidate.id);
+        const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        await db.prepare(`
+          INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+          VALUES (?, ?, ?, 'CUSTOMER_REPLIED', '{}', ?)
+        `).run(evId, tenantId, candidate.id, now);
+        return true;
+      })();
+    }
 
-    db.transaction(() => {
-      db.prepare(`
-        UPDATE recovery_candidates
-        SET stage = 'REPLIED',
-            version = version + 1,
-            updated_at = datetime('now')
-        WHERE id = ?
-      `).run(candidate.id);
-
-      const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-      db.prepare(`
-        INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
-        VALUES (?, ?, ?, 'CUSTOMER_REPLIED', '{}', datetime('now'))
-      `).run(evId, tenantId, candidate.id);
-    })();
-
-    logger.info(`[RECOVERY REPLIED] Candidate ${candidate.id} marked as REPLIED.`);
+    if (!candidateRaw) return false;
+    const now = new Date().toISOString();
+    db.prepare(`
+      UPDATE recovery_candidates SET stage = 'REPLIED', version = version + 1, updated_at = ? WHERE id = ?
+    `).run(now, candidateRaw.id);
+    const evId = `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    db.prepare(`
+      INSERT INTO recovery_events (id, tenant_id, candidate_id, event_type, metadata, created_at)
+      VALUES (?, ?, ?, 'CUSTOMER_REPLIED', '{}', ?)
+    `).run(evId, tenantId, candidateRaw.id, now);
     return true;
   },
 
@@ -281,32 +389,44 @@ export const recoveryCandidateService = {
    */
   getById(tenantId, candidateId) {
     const db = getDatabase();
-    const candidate = db.prepare(`
+    const candidateRaw = db.prepare(`
       SELECT c.*, cust.full_name as customer_name, cust.phone as customer_phone, cust.email as customer_email
       FROM recovery_candidates c
       LEFT JOIN customers cust ON c.customer_id = cust.id
       WHERE c.tenant_id = ? AND c.id = ?
     `).get(tenantId, candidateId);
 
-    if (!candidate) return null;
+    if (candidateRaw instanceof Promise) {
+      return (async () => {
+        const candidate = await candidateRaw;
+        if (!candidate) return null;
+        const attempts = (await db.prepare('SELECT * FROM recovery_attempts WHERE candidate_id = ? ORDER BY created_at DESC').all(candidateId)) || [];
+        const events = (await db.prepare('SELECT * FROM recovery_events WHERE candidate_id = ? ORDER BY created_at DESC').all(candidateId)) || [];
+        const attributions = (await db.prepare('SELECT * FROM recovery_attributions WHERE candidate_id = ?').all(candidateId)) || [];
+        return {
+          ...candidate,
+          buying_signals: JSON.parse(candidate.buying_signals || '[]'),
+          product_identifiers: JSON.parse(candidate.product_identifiers || '[]'),
+          is_control_group: Boolean(candidate.is_control_group),
+          attempts: attempts.map(a => ({ ...a, policy_check_result: JSON.parse(a.policy_check_result || '{}') })),
+          events: events.map(e => ({ ...e, metadata: JSON.parse(e.metadata || '{}') })),
+          attributions
+        };
+      })();
+    }
 
-    const attempts = db.prepare('SELECT * FROM recovery_attempts WHERE candidate_id = ? ORDER BY created_at DESC').all(candidateId);
-    const events = db.prepare('SELECT * FROM recovery_events WHERE candidate_id = ? ORDER BY event_at DESC').all(candidateId);
-    const attributions = db.prepare('SELECT * FROM recovery_attributions WHERE candidate_id = ?').all(candidateId);
+    if (!candidateRaw) return null;
+    const attempts = db.prepare('SELECT * FROM recovery_attempts WHERE candidate_id = ? ORDER BY created_at DESC').all(candidateId) || [];
+    const events = db.prepare('SELECT * FROM recovery_events WHERE candidate_id = ? ORDER BY created_at DESC').all(candidateId) || [];
+    const attributions = db.prepare('SELECT * FROM recovery_attributions WHERE candidate_id = ?').all(candidateId) || [];
 
     return {
-      ...candidate,
-      buying_signals: JSON.parse(candidate.buying_signals || '[]'),
-      product_identifiers: JSON.parse(candidate.product_identifiers || '[]'),
-      is_control_group: Boolean(candidate.is_control_group),
-      attempts: attempts.map(a => ({
-        ...a,
-        policy_check_result: JSON.parse(a.policy_check_result || '{}')
-      })),
-      events: events.map(e => ({
-        ...e,
-        metadata: JSON.parse(e.metadata || '{}')
-      })),
+      ...candidateRaw,
+      buying_signals: JSON.parse(candidateRaw.buying_signals || '[]'),
+      product_identifiers: JSON.parse(candidateRaw.product_identifiers || '[]'),
+      is_control_group: Boolean(candidateRaw.is_control_group),
+      attempts: attempts.map(a => ({ ...a, policy_check_result: JSON.parse(a.policy_check_result || '{}') })),
+      events: events.map(e => ({ ...e, metadata: JSON.parse(e.metadata || '{}') })),
       attributions
     };
   },
@@ -325,12 +445,10 @@ export const recoveryCandidateService = {
       conditions.push('c.stage = ?');
       params.push(stage);
     }
-
     if (channel && channel !== 'ALL') {
       conditions.push('c.channel = ?');
       params.push(channel);
     }
-
     if (search) {
       conditions.push('(c.intent_category LIKE ? OR c.last_customer_message_text LIKE ? OR cust.full_name LIKE ? OR cust.phone LIKE ?)');
       const s = `%${search}%`;
@@ -339,13 +457,42 @@ export const recoveryCandidateService = {
 
     const whereClause = conditions.join(' AND ');
 
-    const countRow = db.prepare(`
+    const countRaw = db.prepare(`
       SELECT COUNT(*) as total 
       FROM recovery_candidates c
       LEFT JOIN customers cust ON c.customer_id = cust.id
       WHERE ${whereClause}
     `).get(...params);
 
+    if (countRaw instanceof Promise) {
+      return (async () => {
+        const countRow = await countRaw;
+        const rows = (await db.prepare(`
+          SELECT c.*, cust.full_name as customer_name, cust.phone as customer_phone
+          FROM recovery_candidates c
+          LEFT JOIN customers cust ON c.customer_id = cust.id
+          WHERE ${whereClause}
+          ORDER BY c.eligible_at DESC
+          LIMIT ? OFFSET ?
+        `).all(...params, limit, offset)) || [];
+
+        const total = Number(countRow?.total || 0);
+        return {
+          candidates: rows.map(r => ({
+            ...r,
+            buying_signals: JSON.parse(r.buying_signals || '[]'),
+            product_identifiers: JSON.parse(r.product_identifiers || '[]'),
+            is_control_group: Boolean(r.is_control_group)
+          })),
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / limit)
+        };
+      })();
+    }
+
+    const countRow = countRaw;
     const rows = db.prepare(`
       SELECT c.*, cust.full_name as customer_name, cust.phone as customer_phone
       FROM recovery_candidates c
@@ -353,8 +500,9 @@ export const recoveryCandidateService = {
       WHERE ${whereClause}
       ORDER BY c.eligible_at DESC
       LIMIT ? OFFSET ?
-    `).all(...params, limit, offset);
+    `).all(...params, limit, offset) || [];
 
+    const total = Number(countRow?.total || 0);
     return {
       candidates: rows.map(r => ({
         ...r,
@@ -362,10 +510,10 @@ export const recoveryCandidateService = {
         product_identifiers: JSON.parse(r.product_identifiers || '[]'),
         is_control_group: Boolean(r.is_control_group)
       })),
-      total: countRow.total,
+      total,
       page: Number(page),
       limit: Number(limit),
-      totalPages: Math.ceil(countRow.total / limit)
+      totalPages: Math.ceil(total / limit)
     };
   }
 };

@@ -1,0 +1,362 @@
+--- PAGE 1 ---
+KREAZYAI / QUALITY & SECURITY
+DOCUMENT 01 / QA TEST MATRIX
+KREAZYAI | MANUAL TEST CASE
+REPORT
+End-to-end website + application test catalog, evidence-led outcomes, and execution checklist
+Repository under review Snapshot / scope
+GitHub sadat87/Kreazyai (private), main @ c7b11b4a994ee8f2264eac440e59d3c059797298
+Inventory 382 tracked files; 178 src; 64 src/server; 29 test/verification scripts
+Application React/Vite SPA + Express API + Neon PostgreSQL; public site kreazyai.com
+Review date 25 October 2026 (Asia/Dhaka)
+Assurance level Repository inspection + cached public-page read + user-provided historical browser/SQL evidence; NO
+authenticated live browser session executed by reviewer
+Read this first
+This is a runnable manual test plan with a limited number of historical observations, not proof that every page
+has been manually exercised. I could inspect the connected private GitHub repository but did not have
+credentials, direct browser automation, production write permission, or live deployment network access from
+the execution container. The public-page retrieval was cached and is not a current live functional test.
+Status legend: HISTORICAL PASS/FAIL = previous user-submitted browser or SQL evidence from 24 Oct; CODE
+REVIEW = code behavior/risk requiring test; NOT RUN = a complete test case awaiting controlled execution.
+Never interpret NOT RUN as PASS.
+Total cases Historical PASS Historical FAIL Code-review flags Not executed
+100 3 1 7 89
+Evidence and execution constraints
+• GitHub main contains 382 files and no .github/workflows automation files in that snapshot. Tests exist as
+scripts but were not executed here.
+• Newer local selective restore scripts and WABA_id mapping changes discussed in the conversation are NOT
+present in the audited GitHub main snapshot.
+• Previously supplied evidence: restored merchant login worked; Neon ai_credit_wallets held 125 credits; UI
+reportedly did not show credits; overview-metrics requests displayed HTTP 200.
+• Cached public website search/open content was retrievable for the homepage, but live direct route requests
+and the Render health endpoint were inaccessible via the research fetcher; no browser clicks, mobile
+rendering, payment attempts or third-party Meta calls were performed.
+• Set up 2 isolated merchant accounts, 1 super admin, test Meta assets, a test payment provider, and a Neon
+staging branch before running mutation tests.
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 1
+[TABLES FOUND: 2]
+Repository under review Snapshot / scope
+GitHub sadat87/Kreazyai (private), main @ c7b11b4a994ee8f2264eac440e59d3c059797298
+Inventory 382 tracked files; 178 src; 64 src/server; 29 test/verification scripts
+Application React/Vite SPA + Express API + Neon PostgreSQL; public site kreazyai.com
+Review date 25 October 2026 (Asia/Dhaka)
+Assurance level Repository inspection + cached public-page read + user-provided historical browser/SQL evidence; NO authenticated live browser session executed by reviewer
+Total cases Historical PASS Historical FAIL Code-review flags Not executed
+100 3 1 7 89
+--- PAGE 2 ---
+KREAZYAI / QUALITY & SECURITY
+Execution rules
+• Run non-mutating smoke tests first; never attempt payment fulfillment, live Meta sends or production DB
+writes during exploratory QA.
+• Capture browser name/version, viewport, device, UTC timestamp, test user role, request status, sanitized
+response, screenshot and correlation ID.
+• A test PASS requires observed output matching its expected result, including DB-level verification for
+mutations.
+• Use staging for concurrency, tenant-crossing and malformed webhook tests. Mark blocked cases BLOCKED
+with the exact missing dependency.
+Test case inventory by feature area
+Public site / navigation (17 cases)
+ID Scenario Expected / acceptance Status
+TC-001 Homepage loads at / Responsive page; no console/runtime errors NOT RUN
+TC-002 Primary nav links All header/footer links resolve to correct routes NOT RUN
+TC-003 Solutions / features Page loads; CTA and descriptions work NOT RUN
+TC-004 AI agents Page loads; demo content labelled clearly NOT RUN
+TC-005 Integrations marketing page Facebook, Instagram and WhatsApp sections load NOT RUN
+TC-006 How it works Steps and graphics render on mobile and desktop NOT RUN
+TC-007 Pricing / monthly annual Price, currency and annual discount recalculate correctly NOT RUN
+TC-008 About Page content, contacts and internal links work NOT RUN
+TC-009 Contact form valid Successful submission creates one valid lead NOT RUN
+TC-010 Contact form invalid Invalid email and missing fields rejected accessibly NOT RUN
+TC-011 Book demo Submit a valid request, verify confirmation and persistence NOT RUN
+TC-012 Founder meeting Time/slot selection and submit persist; duplicates controlled NOT RUN
+TC-013 FAQ Accordion, search and anchors function on mobile NOT RUN
+TC-014 Privacy and terms Both tabs reachable with accurate policy text NOT RUN
+TC-015 Unknown route Consistent 404 rather than silent homepage redirect CODE REVIEW
+TC-016 SEO / crawler metadata Canonical, robots and sitemap consistent with routes NOT RUN
+TC-017 Marketing claims Backups, certification and SLA claims backed by evidence NOT RUN
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 2
+[TABLES FOUND: 1]
+ID Scenario Expected / acceptance Status
+TC-001 Homepage loads at / Responsive page; no console/runtime errors NOT RUN
+TC-002 Primary nav links All header/footer links resolve to correct routes NOT RUN
+TC-003 Solutions / features Page loads; CTA and descriptions work NOT RUN
+TC-004 AI agents Page loads; demo content labelled clearly NOT RUN
+TC-005 Integrations marketing page Facebook, Instagram and WhatsApp sections load NOT RUN
+TC-006 How it works Steps and graphics render on mobile and desktop NOT RUN
+TC-007 Pricing / monthly annual Price, currency and annual discount recalculate correctly NOT RUN
+TC-008 About Page content, contacts and internal links work NOT RUN
+TC-009 Contact form valid Successful submission creates one valid lead NOT RUN
+TC-010 Contact form invalid Invalid email and missing fields rejected accessibly NOT RUN
+TC-011 Book demo Submit a valid request, verify confirmation and persistence NOT RUN
+TC-012 Founder meeting Time/slot selection and submit persist; duplicates controlled NOT RUN
+TC-013 FAQ Accordion, search and anchors function on mobile NOT RUN
+TC-014 Privacy and terms Both tabs reachable with accurate policy text NOT RUN
+TC-015 Unknown route Consistent 404 rather than silent homepage redirect CODE REVIEW
+TC-016 SEO / crawler metadata Canonical, robots and sitemap consistent with routes NOT RUN
+TC-017 Marketing claims Backups, certification and SLA claims backed by evidence NOT RUN
+--- PAGE 3 ---
+KREAZYAI / QUALITY & SECURITY
+Auth / onboarding (15 cases)
+ID Scenario Expected / acceptance Status
+TC-018 Fresh merchant registration Creates business, user, AI config and wallet atomically NOT RUN
+TC-019 Registration duplicate email 409/validation error; no duplicate tenant NOT RUN
+TC-020 Registration weak password Enforces updated strong password policy CODE REVIEW
+TC-021 Normal login with old restored Existing merchant can sign in via incognito HIST. PASS
+credentials
+TC-022 Login with wrong password Rejects request without creating session NOT RUN
+TC-023 Super admin using merchant portal Admin redirected/denied at merchant login NOT RUN
+TC-024 Admin portal login Admin auth and privileges correct NOT RUN
+TC-025 Unauthenticated dashboard deep link Redirects to login; safe return navigation NOT RUN
+TC-026 Refresh on protected deep link Works on S3/CloudFront fallback routing NOT RUN
+TC-027 Forgot password flow Reset token, expiration, one-time use and delivery work NOT RUN
+TC-028 Logout / token revocation Protected APIs reject invalidated sessions NOT RUN
+TC-029 Onboarding / setup Resume after refresh and preserve progress NOT RUN
+TC-030 Session expiry Expired JWT gets 401 and reauthentication UX NOT RUN
+TC-031 Google sign-in OAuth and account linking validated on production NOT RUN
+TC-032 Cross-tenant token/header mismatch 403 and zero cross-tenant disclosure NOT RUN
+Merchant overview / analytics (10 cases)
+ID Scenario Expected / acceptance Status
+TC-033 Overview metrics HTTP request Previous browser capture showed 200 response HIST. PASS
+TC-034 Today sales starts at local midnight Today switches to zero correctly at Asia/Dhaka midnight NOT RUN
+TC-035 Month / year totals Match SQL aggregates and timezone boundaries NOT RUN
+TC-036 Today AI messages Counts only actual AI replies, not user messages NOT RUN
+TC-037 No-data workspace Displays zero/empty states without placeholder sales NOT RUN
+TC-038 Polling/refresh No duplicate requests or stale values at focus NOT RUN
+TC-039 Offline/API 500 Visible error and retry; no false success NOT RUN
+TC-040 Analytics breakdown Correct totals, chart legends and mobile labels NOT RUN
+TC-041 Revenue report Tenant-aware sales/revenue and filters correct NOT RUN
+TC-042 Overview accessibility Tabs read correctly by keyboard/screen reader NOT RUN
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 3
+[TABLES FOUND: 2]
+ID Scenario Expected / acceptance Status
+TC-018 Fresh merchant registration Creates business, user, AI config and wallet atomically NOT RUN
+TC-019 Registration duplicate email 409/validation error; no duplicate tenant NOT RUN
+TC-020 Registration weak password Enforces updated strong password policy CODE REVIEW
+TC-021 Normal login with old restored Existing merchant can sign in via incognito HIST. PASS credentials
+TC-022 Login with wrong password Rejects request without creating session NOT RUN
+TC-023 Super admin using merchant portal Admin redirected/denied at merchant login NOT RUN
+TC-024 Admin portal login Admin auth and privileges correct NOT RUN
+TC-025 Unauthenticated dashboard deep link Redirects to login; safe return navigation NOT RUN
+TC-026 Refresh on protected deep link Works on S3/CloudFront fallback routing NOT RUN
+TC-027 Forgot password flow Reset token, expiration, one-time use and delivery work NOT RUN
+TC-028 Logout / token revocation Protected APIs reject invalidated sessions NOT RUN
+TC-029 Onboarding / setup Resume after refresh and preserve progress NOT RUN
+TC-030 Session expiry Expired JWT gets 401 and reauthentication UX NOT RUN
+TC-031 Google sign-in OAuth and account linking validated on production NOT RUN
+TC-032 Cross-tenant token/header mismatch 403 and zero cross-tenant disclosure NOT RUN
+ID Scenario Expected / acceptance Status
+TC-033 Overview metrics HTTP request Previous browser capture showed 200 response HIST. PASS
+TC-034 Today sales starts at local midnight Today switches to zero correctly at Asia/Dhaka midnight NOT RUN
+TC-035 Month / year totals Match SQL aggregates and timezone boundaries NOT RUN
+TC-036 Today AI messages Counts only actual AI replies, not user messages NOT RUN
+TC-037 No-data workspace Displays zero/empty states without placeholder sales NOT RUN
+TC-038 Polling/refresh No duplicate requests or stale values at focus NOT RUN
+TC-039 Offline/API 500 Visible error and retry; no false success NOT RUN
+TC-040 Analytics breakdown Correct totals, chart legends and mobile labels NOT RUN
+TC-041 Revenue report Tenant-aware sales/revenue and filters correct NOT RUN
+TC-042 Overview accessibility Tabs read correctly by keyboard/screen reader NOT RUN
+--- PAGE 4 ---
+KREAZYAI / QUALITY & SECURITY
+Credits / billing / payments (14 cases)
+ID Scenario Expected / acceptance Status
+TC-043 Wallet persisted in Neon Wallet row held 125 credits, used=0 HIST. PASS
+TC-044 Credit total shown in merchant UI UI must show same authoritative 125 credits HIST. FAIL
+TC-045 GET /whatsapp/wallet Returns numeric creditsBalance and trial expiry NOT RUN
+TC-046 GET /billing/details Returns authoritative account plan/payment history NOT RUN
+TC-047 Trial expiry transitions 7-day expiry blocks AI sends but not data access NOT RUN
+TC-048 Credits reservation/release Failed delivery rolls credits back correctly NOT RUN
+TC-049 Credits concurrent replies No negative balance or overspend across 20 workers NOT RUN
+TC-050 Payment pending Submitting unverified reference must NOT activate plan CODE REVIEW
+TC-051 Payment confirmed Only trusted webhook/admin approval activates NOT RUN
+subscription
+TC-052 Duplicate payment transaction ID Exactly-once fulfillment and idempotent invoice NOT RUN
+TC-053 Cancel plan Subscription/wallet updates in a committed transaction NOT RUN
+TC-054 Billing errors Network outage never displays false paid status NOT RUN
+TC-055 Trial upgrade flow Plan price, credit grants and entitlement change aligned NOT RUN
+TC-056 Multi-tenant billing isolation Tenant B never reads/changes tenant A wallet NOT RUN
+Commerce / CRM / messages (12 cases)
+ID Scenario Expected / acceptance Status
+TC-057 Products create / edit / delete CRUD writes and refreshes on Neon NOT RUN
+TC-058 SKU uniqueness Duplicate SKU per business rejected NOT RUN
+TC-059 Stock/order creation Stock deduction and order insertion atomic NOT RUN
+TC-060 Insufficient stock No order/no stock mutation on failure NOT RUN
+TC-061 Cancel/refund orders Totals and stock agree with business policy NOT RUN
+TC-062 Customer lists/search Only current tenant records returned NOT RUN
+TC-063 Customer notes Saved note persists after refresh NOT RUN
+TC-064 Conversation history GET conversation returns iterable rows and messages CODE REVIEW
+TC-065 Send manual reply One message inserted and displayed; 201 NOT RUN
+TC-066 Agent / AI suggestion Suggestion linked to correct tenant and conversation NOT RUN
+TC-067 Cross-tenant object ID Other tenant product/order/customer IDs return 404/403 NOT RUN
+TC-068 Input sanitation / XSS HTML payload rendered as text and not executed NOT RUN
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 4
+[TABLES FOUND: 2]
+ID Scenario Expected / acceptance Status
+TC-043 Wallet persisted in Neon Wallet row held 125 credits, used=0 HIST. PASS
+TC-044 Credit total shown in merchant UI UI must show same authoritative 125 credits HIST. FAIL
+TC-045 GET /whatsapp/wallet Returns numeric creditsBalance and trial expiry NOT RUN
+TC-046 GET /billing/details Returns authoritative account plan/payment history NOT RUN
+TC-047 Trial expiry transitions 7-day expiry blocks AI sends but not data access NOT RUN
+TC-048 Credits reservation/release Failed delivery rolls credits back correctly NOT RUN
+TC-049 Credits concurrent replies No negative balance or overspend across 20 workers NOT RUN
+TC-050 Payment pending Submitting unverified reference must NOT activate plan CODE REVIEW
+TC-051 Payment confirmed Only trusted webhook/admin approval activates NOT RUN subscription
+TC-052 Duplicate payment transaction ID Exactly-once fulfillment and idempotent invoice NOT RUN
+TC-053 Cancel plan Subscription/wallet updates in a committed transaction NOT RUN
+TC-054 Billing errors Network outage never displays false paid status NOT RUN
+TC-055 Trial upgrade flow Plan price, credit grants and entitlement change aligned NOT RUN
+TC-056 Multi-tenant billing isolation Tenant B never reads/changes tenant A wallet NOT RUN
+ID Scenario Expected / acceptance Status
+TC-057 Products create / edit / delete CRUD writes and refreshes on Neon NOT RUN
+TC-058 SKU uniqueness Duplicate SKU per business rejected NOT RUN
+TC-059 Stock/order creation Stock deduction and order insertion atomic NOT RUN
+TC-060 Insufficient stock No order/no stock mutation on failure NOT RUN
+TC-061 Cancel/refund orders Totals and stock agree with business policy NOT RUN
+TC-062 Customer lists/search Only current tenant records returned NOT RUN
+TC-063 Customer notes Saved note persists after refresh NOT RUN
+TC-064 Conversation history GET conversation returns iterable rows and messages CODE REVIEW
+TC-065 Send manual reply One message inserted and displayed; 201 NOT RUN
+TC-066 Agent / AI suggestion Suggestion linked to correct tenant and conversation NOT RUN
+TC-067 Cross-tenant object ID Other tenant product/order/customer IDs return 404/403 NOT RUN
+TC-068 Input sanitation / XSS HTML payload rendered as text and not executed NOT RUN
+--- PAGE 5 ---
+KREAZYAI / QUALITY & SECURITY
+WhatsApp / Meta / recovery (16 cases)
+ID Scenario Expected / acceptance Status
+TC-069 WhatsApp connect/credentials Encrypted credentials, real verification and correct state NOT RUN
+TC-070 WhatsApp wallet display Connection page shows restored credits accurately NOT RUN
+TC-071 WhatsApp disconnect/reconnect Reauth state and tokens managed properly NOT RUN
+TC-072 Meta OAuth state Reject tampered/expired state NOT RUN
+TC-073 Meta webhook unsigned payload Reject without processing; fail closed NOT RUN
+TC-074 Meta webhook invalid HMAC Reject without customer message creation NOT RUN
+TC-075 Meta webhook valid HMAC Once-only event receipt and message route NOT RUN
+TC-076 Meta webhook repeated event Deduplicated under concurrent delivery NOT RUN
+TC-077 Multi-business phone routing Message maps only to correct tenant NOT RUN
+TC-078 WhatsApp inbound AI reply Rules, LLM and output delivery tested end-to-end NOT RUN
+TC-079 WhatsApp token expiration Reauth required; no mock transport in production NOT RUN
+TC-080 Recovery candidate pipeline Candidate selection, filters and sending correct NOT RUN
+TC-081 Recovery quiet hours Respects tenant timezone and suppresses delivery NOT RUN
+TC-082 Recovery retry/idempotency No duplicate customer follow-up NOT RUN
+TC-083 AI prompt injection safety Messages cannot override tenant boundaries/permissions NOT RUN
+TC-084 AI credit deduction Only successful billable replies are charged NOT RUN
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 5
+[TABLES FOUND: 1]
+ID Scenario Expected / acceptance Status
+TC-069 WhatsApp connect/credentials Encrypted credentials, real verification and correct state NOT RUN
+TC-070 WhatsApp wallet display Connection page shows restored credits accurately NOT RUN
+TC-071 WhatsApp disconnect/reconnect Reauth state and tokens managed properly NOT RUN
+TC-072 Meta OAuth state Reject tampered/expired state NOT RUN
+TC-073 Meta webhook unsigned payload Reject without processing; fail closed NOT RUN
+TC-074 Meta webhook invalid HMAC Reject without customer message creation NOT RUN
+TC-075 Meta webhook valid HMAC Once-only event receipt and message route NOT RUN
+TC-076 Meta webhook repeated event Deduplicated under concurrent delivery NOT RUN
+TC-077 Multi-business phone routing Message maps only to correct tenant NOT RUN
+TC-078 WhatsApp inbound AI reply Rules, LLM and output delivery tested end-to-end NOT RUN
+TC-079 WhatsApp token expiration Reauth required; no mock transport in production NOT RUN
+TC-080 Recovery candidate pipeline Candidate selection, filters and sending correct NOT RUN
+TC-081 Recovery quiet hours Respects tenant timezone and suppresses delivery NOT RUN
+TC-082 Recovery retry/idempotency No duplicate customer follow-up NOT RUN
+TC-083 AI prompt injection safety Messages cannot override tenant boundaries/permissions NOT RUN
+TC-084 AI credit deduction Only successful billable replies are charged NOT RUN
+--- PAGE 6 ---
+KREAZYAI / QUALITY & SECURITY
+Settings / admin / operational (16 cases)
+ID Scenario Expected / acceptance Status
+TC-085 Profile edit and password change Changes persist on Neon and reauth works NOT RUN
+TC-086 Avatar upload MIME/size validation and persistence after redeploy NOT RUN
+TC-087 KYC documents private access Owner can view; other tenant gets 403 NOT RUN
+TC-088 Team membership Invitations and revocation scoped by tenant NOT RUN
+TC-089 Notification preferences Saved values persist across sessions NOT RUN
+TC-090 API key rotate/revoke Secrets are hashed/masked and revocation immediate NOT RUN
+TC-091 Admin metrics Numeric and correct, no Promise values in JSON CODE REVIEW
+TC-092 Admin workspace management Status changes reflected to affected tenant NOT RUN
+TC-093 Admin audit export Requires admin; no unbounded sensitive data exposure NOT RUN
+TC-094 Database public health No private table names or raw SQL errors disclosed CODE REVIEW
+TC-095 Rate limit spoofing Attacker cannot reset quota with forged headers CODE REVIEW
+TC-096 Cross-browser mobile UI 320px, 375px, 768px, tablet, desktop NOT RUN
+TC-097 Keyboard focus and dialogs No focus trap errors; ESC and labels work NOT RUN
+TC-098 Slow network / Render wake Friendly retry and bounded loading state NOT RUN
+TC-099 Deployment / rollback Migration and code rollback preserve wallet integrity NOT RUN
+TC-100 Neon reconnect Pool recovers without duplicate writes NOT RUN
+Historical evidence: what has actually been observed
+Evidence Feature Classification Observation
+E-01 Restored account login HISTORICAL PASS User confirmed working login in incognito after selective Neon
+restore, 24 Oct. This is not a current production retest.
+E-02 Wallet data persistence HISTORICAL PASS User-submitted SQL Editor result: tenant wallet balance=125,
+reserved=0, used=0, FREE_TRIAL / TRIAL_ACTIVE.
+E-03 Visible credit counter HISTORICAL FAIL User reported no credits shown after restoration. Screenshot/API
+response of current WhatsApp wallet not yet supplied.
+E-04 Overview metrics HISTORICAL PASS User browser screenshot showed GET me and overview-metrics
+transport 200 responses; body not captured.
+E-05 Public homepage CACHED CONTENT Research fetcher retrieved an indexed/cached homepage, not a
+live browser rendering session.
+E-06 Authenticated complete NOT RUN No credentialed session, screenshot suite, Playwright trace or
+UI HAR was available for full-site interactive validation.
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 6
+[TABLES FOUND: 2]
+ID Scenario Expected / acceptance Status
+TC-085 Profile edit and password change Changes persist on Neon and reauth works NOT RUN
+TC-086 Avatar upload MIME/size validation and persistence after redeploy NOT RUN
+TC-087 KYC documents private access Owner can view; other tenant gets 403 NOT RUN
+TC-088 Team membership Invitations and revocation scoped by tenant NOT RUN
+TC-089 Notification preferences Saved values persist across sessions NOT RUN
+TC-090 API key rotate/revoke Secrets are hashed/masked and revocation immediate NOT RUN
+TC-091 Admin metrics Numeric and correct, no Promise values in JSON CODE REVIEW
+TC-092 Admin workspace management Status changes reflected to affected tenant NOT RUN
+TC-093 Admin audit export Requires admin; no unbounded sensitive data exposure NOT RUN
+TC-094 Database public health No private table names or raw SQL errors disclosed CODE REVIEW
+TC-095 Rate limit spoofing Attacker cannot reset quota with forged headers CODE REVIEW
+TC-096 Cross-browser mobile UI 320px, 375px, 768px, tablet, desktop NOT RUN
+TC-097 Keyboard focus and dialogs No focus trap errors; ESC and labels work NOT RUN
+TC-098 Slow network / Render wake Friendly retry and bounded loading state NOT RUN
+TC-099 Deployment / rollback Migration and code rollback preserve wallet integrity NOT RUN
+TC-100 Neon reconnect Pool recovers without duplicate writes NOT RUN
+Evidence Feature Classification Observation
+E-01 Restored account login HISTORICAL PASS User confirmed working login in incognito after selective Neon restore, 24 Oct. This is not a current production retest.
+E-02 Wallet data persistence HISTORICAL PASS User-submitted SQL Editor result: tenant wallet balance=125, reserved=0, used=0, FREE_TRIAL / TRIAL_ACTIVE.
+E-03 Visible credit counter HISTORICAL FAIL User reported no credits shown after restoration. Screenshot/API response of current WhatsApp wallet not yet supplied.
+E-04 Overview metrics HISTORICAL PASS User browser screenshot showed GET me and overview-metrics transport 200 responses; body not captured.
+E-05 Public homepage CACHED CONTENT Research fetcher retrieved an indexed/cached homepage, not a live browser rendering session.
+E-06 Authenticated complete NOT RUN No credentialed session, screenshot suite, Playwright trace or UI HAR was available for full-site interactive validation.
+--- PAGE 7 ---
+KREAZYAI / QUALITY & SECURITY
+Highest-priority manual execution order
+Priority Flow Pass criteria
+P0-1 Billing payment rejection Submitting an arbitrary/unverified payment reference must not upgrade the
+account; use staging payment sandbox.
+P0-2 Postgres compatibility smoke Login -> billing details -> wallet -> messages -> admin metrics -> settings ->
+recovery; verify each response structure and no 500.
+P0-3 Tenant isolation A-token/B-ID attempts on every object route; ensure no cross-tenant reads or
+writes.
+P0-4 Webhook signature Unsigned/tampered payload must not create any event or AI message;
+configure a real secret in staging.
+P1-5 Credits discrepancy Compare SQL wallet row vs /api/v1/whatsapp/wallet vs connection.wallet vs UI;
+log JSON shape and loading/error states.
+P1-6 Payment idempotency Repeated transaction IDs, webhook replay, and concurrent confirmations yield
+exactly one upgrade.
+P1-7 Public/mobile regression Run all public routes at 320/375/768/1440 px with keyboard, slow network and
+validation.
+Recommended test data / cleanup
+• Staging merchant A and merchant B; no real customer records; one temporary admin; staging payment IDs
+only.
+• Seed 0 orders, 1 paid order, 1 cancelled order, 2 duplicate webhooks, 125-credit trial and exhausted wallet.
+• Clean up with a staging-branch reset, never with ad hoc DELETE against production.
+• Capture desktop and phone screenshots for pass/fail, then append an executed result table (tester,
+timestamp, build SHA, environment).
+Reference paths
+src/App.jsx : 95-167
+src/server/routes/apiRoutes.js : 27-311
+src/server/controllers/billingController.js : 35-335
+src/server/db/postgres.js : 150-239
+src/server/config/database.js : 1310-1376
+src/pages/dashboard/integrations/WhatsAppIntegrationPage.jsx : 10-103
+scripts/test-postgres-migration.mjs : 1-100
+25 OCT 2026 | GitHub main: c7b11b4 | Evidence-labelled Page 7
+[TABLES FOUND: 1]
+Priority Flow Pass criteria
+P0-1 Billing payment rejection Submitting an arbitrary/unverified payment reference must not upgrade the account; use staging payment sandbox.
+P0-2 Postgres compatibility smoke Login -> billing details -> wallet -> messages -> admin metrics -> settings -> recovery; verify each response structure and no 500.
+P0-3 Tenant isolation A-token/B-ID attempts on every object route; ensure no cross-tenant reads or writes.
+P0-4 Webhook signature Unsigned/tampered payload must not create any event or AI message; configure a real secret in staging.
+P1-5 Credits discrepancy Compare SQL wallet row vs /api/v1/whatsapp/wallet vs connection.wallet vs UI; log JSON shape and loading/error states.
+P1-6 Payment idempotency Repeated transaction IDs, webhook replay, and concurrent confirmations yield exactly one upgrade.
+P1-7 Public/mobile regression Run all public routes at 320/375/768/1440 px with keyboard, slow network and validation.

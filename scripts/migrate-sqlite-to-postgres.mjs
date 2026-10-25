@@ -27,7 +27,8 @@ import {
   closePostgresPool,
   PostgresDatabaseAdapter,
   runPostgresMigrations,
-  POSTGRES_TABLES_ORDERED
+  POSTGRES_TABLES_ORDERED,
+  mapRowToDestination
 } from '../src/server/db/postgres.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -176,13 +177,18 @@ async function migrateData(sourceData, pool, dryRun) {
 
       try {
         for (const row of rows) {
-          const keys = Object.keys(row).filter(k => row[k] !== undefined);
+          const { mappedRow, unmappedKeys } = mapRowToDestination(tableName, row);
+          if (unmappedKeys.length > 0) {
+            console.warn(`[MIGRATION WARNING] Table ${tableName} row has unmapped keys:`, unmappedKeys);
+          }
+
+          const keys = Object.keys(mappedRow).filter(k => mappedRow[k] !== undefined);
           if (keys.length === 0) continue;
 
           const cols = keys.map(k => `"${k}"`).join(', ');
           const placeholders = keys.map((_, idx) => `$${idx + 1}`).join(', ');
           const values = keys.map(k => {
-            const val = row[k];
+            const val = mappedRow[k];
             // Format dates or booleans if necessary
             if (val === null) return null;
             return val;
