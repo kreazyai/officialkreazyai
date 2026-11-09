@@ -3,12 +3,17 @@ import { config, assertProductionEnv } from './config/env.js';
 import { getDatabase } from './config/database.js';
 import { logger } from './utils/logger.js';
 import { recoveryWorker } from './services/recovery/recoveryWorker.js';
+import { validateEncryptionConfig } from './utils/encryption.js';
 
 async function bootstrap() {
   try {
     // 0. Assert Production Security Environment Configuration
     if (config.isProduction) {
       assertProductionEnv();
+      const encValidation = validateEncryptionConfig();
+      if (!encValidation.valid) {
+        throw new Error(`Production encryption security check failed: ${encValidation.error}`);
+      }
     }
 
     // 1. Initialize Relational Database

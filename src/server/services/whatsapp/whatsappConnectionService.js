@@ -464,6 +464,7 @@ export const whatsappConnectionService = {
         credential_reference = NULL,
         webhook_status = 'INACTIVE',
         last_error = NULL,
+        diagnostics = '{}',
         updated_at = datetime('now')
       WHERE tenant_id = ?
     `).run(tenantId);
@@ -526,7 +527,7 @@ export const whatsappConnectionService = {
       webhookHealth: {
         status: waDetails?.webhook_status || conn?.webhook_status || 'INACTIVE',
         lastReceivedEvent: waDetails?.last_event_at || conn?.last_webhook_at || null,
-        version: 'v21.0 Cloud API'
+        version: `${config.meta?.graphVersion || 'v26.0'} Cloud API`
       },
       aiHealth: {
         status: waAiHealth.status,
@@ -550,6 +551,7 @@ export const whatsappConnectionService = {
         phoneNumberId: waDetails?.phone_number_id || conn?.phone_number_id || null,
         webhookActive: Boolean(conn?.webhook_status === 'ACTIVE' || waDetails?.webhook_status === 'ACTIVE'),
         messagingReady: isSuccess,
+        messaging_verified: isSuccess,
         permissionsGranted: isSuccess
       },
       checkedAt: new Date().toISOString(),

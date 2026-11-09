@@ -5,14 +5,43 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16; // 128-bit IV for AES-GCM
 
 /**
- * Derive a consistent 32-byte key from configuration
+ * Derive a consistent 32-byte key from dedicated encryption configuration.
+ * SECURITY: Never fall back to JWT_SECRET. Enforce strict key separation (CWE-320).
  */
 function getMasterKey() {
-  const secret = config.meta?.encryptionKey || config.auth?.jwtSecret || (!config.isProduction ? 'kreazy_dev_fallback_aes_key_32b_2026' : null);
+  const secret = config.meta?.encryptionKey || (!config.isProduction ? 'kreazy_dev_aes_256_secret_key_32b_2026' : null);
   if (!secret) {
-    throw new Error('Encryption key is required in production. Please set META_ENCRYPTION_KEY or JWT_SECRET.');
+    throw new Error('[SECURITY CONFIG ERROR] Dedicated META_ENCRYPTION_KEY is required in production for Meta token encryption at rest. JWT secret fallback is strictly disallowed.');
   }
   return crypto.createHash('sha256').update(String(secret)).digest();
+}
+
+/**
+ * Validates that token encryption at rest is safely configured with strict key separation.
+ * @param {object} [targetConfig=config]
+ * @param {object} [targetEnv=process.env]
+ * @returns {{ valid: boolean, error?: string }}
+ */
+export function validateEncryptionConfig(targetConfig = config, targetEnv = process.env) {
+  const isProd = Boolean(targetConfig?.isProduction || targetEnv?.NODE_ENV === 'production');
+  const metaKey = String(targetConfig?.meta?.encryptionKey || targetEnv?.META_ENCRYPTION_KEY || targetEnv?.ENCRYPTION_KEY || '').trim();
+  const jwtSecret = String(targetConfig?.auth?.jwtSecret || targetEnv?.JWT_SECRET || '').trim();
+
+  if (isProd) {
+    if (!metaKey) {
+      return { valid: false, error: 'META_ENCRYPTION_KEY missing in production' };
+    }
+    if (metaKey.length < 32) {
+      return { valid: false, error: `META_ENCRYPTION_KEY must be at least 32 characters in production (currently ${metaKey.length})` };
+    }
+    if (metaKey.includes('dev-') || metaKey.includes('placeholder') || metaKey === 'kreazy_dev_aes_256_secret_key_32b_2026') {
+      return { valid: false, error: 'META_ENCRYPTION_KEY cannot be a default or placeholder secret in production' };
+    }
+    if (jwtSecret && metaKey === jwtSecret) {
+      return { valid: false, error: 'Cryptographic key reuse detected: META_ENCRYPTION_KEY must be distinct from JWT_SECRET' };
+    }
+  }
+  return { valid: true };
 }
 
 /**

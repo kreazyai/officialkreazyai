@@ -486,7 +486,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
             <div
               key={item.id}
               style={{
-                background: '#FFFFFF',
+                background: 'rgba(18, 24, 38, 0.72)',
                 border: '1.5px solid var(--border)',
                 borderRadius: '20px',
                 padding: '1.75rem',
@@ -552,7 +552,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '1.25rem'
           }}>
-            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {data.sec1Title}
               </div>
@@ -560,7 +560,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 {data.sec1Desc}
               </p>
             </div>
-            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {data.sec2Title}
               </div>
@@ -568,7 +568,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 {data.sec2Desc}
               </p>
             </div>
-            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {data.sec3Title}
               </div>

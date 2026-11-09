@@ -103,7 +103,7 @@ export function BookDemoPage({ onNavigate }) {
       <div style={{ width: '100%', maxWidth: '640px', margin: '0 auto' }}>
         {!submitted ? (
           <div style={{
-            background: '#FFFFFF',
+            background: 'rgba(18, 24, 38, 0.75)',
             border: '1px solid #E2E8F0',
             borderRadius: '24px',
             padding: 'clamp(1.75rem, 4vw, 2.75rem)',
@@ -212,7 +212,7 @@ export function BookDemoPage({ onNavigate }) {
         ) : (
           /* Confirmation Success State */
           <div style={{
-            background: '#FFFFFF',
+            background: 'rgba(18, 24, 38, 0.75)',
             border: '1px solid #E2E8F0',
             borderRadius: '24px',
             padding: 'clamp(2.5rem, 5vw, 3.5rem) 2rem',

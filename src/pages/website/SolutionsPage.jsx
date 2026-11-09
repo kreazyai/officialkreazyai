@@ -430,7 +430,7 @@ export function SolutionsPage({ onNavigate }) {
 
         {/* Active Solution Showcase Card */}
         <div className="solution-showcase-box" style={{
-          background: '#FFFFFF',
+          background: 'rgba(18, 24, 38, 0.72)',
           border: '1.5px solid var(--border)',
           borderRadius: '24px',
           padding: 'clamp(1.5rem, 4vw, 3rem)',
@@ -492,7 +492,7 @@ export function SolutionsPage({ onNavigate }) {
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '0.75rem',
-                background: '#FFFFFF',
+                background: 'rgba(18, 24, 38, 0.72)',
                 border: '1px solid var(--border)',
                 borderRadius: '12px',
                 padding: '1rem'
@@ -537,7 +537,7 @@ export function SolutionsPage({ onNavigate }) {
             const Icon = col.icon;
             return (
               <div key={idx} style={{
-                background: '#FFFFFF',
+                background: 'rgba(18, 24, 38, 0.72)',
                 border: '1.5px solid var(--border)',
                 borderRadius: '18px',
                 padding: '1.75rem',

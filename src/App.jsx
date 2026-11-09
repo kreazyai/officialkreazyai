@@ -19,6 +19,7 @@ const WebsiteIntegrationsPage = lazy(() => import('./pages/website/WebsiteIntegr
 const HowItWorksPage = lazy(() => import('./pages/website/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })));
 const FeaturesPage = lazy(() => import('./pages/website/FeaturesPage').then(m => ({ default: m.FeaturesPage })));
 const PricingPage = lazy(() => import('./pages/website/PricingPage').then(m => ({ default: m.PricingPage })));
+const BlogPage = lazy(() => import('./pages/website/BlogPage').then(m => ({ default: m.BlogPage })));
 const AboutPage = lazy(() => import('./pages/website/AboutPage').then(m => ({ default: m.AboutPage })));
 const ContactPage = lazy(() => import('./pages/website/ContactPage').then(m => ({ default: m.ContactPage })));
 const BookDemoPage = lazy(() => import('./pages/website/BookDemoPage').then(m => ({ default: m.BookDemoPage })));
@@ -62,7 +63,7 @@ function PageLoader() {
       color: 'var(--primary-accent)',
       fontFamily: 'var(--font-sans, system-ui)'
     }}>
-      <img src="/logo-dark.svg" alt="KreazyAI" style={{ height: '22px', width: 'auto', opacity: 0.9, marginBottom: '4px' }} />
+      <img src="/logo-white.svg" alt="KreazyAI" style={{ height: '22px', width: 'auto', opacity: 0.9, marginBottom: '4px' }} />
       <div style={{
         width: '36px',
         height: '36px',
@@ -156,6 +157,7 @@ function getRouteStateFromUrl() {
   if (root === 'ai-agents' || root === 'agents') return { page: 'ai-agents', dashboardModule: null, rawPath: pathname };
   if (root === 'integrations') return { page: 'integrations', dashboardModule: null, rawPath: pathname };
   if (root === 'pricing') return { page: 'pricing', dashboardModule: null, rawPath: pathname };
+  if (root === 'blog' || root === 'articles') return { page: 'blog', dashboardModule: null, rawPath: pathname };
   if (root === 'about') return { page: 'about', dashboardModule: null, rawPath: pathname };
   if (root === 'contact') return { page: 'contact', dashboardModule: null, rawPath: pathname };
   if (root === 'how-it-works') return { page: 'how-it-works', dashboardModule: null, rawPath: pathname };
@@ -563,6 +565,10 @@ function AppContent() {
 
               {routeState.page === 'pricing' && (
                 <PricingPage onNavigate={handleNavigate} />
+              )}
+
+              {routeState.page === 'blog' && (
+                <BlogPage onNavigate={handleNavigate} />
               )}
 
               {routeState.page === 'about' && (

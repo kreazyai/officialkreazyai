@@ -2,67 +2,72 @@
 
 :root {
   /* =====================================================================
-     KREAZYAI BRAND DESIGN SYSTEM — LIGHT WHITE & MINT ACCENT PALETTE
-     Matches Facebook Cover Visual Identity:
-     White/light grey canvas, soft mint translucent organic shapes, thin green
-     flow lines, dark green primary text, subtle green accents.
+     KREAZYAI BRAND DESIGN SYSTEM — CINEMATIC DARK & CRIMSON GLOW
+     Matched to the Apogee Reference Video:
+     Deep obsidian canvas (#06080D), cinematic atmospheric crimson beacon,
+     translucent frosted glass cards, and crisp rounded-box button architecture.
      ===================================================================== */
 
-  /* 1. Core Palette (Specified in PDF) */
-  --background: #F8FAF9;
-  --surface: #FFFFFF;
-  --primary-dark: #092A20;
-  --primary: #087A4A;
+  /* 1. Core Palette */
+  --background: #06080D;
+  --surface: #0E131F;
+  --primary-dark: #FFFFFF;
+  --primary: #FF334B;
   --green: #0FA968;
   --green-light: #AEEBCB;
-  --mint: #DDF7E9;
-  --mint-soft: #EFFBF5;
-  --border: #D9E9E1;
-  --text-primary: #09231B;
-  --text-secondary: #52645D;
+  --mint: #15222E;
+  --mint-soft: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
 
   /* 2. Semantic Surface & Canvas Mappings */
   --bg-surface: var(--background);
-  --bg-secondary: #FFFFFF;
-  --bg-canvas-alt: var(--mint-soft);
-  --bg-sidebar: #FFFFFF;
-  --bg-panel-solid: #FFFFFF;
-  --bg-card: #FFFFFF;
-  --bg-card-solid: #FFFFFF;
-  --bg-elevated: #FFFFFF;
-  --bg-elevated-solid: #FFFFFF;
-  --bg-card-hover: var(--mint-soft);
-  --bg-subtle: var(--mint-soft);
-  --bg-input: #FFFFFF;
-  --bg-overlay: rgba(9, 42, 32, 0.45);
+  --bg-secondary: #0E131F;
+  --bg-canvas-alt: #090D15;
+  --bg-sidebar: #0A0E17;
+  --bg-panel-solid: #0E131F;
+  --bg-card: rgba(18, 24, 38, 0.7);
+  --bg-card-solid: #111726;
+  --bg-elevated: rgba(22, 30, 48, 0.85);
+  --bg-elevated-solid: #151D30;
+  --bg-card-hover: rgba(28, 38, 58, 0.85);
+  --bg-subtle: rgba(255, 255, 255, 0.04);
+  --bg-input: rgba(15, 23, 42, 0.75);
+  --bg-overlay: rgba(3, 5, 8, 0.75);
 
   /* 3. Restrained Borders */
-  --border-subtle: #E6F0EB;
-  --border-medium: var(--border);
-  --border-light: var(--border);
-  --border-strong: var(--green-light);
-  --border-bright: var(--green);
-  --border-glow: rgba(15, 169, 104, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --border-bright: #FFFFFF;
+  --border-glow: rgba(255, 51, 75, 0.35);
 
   /* 4. Text Hierarchy */
-  --text-muted: #7E9285;
-  --text-placeholder: #8FA298;
-  --text-inverse: #FFFFFF;
-  --text-heading: var(--text-primary);
-  --text-accent: var(--primary);
-  --warm-cream: var(--text-primary);
+  --text-muted: #64748B;
+  --text-placeholder: #475569;
+  --text-inverse: #0B0F19;
+  --text-heading: #FFFFFF;
+  --text-accent: #FF334B;
+  --warm-cream: #FFFFFF;
 
   /* 5. Brand Accents & Button Tokens */
-  --primary-accent: var(--green);
+  --primary-accent: #FF334B;
   --accent-text: #FFFFFF;
-  --accent-hover: #087A4A;
-  --bright-olive: var(--green);
-  --soft-olive: var(--primary);
-  --primary-olive: var(--primary);
-  --olive-button-bg: var(--primary-dark);
-  --olive-button-hover: #0F3D30;
-  
-  /* Olive Scale (Brand Forest Green to Soft Mint Palette) */
+  --accent-hover: #E11D48;
+  --bright-olive: #0FA968;
+  --soft-olive: #087A4A;
+  --primary-olive: #0FA968;
+  --olive-button-bg: #FFFFFF;
+  --olive-button-hover: #F1F5F9;
+
+  /* Crimson & Ocean Accents */
+  --crimson: #FF334B;
+  --crimson-glow: rgba(255, 51, 75, 0.45);
+  --ocean-blue: #38BDF8;
+
+  /* Olive Scale (Preserved for compatibility) */
   --olive-50: #EFFBF5;
   --olive-100: #DDF7E9;
   --olive-200: #C2F0D5;
@@ -75,70 +80,72 @@
   --olive-900: #092A20;
   --olive-950: #051A14;
 
-  --accent-gradient: linear-gradient(135deg, #0FA968 0%, #087A4A 100%);
-  --accent-glow: rgba(15, 169, 104, 0.15);
-  --mint-gradient: linear-gradient(135deg, #EFFBF5 0%, #DDF7E9 100%);
+  --accent-gradient: linear-gradient(135deg, #FF334B 0%, #E11D48 100%);
+  --accent-glow: rgba(255, 51, 75, 0.25);
+  --mint-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
 
-  /* Atmospheric Soft Mint Diffuse Background Lighting */
-  --diffuse-sage-glow: radial-gradient(circle at 50% 20%, rgba(221, 247, 233, 0.65) 0%, transparent 65%);
-  --diffuse-sage-subtle: radial-gradient(circle at 80% 25%, rgba(174, 235, 203, 0.45) 0%, transparent 50%);
-  --hero-glow: radial-gradient(ellipse at 50% 25%, rgba(221, 247, 233, 0.8) 0%, transparent 70%);
+  /* Atmospheric Diffuse Background Lighting */
+  --diffuse-sage-glow: radial-gradient(circle at 50% 20%, rgba(255, 51, 75, 0.15) 0%, transparent 65%);
+  --diffuse-sage-subtle: radial-gradient(circle at 80% 25%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+  --hero-glow: radial-gradient(ellipse at 50% 35%, rgba(255, 51, 75, 0.22) 0%, transparent 70%);
 
   /* 6. Semantic Feedback Colors */
   --status-success: #0FA968;
-  --status-success-bg: #EFFBF5;
-  --status-success-border: #AEEBCB;
-  --status-success-text: #087A4A;
+  --status-success-bg: rgba(15, 169, 104, 0.12);
+  --status-success-border: rgba(15, 169, 104, 0.3);
+  --status-success-text: #34D399;
 
-  --status-error: #E53935;
-  --danger: #E53935;
-  --status-error-bg: #FEECEB;
-  --status-error-border: #F8B4B4;
-  --status-error-text: #B91C1C;
+  --status-error: #EF4444;
+  --danger: #EF4444;
+  --status-error-bg: rgba(239, 68, 68, 0.12);
+  --status-error-border: rgba(239, 68, 68, 0.3);
+  --status-error-text: #F87171;
 
-  --status-warning: #D97706;
-  --status-warning-bg: #FEF3C7;
-  --status-warning-border: #FDE68A;
-  --status-warning-text: #B45309;
-  --accent-amber: #D97706;
+  --status-warning: #F59E0B;
+  --status-warning-bg: rgba(245, 158, 11, 0.12);
+  --status-warning-border: rgba(245, 158, 11, 0.3);
+  --status-warning-text: #FBBF24;
+  --accent-amber: #F59E0B;
 
-  --status-info: #0284C7;
-  --status-info-bg: #E0F2FE;
-  --status-info-border: #BAE6FD;
-  --status-info-text: #0369A1;
+  --status-info: #38BDF8;
+  --status-info-bg: rgba(56, 189, 248, 0.12);
+  --status-info-border: rgba(56, 189, 248, 0.3);
+  --status-info-text: #7DD3FC;
 
   /* 7. Channel Specific Colors */
   --channel-whatsapp: #25D366;
-  --channel-whatsapp-soft: #DCFCE7;
+  --channel-whatsapp-soft: rgba(37, 211, 102, 0.12);
   --channel-instagram: #E1306C;
-  --channel-instagram-soft: #FCE7F3;
+  --channel-instagram-soft: rgba(225, 48, 108, 0.12);
   --channel-facebook: #1877F2;
-  --channel-facebook-soft: #DBEAFE;
+  --channel-facebook-soft: rgba(24, 119, 242, 0.12);
 
   /* 8. Light Card & Glass Tokens */
-  --glass-bg: rgba(255, 255, 255, 0.92);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.75);
-  --glass-border: var(--border);
-  --glass-blur: blur(20px);
-  --glass-card: #FFFFFF;
-  --glass-highlight: rgba(255, 255, 255, 0.8);
-  --glass-shadow: 0 8px 30px rgba(9, 42, 32, 0.05), 0 1px 3px rgba(9, 42, 32, 0.03);
+  --glass-bg: rgba(18, 24, 38, 0.72);
+  --glass-bg-subtle: rgba(18, 24, 38, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(24px);
+  --glass-card: rgba(18, 24, 38, 0.72);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
 
-  /* 9. Radii — Sharp Rectangle Architecture (Zero Curvature) */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-panel: 0px;
-  --radius-card: 0px;
-  --radius-nested: 0px;
-  --radius-control: 0px;
-  --radius-full: 0px;
-  --radius-capsule: 0px;
+  /* 9. Radii — Exact Rounded Box Architecture (Matching Video) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-btn: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-panel: 24px;
+  --radius-card: 24px;
+  --radius-metric: 28px;
+  --radius-nested: 10px;
+  --radius-control: 12px;
+  --radius-full: 9999px;
+  --radius-capsule: 12px;
 
-  /* 10. Typography System (Specified in PDF Page 2) */
+  /* 10. Typography System */
   --font-heading: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-sans: 'Inter', 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -149,13 +156,13 @@
   --transition-base: 200ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 250ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  --shadow-xs: 0 1px 2px rgba(9, 42, 32, 0.04);
-  --shadow-sm: 0 2px 8px rgba(9, 42, 32, 0.05);
-  --shadow-md: 0 6px 20px rgba(9, 42, 32, 0.06);
-  --shadow-lg: 0 12px 32px rgba(9, 42, 32, 0.08);
-  --shadow-xl: 0 20px 48px rgba(9, 42, 32, 0.10);
-  --shadow-panel: 0 12px 36px rgba(9, 42, 32, 0.06);
-  --shadow-card: 0 4px 20px rgba(9, 42, 32, 0.05);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
 
   /* 12. Spacing Scale */
   --space-1: 0.25rem;   /* 4px */

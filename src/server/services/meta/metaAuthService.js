@@ -3,9 +3,9 @@ import { config } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
 import { metaTokenService } from './metaTokenService.js';
 
-const META_GRAPH_VERSION = 'v21.0';
-const META_DIALOG_URL = `https://www.facebook.com/${META_GRAPH_VERSION}/dialog/oauth`;
-const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+const getGraphVersion = () => config.meta?.graphVersion || 'v26.0';
+const getDialogUrl = () => `https://www.facebook.com/${getGraphVersion()}/dialog/oauth`;
+const getGraphBase = () => `https://graph.facebook.com/${getGraphVersion()}`;
 
 // Scopes required for each asset domain
 export const META_SCOPES = {
@@ -59,31 +59,72 @@ export const metaAuthService = {
   },
 
   /**
-   * Verifies and unpacks a signed state token
+   * Verifies and unpacks a signed state token with strict cryptographic validation.
+   * Prevents timing attacks, malformed base64, signature length manipulation, and future timestamps.
+   * @param {string} stateString 
+   * @returns {object} Unpacked and verified payload
    */
   verifySignedState(stateString) {
-    try {
-      const decoded = JSON.parse(Buffer.from(stateString, 'base64url').toString('utf8'));
-      const expectedSig = crypto
-        .createHmac('sha256', config.auth.jwtSecret)
-        .update(decoded.raw)
-        .digest('hex');
-
-      if (decoded.sig !== expectedSig) {
-        throw new Error('State signature verification failed — potential CSRF');
-      }
-
-      const payload = JSON.parse(decoded.raw);
-      // Ensure state is not older than 15 minutes
-      if (Date.now() - payload.timestamp > 15 * 60 * 1000) {
-        throw new Error('OAuth state expired — please initiate connection again');
-      }
-
-      return payload;
-    } catch (err) {
-      logger.warn('Failed to verify Meta OAuth state:', err.message);
-      throw new Error(`Invalid OAuth state: ${err.message}`);
+    if (!stateString || typeof stateString !== 'string' || stateString.trim().length === 0) {
+      throw new Error('OAuth state token is missing or malformed');
     }
+
+    let decoded;
+    try {
+      const jsonStr = Buffer.from(stateString, 'base64url').toString('utf8');
+      decoded = JSON.parse(jsonStr);
+    } catch (e) {
+      throw new Error(`Malformed base64url or JSON in OAuth state: ${e.message}`);
+    }
+
+    if (!decoded || typeof decoded !== 'object' || typeof decoded.raw !== 'string' || typeof decoded.sig !== 'string') {
+      throw new Error('OAuth state structure invalid — expected { raw, sig } object');
+    }
+
+    const { raw, sig } = decoded;
+
+    // Validate signature length and hex format before timingSafeEqual (SHA-256 hex is exactly 64 chars)
+    if (sig.length !== 64 || !/^[0-9a-fA-F]{64}$/.test(sig)) {
+      throw new Error('OAuth state signature format invalid');
+    }
+
+    const expectedSig = crypto
+      .createHmac('sha256', config.auth.jwtSecret)
+      .update(raw)
+      .digest('hex');
+
+    // Constant-time comparison to prevent side-channel timing attacks (CWE-208)
+    const sigBuf = Buffer.from(sig, 'hex');
+    const expBuf = Buffer.from(expectedSig, 'hex');
+
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+      throw new Error('State signature verification failed — cryptographic HMAC tampering detected');
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch (e) {
+      throw new Error(`OAuth state raw payload is not valid JSON: ${e.message}`);
+    }
+
+    if (!payload || typeof payload !== 'object' || typeof payload.timestamp !== 'number') {
+      throw new Error('OAuth state payload missing mandatory timestamp');
+    }
+
+    const now = Date.now();
+
+    // Prevent future-timestamp bypass attacks (allow max 60s clock skew)
+    if (payload.timestamp > now + 60 * 1000) {
+      throw new Error('OAuth state timestamp is in the future — clock anomaly or forged token');
+    }
+
+    // Enforce 15-minute expiration TTL
+    if (now - payload.timestamp > 15 * 60 * 1000) {
+      throw new Error('OAuth state has expired (>15 min) — please initiate connection again');
+    }
+
+    return payload;
   },
 
   /**
@@ -115,7 +156,7 @@ export const metaAuthService = {
       };
     }
 
-    const url = new URL(META_DIALOG_URL);
+    const url = new URL(getDialogUrl());
     url.searchParams.append('client_id', appId);
     url.searchParams.append('redirect_uri', redirectUri);
     url.searchParams.append('state', state);
@@ -144,7 +185,7 @@ export const metaAuthService = {
     }
 
     const { appId, appSecret, redirectUri } = config.meta;
-    const url = new URL(`${META_GRAPH_BASE}/oauth/access_token`);
+    const url = new URL(`${getGraphBase()}/oauth/access_token`);
     url.searchParams.append('client_id', appId);
     url.searchParams.append('client_secret', appSecret);
     url.searchParams.append('redirect_uri', redirectUri);

@@ -16,6 +16,8 @@ export const translations = {
   en: {
     langName: 'English',
     nav: {
+      pricing: 'Pricing',
+      blog: 'Blog',
       solutions: 'Solutions',
       aiAgents: 'AI Agents',
       integrations: 'Integrations',
@@ -370,6 +372,8 @@ export const translations = {
   bn: {
     langName: 'বাংলা',
     nav: {
+      pricing: 'প্রাইসিং',
+      blog: 'ব্লগ',
       solutions: 'সমাধান',
       aiAgents: 'এআই এজেন্ট',
       integrations: 'ইন্টিগ্রেশন',
@@ -724,6 +728,8 @@ export const translations = {
   es: {
     langName: 'Español',
     nav: {
+      pricing: 'Precios',
+      blog: 'Blog',
       solutions: 'Soluciones',
       aiAgents: 'Agentes IA',
       integrations: 'Integraciones',

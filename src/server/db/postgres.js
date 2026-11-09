@@ -1158,6 +1158,7 @@ CREATE INDEX IF NOT EXISTS idx_meta_conn_ig ON meta_connections(instagram_accoun
 CREATE INDEX IF NOT EXISTS idx_meta_events_event ON meta_webhook_events(event_id);
 CREATE INDEX IF NOT EXISTS idx_wa_conn_tenant ON whatsapp_connections(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_wa_conn_phone ON whatsapp_connections(phone_number_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_whatsapp_phone ON whatsapp_connections(phone_number_id) WHERE status = 'CONNECTED' AND phone_number_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_product_media_tenant ON product_media(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_product_media_prod ON product_media(product_id);
 CREATE INDEX IF NOT EXISTS idx_faqs_tenant ON faqs(tenant_id);
@@ -1398,12 +1399,73 @@ export async function introspectPostgresSchema(pool = null) {
 }
 
 /**
+ * Safe Preflight Check: Inspects PostgreSQL database for duplicate active WhatsApp phone ownership records.
+ * Returns { ok: boolean, duplicates: Array<{ phone_number_id: string, count: number, tenants: string[] }> }
+ *
+ * CRITICAL SAFETY RULES:
+ * - Never deletes or automatically merges existing records.
+ * - If duplicates exist, returns ok: false with complete conflict details so the caller can halt before applying constraints.
+ *
+ * @param {import('pg').Pool|PostgresDatabaseAdapter} poolOrAdapter
+ * @returns {Promise<{ ok: boolean, duplicates: Array<{ phone_number_id: string, count: number, tenants: string[] }> }>}
+ */
+export async function preflightCheckPostgresActivePhoneDuplicates(poolOrAdapter) {
+  const pool = poolOrAdapter.pool || poolOrAdapter;
+  try {
+    const dupCheck = await pool.query(`
+      SELECT phone_number_id, COUNT(*) as count, ARRAY_AGG(tenant_id) as tenants
+      FROM whatsapp_connections
+      WHERE status = 'CONNECTED' AND phone_number_id IS NOT NULL
+      GROUP BY phone_number_id
+      HAVING COUNT(*) > 1;
+    `);
+
+    const duplicates = (dupCheck?.rows || []).map(r => ({
+      phone_number_id: r.phone_number_id,
+      count: parseInt(r.count, 10),
+      tenants: Array.isArray(r.tenants) ? r.tenants : [r.tenants]
+    }));
+
+    if (duplicates.length > 0) {
+      return { ok: false, duplicates };
+    }
+
+    return { ok: true, duplicates: [] };
+  } catch (err) {
+    // If whatsapp_connections table does not exist yet (initial bootstrap), no duplicates exist to block
+    const tableMissing = err.code === '42P01' || err.message?.includes('does not exist');
+    if (tableMissing) {
+      return { ok: true, duplicates: [] };
+    }
+    throw err;
+  }
+}
+
+/**
  * Executes complete PostgreSQL schema migrations.
+ * Safe preflight check halts migration if duplicate active WhatsApp phone ownership records exist,
+ * preventing uncoordinated index creation failure and protecting production data from corruption.
  * @param {import('pg').Pool|PostgresDatabaseAdapter} poolOrAdapter
  */
 export async function runPostgresMigrations(poolOrAdapter) {
   logger.info('Verifying and executing PostgreSQL schema migrations...');
   const pool = poolOrAdapter.pool || poolOrAdapter;
+
+  // 1. Safe Preflight Check: inspect for duplicate active WhatsApp phone ownership records
+  const preflight = await preflightCheckPostgresActivePhoneDuplicates(pool);
+  if (!preflight.ok) {
+    const conflictSummary = preflight.duplicates
+      .map(d => `Phone ID ${d.phone_number_id} claimed by ${d.count} tenants: [${d.tenants.join(', ')}]`)
+      .join('; ');
+    const errMsg = `[POSTGRES MIGRATION HALTED] Cannot create unique index idx_unique_active_whatsapp_phone: found ${preflight.duplicates.length} duplicate active phone ownership record(s). Manual resolution required (${conflictSummary}). Migration safely aborted without modifying, deleting, or merging records.`;
+    logger.error(errMsg);
+    const haltErr = new Error(errMsg);
+    haltErr.code = 'MIGRATION_DUPLICATE_ACTIVE_PHONE';
+    haltErr.duplicates = preflight.duplicates;
+    throw haltErr;
+  }
+
+  // 2. Preflight Passed: Apply canonical schema, partial unique index, and views
   await pool.query(POSTGRES_SCHEMA_SQL);
   logger.info('PostgreSQL schema, indexes, and views verified successfully.');
 }

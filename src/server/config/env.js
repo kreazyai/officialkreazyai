@@ -66,12 +66,14 @@ export const config = {
   meta: {
     appId: process.env.META_APP_ID || '',
     appSecret: process.env.META_APP_SECRET || '',
+    configId: process.env.META_CONFIG_ID || '',
+    graphVersion: process.env.META_GRAPH_VERSION || 'v26.0',
     verifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || process.env.WEBHOOK_VERIFY_TOKEN || process.env.META_VERIFY_TOKEN || (isProduction ? '' : 'kreazy_meta_webhook_verification_token_2026'),
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.META_WHATSAPP_PHONE_NUMBER_ID || '',
     wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || process.env.META_WHATSAPP_BUSINESS_ACCOUNT_ID || '',
     accessToken: process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_ACCESS_TOKEN || '',
     redirectUri: process.env.META_REDIRECT_URI || 'http://localhost:5000/api/v1/meta/oauth/callback',
-    apiBaseUrl: process.env.WHATSAPP_API_BASE_URL || 'https://graph.facebook.com/v21.0',
+    apiBaseUrl: process.env.WHATSAPP_API_BASE_URL || `https://graph.facebook.com/${process.env.META_GRAPH_VERSION || 'v26.0'}`,
     encryptionKey: process.env.META_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || (isProduction ? '' : 'kreazy_dev_aes_256_secret_key_32b_2026'),
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173'
   },
@@ -79,11 +81,13 @@ export const config = {
   whatsapp: {
     appId: process.env.META_APP_ID || '',
     appSecret: process.env.META_APP_SECRET || '',
+    configId: process.env.META_CONFIG_ID || '',
+    graphVersion: process.env.META_GRAPH_VERSION || 'v26.0',
     verifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || process.env.WEBHOOK_VERIFY_TOKEN || process.env.META_VERIFY_TOKEN || (isProduction ? '' : 'kreazy_meta_webhook_verification_token_2026'),
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.META_WHATSAPP_PHONE_NUMBER_ID || '',
     wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || process.env.META_WHATSAPP_BUSINESS_ACCOUNT_ID || '',
     accessToken: process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_ACCESS_TOKEN || '',
-    apiBaseUrl: process.env.WHATSAPP_API_BASE_URL || 'https://graph.facebook.com/v21.0',
+    apiBaseUrl: process.env.WHATSAPP_API_BASE_URL || `https://graph.facebook.com/${process.env.META_GRAPH_VERSION || 'v26.0'}`,
     redirectUri: process.env.META_REDIRECT_URI || 'http://localhost:5000/api/v1/meta/oauth/callback'
   },
 
@@ -203,6 +207,8 @@ export function validateProductionEnv(env = process.env, options = {}) {
     errors.push('META_ENCRYPTION_KEY is using an insecure default secret.');
   } else if (encKey.length < 32) {
     errors.push(`META_ENCRYPTION_KEY must be at least 32 characters in production (currently ${encKey.length}).`);
+  } else if (jwtSecret && encKey === jwtSecret) {
+    errors.push('Cryptographic key reuse detected: META_ENCRYPTION_KEY must be distinct from JWT_SECRET.');
   }
 
   // 3. WHATSAPP_WEBHOOK_VERIFY_TOKEN

@@ -77,12 +77,28 @@ export const whatsappPipeline = {
       }
     }
 
-    const isSimulatedTest = Boolean(
+    const isSimulatedTest = process.env.NODE_ENV !== 'production' && Boolean(
       inboundEvent.isSimulated ||
       inboundEvent.isSimulation ||
       inboundEvent.metadata?.isTestMode ||
       inboundEvent.metadata?.isSimulatedTest
     );
+
+
+    // STEP188-PRODUCTION-TRUST
+    // Do not accept simulated connections in production.
+    if (process.env.NODE_ENV === 'production' && (
+      !conn ||
+      conn.status !== 'CONNECTED' ||
+      !conn.decryptedAccessToken ||
+      String(conn.decryptedAccessToken).startsWith('EAAG_mock') ||
+      conn.decryptedAccessToken === 'simulated_wa_token'
+    )) {
+      return {
+        success: false,
+        reason: 'WHATSAPP_CONNECTION_NOT_VERIFIED'
+      };
+    }
 
     if (!conn) {
       if (!isSimulatedTest) {
@@ -542,7 +558,14 @@ export const whatsappPipeline = {
         SET last_event_at = datetime('now'), webhook_status = 'ACTIVE', updated_at = datetime('now')
         WHERE tenant_id = ?
       `).run(tenantId);
-    } catch {}
+
+      // Record authentic AI End-to-End Verification when a real inbound customer query receives an AI reply
+      if (!isSimulatedTest && dispatchResult.success && dispatchResult.messageId) {
+        metaWebhookService.recordAiVerification(tenantId, externalMessageId, dispatchResult.messageId);
+      }
+    } catch (verifErr) {
+      logger.warn('[PIPELINE] Verification recording warning:', verifErr.message);
+    }
 
     // Evaluate High-Intent Sales Recovery Lead
     if (!isEscalated && rawMessageText && customer) {

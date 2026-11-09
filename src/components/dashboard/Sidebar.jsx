@@ -81,7 +81,7 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
             style={{ cursor: 'pointer', textDecoration: 'none' }}
             title="KreazyAI"
           >
-            <img src="/logo-dark.svg" alt="KREAZY AI" className="brand-logo-img" />
+            <img src="/logo-white.svg" alt="KREAZY AI" className="brand-logo-img" />
           </a>
 
           {onCloseMobile && (

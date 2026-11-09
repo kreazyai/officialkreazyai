@@ -1,8 +1,8 @@
 import { logger } from '../../utils/logger.js';
 import { config } from '../../config/env.js';
 
-const META_GRAPH_VERSION = 'v21.0';
-const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+const getGraphVersion = () => config.meta?.graphVersion || 'v26.0';
+const getGraphBase = () => `https://graph.facebook.com/${getGraphVersion()}`;
 
 /**
  * Validates whether a phone number is an obvious placeholder, mock, or invalid dummy number.
@@ -52,7 +52,7 @@ export const whatsappService = {
     }
 
     try {
-      const url = `${META_GRAPH_BASE}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating`;
+      const url = `${getGraphBase()}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating`;
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`
@@ -120,7 +120,7 @@ export const whatsappService = {
 
     try {
       // 1. Inspect token validity via /me
-      const meUrl = `${META_GRAPH_BASE}/me?fields=id,name`;
+      const meUrl = `${getGraphBase()}/me?fields=id,name`;
       const meRes = await fetch(meUrl, {
         headers: { Authorization: `Bearer ${accessToken}` },
         signal: AbortSignal.timeout(8000)
@@ -148,7 +148,7 @@ export const whatsappService = {
       // 2. Query permissions
       let grantedScopes = [];
       try {
-        const permRes = await fetch(`${META_GRAPH_BASE}/me/permissions`, {
+        const permRes = await fetch(`${getGraphBase()}/me/permissions`, {
           headers: { Authorization: `Bearer ${accessToken}` },
           signal: AbortSignal.timeout(8000)
         });
@@ -167,7 +167,7 @@ export const whatsappService = {
       let phoneError = null;
       if (phoneNumberId) {
         try {
-          const phoneRes = await fetch(`${META_GRAPH_BASE}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating`, {
+          const phoneRes = await fetch(`${getGraphBase()}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating`, {
             headers: { Authorization: `Bearer ${accessToken}` },
             signal: AbortSignal.timeout(8000)
           });
@@ -187,7 +187,7 @@ export const whatsappService = {
       let wabaError = null;
       if (wabaId) {
         try {
-          const wabaRes = await fetch(`${META_GRAPH_BASE}/${wabaId}?fields=id,name,currency,timezone_id`, {
+          const wabaRes = await fetch(`${getGraphBase()}/${wabaId}?fields=id,name,currency,timezone_id`, {
             headers: { Authorization: `Bearer ${accessToken}` },
             signal: AbortSignal.timeout(8000)
           });
@@ -251,7 +251,7 @@ export const whatsappService = {
       };
     }
 
-    const url = `${META_GRAPH_BASE}/${phoneNumberId}/messages`;
+    const url = `${getGraphBase()}/${phoneNumberId}/messages`;
     let attempt = 0;
     let lastErrorDetails = null;
 

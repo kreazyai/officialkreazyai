@@ -343,7 +343,7 @@ export function FaqPage({ onNavigate }) {
               );
             })
           ) : (
-            <div className="state-box" style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '16px', padding: '3rem 2rem', textAlign: 'center' }}>
+            <div className="state-box" style={{ background: 'rgba(18, 24, 38, 0.72)', border: '1px solid var(--border)', borderRadius: '16px', padding: '3rem 2rem', textAlign: 'center' }}>
               <h4 style={{ fontFamily: 'var(--font-heading)', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>{t.noMatchTitle}</h4>
               <p style={{ color: 'var(--text-secondary)' }}>{t.noMatchDesc}</p>
             </div>
@@ -353,7 +353,7 @@ export function FaqPage({ onNavigate }) {
         {/* Still Have Questions Box */}
         <div style={{
           marginTop: 'clamp(3rem, 6vw, 4.5rem)',
-          background: '#FFFFFF',
+          background: 'rgba(18, 24, 38, 0.72)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-2xl)',
           padding: 'clamp(2rem, 4vw, 3rem) 2rem',

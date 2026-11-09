@@ -306,15 +306,15 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-visual">
               <div className="workflow-step-card-inner">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px' }}>
                     <span style={{ fontWeight: 650, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step1.waTitle}</span>
                     <Badge variant="whatsapp">{content.step1.statusConnected}</Badge>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px' }}>
                     <span style={{ fontWeight: 650, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step1.igTitle}</span>
                     <Badge variant="instagram">{content.step1.statusConnected}</Badge>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px' }}>
                     <span style={{ fontWeight: 650, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step1.fbTitle}</span>
                     <Badge variant="facebook">{content.step1.statusConnected}</Badge>
                   </div>
@@ -355,13 +355,13 @@ export function HowItWorksPage({ onNavigate }) {
                   <Badge variant="success">{content.step2.autoSync}</Badge>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                  <div style={{ padding: '0.65rem 0.85rem', background: '#FFFFFF', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
+                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
                     {content.step2.item1}
                   </div>
-                  <div style={{ padding: '0.65rem 0.85rem', background: '#FFFFFF', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
+                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
                     {content.step2.item2}
                   </div>
-                  <div style={{ padding: '0.65rem 0.85rem', background: '#FFFFFF', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
+                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
                     {content.step2.item3}
                   </div>
                 </div>
@@ -440,7 +440,7 @@ export function HowItWorksPage({ onNavigate }) {
                   <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step4.receiptTitle}</span>
                   <Badge variant="success">{content.step4.orderNum}</Badge>
                 </div>
-                <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                     <span>{content.step4.lblCustomer}</span>
                     <strong style={{ color: 'var(--primary-dark)' }}>Sadat Sakib</strong>
@@ -493,7 +493,7 @@ export function HowItWorksPage({ onNavigate }) {
                   <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step5.consoleTitle}</span>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', background: 'var(--mint-soft)', padding: '2px 8px', borderRadius: '4px' }}>{content.step5.liveSync}</span>
                 </div>
-                <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{content.step5.channelsLabel}</span>
                     <strong style={{ color: 'var(--primary-dark)' }}>{content.step5.channelsVal}</strong>

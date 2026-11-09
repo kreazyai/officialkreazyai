@@ -109,10 +109,10 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   right: 0,
                   top: '46px',
                   width: 'min(340px, calc(100vw - 2rem))',
-                  backgroundColor: 'var(--bg-card, #ffffff)',
-                  border: '1px solid var(--border-medium, #D9E9E1)',
-                  borderRadius: 0,
-                  boxShadow: '0 12px 32px rgba(9, 42, 32, 0.12)',
+                  backgroundColor: '#0E131F',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '16px',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8)',
                   zIndex: 850,
                   padding: '0.75rem 0',
                   overflow: 'hidden'
@@ -120,7 +120,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               >
                 <div style={{
                   padding: '0.5rem 1rem 0.65rem',
-                  borderBottom: '1px solid var(--border-subtle, #E6F0EB)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                   fontWeight: 700, fontSize: '0.85rem',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   color: 'var(--text-primary)'
@@ -176,7 +176,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                           }}
                           style={{
                             padding: '0.75rem 1rem',
-                            borderBottom: '1px solid var(--border-subtle, #F0F6F3)',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
                             backgroundColor: n.unread ? 'rgba(8, 122, 74, 0.05)' : 'transparent',
                             cursor: 'pointer',
                             transition: 'background 0.15s ease'
@@ -224,9 +224,9 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               alignItems: 'center',
               gap: '0.65rem',
               padding: '0.3rem 0.75rem 0.3rem 0.35rem',
-              borderRadius: 0,
-              background: 'var(--mint-soft)',
-              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
               cursor: 'pointer',
               transition: 'all var(--transition-fast)'
             }}
@@ -236,7 +236,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               style={{
                 width: '30px',
                 height: '30px',
-                borderRadius: 0,
+                borderRadius: '8px',
                 backgroundColor: 'var(--primary-dark)',
                 color: '#FFFFFF',
                 display: 'flex',
@@ -260,7 +260,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               )}
             </div>
             <div style={{ lineHeight: 1.2, textAlign: 'left' }}>
-              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--primary-dark)' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#FFFFFF' }}>
                 {user?.name || (isDemo ? 'Marcus Vance' : 'Store Owner')}
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Store Manager</div>
@@ -269,13 +269,13 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
               marginLeft: '0.35rem',
               width: '26px',
               height: '26px',
-              borderRadius: 0,
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: '#FFFFFF',
-              border: '1px solid var(--border)',
-              color: 'var(--text-secondary)'
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: '#CBD5E1'
             }}>
               <Settings size={13} />
             </div>
@@ -294,12 +294,13 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                   right: 0,
                   top: '46px',
                   width: 'min(220px, calc(100vw - 2rem))',
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-medium)',
-                  borderRadius: 0,
-                  boxShadow: 'var(--shadow-lg)',
+                  backgroundColor: '#0E131F',
+                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  borderRadius: '16px',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8)',
                   zIndex: 850,
-                  padding: '0.5rem 0'
+                  padding: '0.5rem 0',
+                  color: '#FFFFFF'
                 }}
               >
                 <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border-subtle)' }}>

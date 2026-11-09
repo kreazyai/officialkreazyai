@@ -2360,6 +2360,10 @@ export const whatsappApiService = {
     }
   },
 
+  async testMessage(payload = {}) {
+    return await apiClient.post('/whatsapp/test-message', payload);
+  },
+
   async reconnect() {
     return await apiClient.post('/whatsapp/reconnect');
   },

@@ -166,7 +166,7 @@ apiRouter.use('/policies', policyRouter);
 // 9. DEDICATED WHATSAPP BUSINESS PLATFORM INTEGRATION
 // =====================================================================
 const whatsappRouter = Router();
-whatsappRouter.use(optionalAuth);
+whatsappRouter.use(authenticate);
 whatsappRouter.get('/connection', whatsappController.getConnection);
 whatsappRouter.get('/wallet', whatsappController.getWallet);
 whatsappRouter.get('/transactions', whatsappController.getTransactions);

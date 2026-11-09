@@ -1,8 +1,8 @@
 import { logger } from '../../utils/logger.js';
 import { config } from '../../config/env.js';
 
-const META_GRAPH_VERSION = 'v21.0';
-const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+const getGraphVersion = () => config.meta?.graphVersion || 'v26.0';
+const getGraphBase = () => `https://graph.facebook.com/${getGraphVersion()}`;
 
 export const metaAssetService = {
   /**
@@ -22,7 +22,7 @@ export const metaAssetService = {
       ];
     }
 
-    const url = new URL(`${META_GRAPH_BASE}/me/accounts`);
+    const url = new URL(`${getGraphBase()}/me/accounts`);
     url.searchParams.append('fields', 'id,name,access_token,category,tasks');
     url.searchParams.append('access_token', userAccessToken);
 
@@ -59,7 +59,7 @@ export const metaAssetService = {
       };
     }
 
-    const url = new URL(`${META_GRAPH_BASE}/${pageId}`);
+    const url = new URL(`${getGraphBase()}/${pageId}`);
     url.searchParams.append('fields', 'instagram_business_account{id,username,name,profile_picture_url}');
     url.searchParams.append('access_token', pageAccessToken);
 
@@ -105,7 +105,7 @@ export const metaAssetService = {
       ];
     }
 
-    const url = new URL(`${META_GRAPH_BASE}/me/businesses`);
+    const url = new URL(`${getGraphBase()}/me/businesses`);
     url.searchParams.append('fields', 'id,name,client_whatsapp_business_accounts{id,name,phone_numbers{id,display_phone_number,verified_name}}');
     url.searchParams.append('access_token', userAccessToken);
 
@@ -150,7 +150,7 @@ export const metaAssetService = {
       return { success: true, subscribed: true };
     }
 
-    const url = `${META_GRAPH_BASE}/${pageId}/subscribed_apps`;
+    const url = `${getGraphBase()}/${pageId}/subscribed_apps`;
     const fields = 'messages,messaging_postbacks,message_reactions,message_deliveries,message_reads,messaging_handovers';
 
     try {
@@ -184,7 +184,7 @@ export const metaAssetService = {
       return { success: true, subscribed: true };
     }
 
-    const url = `${META_GRAPH_BASE}/${wabaId}/subscribed_apps`;
+    const url = `${getGraphBase()}/${wabaId}/subscribed_apps`;
 
     try {
       const res = await fetch(url, {

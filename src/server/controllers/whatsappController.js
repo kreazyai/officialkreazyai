@@ -26,13 +26,54 @@ export const whatsappController = {
       const aiHealth = await whatsappAiService.checkHealth();
       const wallet = await creditWalletService.getWallet(tenantId);
 
+      const diagnostics = typeof connection?.diagnostics === 'string'
+        ? JSON.parse(connection.diagnostics || '{}')
+        : (connection?.diagnostics || {});
+
+      // Derive authoritative separate server-side verification states
+      const isConnected = Boolean(connection?.status === 'CONNECTED' && connection?.has_credential);
+      const isOutboundAccepted = Boolean(isConnected && (diagnostics?.outbound_accepted === true || diagnostics?.last_live_message_id));
+      const isDeliveryConfirmed = Boolean(isOutboundAccepted && diagnostics?.delivery_confirmed === true);
+      const isAiVerified = Boolean(isDeliveryConfirmed && (diagnostics?.ai_end_to_end_verified === true || diagnostics?.messaging_verified === true));
+
+      let channelState = 'NOT_CONNECTED';
+      let aiActiveStatus = 'NOT_CONNECTED';
+      let messagingReadiness = false;
+
+      if (isConnected) {
+        if (isAiVerified) {
+          channelState = 'AI_END_TO_END_VERIFIED';
+          aiActiveStatus = 'ACTIVE';
+          messagingReadiness = true;
+        } else if (isDeliveryConfirmed) {
+          channelState = 'DELIVERY_CONFIRMED';
+          aiActiveStatus = 'DELIVERY_CONFIRMED';
+        } else if (isOutboundAccepted) {
+          channelState = 'OUTBOUND_ACCEPTED';
+          aiActiveStatus = 'OUTBOUND_ACCEPTED';
+        } else {
+          channelState = 'CONNECTED';
+          aiActiveStatus = 'TEST_PENDING';
+        }
+      }
+
       return successResponse(res, {
         connection,
         aiHealth,
         wallet,
         webhookUrl: `${req.protocol}://${req.get('host')}/api/v1/meta/webhook`,
         webhookVerifyConfigured: Boolean(config.meta.verifyToken),
-        isConfigured: connection?.status === 'CONNECTED'
+        isConfigured: isConnected,
+        messagingReadiness,
+        aiActiveStatus,
+        channelState,
+        verificationStates: {
+          connected: isConnected,
+          outboundAccepted: isOutboundAccepted,
+          deliveryConfirmed: isDeliveryConfirmed,
+          aiEndToEndVerified: isAiVerified,
+          simulationTested: Boolean(diagnostics?.simulation_tested)
+        }
       });
     } catch (err) {
       next(err);
@@ -340,15 +381,41 @@ export const whatsappController = {
           });
         }
 
+        // Meta Cloud API has accepted the outbound message for dispatch.
+        // Record OUTBOUND_ACCEPTED. Do not claim customer delivery or AI end-to-end activation without webhook proof.
+        try {
+          const db = (await import('../config/database.js')).getDatabase();
+          const currentConn = db.prepare('SELECT diagnostics FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+          let diag = {};
+          try { diag = typeof currentConn?.diagnostics === 'string' ? JSON.parse(currentConn.diagnostics) : (currentConn?.diagnostics || {}); } catch {}
+          diag.connected = true;
+          diag.outbound_accepted = true;
+          diag.outbound_accepted_at = new Date().toISOString();
+          diag.outbound_message_id = liveDispatchResult.messageId;
+          diag.channel_state = 'OUTBOUND_ACCEPTED';
+          // Explicitly do NOT mark delivery_confirmed or ai_end_to_end_verified yet
+          diag.delivery_confirmed = false;
+          diag.ai_end_to_end_verified = false;
+          diag.messaging_verified = false;
+          diag.messagingReady = false;
+          diag.last_live_probe_at = new Date().toISOString();
+          diag.last_live_message_id = liveDispatchResult.messageId;
+          db.prepare('UPDATE whatsapp_connections SET diagnostics = ?, updated_at = ? WHERE tenant_id = ?').run(JSON.stringify(diag), new Date().toISOString(), tenantId);
+        } catch (dErr) {
+          logger.warn(`Failed to update outbound acceptance diagnostics for tenant ${tenantId}:`, dErr.message);
+        }
+
         return successResponse(res, {
           liveDelivery: true,
+          outboundAccepted: true,
+          channelState: 'OUTBOUND_ACCEPTED',
           recipientPhone: cleanRecipient,
           messageId: liveDispatchResult.messageId,
           textSent: textToSend,
           aiMetadata,
           attempts: liveDispatchResult.attempts
         }, HTTP_STATUS.OK, {
-          message: `Live WhatsApp message dispatched successfully via Meta Cloud API (Message ID: ${liveDispatchResult.messageId})`
+          message: `Live WhatsApp message accepted by Meta Cloud API (Message ID: ${liveDispatchResult.messageId}). Awaiting webhook delivery confirmation.`
         });
       }
 
@@ -372,6 +439,19 @@ export const whatsappController = {
       };
 
       const result = await whatsappPipeline.processInboundMessage(testEvent);
+
+      // Record simulation test separately. NEVER set messaging_verified or messagingReady from simulated probes.
+      try {
+        const db = (await import('../config/database.js')).getDatabase();
+        const currentConn = db.prepare('SELECT diagnostics FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+        let diag = {};
+        try { diag = typeof currentConn?.diagnostics === 'string' ? JSON.parse(currentConn.diagnostics) : (currentConn?.diagnostics || {}); } catch {}
+        diag.simulation_tested = true;
+        diag.last_simulation_at = new Date().toISOString();
+        db.prepare('UPDATE whatsapp_connections SET diagnostics = ?, updated_at = ? WHERE tenant_id = ?').run(JSON.stringify(diag), new Date().toISOString(), tenantId);
+      } catch (dErr) {
+        logger.warn(`Failed to update simulation diagnostics for tenant ${tenantId}:`, dErr.message);
+      }
 
       return successResponse(res, {
         testEvent,
@@ -501,8 +581,8 @@ export const whatsappController = {
         message: 'WhatsApp Business account successfully linked via Meta Embedded Signup'
       });
     } catch (err) {
-      if (err.statusCode === 409) {
-        return errorResponse(res, err.message, err.code || 'PHONE_NUMBER_OWNERSHIP_CONFLICT', HTTP_STATUS.CONFLICT);
+      if (err.statusCode) {
+        return errorResponse(res, err.message, err.code || 'BAD_REQUEST', err.statusCode);
       }
       next(err);
     }

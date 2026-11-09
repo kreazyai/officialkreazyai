@@ -66,7 +66,7 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
 }
 
 .mobile-sidebar-close {
@@ -209,10 +209,10 @@
 /* Topbar Header */
 .app-topbar {
   height: var(--topbar-height, 60px);
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  background-color: rgba(14, 19, 31, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -220,7 +220,8 @@
   position: sticky;
   top: 0;
   z-index: 700;
-  box-shadow: 0 1px 3px rgba(9, 42, 32, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  color: #FFFFFF !important;
 }
 
 .topbar-search-wrap {
@@ -233,9 +234,16 @@
   padding-right: 2rem;
   height: 38px;
   font-size: 0.875rem;
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-medium);
-  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+  color: #FFFFFF !important;
+}
+
+.topbar-search-wrap input:focus {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 51, 75, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(255, 51, 75, 0.15) !important;
 }
 
 .search-shortcut-kbd {
@@ -1650,7 +1658,7 @@
 
 /* Clean Main Section Card */
 .analytics-card-clean {
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border, #D9E9E1);
   border-radius: 18px;
   padding: 1.5rem 1.65rem;
@@ -1727,7 +1735,7 @@
 .analytics-period-toggle {
   display: inline-flex;
   align-items: center;
-  background: var(--bg-surface, #F8FAF9);
+  background: #06080D;
   border: 1px solid var(--border-subtle, #E6F0EB);
   border-radius: 10px;
   padding: 3px;
@@ -1754,7 +1762,7 @@
 }
 
 .toggle-option-btn.active {
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   color: var(--primary-dark, #092A20);
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(9, 42, 32, 0.08), 0 2px 6px rgba(9, 42, 32, 0.03);
@@ -1842,7 +1850,7 @@
 }
 
 .channel-breakdown-card {
-  background: var(--bg-surface, #F8FAF9);
+  background: #06080D;
   border: 1px solid var(--border-subtle, #E6F0EB);
   border-radius: 14px;
   padding: 0.85rem 0.95rem;
@@ -1856,7 +1864,7 @@
 
 .channel-breakdown-card:hover {
   border-color: var(--border-strong, #AEEBCB);
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(9, 42, 32, 0.04);
 }
@@ -2009,7 +2017,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.65rem 0.85rem;
-  background: var(--bg-surface, #F8FAF9);
+  background: #06080D;
   border: 1px solid var(--border-subtle, #E6F0EB);
   border-radius: 12px;
   cursor: pointer;
@@ -2019,7 +2027,7 @@
 }
 
 .waiting-customer-row:hover {
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   border-color: var(--primary, #087A4A);
 }
 
@@ -2056,7 +2064,7 @@
   border-radius: 9999px;
   font-size: 0.68rem;
   font-weight: 600;
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-subtle, #E6F0EB);
   color: var(--text-primary, #09231B);
 }
@@ -2433,7 +2441,7 @@
 }
 
 .revenue-refresh-button:hover:not(:disabled) {
-  background: var(--bg-surface, #F8FAF9);
+  background: #06080D;
   border-color: #00A859;
   color: #00A859;
   transform: translateY(-1px);
@@ -2509,7 +2517,7 @@
 .revenue-period-toggle {
   display: inline-flex;
   align-items: center;
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-medium, #D9E9E1);
   padding: 3px;
   gap: 3px;
@@ -2556,7 +2564,7 @@
 }
 
 .revenue-hero-card {
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-medium, #D9E9E1);
   padding: 1.45rem 1.65rem;
   display: flex;
@@ -2670,7 +2678,7 @@
 }
 
 .revenue-card-clean {
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-medium, #D9E9E1);
   padding: clamp(1.4rem, 3vw, 2.25rem);
   box-shadow: 0 2px 10px rgba(9, 42, 32, 0.04);
@@ -2756,7 +2764,7 @@
   padding: 0.45rem 1rem;
   background: var(--mint-soft, #EFFBF5);
   border: 1px solid var(--border-medium, #D9E9E1);
-  border-radius: 0px !important;
+  border-radius: 8px !important;
 }
 
 [data-theme='dark'] .section-total-badge {
@@ -2864,7 +2872,7 @@
 }
 
 .platform-sales-card {
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-medium, #D9E9E1);
   padding: 1.35rem 1.5rem;
   display: flex;
@@ -2875,7 +2883,7 @@
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   box-sizing: border-box;
   position: relative;
-  border-radius: 0px !important;
+  border-radius: 8px !important;
 }
 
 .platform-sales-card.wa-card { border-top: 3px solid #25D366; }
@@ -3042,7 +3050,7 @@
   align-items: center;
   gap: 1.15rem;
   padding: 1.1rem 1.4rem;
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-medium, #D9E9E1);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
@@ -3056,7 +3064,7 @@
 }
 
 .best-selling-product-item:hover {
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border-color: var(--green, #0FA968);
   transform: translateX(4px);
   box-shadow: 0 4px 18px rgba(9, 42, 32, 0.08);
@@ -3153,7 +3161,7 @@
   padding: 1.25rem 1.6rem;
   background: var(--mint-soft, #EFFBF5);
   border: 1px solid var(--border-medium, #D9E9E1);
-  border-radius: 0px !important;
+  border-radius: 8px !important;
 }
 
 [data-theme='dark'] .best-selling-empty-compact {
@@ -3164,9 +3172,9 @@
 .empty-compact-icon-wrap {
   width: 42px;
   height: 42px;
-  background: #FFFFFF;
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border-medium, #D9E9E1);
-  border-radius: 0px !important;
+  border-radius: 8px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3503,7 +3511,7 @@
     white-space: nowrap !important;
     flex-shrink: 0 !important;
     padding: 0.45rem 0.85rem !important;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
     border: 1px solid var(--border-medium) !important;
     background: var(--bg-canvas-alt) !important;
     font-size: 0.8rem !important;
@@ -5212,7 +5220,7 @@
   /* Card paddings and header flex */
   .card {
     padding: 1rem 0.85rem !important;
-    border-radius: 0 !important;
+    border-radius: 16px !important;
   }
 
   .card-header-flex {
@@ -5249,7 +5257,7 @@
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 0.2rem !important;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
     min-width: 0 !important;
   }
 
@@ -5295,7 +5303,7 @@
 
   .automation-cell {
     padding: 0.55rem !important;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
   }
 
   .auto-cell-label {
@@ -5368,7 +5376,7 @@
 
   .convo-stat-box {
     padding: 0.5rem !important;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
   }
 
   .stat-label {
@@ -5383,7 +5391,7 @@
   .table-responsive-wrapper {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
     margin: 0 -0.1rem;
   }
 
@@ -6790,7 +6798,7 @@
 
 /* Metric Section Cards: identical dimensions, layout and alignment */
 .overview-metric-card {
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   border: 1px solid var(--border, #D9E9E1);
   border-radius: 18px;
   padding: 1.5rem 1.65rem;
@@ -6859,7 +6867,7 @@
 /* 3-Option Period Toggle directly below heading */
 .overview-period-toggle {
   display: flex;
-  background: var(--bg-surface, #F8FAF9);
+  background: #06080D;
   border: 1px solid var(--border-subtle, #E6F0EB);
   border-radius: 10px;
   padding: 3px;
@@ -6896,7 +6904,7 @@
 }
 
 .period-toggle-btn.active {
-  background: var(--surface, #FFFFFF);
+  background: rgba(18, 24, 38, 0.72);
   color: var(--primary-dark, #092A20);
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(9, 42, 32, 0.08), 0 2px 6px rgba(9, 42, 32, 0.03);
@@ -7077,4 +7085,50 @@
 
 
 
-
+
+
+/* Explicit dark dashboard layout overrides */
+.app-main {
+  background-color: #06080D !important;
+}
+
+.dashboard-page,
+.dashboard-layout,
+.main-content {
+  background-color: #06080D !important;
+  color: #FFFFFF !important;
+}
+
+.revenue-hero-card,
+.revenue-card-clean,
+.platform-sales-card,
+.best-selling-product-item,
+.analytics-card-clean,
+.overview-section-card {
+  background: rgba(18, 24, 38, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  color: #FFFFFF !important;
+}
+
+.revenue-period-toggle,
+.analytics-period-toggle {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px !important;
+}
+
+.revenue-period-toggle button.active,
+.analytics-period-toggle button.active,
+.toggle-option-btn.active {
+  background: #FFFFFF !important;
+  color: #06080D !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+}
+
+.revenue-period-toggle button,
+.analytics-period-toggle button,
+.toggle-option-btn {
+  color: #94A3B8 !important;
+}

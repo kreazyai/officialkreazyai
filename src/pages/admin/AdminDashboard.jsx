@@ -332,7 +332,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
         {/* Sidebar Brand Header */}
         <div className="mac-sidebar-header">
           <div className="mac-brand-block">
-            <img src="/logo-dark.svg" alt="KREAZY AI" className="mac-sidebar-logo" />
+            <img src="/logo-white.svg" alt="KREAZY AI" className="mac-sidebar-logo" />
             <div className="mac-brand-titles">
               <span className="mac-brand-name">KREAZY AI</span>
               <span className="mac-brand-badge">ADMIN CONTROL</span>

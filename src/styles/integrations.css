@@ -7,9 +7,9 @@
 .macos-integrations-wrapper {
   min-height: 100%;
   width: 100%;
-  background-color: #F8FAF9;
-  background-image: radial-gradient(1200px 600px at 50% -10%, rgba(221, 247, 233, 0.45) 0%, rgba(248, 250, 249, 0) 100%);
-  color: #17212B;
+  background-color: #06080D !important;
+  background-image: radial-gradient(1200px 600px at 50% -10%, rgba(28, 38, 58, 0.4) 0%, rgba(6, 8, 13, 0) 100%) !important;
+  color: #FFFFFF !important;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -109,14 +109,12 @@
 }
 
 .macos-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 22px;
-  box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.02),
-    0 8px 24px -4px rgba(0, 0, 0, 0.04);
+  background: rgba(18, 24, 38, 0.72) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
@@ -143,9 +141,9 @@
 
 .macos-card-disabled {
   cursor: default;
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(0, 0, 0, 0.04);
-  opacity: 0.78;
+  background: rgba(18, 24, 38, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  opacity: 0.75;
 }
 
 .macos-card-top {
@@ -283,14 +281,12 @@
 }
 
 .macos-section-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 22px;
-  box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.02),
-    0 8px 24px -4px rgba(0, 0, 0, 0.04);
+  background: rgba(18, 24, 38, 0.72) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
   padding: 1.75rem 2rem;
   box-sizing: border-box;
 }
@@ -848,4 +844,146 @@
   border-radius: 9999px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   DARK OBSIDIAN INTEGRATIONS SUITE OVERRIDES
+   ───────────────────────────────────────────────────────────────── */
+.macos-title {
+  color: #FFFFFF !important;
+}
+
+.macos-subtitle {
+  color: #94A3B8 !important;
+}
+
+.macos-breadcrumb-btn {
+  color: #94A3B8 !important;
+}
+
+.macos-breadcrumb-btn:hover {
+  color: #FFFFFF !important;
+}
+
+.macos-breadcrumb-current {
+  color: #FFFFFF !important;
+}
+
+.macos-card-heading {
+  color: #FFFFFF !important;
+}
+
+.macos-card-desc {
+  color: #94A3B8 !important;
+}
+
+.macos-card-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.macos-card-action-text {
+  color: #25D366 !important;
+}
+
+.macos-card-action-disabled {
+  color: #64748B !important;
+}
+
+.macos-status-pill.coming-soon {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #94A3B8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.macos-status-pill.disconnected {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #CBD5E1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.macos-status-pill.connected {
+  background-color: rgba(37, 211, 102, 0.15) !important;
+  color: #25D366 !important;
+  border: 1px solid rgba(37, 211, 102, 0.35) !important;
+}
+
+.macos-status-pill.reauth {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #F59E0B !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+
+.macos-input {
+  background: rgba(11, 15, 25, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
+  border-radius: 12px !important;
+}
+
+.macos-input:focus {
+  border-color: #25D366 !important;
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.2) !important;
+}
+
+.macos-ai-preview-box {
+  background: rgba(11, 15, 25, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #CBD5E1 !important;
+  border-radius: 16px !important;
+}
+
+.macos-diagnostics-drawer {
+  background: rgba(14, 19, 31, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #FFFFFF !important;
+  border-radius: 16px !important;
+}
+
+.macos-health-toggle-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #CBD5E1 !important;
+  border-radius: 10px !important;
+}
+
+.macos-health-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.macos-modal-sheet {
+  background: #0E131F !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+  border-radius: 24px !important;
+}
+
+.macos-modal-close {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #CBD5E1 !important;
+}
+
+.macos-modal-close:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+
+.macos-plan-card {
+  background: rgba(18, 24, 38, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #FFFFFF !important;
+  border-radius: 16px !important;
+}
+
+.macos-btn-secondary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  border-radius: 12px !important;
+}
+
+.macos-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }

@@ -57,12 +57,10 @@ export function Navbar({
   };
 
   const navLinks = [
-    { id: 'solutions', label: t('nav.solutions') },
-    { id: 'ai-agents', label: t('nav.aiAgents') },
-    { id: 'integrations', label: t('nav.integrations') },
-    { id: 'how-it-works', label: t('nav.howItWorks') },
-    { id: 'pricing', label: t('nav.pricing') },
-    { id: 'faq', label: t('nav.resources') },
+    { id: 'pricing', label: t('nav.pricing', 'Pricing') },
+    { id: 'blog', label: t('nav.blog', 'Blog') },
+    { id: 'solutions', label: t('nav.solutions', 'Solutions') },
+    { id: 'integrations', label: t('nav.integrations', 'Integrations') },
   ];
 
   return (
@@ -88,7 +86,7 @@ export function Navbar({
             title="KREAZY AI"
           >
             <img
-              src="/logo-dark.svg"
+              src="/logo-white.svg"
               alt="KREAZY AI"
               className="brand-logo-img nav-brand-logo"
             />
@@ -197,7 +195,7 @@ export function Navbar({
                 onClick={() => handleLinkClick(item.id)}
                 style={{
                   padding: '0.85rem 1rem',
-                  borderRadius: 0,
+                  borderRadius: '12px',
                   fontWeight: isActive ? 700 : 500,
                   backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
                   color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',

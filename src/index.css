@@ -4,15 +4,4 @@
 @import './styles/website.css';
 @import './styles/dashboard.css';
 @import './styles/integrations.css';
-
-/* =====================================================================
-   SHARP RECTANGLE ARCHITECTURE — COMPREHENSIVE ZERO CURVATURE OVERRIDE
-   Strictly enforces sharp rectangular boxes, cards, containers, buttons,
-   inputs, modals, dialogs, drawers, badges, tags, pills, tabs, controls,
-   and elements across the entire website. No curvy boxes or buttons.
-   ===================================================================== */
-*,
-*::before,
-*::after {
-  border-radius: 0px !important;
-}
+

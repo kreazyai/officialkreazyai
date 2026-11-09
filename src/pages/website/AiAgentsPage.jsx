@@ -446,7 +446,7 @@ export function AiAgentsPage({ onNavigate }) {
                 key={agent.id}
                 onClick={() => setSelectedAgentId(agent.id)}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'rgba(18, 24, 38, 0.72)',
                   border: isSelected ? '2px solid var(--green)' : '1.5px solid var(--border)',
                   borderRadius: '20px',
                   padding: '1.75rem',
@@ -496,7 +496,7 @@ export function AiAgentsPage({ onNavigate }) {
 
         {/* Live Conversation Simulation Card */}
         <div style={{
-          background: '#FFFFFF',
+          background: 'rgba(18, 24, 38, 0.72)',
           border: '1.5px solid var(--border)',
           borderRadius: '24px',
           padding: 'clamp(1.5rem, 4vw, 3rem)',
@@ -551,7 +551,7 @@ export function AiAgentsPage({ onNavigate }) {
             {/* Chat Body */}
             <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Message 1: Customer */}
-              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: '#FFFFFF', padding: '0.85rem 1rem', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: 'rgba(18, 24, 38, 0.72)', padding: '0.85rem 1rem', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>
                   {ui.sampleCust1}
                 </div>
@@ -571,7 +571,7 @@ export function AiAgentsPage({ onNavigate }) {
               </div>
 
               {/* Message 3: Customer */}
-              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: '#FFFFFF', padding: '0.85rem 1rem', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: 'rgba(18, 24, 38, 0.72)', padding: '0.85rem 1rem', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>
                   {ui.sampleCust2}
                 </div>
@@ -581,7 +581,7 @@ export function AiAgentsPage({ onNavigate }) {
               </div>
 
               {/* Message 4: AI Agent Confirmed Order Card */}
-              <div style={{ alignSelf: 'flex-end', maxWidth: '88%', background: '#FFFFFF', border: '1.5px solid var(--green)', padding: '1rem', borderRadius: '14px 14px 4px 14px', boxShadow: '0 4px 12px rgba(15, 169, 104, 0.15)' }}>
+              <div style={{ alignSelf: 'flex-end', maxWidth: '88%', background: 'rgba(18, 24, 38, 0.72)', border: '1.5px solid var(--green)', padding: '1rem', borderRadius: '14px 14px 4px 14px', boxShadow: '0 4px 12px rgba(15, 169, 104, 0.15)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <CheckCircle2 size={16} color="var(--green)" />
                   <span style={{ fontSize: '0.825rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{ui.orderConfirmedTag}</span>
@@ -621,7 +621,7 @@ export function AiAgentsPage({ onNavigate }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '1.25rem'
           }}>
-            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {ui.g1Title}
               </div>
@@ -629,7 +629,7 @@ export function AiAgentsPage({ onNavigate }) {
                 {ui.g1Desc}
               </p>
             </div>
-            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {ui.g2Title}
               </div>
@@ -637,7 +637,7 @@ export function AiAgentsPage({ onNavigate }) {
                 {ui.g2Desc}
               </p>
             </div>
-            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {ui.g3Title}
               </div>

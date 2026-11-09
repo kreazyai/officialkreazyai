@@ -70,7 +70,7 @@ export function AdminLoginPage({ onLoginSuccess }) {
           {/* Logo & Headline */}
           <div className="mac-login-header">
             <img
-              src="/logo-dark.svg"
+              src="/logo-white.svg"
               alt="KREAZY AI"
               className="mac-login-logo"
             />

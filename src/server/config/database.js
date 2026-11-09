@@ -830,6 +830,11 @@ export function runMigrations(db) {
     CREATE INDEX IF NOT EXISTS idx_payment_events_id ON payment_events(event_id);
     CREATE INDEX IF NOT EXISTS idx_billing_invoices_tenant ON billing_invoices(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_billing_invoices_num ON billing_invoices(invoice_number);
+
+    -- Enforce absolute database uniqueness for active WhatsApp phone numbers across tenants (prevent TOCTOU race conditions)
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_whatsapp_phone 
+    ON whatsapp_connections(phone_number_id) 
+    WHERE status = 'CONNECTED' AND phone_number_id IS NOT NULL;
   `);
 
   // Dynamically backfill/alter columns on existing tables for strict specification compliance

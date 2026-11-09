@@ -32,14 +32,15 @@ import {
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { PricingTiersSection } from '../../components/website/PricingTiersSection';
+import { HeroMetricCard } from '../../components/website/HeroMetricCard';
 import { leadService } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 
 /* Authentic Full-Color Platform Squircles (Hero Section) */
 const WhatsAppColorSquircle = ({ size = 26 }) => (
   <svg viewBox="0 0 36 36" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="36" height="36" rx="9" fill="#25D366"/>
-    <path d="M18.02 7C11.94 7 7 11.95 7 18.04c0 2.08.58 4.11 1.68 5.89L7 29l5.24-1.63a10.98 10.98 0 0 0 5.78 1.62c6.08 0 11.02-4.95 11.02-11.03C29.04 11.92 24.1 7 18.02 7zm6.44 15.65c-.27.75-1.56 1.44-2.16 1.53-.56.09-1.29.13-2.09-.13-.48-.15-1.1-.35-1.89-.7-3.35-1.46-5.54-4.88-5.71-5.1-.17-.22-1.37-1.83-1.37-3.48 0-1.66.87-2.48 1.18-2.82.31-.34.68-.43.91-.43.23 0 .46 0 .66.01.21.01.49-.08.77.58.28.68.96 2.36 1.05 2.53.08.18.14.39.02.62-.11.23-.17.37-.34.57-.17.2-.36.45-.51.6-.17.18-.35.37-.15.71.2.35.89 1.48 1.92 2.39 1.32 1.18 2.43 1.54 2.77 1.71.34.17.55.15.75-.08.2-.23.86-.99 1.09-1.33.23-.34.46-.28.77-.17.31.11 1.98.94 2.32 1.11.34.17.57.25.66.39.08.15.08.85-.19 1.6z" fill="#FFFFFF"/>
+    <rect width="36" height="36" rx="9" fill="#25D366" />
+    <path d="M18.02 7C11.94 7 7 11.95 7 18.04c0 2.08.58 4.11 1.68 5.89L7 29l5.24-1.63a10.98 10.98 0 0 0 5.78 1.62c6.08 0 11.02-4.95 11.02-11.03C29.04 11.92 24.1 7 18.02 7zm6.44 15.65c-.27.75-1.56 1.44-2.16 1.53-.56.09-1.29.13-2.09-.13-.48-.15-1.1-.35-1.89-.7-3.35-1.46-5.54-4.88-5.71-5.1-.17-.22-1.37-1.83-1.37-3.48 0-1.66.87-2.48 1.18-2.82.31-.34.68-.43.91-.43.23 0 .46 0 .66.01.21.01.49-.08.77.58.28.68.96 2.36 1.05 2.53.08.18.14.39.02.62-.11.23-.17.37-.34.57-.17.2-.36.45-.51.6-.17.18-.35.37-.15.71.2.35.89 1.48 1.92 2.39 1.32 1.18 2.43 1.54 2.77 1.71.34.17.55.15.75-.08.2-.23.86-.99 1.09-1.33.23-.34.46-.28.77-.17.31.11 1.98.94 2.32 1.11.34.17.57.25.66.39.08.15.08.85-.19 1.6z" fill="#FFFFFF" />
   </svg>
 );
 
@@ -54,38 +55,38 @@ const InstagramColorSquircle = ({ size = 26 }) => (
         <stop offset="100%" stopColor="#833AB4" />
       </linearGradient>
     </defs>
-    <rect width="36" height="36" rx="9" fill="url(#igGradHeroSquircle)"/>
-    <rect x="9.5" y="9.5" width="17" height="17" rx="4.8" stroke="#FFFFFF" strokeWidth="2" fill="none"/>
-    <circle cx="18" cy="18" r="4.2" stroke="#FFFFFF" strokeWidth="2" fill="none"/>
-    <circle cx="22.8" cy="13.2" r="1.1" fill="#FFFFFF"/>
+    <rect width="36" height="36" rx="9" fill="url(#igGradHeroSquircle)" />
+    <rect x="9.5" y="9.5" width="17" height="17" rx="4.8" stroke="#FFFFFF" strokeWidth="2" fill="none" />
+    <circle cx="18" cy="18" r="4.2" stroke="#FFFFFF" strokeWidth="2" fill="none" />
+    <circle cx="22.8" cy="13.2" r="1.1" fill="#FFFFFF" />
   </svg>
 );
 
 const FacebookColorSquircle = ({ size = 26 }) => (
   <svg viewBox="0 0 36 36" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="36" height="36" rx="9" fill="#1877F2"/>
-    <path d="M23.5 19l.7-4.6h-4.4v-3c0-1.2.6-2.4 2.5-2.4H24V5.1s-1.6-.3-3.2-.3c-3.2 0-5.3 1.9-5.3 5.5v3.1H11.4V19h4.1v11h5.6V19h2.4z" fill="#FFFFFF"/>
+    <rect width="36" height="36" rx="9" fill="#1877F2" />
+    <path d="M23.5 19l.7-4.6h-4.4v-3c0-1.2.6-2.4 2.5-2.4H24V5.1s-1.6-.3-3.2-.3c-3.2 0-5.3 1.9-5.3 5.5v3.1H11.4V19h4.1v11h5.6V19h2.4z" fill="#FFFFFF" />
   </svg>
 );
 
 /* White monochrome social platform icons for macOS hero environment (Item 3) */
 const WhatsAppIcon = ({ size = 15 }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
-    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.12c-1.48 0-2.94-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.1 8.1 0 0 1-1.25-4.35c0-4.49 3.66-8.15 8.16-8.15 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.76c0 4.49-3.66 8.16-8.16 8.16zm4.47-6.11c-.24-.12-1.45-.72-1.68-.8-.23-.08-.39-.12-.56.12-.17.24-.64.8-.78.96-.15.16-.29.18-.54.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.45-1.35-1.69-.15-.24-.02-.37.1-.49.11-.11.24-.29.37-.43.12-.15.16-.24.24-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.16 0-.43.06-.65.3-.23.24-.87.85-.87 2.08 0 1.22.89 2.41 1.01 2.58.12.16 1.76 2.68 4.26 3.76.6.26 1.06.41 1.42.53.6.19 1.15.16 1.58.1.48-.07 1.45-.6 1.66-1.17.2-.57.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28z"/>
+    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.12c-1.48 0-2.94-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.1 8.1 0 0 1-1.25-4.35c0-4.49 3.66-8.15 8.16-8.15 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.76c0 4.49-3.66 8.16-8.16 8.16zm4.47-6.11c-.24-.12-1.45-.72-1.68-.8-.23-.08-.39-.12-.56.12-.17.24-.64.8-.78.96-.15.16-.29.18-.54.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.45-1.35-1.69-.15-.24-.02-.37.1-.49.11-.11.24-.29.37-.43.12-.15.16-.24.24-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.16 0-.43.06-.65.3-.23.24-.87.85-.87 2.08 0 1.22.89 2.41 1.01 2.58.12.16 1.76 2.68 4.26 3.76.6.26 1.06.41 1.42.53.6.19 1.15.16 1.58.1.48-.07 1.45-.6 1.66-1.17.2-.57.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28z" />
   </svg>
 );
 
 const InstagramIcon = ({ size = 15 }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
   </svg>
 );
 
 const MessengerIcon = ({ size = 15 }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
-    <path d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.19 5.43 3.14 7.15.16.14.26.35.26.57l-.07 1.78c-.03.73.74 1.23 1.37.88l1.98-1.09c.17-.1.37-.13.56-.09.89.24 1.83.38 2.8.38 5.64 0 10-4.13 10-9.7S17.64 2 12 2zm1.18 12.98l-2.61-2.78-5.1 2.78 5.61-5.96 2.67 2.78 5.04-2.78-5.61 5.96z"/>
+    <path d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.19 5.43 3.14 7.15.16.14.26.35.26.57l-.07 1.78c-.03.73.74 1.23 1.37.88l1.98-1.09c.17-.1.37-.13.56-.09.89.24 1.83.38 2.8.38 5.64 0 10-4.13 10-9.7S17.64 2 12 2zm1.18 12.98l-2.61-2.78-5.1 2.78 5.61-5.96 2.67 2.78 5.04-2.78-5.61 5.96z" />
   </svg>
 );
 
@@ -346,10 +347,20 @@ export function HomePage({ onNavigate, user }) {
           - Right: 3D Laptop + Mobile device mockup showcase
           ============================================================= */}
       <section className="hero-section">
-        {/* Ambient Subtle Mint Glows */}
-        <div className="hero-ambient-glow-left" aria-hidden="true" />
-        <div className="hero-ambient-glow-right" aria-hidden="true" />
-        <div className="hero-ambient-glow-bottom" aria-hidden="true" />
+        {/* Ambient Cinematic Video Background */}
+        <div className="hero-video-container" aria-hidden="true">
+          <video
+            className="hero-video-bg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/hero-apogee-poster.jpg"
+          >
+            <source src="/hero-apogee.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-video-overlay" />
+        </div>
 
         <div className="container">
           <div className="hero-split-grid">
@@ -454,17 +465,9 @@ export function HomePage({ onNavigate, user }) {
               </div>
             </div>
 
-            {/* Right Column: 3D Product & Devices Visual Showcase */}
+            {/* Right Column: Floating Performance Metric Card (Apogee Style) */}
             <div className="hero-col-right">
-              <div className="hero-showcase-stage">
-                <img
-                  src="/assets/hero-devices-showcase.png"
-                  srcSet="/assets/hero-devices-showcase.png 1x, /assets/hero-devices-showcase@2x.png 2x"
-                  alt="KreazyAI Multi-Channel Automation Dashboard on Laptop and Mobile Phone"
-                  className="hero-showcase-image"
-                  loading="eager"
-                />
-              </div>
+              <HeroMetricCard />
             </div>
           </div>
         </div>
@@ -900,7 +903,7 @@ export function HomePage({ onNavigate, user }) {
       {/* =============================================================
           8. FREQUENTLY ASKED QUESTIONS (ACCORDION)
           ============================================================= */}
-      <section style={{ padding: 'var(--space-20) 0', backgroundColor: '#FFFFFF', borderTop: '1px solid var(--border)' }}>
+      <section className="home-faq-section" style={{ padding: 'var(--space-20) 0' }}>
         <div className="container">
           <div className="section-header-centered">
             <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>

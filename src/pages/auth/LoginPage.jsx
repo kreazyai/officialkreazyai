@@ -72,7 +72,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             onClick={() => onNavigate('home')}
             title="KreazyAI"
           >
-            <img src="/logo-dark.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
+            <img src="/logo-white.svg" alt="KreazyAI" className="brand-logo-img brand-logo-lg" />
           </div>
           <h1>Welcome back</h1>
           <p>Sign in to your merchant workspace to manage conversations, sales, and AI agents.</p>
@@ -132,7 +132,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
               <span>Remember this device</span>
             </label>
             <span
-              style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
+              style={{ color: '#FF334B', cursor: 'pointer', fontWeight: 600 }}
               onClick={() => onNavigate('forgot-password')}
             >
               Forgot password?
@@ -150,10 +150,11 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             onClick={() => onNavigate('signup')}
             style={{
               width: '100%',
-              borderColor: 'var(--green-light)',
-              color: 'var(--text-primary)',
-              fontWeight: 600,
-              backgroundColor: 'var(--mint-soft)'
+              borderRadius: '12px',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              borderColor: 'rgba(255, 255, 255, 0.22)',
+              color: '#FFFFFF',
+              fontWeight: 600
             }}
             iconRight={ArrowRight}
           >
@@ -168,7 +169,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--primary)',
+              color: '#FF334B',
               fontWeight: 700,
               cursor: 'pointer',
               textDecoration: 'underline',

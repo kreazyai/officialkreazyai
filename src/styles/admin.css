@@ -1711,3 +1711,64 @@
     display: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   DARK OBSIDIAN ADMIN SYSTEM OVERRIDES
+   ───────────────────────────────────────────────────────────────── */
+.mac-admin-login-wrapper {
+  background: #06080D !important;
+  color: #FFFFFF !important;
+}
+
+.mac-admin-window {
+  background: rgba(14, 19, 31, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8) !important;
+  color: #FFFFFF !important;
+}
+
+.mac-window-titlebar {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #CBD5E1 !important;
+}
+
+.mac-admin-desktop-wrapper,
+.mac-admin-content,
+.mac-admin-stage {
+  background: #06080D !important;
+  color: #FFFFFF !important;
+}
+
+.mac-admin-sidebar {
+  background: #0A0E17 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mac-metric-card,
+.mac-panel-card {
+  background: rgba(18, 24, 38, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF !important;
+  border-radius: 16px !important;
+}
+
+.mac-input,
+.mac-filter-input,
+.mac-filter-select {
+  background: rgba(11, 15, 25, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
+  border-radius: 10px !important;
+}
+
+.mac-admin-title,
+.mac-admin-subtitle,
+.mac-stat-label,
+.mac-stat-val {
+  color: #FFFFFF !important;
+}
+
+.mac-card-title {
+  color: #FFFFFF !important;
+}

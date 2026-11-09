@@ -2,8 +2,8 @@ import { config } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
 import { encryptToken, decryptToken } from '../../utils/encryption.js';
 
-const META_GRAPH_VERSION = 'v21.0';
-const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+const getGraphVersion = () => config.meta?.graphVersion || 'v26.0';
+const getGraphBase = () => `https://graph.facebook.com/${getGraphVersion()}`;
 
 export const metaTokenService = {
   /**
@@ -32,7 +32,7 @@ export const metaTokenService = {
       return { accessToken: shortLivedToken, expiresIn: 5184000 };
     }
 
-    const url = new URL(`${META_GRAPH_BASE}/oauth/access_token`);
+    const url = new URL(`${getGraphBase()}/oauth/access_token`);
     url.searchParams.append('grant_type', 'fb_exchange_token');
     url.searchParams.append('client_id', appId);
     url.searchParams.append('client_secret', appSecret);
@@ -83,7 +83,7 @@ export const metaTokenService = {
     // If App credentials exist, use official debug_token endpoint
     if (appId && appSecret) {
       const appToken = `${appId}|${appSecret}`;
-      const url = new URL(`${META_GRAPH_BASE}/debug_token`);
+      const url = new URL(`${getGraphBase()}/debug_token`);
       url.searchParams.append('input_token', inputToken);
       url.searchParams.append('access_token', appToken);
 

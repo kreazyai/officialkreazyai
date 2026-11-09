@@ -279,6 +279,11 @@ export const metaWebhookService = {
                     WHERE external_message_id = ? OR id = ?
                   `).run(deliveryStatus, msgId, msgId);
                   logger.info(`[META WEBHOOK] Updated message ${msgId} delivery status to ${deliveryStatus}`);
+
+                  // Authoritative Correlation: update tenant's connection diagnostics to DELIVERY_CONFIRMED
+                  if (tenant && (deliveryStatus === 'DELIVERED' || deliveryStatus === 'READ')) {
+                    this.handleDeliveryStatusUpdate(tenant.businessId, msgId, deliveryStatus.toLowerCase());
+                  }
                 } catch (dbErr) {
                   logger.warn(`Failed to update message status for ${msgId}:`, dbErr.message);
                 }
@@ -394,5 +399,81 @@ export const metaWebhookService = {
     }
 
     return normalizedEvents;
+  },
+
+  /**
+   * Correlates an authentic Meta delivery status update to a tenant's connection.
+   * Transitions channel state from OUTBOUND_ACCEPTED to DELIVERY_CONFIRMED.
+   * Does NOT activate AI end-to-end (requires authentic inbound customer query + reply).
+   * @param {string} tenantId 
+   * @param {string} messageId 
+   * @param {string} deliveryStatus 'delivered' | 'read'
+   */
+  handleDeliveryStatusUpdate(tenantId, messageId, deliveryStatus) {
+    if (!tenantId || !messageId) return;
+    try {
+      const db = getDatabase();
+      const conn = db.prepare('SELECT diagnostics FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+      if (!conn) return;
+
+      let diag = {};
+      try {
+        diag = typeof conn.diagnostics === 'string' ? JSON.parse(conn.diagnostics) : (conn.diagnostics || {});
+      } catch {}
+
+      // Correlate message ID to the connection
+      diag.delivery_confirmed = true;
+      diag.delivery_confirmed_at = new Date().toISOString();
+      diag.delivery_status = deliveryStatus;
+      diag.delivered_message_id = messageId;
+
+      // Only transition to DELIVERY_CONFIRMED if not already AI_END_TO_END_VERIFIED
+      if (!diag.ai_end_to_end_verified) {
+        diag.channel_state = 'DELIVERY_CONFIRMED';
+      }
+
+      db.prepare('UPDATE whatsapp_connections SET diagnostics = ?, updated_at = ? WHERE tenant_id = ?')
+        .run(JSON.stringify(diag), new Date().toISOString(), tenantId);
+
+      logger.info(`[META WEBHOOK DELIVERY] Customer device delivery confirmed for tenant ${tenantId}, message ${messageId} (${deliveryStatus}). Channel state: ${diag.channel_state}`);
+    } catch (err) {
+      logger.warn(`Failed to update delivery status diagnostics for tenant ${tenantId}:`, err.message);
+    }
+  },
+
+  /**
+   * Records authoritative AI End-to-End Verification when an authentic customer
+   * inbound message is received, processed by AI reasoning, and an AI reply is dispatched.
+   * @param {string} tenantId 
+   * @param {string} inboundMessageId 
+   * @param {string} outboundReplyId 
+   */
+  recordAiVerification(tenantId, inboundMessageId, outboundReplyId) {
+    if (!tenantId) return;
+    try {
+      const db = getDatabase();
+      const conn = db.prepare('SELECT diagnostics FROM whatsapp_connections WHERE tenant_id = ?').get(tenantId);
+      if (!conn) return;
+
+      let diag = {};
+      try {
+        diag = typeof conn.diagnostics === 'string' ? JSON.parse(conn.diagnostics) : (conn.diagnostics || {});
+      } catch {}
+
+      diag.ai_end_to_end_verified = true;
+      diag.ai_verified_at = new Date().toISOString();
+      diag.ai_verified_inbound_id = inboundMessageId;
+      diag.ai_verified_reply_id = outboundReplyId;
+      diag.channel_state = 'AI_END_TO_END_VERIFIED';
+      diag.messaging_verified = true;
+      diag.messagingReady = true;
+
+      db.prepare('UPDATE whatsapp_connections SET diagnostics = ?, updated_at = ? WHERE tenant_id = ?')
+        .run(JSON.stringify(diag), new Date().toISOString(), tenantId);
+
+      logger.info(`[AI VERIFICATION COMPLETE] End-to-end customer inbound-to-AI-reply verified for tenant ${tenantId}. Channel is now fully ACTIVE.`);
+    } catch (err) {
+      logger.warn(`Failed to update AI verification diagnostics for tenant ${tenantId}:`, err.message);
+    }
   }
 };
