@@ -295,16 +295,20 @@ export function RevenuePage({ user, onNavigateModule }) {
           <div className="revenue-live-tag">
             <span className="revenue-pulse-dot" />
             <span>Live Data • {metrics.timezone || 'Asia/Dhaka'} Time</span>
-            {metrics.localDate && (
-              <span className="revenue-date-text">
-                • {new Date(metrics.localDate).toLocaleDateString(undefined, {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-              </span>
-            )}
+            {metrics.localDate && (() => {
+              try {
+                const s = String(metrics.localDate);
+                const d = new Date(s.includes('T') ? s : s + 'T00:00:00');
+                if (isNaN(d.getTime())) return null;
+                return (
+                  <span className="revenue-date-text">
+                    • {d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                );
+              } catch {
+                return null;
+              }
+            })()}
           </div>
         </div>
 

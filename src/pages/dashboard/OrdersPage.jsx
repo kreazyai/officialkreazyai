@@ -230,7 +230,7 @@ export function OrdersPage({ user, onOpenConversation, onNavigateModule }) {
 
           {/* VIEW MODE: TABLE (Simplified, spacious 6-column layout) */}
           {viewMode === 'table' ? (
-            <div className="table-container" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+            <div className="table-container" style={{ borderRadius: 'var(--radius-lg)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
               <table className="data-table">
                 <thead>
                   <tr>

@@ -2431,6 +2431,21 @@ let _rateLimitUntil = 0;
 /**
  * Resilient local fallback calculation for Overview Metrics
  */
+function safeOrderDate(val) {
+  if (!val) return new Date();
+  if (typeof val === 'number') return new Date(val);
+  const parsed = new Date(val);
+  if (!isNaN(parsed.getTime())) return parsed;
+  const str = String(val).toLowerCase();
+  const now = new Date();
+  if (str.includes('yesterday')) return new Date(now.getTime() - 86400000);
+  if (str.includes('day')) {
+    const days = parseInt(str, 10) || 1;
+    return new Date(now.getTime() - days * 86400000);
+  }
+  return now;
+}
+
 function calculateLocalOverviewMetrics(tenantId = '') {
   const orders = getStored(STORAGE_KEYS.ORDERS, initialOrders);
   const conversations = getStored(STORAGE_KEYS.CONVERSATIONS, initialConversations);
@@ -2448,7 +2463,7 @@ function calculateLocalOverviewMetrics(tenantId = '') {
   let salesYear = 0;
 
   for (const o of validOrders) {
-    const d = new Date(o.createdAt || o.date || Date.now());
+    const d = safeOrderDate(o.createdAt || o.date);
     const val = Number(o.totalAmount ?? o.total ?? 0) || 0;
     if (d.getFullYear() === curYear) {
       salesYear += val;
@@ -2634,15 +2649,15 @@ function calculateLocalRevenueMetrics(tenantId = '') {
     currencySymbol: '৳',
     periods: {
       today: buildPeriod(o => {
-        const d = new Date(o.createdAt || o.date || Date.now());
+        const d = safeOrderDate(o.createdAt || o.date);
         return d.toISOString().slice(0, 10) === todayStr;
       }),
       this_month: buildPeriod(o => {
-        const d = new Date(o.createdAt || o.date || Date.now());
+        const d = safeOrderDate(o.createdAt || o.date);
         return d.getMonth() === curMonth && d.getFullYear() === curYear;
       }),
       this_year: buildPeriod(o => {
-        const d = new Date(o.createdAt || o.date || Date.now());
+        const d = safeOrderDate(o.createdAt || o.date);
         return d.getFullYear() === curYear;
       })
     },

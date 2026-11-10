@@ -223,6 +223,7 @@ function ConvItem({ conv, isActive, onClick }) {
 
   return (
     <div
+      className="conv-list-item"
       onClick={onClick}
       style={{
         display: 'flex', alignItems: 'center', gap: '0.75rem',
@@ -760,7 +761,7 @@ export function MessagesPage({ user, onNavigateModule }) {
         background: 'var(--bg-card)',
         // On desktop always show
       }}
-        className="conv-list-panel"
+        className="conv-list-panel" data-open={mobileChatOpen}
       >
         {/* List Header */}
         <div style={{
@@ -871,7 +872,7 @@ export function MessagesPage({ user, onNavigateModule }) {
         // On mobile, show only when a chat is open
         ...(mobileChatOpen === false && { display: 'none' }),
       }}
-        className="chat-area"
+        className="chat-area" data-open={mobileChatOpen}
       >
         {activeConv ? (
           <>
@@ -1223,8 +1224,6 @@ export function MessagesPage({ user, onNavigateModule }) {
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        .conv-list-panel { display: flex !important; }
-        .chat-area { display: flex !important; }
         .customer-panel-desktop { display: flex; }
 
         @media (max-width: 1100px) {
@@ -1233,16 +1232,26 @@ export function MessagesPage({ user, onNavigateModule }) {
 
         @media (max-width: 768px) {
           .conv-list-panel {
-            display: flex !important;
             width: 100% !important;
-            position: absolute;
-            inset: 0;
-            z-index: 10;
+            flex-grow: 1 !important;
+            height: 100% !important;
           }
           .chat-area {
-            position: absolute;
-            inset: 0;
-            z-index: 20;
+            width: 100% !important;
+            flex-grow: 1 !important;
+            height: 100% !important;
+            background: #0B0F19 !important;
+          }
+          .chat-area[data-open="false"] {
+            display: none !important;
+          }
+          .chat-area[data-open="true"] {
+            display: flex !important;
+          }
+          .conv-list-panel[data-open="true"] {
+            display: none !important;
+          }
+          .conv-list-panel[data-open="false"] {
             display: flex !important;
           }
           .mobile-back-btn {
@@ -1251,8 +1260,8 @@ export function MessagesPage({ user, onNavigateModule }) {
         }
 
         @media (min-width: 769px) {
-          .conv-list-panel { display: flex !important; }
-          .chat-area { display: flex !important; }
+          .conv-list-panel { display: flex !important; width: 340px !important; }
+          .chat-area { display: flex !important; position: static !important; }
           .mobile-back-btn { display: none !important; }
         }
       `}</style>

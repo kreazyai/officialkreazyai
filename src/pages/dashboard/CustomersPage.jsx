@@ -284,8 +284,9 @@ export function CustomersPage({ user, onOpenMessages, onNavigateModule }) {
             backdropFilter: 'blur(24px)',
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-card)',
-            overflow: 'hidden'
-          }}>
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch'
+          }} className="table-container">
             <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
