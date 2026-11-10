@@ -2549,10 +2549,10 @@
 }
 
 .revenue-toggle-btn.active {
-  background: var(--primary-dark, #092A20);
-  color: #FFFFFF;
+  background: #FF334B !important;
+  color: #FFFFFF !important;
   font-weight: 750;
-  box-shadow: 0 2px 8px rgba(9, 42, 32, 0.18);
+  box-shadow: 0 2px 8px rgba(255, 51, 75, 0.3) !important;
 }
 
 /* ── Hero Summary Cards ──────────────────────────────────────────────── */

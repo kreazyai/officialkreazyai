@@ -313,10 +313,16 @@ function AppContent() {
   useEffect(() => {
     if (isLoading) return; // Wait until authentication resolution is complete
 
-    if (routeState.page === 'dashboard' && !isAuthenticated) {
+    const isImpersonatingAdmin = typeof window !== 'undefined' && Boolean(
+      sessionStorage.getItem('kreazy_superadmin_auth_backup') ||
+      localStorage.getItem('kreazy_superadmin_auth_backup')
+    );
+    const authed = isAuthenticated || (isImpersonatingAdmin && Boolean(apiClient.getAuthToken()));
+
+    if (routeState.page === 'dashboard' && !authed) {
       window.history.replaceState({}, '', '/login');
       setRouteState(getRouteStateFromUrl());
-    } else if ((routeState.page === 'login' || routeState.page === 'signup') && isAuthenticated) {
+    } else if ((routeState.page === 'login' || routeState.page === 'signup') && authed) {
       window.history.replaceState({}, '', '/dashboard/overview');
       setRouteState(getRouteStateFromUrl());
     }
@@ -606,7 +612,7 @@ function AppContent() {
           </main>
 
           <Footer onNavigate={handleNavigate} />
-          <WebsiteChatWidget />
+          <WebsiteChatWidget onNavigate={handleNavigate} />
         </div>
       )}
     </div>

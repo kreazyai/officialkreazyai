@@ -1,3 +1,4 @@
+import { apiClient } from '../../api/client';
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -10,6 +11,8 @@ import {
   Settings,
   LogOut,
   CreditCard,
+  ShieldCheck,
+  ArrowRight,
   CheckCheck
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
@@ -40,8 +43,76 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
   const isDemo = Boolean(user?.isDemo);
 
 
+  const isImpersonating = Boolean(
+    user?.isImpersonated || 
+    user?.is_impersonated ||
+    sessionStorage.getItem('kreazy_superadmin_auth_backup') ||
+    localStorage.getItem('kreazy_superadmin_auth_backup')
+  );
+
+  const handleReturnToAdmin = () => {
+    const backupToken = sessionStorage.getItem('kreazy_superadmin_auth_backup') || localStorage.getItem('kreazy_superadmin_auth_backup');
+    const backupUser = sessionStorage.getItem('kreazy_superadmin_user_backup') || localStorage.getItem('kreazy_superadmin_user_backup');
+    if (backupToken) {
+      apiClient.setAuthToken(backupToken);
+      sessionStorage.removeItem('kreazy_superadmin_auth_backup');
+      localStorage.removeItem('kreazy_superadmin_auth_backup');
+    }
+    if (backupUser) {
+      localStorage.setItem('kreazy_auth_user', backupUser);
+      sessionStorage.removeItem('kreazy_superadmin_user_backup');
+      localStorage.removeItem('kreazy_superadmin_user_backup');
+    }
+    window.dispatchEvent(new CustomEvent('kreazy_auth_sync', { detail: null }));
+    window.dispatchEvent(new Event('storage'));
+    if (onNavigate) {
+      onNavigate('admin');
+    } else {
+      window.location.href = '/admin';
+    }
+  };
+
   return (
     <header className="app-topbar">
+      {isImpersonating && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: 'linear-gradient(135deg, #481577 0%, #300C52 100%)',
+          color: '#FFFFFF',
+          padding: '6px 14px',
+          borderRadius: '10px',
+          fontSize: '0.82rem',
+          fontWeight: 600,
+          boxShadow: '0 2px 10px rgba(72, 21, 119, 0.35)',
+          whiteSpace: 'nowrap'
+        }}>
+          <ShieldCheck size={16} style={{ color: '#10B981' }} />
+          <span>Super-Admin Mode</span>
+          <button
+            type="button"
+            onClick={handleReturnToAdmin}
+            style={{
+              background: '#FFFFFF',
+              color: '#481577',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '3px 8px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              marginLeft: '4px'
+            }}
+          >
+            <span>Return to Admin</span>
+            <ArrowRight size={12} />
+          </button>
+        </div>
+      )}
       {/* Mobile Toggle & Search */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <button
@@ -237,7 +308,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                 width: '30px',
                 height: '30px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--primary-dark)',
+                background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)',
                 color: '#FFFFFF',
                 display: 'flex',
                 alignItems: 'center',

@@ -1,3 +1,4 @@
+import { apiClient } from '../../api/client';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard,
@@ -20,7 +21,22 @@ import {
   Radio,
   UserCheck,
   Menu,
-  FileText
+  FileText,
+  Package,
+  Calendar,
+  UserPlus,
+  Smartphone,
+  DollarSign,
+  LogIn,
+  Eye,
+  Check,
+  AlertTriangle,
+  ExternalLink,
+  Globe,
+  Laptop,
+  Clock,
+  ShieldCheck,
+  CreditCard
 } from 'lucide-react';
 import { adminService } from '../../services/api';
 import '../../styles/admin.css';
@@ -41,6 +57,27 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
   const [activityLogs, setActivityLogs] = useState([]);
   const [activityPagination, setActivityPagination] = useState({ total: 0, page: 1, limit: 25, totalPages: 1 });
   const [systemHealth, setSystemHealth] = useState(null);
+
+  // Multi-Tenant Inventory States
+  const [tenantsInventory, setTenantsInventory] = useState([]);
+  const [inventorySearch, setInventorySearch] = useState('');
+  const [selectedTenantProducts, setSelectedTenantProducts] = useState(null);
+  const [loadingTenantProducts, setLoadingTenantProducts] = useState(false);
+
+  // Schedule & Bookings States
+  const [scheduleData, setScheduleData] = useState({ totalBookings: 0, pendingCount: 0, confirmedCount: 0, completedCount: 0, bookings: [] });
+  const [scheduleFilter, setScheduleFilter] = useState('ALL');
+
+  // Sign-Up Records States
+  const [signupsData, setSignupsData] = useState({ totalSignups: 0, page: 1, limit: 20, totalPages: 1, signups: [] });
+  const [signupSearch, setSignupSearch] = useState('');
+
+  // Login Sessions States
+  const [loginSessionsData, setLoginSessionsData] = useState({ totalSessions: 0, activeDevicesCount: 0, page: 1, limit: 25, totalPages: 1, sessions: [] });
+
+  // Invoices & Finances States
+  const [invoicesList, setInvoicesList] = useState([]);
+
 
   // Search & Filter States
   const [userSearch, setUserSearch] = useState('');
@@ -164,6 +201,126 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
   };
 
   // Comprehensive Refresh
+  
+  // Load Multi-Tenant Inventory
+  const loadTenantsInventory = async () => {
+    try {
+      const res = await adminService.getTenantsInventory({ search: inventorySearch });
+      if (res && res.success && res.data) {
+        setTenantsInventory(res.data.tenants || []);
+      }
+    } catch (err) {
+      console.error('Failed to load tenants inventory:', err);
+    }
+  };
+
+  // Inspect Tenant Products
+  const handleInspectTenantProducts = async (businessId) => {
+    setLoadingTenantProducts(true);
+    setSelectedTenantProducts(null);
+    try {
+      const res = await adminService.getTenantProducts(businessId);
+      if (res && res.success && res.data) {
+        setSelectedTenantProducts(res.data);
+      }
+    } catch (err) {
+      showToast('Failed to load tenant products');
+    } finally {
+      setLoadingTenantProducts(false);
+    }
+  };
+
+  // Load Schedule Bookings
+  const loadSchedule = async () => {
+    try {
+      const res = await adminService.getScheduleBookings();
+      if (res && res.success && res.data) {
+        setScheduleData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load schedule:', err);
+    }
+  };
+
+  // Update Schedule Status
+  const handleUpdateScheduleStatus = async (type, id, status) => {
+    try {
+      const res = await adminService.updateScheduleStatus(type, id, status);
+      if (res && res.success) {
+        showToast(`Session marked as ${status.toLowerCase()}`);
+        loadSchedule();
+      }
+    } catch (err) {
+      showToast('Failed to update session');
+    }
+  };
+
+  // Load Signups
+  const loadSignups = async (page = 1) => {
+    try {
+      const res = await adminService.getSignups({ page, limit: 20, search: signupSearch });
+      if (res && res.success && res.data) {
+        setSignupsData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load signups:', err);
+    }
+  };
+
+  // Load Login Sessions
+  const loadLoginSessions = async (page = 1) => {
+    try {
+      const res = await adminService.getLoginSessions({ page, limit: 25 });
+      if (res && res.success && res.data) {
+        setLoginSessionsData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load login sessions:', err);
+    }
+  };
+
+  // Impersonate Customer: Route from Admin Panel into Customer Dashboard
+  const handleEnterCustomerDashboard = async (targetId) => {
+    try {
+      showToast('Generating secure customer workspace token...');
+      const res = await adminService.impersonateUser(targetId);
+      if (res && res.success && res.data) {
+        const currentAdminToken = apiClient.getAuthToken();
+        const currentAdminUser = localStorage.getItem('kreazy_auth_user');
+        sessionStorage.setItem('kreazy_superadmin_auth_backup', currentAdminToken);
+        localStorage.setItem('kreazy_superadmin_auth_backup', currentAdminToken);
+        if (currentAdminUser) {
+          sessionStorage.setItem('kreazy_superadmin_user_backup', currentAdminUser);
+          localStorage.setItem('kreazy_superadmin_user_backup', currentAdminUser);
+        }
+        
+        apiClient.setAuthToken(res.data.token);
+        if (res.data.workspace && res.data.workspace.id) {
+          apiClient.setWorkspace(res.data.workspace.id);
+        }
+
+        const impersonatedUser = {
+          ...(res.data.user || {}),
+          isImpersonated: true,
+          is_impersonated: true
+        };
+        localStorage.setItem('kreazy_auth_user', JSON.stringify(impersonatedUser));
+        window.dispatchEvent(new CustomEvent('kreazy_auth_sync', { detail: impersonatedUser }));
+        window.dispatchEvent(new Event('storage'));
+
+        if (onNavigate) {
+          onNavigate('dashboard');
+        } else {
+          window.location.href = '/dashboard/overview';
+        }
+      } else {
+        showToast(res?.error?.message || 'Failed to enter customer dashboard');
+      }
+    } catch (err) {
+      showToast('Error entering customer workspace: ' + (err.message || 'Unknown error'));
+    }
+  };
+
   const refreshAllData = async () => {
     setIsSyncing(true);
     await Promise.all([
@@ -173,7 +330,11 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
       loadIntegrations(),
       loadAutomations(),
       loadActivity(activityPagination.page),
-      loadSystemHealth()
+      loadSystemHealth(),
+      loadTenantsInventory(),
+      loadSchedule(),
+      loadSignups(signupsData.page),
+      loadLoginSessions(loginSessionsData.page)
     ]);
     setIsSyncing(false);
     showToast('Platform data synchronized from database');
@@ -190,6 +351,23 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
     }, 280);
     return () => clearTimeout(timer);
   }, [userSearch, userRoleFilter]);
+
+
+  // Debounced search for inventory
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadTenantsInventory();
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [inventorySearch]);
+
+  // Debounced search for signups
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadSignups(1);
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [signupSearch]);
 
   // Debounced search for businesses
   useEffect(() => {
@@ -297,13 +475,18 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
   }, [activityLogs, activitySearch]);
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'users', label: 'Users', icon: Users, badge: metrics?.totalUsers },
-    { id: 'businesses', label: 'Businesses', icon: Building2, badge: metrics?.totalBusinesses },
+    { id: 'overview', label: 'Overview & Telemetry', icon: LayoutDashboard },
+    { id: 'inventory', label: 'Tenants & Inventory', icon: Package, badge: metrics?.totalProducts },
+    { id: 'schedule', label: 'Schedule & Bookings', icon: Calendar, badge: scheduleData?.pendingCount },
+    { id: 'signups', label: 'Sign-Up Records', icon: UserPlus, badge: signupsData?.totalSignups },
+    { id: 'logins', label: 'Login Sessions & Devices', icon: Smartphone, badge: loginSessionsData?.activeDevicesCount },
+    { id: 'finances', label: 'Finances & Invoices', icon: DollarSign },
+    { id: 'businesses', label: 'Businesses & Workspaces', icon: Building2, badge: metrics?.totalBusinesses },
+    { id: 'users', label: 'Users & Roles', icon: Users, badge: metrics?.totalUsers },
     { id: 'integrations', label: 'Integrations', icon: Network, badge: metrics?.activeIntegrations },
     { id: 'automations', label: 'Automations', icon: Cpu, badge: metrics?.activeAutomations },
-    { id: 'activity', label: 'Activity', icon: Activity },
-    { id: 'settings', label: 'Settings', icon: SlidersHorizontal }
+    { id: 'activity', label: 'Activity Logs', icon: Activity },
+    { id: 'settings', label: 'System Settings', icon: SlidersHorizontal }
   ];
 
   return (
@@ -1533,6 +1716,701 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               </div>
             </div>
           )}
+
+          {/* ==========================================================
+              TENANTS & INVENTORY VIEW (MULTI-TENANT INVENTORY INSPECTOR)
+              ========================================================== */}
+          {activeTab === 'inventory' && (
+            <div className="mac-view-container">
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">Multi-Tenant Customer Accounts & Live Inventory</span>
+                  </div>
+
+                  <div className="mac-panel-tools">
+                    <div className="mac-search-input-wrap">
+                      <Search size={14} className="mac-search-icon" />
+                      <input
+                        type="text"
+                        className="mac-search-input"
+                        placeholder="Search store name, customer owner, or email..."
+                        value={inventorySearch}
+                        onChange={(e) => setInventorySearch(e.target.value)}
+                      />
+                      {inventorySearch && (
+                        <button type="button" className="mac-clear-search-btn" onClick={() => setInventorySearch('')}>
+                          <X size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mac-table-container">
+                  <table className="mac-data-table">
+                    <thead>
+                      <tr>
+                        <th>CUSTOMER / STORE NAME</th>
+                        <th>OWNER DETAILS</th>
+                        <th>SUBSCRIPTION</th>
+                        <th>TOTAL PRODUCTS</th>
+                        <th>STOCK HEALTH</th>
+                        <th>CATALOG VALUATION</th>
+                        <th style={{ textAlign: 'right' }}>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tenantsInventory.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="mac-empty-table-cell">
+                            No merchant account holders found matching criteria.
+                          </td>
+                        </tr>
+                      ) : (
+                        tenantsInventory.map((tenant) => (
+                          <tr key={tenant.businessId}>
+                            <td>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <strong style={{ color: '#111827', fontSize: '13.5px' }}>{tenant.businessName}</strong>
+                                <span style={{ color: '#6B7280', fontSize: '11.5px', fontFamily: 'monospace' }}>
+                                  {tenant.slug || tenant.businessId}
+                                </span>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ color: '#111827', fontWeight: 600 }}>{tenant.ownerName}</span>
+                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{tenant.ownerEmail}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{
+                                display: 'inline-block',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                background: tenant.plan === 'Scale' ? '#EFF6FF' : tenant.plan === 'Growth' ? '#F5F3FF' : '#F3F4F6',
+                                color: tenant.plan === 'Scale' ? '#1D4ED8' : tenant.plan === 'Growth' ? '#6D28D9' : '#374151'
+                              }}>
+                                {tenant.plan || 'Starter'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ fontWeight: 700, color: '#111827', fontSize: '13.5px' }}>
+                                {tenant.totalProducts} {tenant.totalProducts === 1 ? 'Product' : 'Products'}
+                              </span>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', fontSize: '11.5px', flexWrap: 'wrap' }}>
+                                <span style={{ color: '#059669', background: '#ECFDF5', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                  {tenant.inStockCount} In Stock
+                                </span>
+                                {tenant.lowStockCount > 0 && (
+                                  <span style={{ color: '#D97706', background: '#FFFBEB', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                    {tenant.lowStockCount} Low
+                                  </span>
+                                )}
+                                {tenant.outOfStockCount > 0 && (
+                                  <span style={{ color: '#DC2626', background: '#FEF2F2', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                    {tenant.outOfStockCount} Out
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{ fontWeight: 700, color: '#059669' }}>
+                                ${tenant.totalCatalogValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleInspectTenantProducts(tenant.businessId)}
+                                  className="mac-action-btn"
+                                  style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB' }}
+                                  title="Inspect product inventory details"
+                                >
+                                  <Eye size={13} />
+                                  <span>Inspect</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleEnterCustomerDashboard(tenant.businessId)}
+                                  className="mac-action-btn"
+                                  style={{ background: '#481577', color: '#FFFFFF', border: 'none' }}
+                                  title="Route directly into this customer's workspace dashboard"
+                                >
+                                  <LogIn size={13} />
+                                  <span>Enter Dashboard</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              SCHEDULE & BOOKINGS VIEW (DEMO & FOUNDER SESSIONS)
+              ========================================================== */}
+          {activeTab === 'schedule' && (
+            <div className="mac-view-container">
+              {/* Summary KPIs */}
+              <div className="mac-metrics-grid" style={{ marginBottom: '1.25rem' }}>
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">TOTAL SESSIONS</span>
+                    <Calendar size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">{scheduleData.totalBookings}</div>
+                  <div className="mac-metric-sub">Demo & strategy walkthroughs</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">PENDING REVIEW</span>
+                    <Clock size={16} className="mac-metric-icon" style={{ color: '#D97706' }} />
+                  </div>
+                  <div className="mac-metric-value" style={{ color: '#D97706' }}>{scheduleData.pendingCount}</div>
+                  <div className="mac-metric-sub">Requires confirmation</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">CONFIRMED ACTIVE</span>
+                    <CheckCircle2 size={16} className="mac-metric-icon" style={{ color: '#059669' }} />
+                  </div>
+                  <div className="mac-metric-value" style={{ color: '#059669' }}>{scheduleData.confirmedCount}</div>
+                  <div className="mac-metric-sub">Google Meet link generated</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">COMPLETED SESSIONS</span>
+                    <ShieldCheck size={16} className="mac-metric-icon" style={{ color: '#481577' }} />
+                  </div>
+                  <div className="mac-metric-value" style={{ color: '#481577' }}>{scheduleData.completedCount}</div>
+                  <div className="mac-metric-sub">Consultations finalized</div>
+                </div>
+              </div>
+
+              {/* Booking List Table */}
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">Client Bookings & Schedule Calendar</span>
+                  </div>
+
+                  <div className="mac-panel-tools">
+                    <div className="mac-filter-tabs">
+                      {['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED'].map((filterKey) => (
+                        <button
+                          key={filterKey}
+                          type="button"
+                          className={`mac-filter-btn ${scheduleFilter === filterKey ? 'active' : ''}`}
+                          onClick={() => setScheduleFilter(filterKey)}
+                        >
+                          {filterKey}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mac-table-container">
+                  <table className="mac-data-table">
+                    <thead>
+                      <tr>
+                        <th>CLIENT & STORE</th>
+                        <th>CONTACT (EMAIL / PHONE)</th>
+                        <th>CHANNEL & GOALS</th>
+                        <th>PREFERRED TIME WINDOW</th>
+                        <th>TYPE</th>
+                        <th>STATUS</th>
+                        <th style={{ textAlign: 'right' }}>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {scheduleData.bookings
+                        .filter(b => scheduleFilter === 'ALL' || b.status === scheduleFilter)
+                        .map((booking) => (
+                          <tr key={booking.id}>
+                            <td>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <strong style={{ color: '#111827', fontSize: '13.5px' }}>{booking.clientName}</strong>
+                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{booking.companyName}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ color: '#111827' }}>{booking.email}</span>
+                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{booking.phone}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '12.5px', color: '#374151' }}>{booking.channel}</span>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <strong style={{ fontSize: '12.5px', color: '#111827' }}>{booking.preferredDate}</strong>
+                                <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{booking.preferredTime}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                background: booking.type === 'FOUNDER' ? '#FEF3C7' : '#EFF6FF',
+                                color: booking.type === 'FOUNDER' ? '#B45309' : '#1D4ED8'
+                              }}>
+                                {booking.type === 'FOUNDER' ? 'Founder Call' : 'Live Demo'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                background: booking.status === 'CONFIRMED' ? '#ECFDF5' : booking.status === 'COMPLETED' ? '#F3F4F6' : '#FFFBEB',
+                                color: booking.status === 'CONFIRMED' ? '#059669' : booking.status === 'COMPLETED' ? '#4B5563' : '#D97706'
+                              }}>
+                                {booking.status}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+                                {booking.status === 'PENDING' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateScheduleStatus(booking.type, booking.id, 'CONFIRMED')}
+                                    className="mac-action-btn"
+                                    style={{ background: '#059669', color: '#FFFFFF', border: 'none' }}
+                                  >
+                                    <Check size={12} />
+                                    <span>Confirm</span>
+                                  </button>
+                                )}
+                                <a
+                                  href={booking.meetingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mac-action-btn"
+                                  style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', textDecoration: 'none' }}
+                                >
+                                  <ExternalLink size={12} />
+                                  <span>Meet Link</span>
+                                </a>
+                                {booking.status !== 'COMPLETED' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateScheduleStatus(booking.type, booking.id, 'COMPLETED')}
+                                    className="mac-action-btn"
+                                    style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB' }}
+                                  >
+                                    <span>Complete</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              SIGN-UP RECORDS VIEW (ALL REGISTERED USERS)
+              ========================================================== */}
+          {activeTab === 'signups' && (
+            <div className="mac-view-container">
+              {/* Regional Guarantee Notice Banner */}
+              <div style={{
+                background: 'linear-gradient(135deg, #1E1B4B 0%, #311042 100%)',
+                color: '#FFFFFF',
+                borderRadius: '16px',
+                padding: '16px 20px',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Globe size={22} style={{ color: '#10B981' }} />
+                  <div>
+                    <strong style={{ fontSize: '14.5px', display: 'block' }}>Worldwide Merchant Registration Range</strong>
+                    <span style={{ fontSize: '12.5px', color: '#D1D5DB' }}>
+                      Users from USA, UK, Canada, Bangladesh, EU, UAE, Australia, and worldwide regions can register. India & Pakistan are strictly restricted.
+                    </span>
+                  </div>
+                </div>
+                <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', border: '1px solid #10B981', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>
+                  Active Filter: IN & PK Blocked
+                </span>
+              </div>
+
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">Merchant Sign-Up Records ({signupsData.totalSignups} Accounts)</span>
+                  </div>
+
+                  <div className="mac-panel-tools">
+                    <div className="mac-search-input-wrap">
+                      <Search size={14} className="mac-search-icon" />
+                      <input
+                        type="text"
+                        className="mac-search-input"
+                        placeholder="Search merchant name, email, or store..."
+                        value={signupSearch}
+                        onChange={(e) => setSignupSearch(e.target.value)}
+                      />
+                      {signupSearch && (
+                        <button type="button" className="mac-clear-search-btn" onClick={() => setSignupSearch('')}>
+                          <X size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mac-table-container">
+                  <table className="mac-data-table">
+                    <thead>
+                      <tr>
+                        <th>CUSTOMER NAME</th>
+                        <th>STORE / WORKSPACE</th>
+                        <th>EMAIL</th>
+                        <th>COUNTRY / REGION</th>
+                        <th>SIGN-UP DATE</th>
+                        <th>PLAN STATUS</th>
+                        <th>VERIFICATION</th>
+                        <th style={{ textAlign: 'right' }}>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {signupsData.signups.map((signup) => (
+                        <tr key={signup.id}>
+                          <td>
+                            <strong style={{ color: '#111827', fontSize: '13.5px' }}>{signup.name}</strong>
+                          </td>
+                          <td>
+                            <span style={{ color: '#481577', fontWeight: 600 }}>{signup.businessName}</span>
+                          </td>
+                          <td>
+                            <span style={{ color: '#4B5563', fontFamily: 'monospace', fontSize: '12px' }}>{signup.email}</span>
+                          </td>
+                          <td>
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              background: '#F3F4F6',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              color: '#1F2937'
+                            }}>
+                              <span>🌐</span>
+                              <span>{signup.country}</span>
+                            </span>
+                          </td>
+                          <td>
+                            <span style={{ color: '#6B7280', fontSize: '12px' }}>{formatDateTime(signup.createdAt)}</span>
+                          </td>
+                          <td>
+                            <span style={{
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              background: '#F5F3FF',
+                              color: '#6D28D9'
+                            }}>
+                              {signup.plan}
+                            </span>
+                          </td>
+                          <td>
+                            <span style={{
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              background: signup.emailVerified ? '#ECFDF5' : '#FEF2F2',
+                              color: signup.emailVerified ? '#059669' : '#DC2626'
+                            }}>
+                              {signup.emailVerified ? 'Verified' : 'Pending'}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleEnterCustomerDashboard(signup.businessId || signup.id)}
+                              className="mac-action-btn"
+                              style={{ background: '#481577', color: '#FFFFFF', border: 'none' }}
+                            >
+                              <LogIn size={12} />
+                              <span>Enter Dashboard</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              LOGIN SESSIONS & ACTIVE DEVICES VIEW
+              ========================================================== */}
+          {activeTab === 'logins' && (
+            <div className="mac-view-container">
+              {/* Session KPIs */}
+              <div className="mac-metrics-grid" style={{ marginBottom: '1.25rem' }}>
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">TOTAL RECORDED LOGINS</span>
+                    <Smartphone size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">{loginSessionsData.totalSessions}</div>
+                  <div className="mac-metric-sub">Historical authentication records</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">ACTIVE ONLINE DEVICES</span>
+                    <Radio size={16} className="mac-metric-icon" style={{ color: '#059669' }} />
+                  </div>
+                  <div className="mac-metric-value" style={{ color: '#059669' }}>
+                    {loginSessionsData.activeDevicesCount || 1}
+                  </div>
+                  <div className="mac-metric-sub">Real-time connected sessions</div>
+                </div>
+              </div>
+
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">Login Authentication Records & Active Devices</span>
+                  </div>
+                </div>
+
+                <div className="mac-table-container">
+                  <table className="mac-data-table">
+                    <thead>
+                      <tr>
+                        <th>USER & STORE</th>
+                        <th>DEVICE & PLATFORM</th>
+                        <th>BROWSER</th>
+                        <th>IP ADDRESS</th>
+                        <th>COUNTRY / REGION</th>
+                        <th>LOGIN TIMESTAMP</th>
+                        <th>SESSION STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loginSessionsData.sessions.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="mac-empty-table-cell">
+                            No active login sessions recorded in current database yet.
+                          </td>
+                        </tr>
+                      ) : (
+                        loginSessionsData.sessions.map((sess) => (
+                          <tr key={sess.id}>
+                            <td>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <strong style={{ color: '#111827', fontSize: '13.5px' }}>{sess.user_name || sess.email}</strong>
+                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{sess.business_name} ({sess.email})</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                fontSize: '12px',
+                                background: '#F3F4F6',
+                                fontWeight: 600
+                              }}>
+                                <Laptop size={13} />
+                                <span>{sess.device_type} • {sess.os}</span>
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '12.5px', color: '#374151' }}>{sess.browser}</span>
+                            </td>
+                            <td>
+                              <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#4B5563' }}>{sess.ip_address}</span>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '12.5px', color: '#111827', fontWeight: 500 }}>{sess.country}</span>
+                            </td>
+                            <td>
+                              <span style={{ color: '#6B7280', fontSize: '12px' }}>{formatDateTime(sess.created_at)}</span>
+                            </td>
+                            <td>
+                              <span style={{
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                background: sess.is_active ? '#ECFDF5' : '#F3F4F6',
+                                color: sess.is_active ? '#059669' : '#6B7280'
+                              }}>
+                                {sess.is_active ? 'Active Session' : 'Expired'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==========================================================
+              FINANCES & INVOICES VIEW
+              ========================================================== */}
+          {activeTab === 'finances' && (
+            <div className="mac-view-container">
+              {/* Financial KPIs */}
+              <div className="mac-metrics-grid" style={{ marginBottom: '1.25rem' }}>
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">TOTAL PLATFORM REVENUE</span>
+                    <DollarSign size={16} className="mac-metric-icon" style={{ color: '#059669' }} />
+                  </div>
+                  <div className="mac-metric-value" style={{ color: '#059669' }}>
+                    ${Number(metrics?.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                  <div className="mac-metric-sub">Cumulative confirmed subscriptions & orders</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">ESTIMATED MRR</span>
+                    <Zap size={16} className="mac-metric-icon" style={{ color: '#6D28D9' }} />
+                  </div>
+                  <div className="mac-metric-value" style={{ color: '#6D28D9' }}>
+                    ${(Number(metrics?.activeBusinesses || 1) * 119).toLocaleString()}
+                  </div>
+                  <div className="mac-metric-sub">Monthly Recurring Revenue projection</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">ACTIVE SUBSCRIPTIONS</span>
+                    <CreditCard size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">{metrics?.activeBusinesses || 0}</div>
+                  <div className="mac-metric-sub">Active billing accounts</div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-title">PROJECTED ARR</span>
+                    <DollarSign size={16} className="mac-metric-icon" />
+                  </div>
+                  <div className="mac-metric-value">
+                    ${(Number(metrics?.activeBusinesses || 1) * 119 * 12).toLocaleString()}
+                  </div>
+                  <div className="mac-metric-sub">Annual Recurring Revenue baseline</div>
+                </div>
+              </div>
+
+              {/* Plans Tier Breakdown */}
+              <div className="mac-plans-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '1.25rem',
+                marginBottom: '1.25rem'
+              }}>
+                <div className="mac-panel-card" style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#374151' }}>STARTER TIER</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#111827' }}>$49 / mo</span>
+                  </div>
+                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px 0' }}>
+                    1,000 automated conversations • 1 WhatsApp Business line • Real-time stock sync
+                  </p>
+                  <span style={{ fontSize: '11px', color: '#059669', background: '#ECFDF5', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                    ~৳5,880 BDT / month
+                  </span>
+                </div>
+
+                <div className="mac-panel-card" style={{ padding: '20px', border: '1.5px solid #481577' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#481577' }}>GROWTH TIER (MOST POPULAR)</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#481577' }}>$119 / mo</span>
+                  </div>
+                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px 0' }}>
+                    5,000 automated conversations • WhatsApp + Instagram + Messenger • Automated checkout
+                  </p>
+                  <span style={{ fontSize: '11px', color: '#481577', background: '#F5F3FF', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                    ~৳14,280 BDT / month
+                  </span>
+                </div>
+
+                <div className="mac-panel-card" style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#1D4ED8' }}>SCALE ENTERPRISE</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#111827' }}>$299 / mo</span>
+                  </div>
+                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px 0' }}>
+                    25,000 automated conversations • Dedicated AI model training • Multi-agent handoff
+                  </p>
+                  <span style={{ fontSize: '11px', color: '#1D4ED8', background: '#EFF6FF', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                    ~৳35,880 BDT / month
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
 
@@ -1777,6 +2655,131 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
           </div>
         </div>
       )}
+    
+      {/* ==============================================================
+          TENANT PRODUCTS INSPECTOR MODAL
+          ============================================================== */}
+      {selectedTenantProducts && (
+        <div className="mac-modal-backdrop" onClick={() => setSelectedTenantProducts(null)}>
+          <div className="mac-modal-window" style={{ maxWidth: '780px' }} onClick={(e) => e.stopPropagation()} role="dialog">
+            <div className="mac-modal-titlebar">
+              <div className="mac-mini-traffic" aria-hidden="true">
+                <span className="mac-traffic-dot mac-dot-close" onClick={() => setSelectedTenantProducts(null)} style={{ cursor: 'pointer' }} />
+                <span className="mac-traffic-dot mac-dot-minimize" />
+                <span className="mac-traffic-dot mac-dot-maximize" />
+              </div>
+              <span className="mac-modal-window-title">
+                Customer Inventory: {selectedTenantProducts.business?.name} ({selectedTenantProducts.productsCount} SKUs)
+              </span>
+              <button
+                type="button"
+                className="mac-modal-close-icon-btn"
+                onClick={() => setSelectedTenantProducts(null)}
+                aria-label="Close"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            <div className="mac-modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingBottom: '14px',
+                borderBottom: '1px solid #ECECF0',
+                marginBottom: '16px'
+              }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', color: '#111827' }}>
+                    {selectedTenantProducts.business?.name} Product Catalog
+                  </h3>
+                  <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                    Managed by {selectedTenantProducts.business?.ownerName} ({selectedTenantProducts.business?.ownerEmail}) • Plan: {selectedTenantProducts.business?.plan}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const bId = selectedTenantProducts.business?.id;
+                    setSelectedTenantProducts(null);
+                    handleEnterCustomerDashboard(bId);
+                  }}
+                  className="mac-action-btn"
+                  style={{ background: '#481577', color: '#FFFFFF', border: 'none', padding: '6px 12px' }}
+                >
+                  <LogIn size={13} />
+                  <span>Enter Dashboard to Edit</span>
+                </button>
+              </div>
+
+              {selectedTenantProducts.products.length === 0 ? (
+                <p style={{ textAlign: 'center', color: '#6B7280', padding: '30px 0' }}>
+                  No products cataloged in this customer store yet.
+                </p>
+              ) : (
+                <table className="mac-data-table">
+                  <thead>
+                    <tr>
+                      <th>PRODUCT NAME</th>
+                      <th>SKU</th>
+                      <th>CATEGORY</th>
+                      <th>PRICE</th>
+                      <th>STOCK</th>
+                      <th>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedTenantProducts.products.map((p) => (
+                      <tr key={p.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            {p.imageUrl ? (
+                              <img src={p.imageUrl} alt={p.name} style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
+                                <Package size={16} />
+                              </div>
+                            )}
+                            <strong style={{ color: '#111827', fontSize: '13px' }}>{p.name}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#4B5563' }}>{p.sku}</span>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{p.category}</span>
+                        </td>
+                        <td>
+                          <strong style={{ color: '#059669', fontSize: '13px' }}>${p.price.toFixed(2)}</strong>
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 700, color: p.stock > 0 ? '#111827' : '#DC2626' }}>
+                            {p.stock}
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            background: p.stock > 0 ? '#ECFDF5' : '#FEF2F2',
+                            color: p.stock > 0 ? '#059669' : '#DC2626'
+                          }}>
+                            {p.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

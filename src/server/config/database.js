@@ -580,6 +580,42 @@ export function runMigrations(db) {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
+    -- 24. Real Login Sessions & Active Devices
+    CREATE TABLE IF NOT EXISTS login_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      email TEXT NOT NULL,
+      user_name TEXT,
+      business_name TEXT,
+      ip_address TEXT,
+      country TEXT DEFAULT 'United States',
+      device_type TEXT DEFAULT 'Desktop',
+      os TEXT DEFAULT 'Windows',
+      browser TEXT DEFAULT 'Chrome',
+      user_agent TEXT,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now')),
+      last_active_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_login_sessions_user ON login_sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_login_sessions_email ON login_sessions(email);
+
+    -- 25. 6-Digit Verification OTPs
+    CREATE TABLE IF NOT EXISTS verification_otps (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      otp_code TEXT NOT NULL,
+      store_name TEXT,
+      purpose TEXT DEFAULT 'SIGNUP',
+      expires_at TEXT NOT NULL,
+      is_verified INTEGER DEFAULT 0,
+      attempts INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_verification_otps_email ON verification_otps(email);
+    CREATE INDEX IF NOT EXISTS idx_verification_otps_code ON verification_otps(email, otp_code);
+
     CREATE INDEX IF NOT EXISTS idx_user_profiles_user ON user_profiles(user_id);
     CREATE INDEX IF NOT EXISTS idx_business_profiles_business ON business_profiles(business_id);
     CREATE INDEX IF NOT EXISTS idx_kyc_profiles_business ON kyc_profiles(business_id);
@@ -1283,8 +1319,8 @@ export function seedInitialData(db) {
  * Ensures baseline billing subscription and invoice records exist for a tenant workspace.
  */
 export async function ensureBillingData(db, tenantId, now = new Date()) {
-  // Never seed sample billing data in production
-  if (config.isProduction) {
+  // Only seed baseline billing data for flagship development demo, NEVER for real merchant sign-ups
+  if (config.isProduction || tenantId !== 'ws-flagship-01') {
     return;
   }
   try {

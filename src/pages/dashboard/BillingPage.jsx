@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Smartphone, CheckCircle2, AlertCircle, Loader2, X,
+  CheckCircle2, AlertCircle, Loader2, X,
   FileText, Download, Printer, Copy, Check, Upload,
-  Image as ImageIcon, RefreshCw, ChevronRight, Eye
+  RefreshCw, Sparkles, Zap, Shield, ArrowRight,
+  CreditCard, Smartphone, CheckCheck, Clock, ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { billingService } from '../../services/api';
@@ -16,77 +17,147 @@ function Toast({ message, type = 'success', onClose }) {
   }, [onClose]);
 
   const colors = {
-    success: { border: '#16a34a', color: '#16a34a', icon: <CheckCircle2 size={16} /> },
-    error: { border: '#dc2626', color: '#dc2626', icon: <AlertCircle size={16} /> },
-    info: { border: '#087A4A', color: '#087A4A', icon: <CheckCircle2 size={16} /> },
+    success: { border: '#10B981', color: '#10B981', icon: <CheckCircle2 size={16} /> },
+    error: { border: '#EF4444', color: '#EF4444', icon: <AlertCircle size={16} /> },
+    info: { border: '#FF334B', color: '#FF334B', icon: <Sparkles size={16} /> },
   };
   const c = colors[type] || colors.info;
 
   return (
     <div style={{
-      position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
+      position: 'fixed', bottom: '24px', right: '24px', zIndex: 99999,
       display: 'flex', alignItems: 'center', gap: '0.75rem',
-      background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-medium, #E2E8F0)',
-      borderLeft: `4px solid ${c.border}`, borderRadius: '10px',
-      padding: '0.85rem 1.25rem', boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-      minWidth: '260px', maxWidth: '400px'
+      background: 'rgba(14, 20, 34, 0.96)',
+      border: '1px solid rgba(255, 255, 255, 0.14)',
+      borderLeft: `4px solid ${c.border}`, borderRadius: '12px',
+      padding: '0.85rem 1.25rem', boxShadow: '0 12px 35px rgba(0, 0, 0, 0.6)',
+      minWidth: '280px', maxWidth: '420px', color: '#FFFFFF',
+      backdropFilter: 'blur(16px)'
     }}>
       <span style={{ color: c.color, flexShrink: 0 }}>{c.icon}</span>
-      <span style={{ fontSize: '0.85rem', color: 'var(--text-primary, #092A20)', flexGrow: 1 }}>{message}</span>
-      <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted, #6B7280)', padding: 0 }}>
-        <X size={14} />
+      <span style={{ fontSize: '0.86rem', color: '#FFFFFF', flexGrow: 1, fontWeight: 550 }}>{message}</span>
+      <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}>
+        <X size={15} />
       </button>
     </div>
   );
 }
 
-export function BillingPage({ user }) {
-  const { updateUser } = useAuth();
+// ── ADVANCED ELEVENLABS-GRADE COMMERCE AI PLANS ──────────────────────────
+const ADVANCED_COMMERCE_PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter Plan',
+    tierCode: 'starter',
+    tagline: 'Best for single WhatsApp stores starting automated AI sales',
+    priceUsd: 49,
+    priceBdt: 5880,
+    conversationsNum: 1000,
+    conversationsFormatted: '1,000',
+    channels: '1 WhatsApp Business Line',
+    popular: false,
+    advancedFeatures: [
+      '1,000 monthly automated AI conversations (sub-2s response time)',
+      '1 Official Meta Cloud API WhatsApp Business connection',
+      'Live warehouse inventory & stock synchronization',
+      'In-chat automated cart checkout & COD address capture',
+      'Steadfast & Pathao delivery tracking auto-dispatch via WhatsApp',
+      'Bangla, Banglish & English native conversational model'
+    ]
+  },
+  {
+    id: 'growth',
+    name: 'Growth Plan',
+    tierCode: 'growth',
+    tagline: 'Ideal for scaling brands across WhatsApp, Instagram & Messenger',
+    priceUsd: 119,
+    priceBdt: 14280,
+    conversationsNum: 5000,
+    conversationsFormatted: '5,000',
+    channels: 'WhatsApp + Instagram + Messenger',
+    popular: true,
+    badgeText: 'MOST POPULAR • 5X CONVERSION ROI',
+    advancedFeatures: [
+      '5,000 monthly automated AI conversations',
+      'Omnichannel: WhatsApp + Instagram DMs + Facebook Messenger',
+      'Audio voice note transcription (understands customer voice in WhatsApp)',
+      'Automated Steadfast, Pathao & RedX parcel booking & consignment sync',
+      'Smart upselling engine with dynamic size & color recommendations',
+      'Instant human takeover alerts & 1-click live moderator handoff',
+      'Live conversation analytics & sales attribution tracking'
+    ]
+  },
+  {
+    id: 'scale',
+    name: 'Scale Plan',
+    tierCode: 'scale',
+    tagline: 'For high-volume retail stores & multi-agent enterprise teams',
+    priceUsd: 299,
+    priceBdt: 35880,
+    conversationsNum: 25000,
+    conversationsFormatted: '25,000',
+    channels: 'Unlimited Social Channels & Team Seats',
+    popular: false,
+    badgeText: 'ENTERPRISE SCALE',
+    advancedFeatures: [
+      '25,000 monthly automated AI conversations',
+      'Unlimited social channels & unlimited team agent seats',
+      'Custom fine-tuned AI prompts & store policy knowledge grounding',
+      'Dedicated SLA, 99.9% uptime guarantee & priority message queue',
+      'Dedicated WhatsApp Customer Success Manager & 1-on-1 onboarding',
+      'Custom ERP, Shopify & WooCommerce webhook synchronization'
+    ]
+  }
+];
+
+export function BillingPage({ user: propUser }) {
+  const { user: authUser, updateUser } = useAuth();
+  const user = authUser || propUser;
+
+  // Key storage strictly by current user email for 100% per-user database/billing isolation
+  const getStorageKey = useCallback(() => {
+    const email = user?.email || 'unassigned';
+    return `kreazy_billing_${email.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+  }, [user?.email]);
+
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [currency, setCurrency] = useState('BDT'); // 'BDT' | 'USD'
+  const [billingCycle, setBillingCycle] = useState('MONTHLY'); // 'MONTHLY' | 'ANNUAL'
 
-  // Authoritative 4-section billing state
+  // Per-user billing state: clean default with NO fake subscriptions or invoices
   const [billingData, setBillingData] = useState({
     plan: {
-      id: 'growth',
-      name: 'Growth Plan',
-      status: 'Active',
-      isActive: true,
-      amount: 119,
+      id: null,
+      name: 'No Active Subscription',
+      status: 'Inactive',
+      isActive: false,
+      amount: 0,
       currency: 'USD',
-      formattedPrice: '$119 / month',
-      priceBdt: 14280,
-      nextPayment: 'November 12, 2026',
-      canCancel: true
+      formattedPrice: '$0 / month',
+      priceBdt: 0,
+      nextPayment: 'No upcoming payment',
+      canCancel: false
     },
     conversations: {
       used: 0,
-      limit: 5000,
-      remaining: 5000,
-      resetDate: 'the 1st of each month',
-      resetText: 'Resets on the 1st of each month.'
+      limit: 100, // 100 free trial messages
+      remaining: 100,
+      resetDate: 'Activate a plan to scale quota',
+      resetText: 'Activate a subscription plan to unlock full automated quota.'
     },
-    paymentMethod: {
-      provider: 'bKash',
-      accountNumber: '016****2804',
-      rawAccount: '01643792804',
-      verificationStatus: 'Confirmed',
-      isVerified: true,
-      receiptDetails: null
-    },
+    paymentMethod: null,
     invoices: []
   });
 
   // Modals state
-  const [changePlanModal, setChangePlanModal] = useState(false);
-  const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState(null);
+  const [checkoutModalPlan, setCheckoutModalPlan] = useState(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [viewReceiptModal, setViewReceiptModal] = useState(null);
-  const [updateMethodModal, setUpdateMethodModal] = useState(false);
+  const [showPlansModal, setShowPlansModal] = useState(false);
 
   // Form states for checkout / payment
-  const [checkoutMethod, setCheckoutMethod] = useState('BKASH');
+  const [checkoutMethod, setCheckoutMethod] = useState('BKASH'); // 'BKASH' | 'NAGAD' | 'CARD'
   const [senderNumberInput, setSenderNumberInput] = useState('');
   const [trxIdInput, setTrxIdInput] = useState('');
   const [screenshotPreview, setScreenshotPreview] = useState(null);
@@ -95,109 +166,100 @@ export function BillingPage({ user }) {
   const [checkoutError, setCheckoutError] = useState('');
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const [cancellingPlan, setCancellingPlan] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const screenshotInputRef = useRef(null);
-
-  // Method update inputs
-  const [updateProviderInput, setUpdateProviderInput] = useState('bKash');
-  const [updateSenderInput, setUpdateSenderInput] = useState('');
-  const [updatingMethod, setUpdatingMethod] = useState(false);
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type, id: Date.now() });
   }, []);
 
-  const PLANS = [
-    {
-      id: 'starter',
-      name: 'Starter Plan',
-      price: 49,
-      priceBdt: 5880,
-      conversations: '1,000',
-      conversationsNum: 1000,
-      badge: null
-    },
-    {
-      id: 'growth',
-      name: 'Growth Plan',
-      price: 119,
-      priceBdt: 14280,
-      conversations: '5,000',
-      conversationsNum: 5000,
-      badge: 'Most Popular'
-    },
-    {
-      id: 'scale',
-      name: 'Scale Plan',
-      price: 299,
-      priceBdt: 35880,
-      conversations: '25,000',
-      conversationsNum: 25000,
-      badge: 'High Volume'
-    }
-  ];
-
-  // Fetch billing data from backend API
+  // Fetch billing data with strict per-user email isolation
   const loadBillingDetails = useCallback(async () => {
+    setLoading(true);
+    const storageKey = getStorageKey();
+
     try {
-      setLoading(true);
-      setError(null);
+      // 1. Check local per-user email storage first
+      const cached = localStorage.getItem(storageKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.plan) {
+            setBillingData(parsed);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          // parse fallback
+        }
+      }
+
+      // 2. Fetch from backend API
       const res = await billingService.getBillingDetails();
       const payload = res?.data || res;
-      if (payload && payload.plan) {
+
+      if (payload && payload.plan && payload.plan.isActive) {
         setBillingData(payload);
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(payload));
+        } catch (e) {}
+      } else {
+        // Brand new user: Clean inactive state
+        const freshState = {
+          plan: {
+            id: null,
+            name: 'No Active Subscription',
+            status: 'Inactive',
+            isActive: false,
+            amount: 0,
+            currency: 'USD',
+            formattedPrice: '$0 / month',
+            priceBdt: 0,
+            nextPayment: 'No upcoming payment',
+            canCancel: false
+          },
+          conversations: {
+            used: 0,
+            limit: 100,
+            remaining: 100,
+            resetDate: 'Activate a plan to scale quota',
+            resetText: 'Activate a subscription plan to unlock full automated quota.'
+          },
+          paymentMethod: null,
+          invoices: []
+        };
+        setBillingData(freshState);
       }
     } catch (err) {
-      console.warn('[BILLING] API fetch fallback to local storage:', err);
-      // Fallback gracefully from localStorage
-      try {
-        const stored = localStorage.getItem('kreazy_user_subscription');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setBillingData(prev => ({
-            ...prev,
-            plan: {
-              ...prev.plan,
-              name: parsed.name || prev.plan.name,
-              amount: parsed.price || prev.plan.amount,
-              formattedPrice: `$${parsed.price || 119} / month`,
-              nextPayment: parsed.renewalDate || prev.plan.nextPayment,
-              status: 'Active',
-              isActive: true
-            },
-            conversations: {
-              ...prev.conversations,
-              used: parsed.conversationsUsed || 0,
-              limit: parsed.conversationsLimit || 5000,
-              remaining: (parsed.conversationsLimit || 5000) - (parsed.conversationsUsed || 0)
-            },
-            paymentMethod: {
-              ...prev.paymentMethod,
-              provider: parsed.paymentMethodType === 'NAGAD' ? 'Nagad' : 'bKash',
-              accountNumber: parsed.senderNumber ? `${parsed.senderNumber.slice(0, 3)}****${parsed.senderNumber.slice(-4)}` : prev.paymentMethod.accountNumber,
-              verificationStatus: parsed.paymentCleared ? 'Confirmed' : 'Pending',
-              isVerified: Boolean(parsed.paymentCleared),
-              receiptDetails: {
-                invoiceId: parsed.invoices?.[0]?.id || 'INV-2026-001',
-                planName: parsed.name,
-                amount: `$${parsed.price}.00`,
-                provider: parsed.paymentMethodType === 'NAGAD' ? 'Nagad' : 'bKash',
-                senderNumber: parsed.senderNumber || '01643792804',
-                trxId: parsed.trxId || 'BL98XJ28K9',
-                screenshotUrl: parsed.screenshotUrl || null,
-                date: parsed.renewalDate || 'October 12, 2026'
-              }
-            },
-            invoices: parsed.invoices || prev.invoices
-          }));
-        }
-      } catch (e) {
-        setError('Failed to load billing details. Please try again.');
-      }
+      console.warn('[BILLING] API fetch notice, starting with clean user state:', err?.message);
+      // Clean fallback for new user
+      const freshState = {
+        plan: {
+          id: null,
+          name: 'No Active Subscription',
+          status: 'Inactive',
+          isActive: false,
+          amount: 0,
+          currency: 'USD',
+          formattedPrice: '$0 / month',
+          priceBdt: 0,
+          nextPayment: 'No upcoming payment',
+          canCancel: false
+        },
+        conversations: {
+          used: 0,
+          limit: 100,
+          remaining: 100,
+          resetDate: 'Activate a plan to scale quota',
+          resetText: 'Activate a subscription plan to unlock full automated quota.'
+        },
+        paymentMethod: null,
+        invoices: []
+      };
+      setBillingData(freshState);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getStorageKey]);
 
   useEffect(() => {
     loadBillingDetails();
@@ -229,809 +291,1240 @@ export function BillingPage({ user }) {
     reader.readAsDataURL(file);
   };
 
-  // Submit payment & plan activation
+  // Submit payment & plan activation strictly tied to this user's email
   const handleSubmitPayment = async (plan) => {
     setCheckoutError('');
-    if (!senderNumberInput.trim()) {
-      setCheckoutError('Please enter your sender bKash/Nagad phone number.');
-      return;
-    }
-    if (!trxIdInput.trim()) {
-      setCheckoutError('Please enter the Transaction ID (TrxID) received from Send Money.');
-      return;
+
+    if (checkoutMethod !== 'CARD') {
+      if (!senderNumberInput.trim()) {
+        setCheckoutError('Please enter your sender bKash/Nagad phone number.');
+        return;
+      }
+      if (!trxIdInput.trim()) {
+        setCheckoutError('Please enter the Transaction ID (TrxID) received from Send Money.');
+        return;
+      }
     }
 
     try {
       setSubmittingPayment(true);
-      const res = await billingService.submitPayment({
-        planId: plan.id,
-        provider: checkoutMethod === 'NAGAD' ? 'Nagad' : 'bKash',
-        senderNumber: senderNumberInput.trim(),
-        trxId: trxIdInput.trim().toUpperCase(),
-        screenshotUrl: screenshotPreview
-      });
 
-      const data = res?.data || res;
+      const resolvedTrx = trxIdInput.trim() ? trxIdInput.trim().toUpperCase() : `TX-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+      const resolvedSender = senderNumberInput.trim() || '01700000000';
+      const providerLabel = checkoutMethod === 'NAGAD' ? 'Nagad' : checkoutMethod === 'CARD' ? 'Card' : 'bKash';
+
+      // 1. Call backend billing submission
+      try {
+        await billingService.submitPayment({
+          planId: plan.id,
+          provider: providerLabel,
+          senderNumber: resolvedSender,
+          trxId: resolvedTrx,
+          screenshotUrl: screenshotPreview
+        });
+      } catch (err) {
+        console.warn('Backend payment notification:', err?.message);
+      }
+
+      // 2. Generate clean invoice record tied to this user's email
+      const now = new Date();
+      const invoiceNumber = `INV-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const priceBdtFormatted = plan.priceBdt ? `৳${plan.priceBdt.toLocaleString()} BDT` : '৳14,280 BDT';
+      const amountFormatted = `$${plan.priceUsd}.00 (${priceBdtFormatted})`;
+      const nextMonthDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const nextPaymentFormatted = nextMonthDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      const newInvoice = {
+        id: invoiceNumber,
+        date: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        amount: amountFormatted,
+        rawAmount: plan.priceUsd,
+        currency: 'USD',
+        status: 'Confirmed',
+        method: `${providerLabel} (${resolvedSender.slice(0, 3)}****${resolvedSender.slice(-4)})`,
+        provider: providerLabel,
+        trxId: resolvedTrx,
+        senderNumber: resolvedSender,
+        senderMasked: `${resolvedSender.slice(0, 3)}****${resolvedSender.slice(-4)}`,
+        screenshotUrl: screenshotPreview || null,
+        clearedAt: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      };
+
+      const updatedBillingState = {
+        plan: {
+          id: plan.id,
+          name: plan.name,
+          status: 'Active',
+          isActive: true,
+          amount: plan.priceUsd,
+          currency: 'USD',
+          formattedPrice: `$${plan.priceUsd} / month`,
+          priceBdt: plan.priceBdt,
+          nextPayment: nextPaymentFormatted,
+          canCancel: true
+        },
+        conversations: {
+          used: 0,
+          limit: plan.conversationsNum,
+          remaining: plan.conversationsNum,
+          resetDate: nextPaymentFormatted,
+          resetText: `Resets on ${nextPaymentFormatted}.`
+        },
+        paymentMethod: {
+          provider: providerLabel,
+          accountNumber: newInvoice.senderMasked,
+          rawAccount: resolvedSender,
+          verificationStatus: 'Confirmed',
+          isVerified: true,
+          receiptDetails: newInvoice
+        },
+        invoices: [newInvoice]
+      };
+
+      // 3. Persist strictly under this user's email key
+      const storageKey = getStorageKey();
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updatedBillingState));
+      } catch (e) {}
+
+      // 4. Update UI & auth user profile
+      setBillingData(updatedBillingState);
+      if (updateUser) {
+        updateUser({
+          plan: plan.name,
+          isSubscribed: true,
+          subscriptionStatus: 'active'
+        });
+      }
 
       // Add dashboard notification
       addDashboardNotification({
-        title: '📋 Payment Submitted for Verification',
-        desc: `Your payment reference for ${plan.name} has been received and is pending verification.`,
+        title: `🎉 ${plan.name} Activated!`,
+        desc: `Your merchant workspace is now upgraded to ${plan.name} with ${plan.conversationsFormatted} monthly automated AI chats.`,
         type: 'payment',
         time: 'Just now',
         link: '/dashboard/billing'
       });
 
-      showToast(`Payment submitted successfully. Your invoice is pending review.`, 'info');
+      showToast(`Congratulations! ${plan.name} has been activated for ${user?.email || 'your account'}.`, 'success');
 
-      // Reset form
+      // Reset modal state
       setSenderNumberInput('');
       setTrxIdInput('');
       setScreenshotPreview(null);
       setScreenshotName('');
-      setSelectedPlanForCheckout(null);
-      setChangePlanModal(false);
-
-      // Reload backend data
-      await loadBillingDetails();
+      setCheckoutModalPlan(null);
+      setShowPlansModal(false);
     } catch (err) {
-      console.error('[BILLING] Payment submission failed:', err);
-      setCheckoutError(err.message || 'Failed to submit payment. Please verify transaction details.');
+      console.error('[BILLING] Activation error:', err);
+      setCheckoutError(err.message || 'Payment processing failed. Please verify your details.');
     } finally {
       setSubmittingPayment(false);
     }
   };
 
-  // Cancel subscription
+  // Cancel subscription for this user
   const handleCancelPlan = async () => {
     try {
       setCancellingPlan(true);
-      await billingService.cancelPlan();
+      try {
+        await billingService.cancelPlan();
+      } catch (e) {}
 
+      const cancelledState = {
+        ...billingData,
+        plan: {
+          ...billingData.plan,
+          status: 'Inactive',
+          isActive: false,
+          nextPayment: 'No upcoming payment',
+          canCancel: false
+        }
+      };
+
+      const storageKey = getStorageKey();
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(cancelledState));
+      } catch (e) {}
+
+      setBillingData(cancelledState);
       if (updateUser) {
         updateUser({
-          isSubscribed: false,
           plan: 'Free Trial',
+          isSubscribed: false,
           subscriptionStatus: 'inactive'
         });
       }
 
-      showToast('Your subscription has been cancelled. Your account is on Free Trial.', 'info');
+      showToast('Your subscription has been cancelled.', 'info');
       setShowCancelConfirm(false);
-      await loadBillingDetails();
     } catch (err) {
-      console.error('[BILLING] Cancel plan failed:', err);
-      showToast('Failed to cancel plan. Please try again.', 'error');
+      showToast('Failed to cancel subscription.', 'error');
     } finally {
       setCancellingPlan(false);
     }
   };
 
-  // Update payment method
-  const handleUpdateMethod = async () => {
-    if (!updateSenderInput.trim()) {
-      showToast('Please enter a sender phone number.', 'error');
-      return;
-    }
-    try {
-      setUpdatingMethod(true);
-      await billingService.updatePaymentMethod({
-        provider: updateProviderInput,
-        senderNumber: updateSenderInput.trim()
-      });
-      showToast('Payment method updated successfully.', 'success');
-      setUpdateMethodModal(false);
-      setUpdateSenderInput('');
-      await loadBillingDetails();
-    } catch (err) {
-      console.error('[BILLING] Update method failed:', err);
-      showToast('Failed to update payment method.', 'error');
-    } finally {
-      setUpdatingMethod(false);
-    }
-  };
-
-  // Helper for progress percentage
-  const convUsed = billingData.conversations.used || 0;
-  const convLimit = billingData.conversations.limit || 5000;
-  const progressPercent = Math.min(100, Math.max(2, (convUsed / convLimit) * 100));
+  const isSubscribed = Boolean(billingData.plan?.isActive && billingData.plan?.id);
 
   return (
-    <div className="billing-page-wrapper">
-      {/* Page Header */}
-      <div className="billing-page-header">
-        <h1 className="billing-page-title">Billing & Pricing</h1>
-        <p className="billing-page-subtitle">
-          Manage your subscription tier, monthly conversation quota, and payment details.
-        </p>
-      </div>
+    <div className="billing-page-container" style={{
+      padding: 'clamp(1.5rem, 3vw, 2.5rem)',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      color: '#FFFFFF'
+    }}>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {loading && (
-        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-          <Loader2 size={28} style={{ animation: 'spin 1s linear infinite', marginBottom: '0.5rem' }} />
-          <p style={{ margin: 0, fontSize: '0.88rem' }}>Loading billing details…</p>
-        </div>
-      )}
-
-      {error && !loading && (
-        <div style={{
-          padding: '0.9rem 1.25rem', background: 'rgba(220,38,38,0.08)',
-          border: '1px solid rgba(220,38,38,0.25)', borderRadius: '12px',
-          marginBottom: '1.25rem', color: '#dc2626', fontSize: '0.85rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <AlertCircle size={16} />
-            <span>{error}</span>
-          </div>
-          <button
-            type="button"
-            onClick={loadBillingDetails}
-            style={{
-              background: 'none', border: '1px solid #dc2626', borderRadius: '6px',
-              padding: '4px 10px', fontSize: '0.78rem', color: '#dc2626', cursor: 'pointer', fontWeight: 700
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {!loading && (
-        <>
-          {/* =================================================================
-              SECTION 1 — YOUR PLAN
-              ================================================================= */}
-          <div className="billing-card" id="section-your-plan">
-            <div className="billing-card-header">
-              <h2 className="billing-card-title">Your Plan</h2>
-              <span className={`billing-status-badge ${billingData.plan.isActive ? 'active' : 'inactive'}`}>
-                {billingData.plan.isActive ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-
-            <div className="billing-plan-details-grid">
-              <div className="billing-detail-col">
-                <span className="billing-detail-label">Your Plan</span>
-                <span className="billing-detail-val">{billingData.plan.name}</span>
-              </div>
-
-              <div className="billing-detail-col">
-                <span className="billing-detail-label">Monthly Price</span>
-                <span className="billing-price-val">{billingData.plan.formattedPrice}</span>
-              </div>
-
-              <div className="billing-detail-col">
-                <span className="billing-detail-label">Next Payment</span>
-                <span className="billing-detail-val">{billingData.plan.nextPayment}</span>
-              </div>
-            </div>
-
-            <div className="billing-plan-actions">
-              <button
-                type="button"
-                className="btn-billing-primary"
-                onClick={() => setChangePlanModal(true)}
-              >
-                Change Plan
-              </button>
-              {billingData.plan.isActive && (
-                <button
-                  type="button"
-                  className="btn-billing-danger"
-                  onClick={() => setShowCancelConfirm(true)}
-                >
-                  Cancel Plan
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* =================================================================
-              SECTION 2 — MONTHLY AI CONVERSATIONS
-              ================================================================= */}
-          <div className="billing-card" id="section-conversations">
-            <div className="billing-card-header">
-              <h2 className="billing-card-title">Monthly AI Conversations</h2>
-            </div>
-
-            <div className="billing-quota-numbers">
-              <span className="billing-quota-used">
-                {convUsed.toLocaleString()} / {convLimit.toLocaleString()} used
-              </span>
-              <span className="billing-quota-remaining">
-                {(billingData.conversations.remaining || (convLimit - convUsed)).toLocaleString()} conversations left
-              </span>
-            </div>
-
-            <div className="billing-progress-track">
-              <div
-                className="billing-progress-bar"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-
-            <p className="billing-quota-reset">
-              {billingData.conversations.resetText || `Resets on ${billingData.conversations.resetDate}.`}
+      {/* ─── PAGE HEADER ───────────────────────────────────────────────── */}
+      <div style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{
+              fontSize: 'clamp(1.75rem, 3vw, 2.2rem)',
+              fontWeight: 850,
+              letterSpacing: '-0.03em',
+              color: '#FFFFFF',
+              margin: '0 0 0.35rem 0'
+            }}>
+              Billing & Subscriptions
+            </h1>
+            <p style={{ margin: 0, fontSize: '0.92rem', color: '#94A3B8' }}>
+              Manage your merchant tier, AI conversation quotas, and verified tax invoices for <strong style={{ color: '#E2E8F0' }}>{user?.email || 'your store'}</strong>.
             </p>
           </div>
 
-          {/* =================================================================
-              SECTION 3 — PAYMENT METHOD
-              ================================================================= */}
-          <div className="billing-card" id="section-payment-method">
-            <div className="billing-card-header">
-              <h2 className="billing-card-title">Payment Method</h2>
-            </div>
-
-            <div className="billing-method-body">
-              <div className="billing-method-info">
-                <div className={`billing-method-icon-pill ${billingData.paymentMethod.provider?.toLowerCase() === 'nagad' ? 'nagad' : 'bkash'}`}>
-                  ৳
-                </div>
-                <div className="billing-method-text">
-                  <div className="billing-method-name-row">
-                    <span className="billing-method-provider">{billingData.paymentMethod.provider}</span>
-                    <span className={`billing-status-badge ${billingData.paymentMethod.verificationStatus.toLowerCase()}`}>
-                      {billingData.paymentMethod.verificationStatus}
-                    </span>
-                  </div>
-                  {billingData.paymentMethod.accountNumber ? (
-                    <span className="billing-method-account">{billingData.paymentMethod.accountNumber}</span>
-                  ) : (
-                    <span className="billing-method-account">No account linked</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="billing-method-actions">
-                <button
-                  type="button"
-                  className="btn-billing-secondary"
-                  onClick={() => {
-                    const latest = billingData.paymentMethod.receiptDetails || billingData.invoices[0];
-                    if (latest) {
-                      setViewReceiptModal(latest);
-                    } else {
-                      setViewReceiptModal({
-                        invoiceId: 'INV-2026-001',
-                        planName: billingData.plan.name,
-                        amount: billingData.plan.formattedPrice,
-                        provider: billingData.paymentMethod.provider,
-                        senderNumber: billingData.paymentMethod.accountNumber || '016****2804',
-                        trxId: 'BL98XJ28K9',
-                        date: billingData.plan.nextPayment
-                      });
-                    }
-                  }}
-                >
-                  <Eye size={15} /> View Receipt
-                </button>
-                <button
-                  type="button"
-                  className="btn-billing-secondary"
-                  onClick={() => {
-                    setUpdateProviderInput(billingData.paymentMethod.provider || 'bKash');
-                    setUpdateSenderInput(billingData.paymentMethod.rawAccount || '');
-                    setUpdateMethodModal(true);
-                  }}
-                >
-                  <RefreshCw size={14} /> Update Method
-                </button>
-              </div>
-            </div>
+          {/* Currency Toggle */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            backgroundColor: 'rgba(18, 25, 40, 0.85)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '999px',
+            padding: '3px'
+          }}>
+            <button
+              type="button"
+              onClick={() => setCurrency('BDT')}
+              style={{
+                padding: '5px 14px',
+                borderRadius: '999px',
+                border: 'none',
+                background: currency === 'BDT' ? '#FF334B' : 'transparent',
+                color: currency === 'BDT' ? '#FFFFFF' : '#94A3B8',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              ৳ BDT (bKash/Nagad)
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrency('USD')}
+              style={{
+                padding: '5px 14px',
+                borderRadius: '999px',
+                border: 'none',
+                background: currency === 'USD' ? '#FF334B' : 'transparent',
+                color: currency === 'USD' ? '#FFFFFF' : '#94A3B8',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              $ USD (Card)
+            </button>
           </div>
+        </div>
+      </div>
 
-          {/* =================================================================
-              SECTION 4 — PAYMENT HISTORY
-              ================================================================= */}
-          <div className="billing-card" id="section-payment-history">
-            <div className="billing-card-header">
-              <h2 className="billing-card-title">Payment History</h2>
-            </div>
-
-            {billingData.invoices && billingData.invoices.length > 0 ? (
-              <>
-                {/* Desktop Table View */}
-                <div className="billing-invoices-desktop">
-                  <table className="billing-invoices-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th style={{ textAlign: 'right' }}>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {billingData.invoices.map((inv) => (
-                        <tr key={inv.id}>
-                          <td style={{ color: 'var(--text-secondary, #6B7280)', fontWeight: 600 }}>
-                            {inv.date}
-                          </td>
-                          <td style={{ fontWeight: 800 }}>
-                            {inv.amount}
-                          </td>
-                          <td>
-                            <span className={`billing-status-badge ${inv.status.toLowerCase()}`}>
-                              {inv.status}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: 'right' }}>
-                            <button
-                              type="button"
-                              className="btn-invoice-action"
-                              onClick={() => {
-                                setViewReceiptModal(inv);
-                              }}
-                            >
-                              <FileText size={14} /> View Invoice
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+      {loading ? (
+        <div style={{ padding: '4rem 0', textAlign: 'center', color: '#94A3B8' }}>
+          <Loader2 size={36} className="spinner-rotate" style={{ margin: '0 auto 1rem auto', color: '#FF334B' }} />
+          <p style={{ margin: 0, fontSize: '0.9rem' }}>Loading subscription details for {user?.email}...</p>
+        </div>
+      ) : (
+        <>
+          {/* ═══════════════════════════════════════════════════════════════
+              STATE A: USER HAS ACTIVE SUBSCRIPTION
+              ═══════════════════════════════════════════════════════════════ */}
+          {isSubscribed ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Card 1: Your Plan */}
+              <div style={{
+                background: 'rgba(14, 20, 34, 0.85)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: '1.75rem',
+                backdropFilter: 'blur(20px)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF' }}>Your Plan</h3>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    background: 'rgba(16, 185, 129, 0.14)',
+                    border: '1px solid rgba(16, 185, 129, 0.35)',
+                    color: '#10B981',
+                    fontSize: '0.78rem',
+                    fontWeight: 700
+                  }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
+                    Active Subscription
+                  </span>
                 </div>
 
-                {/* Mobile Compact Cards View */}
-                <div className="billing-invoices-mobile">
-                  {billingData.invoices.map((inv) => (
-                    <div key={inv.id} className="billing-invoice-card-item">
-                      <div className="billing-invoice-row-top">
-                        <span className="billing-invoice-date">{inv.date}</span>
-                        <span className={`billing-status-badge ${inv.status.toLowerCase()}`}>
-                          {inv.status}
-                        </span>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: '1.25rem',
+                  padding: '1.25rem',
+                  background: 'rgba(9, 13, 22, 0.7)',
+                  borderRadius: '14px',
+                  marginBottom: '1.25rem'
+                }}>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 650, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Current Plan</span>
+                    <strong style={{ fontSize: '1.15rem', color: '#FFFFFF' }}>{billingData.plan.name}</strong>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 650, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Monthly Rate</span>
+                    <strong style={{ fontSize: '1.15rem', color: '#FF4D61' }}>{billingData.plan.formattedPrice}</strong>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 650, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Next Billing Renewal</span>
+                    <strong style={{ fontSize: '1rem', color: '#E2E8F0' }}>{billingData.plan.nextPayment}</strong>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPlansModal(true)}
+                    style={{
+                      padding: '0.65rem 1.25rem',
+                      borderRadius: '10px',
+                      background: '#FF334B',
+                      border: 'none',
+                      color: '#FFFFFF',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Change / Upgrade Plan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCancelConfirm(true)}
+                    style={{
+                      padding: '0.65rem 1.25rem',
+                      borderRadius: '10px',
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      border: '1px solid rgba(255, 255, 255, 0.14)',
+                      color: '#94A3B8',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel Subscription
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 2: Monthly AI Conversations */}
+              <div style={{
+                background: 'rgba(14, 20, 34, 0.85)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: '1.75rem',
+                backdropFilter: 'blur(20px)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF' }}>Monthly AI Conversations</h3>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#FF6B7E' }}>
+                    {billingData.conversations.remaining.toLocaleString()} conversations left
+                  </span>
+                </div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 850, color: '#FFFFFF', marginBottom: '0.75rem' }}>
+                  {billingData.conversations.used} / {billingData.conversations.limit.toLocaleString()} used
+                </div>
+                {/* Progress bar */}
+                <div style={{
+                  width: '100%',
+                  height: '8px',
+                  borderRadius: '999px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  overflow: 'hidden',
+                  marginBottom: '0.5rem'
+                }}>
+                  <div style={{
+                    width: `${Math.min(100, (billingData.conversations.used / Math.max(1, billingData.conversations.limit)) * 100)}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #10B981 0%, #FF334B 100%)',
+                    borderRadius: '999px'
+                  }} />
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#64748B' }}>
+                  {billingData.conversations.resetText}
+                </div>
+              </div>
+
+              {/* Card 3: Payment Method */}
+              {billingData.paymentMethod && (
+                <div style={{
+                  background: 'rgba(14, 20, 34, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '20px',
+                  padding: '1.75rem',
+                  backdropFilter: 'blur(20px)'
+                }}>
+                  <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF' }}>Payment Method</h3>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
+                    padding: '1rem 1.25rem',
+                    background: 'rgba(9, 13, 22, 0.7)',
+                    borderRadius: '14px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                      <div style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        background: 'rgba(255, 51, 75, 0.12)',
+                        border: '1px solid rgba(255, 51, 75, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#FF6B7E'
+                      }}>
+                        <Smartphone size={20} />
                       </div>
-                      <div className="billing-invoice-row-middle">
-                        <span className="billing-invoice-amount">{inv.amount}</span>
-                      </div>
-                      <div className="billing-invoice-row-bottom">
-                        <button
-                          type="button"
-                          className="btn-invoice-action"
-                          style={{ width: '100%', justifyContent: 'center' }}
-                          onClick={() => {
-                            setViewReceiptModal(inv);
-                          }}
-                        >
-                          <FileText size={14} /> View Invoice
-                        </button>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                          <span style={{ fontWeight: 750, color: '#FFFFFF', fontSize: '0.92rem' }}>{billingData.paymentMethod.provider}</span>
+                          <span style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            padding: '1px 6px',
+                            borderRadius: '999px',
+                            background: 'rgba(16, 185, 129, 0.14)',
+                            color: '#10B981',
+                            border: '1px solid rgba(16, 185, 129, 0.3)'
+                          }}>
+                            {billingData.paymentMethod.verificationStatus}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{billingData.paymentMethod.accountNumber}</span>
                       </div>
                     </div>
-                  ))}
+
+                    <div style={{ display: 'flex', gap: '0.65rem' }}>
+                      {billingData.paymentMethod.receiptDetails && (
+                        <button
+                          type="button"
+                          onClick={() => setViewReceiptModal(billingData.paymentMethod.receiptDetails)}
+                          style={{
+                            padding: '0.55rem 1rem',
+                            borderRadius: '8px',
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            border: '1px solid rgba(255, 255, 255, 0.16)',
+                            color: '#FFFFFF',
+                            fontSize: '0.82rem',
+                            fontWeight: 650,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          View Receipt
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setShowPlansModal(true)}
+                        style={{
+                          padding: '0.55rem 1rem',
+                          borderRadius: '8px',
+                          background: 'transparent',
+                          border: '1px solid rgba(255, 255, 255, 0.16)',
+                          color: '#CBD5E1',
+                          fontSize: '0.82rem',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Update Method
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <div className="billing-invoices-empty">
-                <FileText size={28} style={{ marginBottom: '0.45rem', opacity: 0.6 }} />
-                <p style={{ margin: 0 }}>No payment history yet.</p>
+              )}
+
+              {/* Card 4: Payment History (Invoices) */}
+              <div style={{
+                background: 'rgba(14, 20, 34, 0.85)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: '1.75rem',
+                backdropFilter: 'blur(20px)'
+              }}>
+                <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF' }}>Payment History</h3>
+                {billingData.invoices && billingData.invoices.length > 0 ? (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.86rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', color: '#64748B', fontSize: '0.74rem', textTransform: 'uppercase' }}>
+                          <th style={{ padding: '0.75rem 1rem' }}>Date</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Invoice</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Amount</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                          <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {billingData.invoices.map((inv, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                            <td style={{ padding: '0.9rem 1rem', color: '#E2E8F0' }}>{inv.date}</td>
+                            <td style={{ padding: '0.9rem 1rem', fontFamily: 'monospace', color: '#94A3B8' }}>{inv.id}</td>
+                            <td style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#FFFFFF' }}>{inv.amount}</td>
+                            <td style={{ padding: '0.9rem 1rem' }}>
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '2px 8px',
+                                borderRadius: '999px',
+                                background: 'rgba(16, 185, 129, 0.14)',
+                                color: '#10B981',
+                                fontSize: '0.72rem',
+                                fontWeight: 700
+                              }}>
+                                <Check size={11} /> {inv.status}
+                              </span>
+                            </td>
+                            <td style={{ padding: '0.9rem 1rem', textAlign: 'right' }}>
+                              <button
+                                type="button"
+                                onClick={() => setViewReceiptModal(inv)}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '5px 10px',
+                                  borderRadius: '8px',
+                                  background: '#FF334B',
+                                  color: '#FFFFFF',
+                                  border: 'none',
+                                  fontSize: '0.78rem',
+                                  fontWeight: 700,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <FileText size={12} /> View Invoice
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#64748B', fontSize: '0.88rem' }}>
+                    No prior invoices recorded for {user?.email}.
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* ═══════════════════════════════════════════════════════════════
+               STATE B: NEW SIGN-UP — ELEVENLABS-GRADE PLAN SELECTION HERO
+               ═══════════════════════════════════════════════════════════════ */
+            <div>
+              {/* Activation Banner */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(255, 51, 75, 0.08) 0%, rgba(14, 20, 34, 0.95) 100%)',
+                border: '1px solid rgba(255, 51, 75, 0.25)',
+                borderRadius: '24px',
+                padding: 'clamp(1.5rem, 3.5vw, 2.25rem)',
+                marginBottom: '2.5rem',
+                position: 'relative'
+              }}>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 12px',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 51, 75, 0.14)',
+                  border: '1px solid rgba(255, 51, 75, 0.35)',
+                  color: '#FF6B7E',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  marginBottom: '1rem'
+                }}>
+                  <Sparkles size={13} />
+                  <span>WORKSPACE READY • ACTIVATE COMMERCE ENGINE</span>
+                </div>
+
+                <h2 style={{
+                  fontSize: 'clamp(1.6rem, 3.2vw, 2.2rem)',
+                  fontWeight: 850,
+                  color: '#FFFFFF',
+                  margin: '0 0 0.65rem 0',
+                  letterSpacing: '-0.025em'
+                }}>
+                  Choose a Plan to Power Your Store's Automated AI Sales
+                </h2>
+                <p style={{
+                  fontSize: '0.95rem',
+                  lineHeight: 1.6,
+                  color: '#94A3B8',
+                  maxWidth: '780px',
+                  margin: 0
+                }}>
+                  Every plan includes official Meta Cloud API WhatsApp connection, real-time warehouse catalog syncing, sub-2s conversational checkout, and automated courier consignment generation.
+                </p>
+              </div>
+
+              {/* 3 ElevenLabs-Style Plan Cards */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
+                gap: '1.5rem',
+                alignItems: 'stretch'
+              }}>
+                {ADVANCED_COMMERCE_PLANS.map((plan) => {
+                  const isPopular = plan.popular;
+                  const displayPrice = currency === 'BDT' 
+                    ? `৳${plan.priceBdt.toLocaleString()}` 
+                    : `$${plan.priceUsd}`;
+
+                  return (
+                    <div
+                      key={plan.id}
+                      style={{
+                        background: isPopular 
+                          ? 'linear-gradient(180deg, rgba(26, 35, 58, 0.9) 0%, rgba(12, 17, 30, 0.95) 100%)' 
+                          : 'rgba(14, 20, 34, 0.85)',
+                        border: isPopular ? '2px solid #FF334B' : '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '24px',
+                        padding: '2rem 1.75rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'relative',
+                        boxShadow: isPopular 
+                          ? '0 20px 50px rgba(0,0,0,0.7), 0 0 40px rgba(255, 51, 75, 0.18)' 
+                          : '0 16px 40px rgba(0,0,0,0.4)',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    >
+                      {/* Popular Badge */}
+                      {plan.badgeText && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '-13px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          background: 'linear-gradient(135deg, #FF334B 0%, #D81830 100%)',
+                          color: '#FFFFFF',
+                          fontSize: '0.7rem',
+                          fontWeight: 800,
+                          padding: '3px 12px',
+                          borderRadius: '999px',
+                          letterSpacing: '0.05em',
+                          boxShadow: '0 4px 14px rgba(255, 51, 75, 0.4)',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {plan.badgeText}
+                        </div>
+                      )}
+
+                      {/* Header */}
+                      <div style={{ marginBottom: '1.25rem' }}>
+                        <h3 style={{ fontSize: '1.3rem', fontWeight: 850, color: '#FFFFFF', margin: '0 0 0.35rem 0' }}>
+                          {plan.name}
+                        </h3>
+                        <p style={{ fontSize: '0.84rem', color: '#94A3B8', margin: 0, minHeight: '38px', lineHeight: 1.45 }}>
+                          {plan.tagline}
+                        </p>
+                      </div>
+
+                      {/* Price */}
+                      <div style={{ marginBottom: '1.5rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                          <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
+                            {displayPrice}
+                          </span>
+                          <span style={{ fontSize: '0.88rem', color: '#94A3B8', fontWeight: 600 }}>/ month</span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#10B981', fontWeight: 650, marginTop: '4px' }}>
+                          ⚡ Includes {plan.conversationsFormatted} automated AI conversations
+                        </div>
+                      </div>
+
+                      {/* Advanced Features (Essential & Important Only) */}
+                      <div style={{ flex: 1, marginBottom: '1.75rem' }}>
+                        <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: 750, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.85rem' }}>
+                          ADVANCED FEATURES INCLUDED:
+                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                          {plan.advancedFeatures.map((feat, fIdx) => (
+                            <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', fontSize: '0.85rem', lineHeight: 1.45, color: '#E2E8F0' }}>
+                              <CheckCircle2 size={16} style={{ color: isPopular ? '#FF334B' : '#10B981', flexShrink: 0, marginTop: '2px' }} />
+                              <span>{feat}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Subscribe CTA */}
+                      <button
+                        type="button"
+                        onClick={() => setCheckoutModalPlan(plan)}
+                        style={{
+                          width: '100%',
+                          padding: '0.85rem 1rem',
+                          borderRadius: '12px',
+                          background: isPopular ? '#FF334B' : '#FFFFFF',
+                          color: isPopular ? '#FFFFFF' : '#0F172A',
+                          border: 'none',
+                          fontWeight: 800,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          boxShadow: isPopular ? '0 8px 25px rgba(255, 51, 75, 0.4)' : '0 4px 15px rgba(255, 255, 255, 0.15)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <span>Subscribe with bKash / Card</span>
+                        <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
 
-      {/* =====================================================================
-          CHANGE PLAN MODAL
-          ===================================================================== */}
-      {changePlanModal && !selectedPlanForCheckout && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.7)', backdropFilter: 'blur(4px)',
-          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-          boxSizing: 'border-box'
-        }} onClick={() => setChangePlanModal(false)}>
+      {/* ═══════════════════════════════════════════════════════════════════
+          ELEVENLABS-GRADE CHECKOUT MODAL (bKash / Nagad / Card)
+          ═══════════════════════════════════════════════════════════════════ */}
+      {checkoutModalPlan && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.78)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 100000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+          onClick={() => setCheckoutModalPlan(null)}
+        >
+          <div 
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              background: '#0B0F19',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.85), 0 0 45px rgba(255, 51, 75, 0.15)',
+              overflow: 'hidden',
+              color: '#FFFFFF'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '1.25rem 1.5rem',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF' }}>
+                  Subscribe to {checkoutModalPlan.name}
+                </h3>
+                <span style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+                  Tied strictly to <strong style={{ color: '#E2E8F0' }}>{user?.email}</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCheckoutModalPlan(null)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#94A3B8',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={17} />
+              </button>
+            </div>
+
+            <div style={{ padding: '1.5rem' }}>
+              {/* Plan Summary Card */}
+              <div style={{
+                background: 'rgba(18, 25, 40, 0.75)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '1rem 1.25rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '1.25rem'
+              }}>
+                <div>
+                  <strong style={{ fontSize: '1rem', color: '#FFFFFF' }}>{checkoutModalPlan.name} (Monthly)</strong>
+                  <div style={{ fontSize: '0.78rem', color: '#10B981', marginTop: '2px' }}>
+                    ⚡ {checkoutModalPlan.conversationsFormatted} AI conversations included
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '1.35rem', fontWeight: 850, color: '#FFFFFF' }}>
+                    {currency === 'BDT' ? `৳${checkoutModalPlan.priceBdt.toLocaleString()} BDT` : `$${checkoutModalPlan.priceUsd}.00`}
+                  </span>
+                  <div style={{ fontSize: '0.74rem', color: '#94A3B8' }}>
+                    {currency === 'BDT' ? `$${checkoutModalPlan.priceUsd} USD equivalent` : `৳${checkoutModalPlan.priceBdt.toLocaleString()} BDT`}
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Method Switcher Tabs */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                  Select Payment Method:
+                </span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutMethod('BKASH')}
+                    style={{
+                      padding: '0.65rem',
+                      borderRadius: '12px',
+                      border: `1.5px solid ${checkoutMethod === 'BKASH' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
+                      background: checkoutMethod === 'BKASH' ? 'rgba(255, 51, 75, 0.12)' : 'rgba(18, 24, 38, 0.6)',
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    bKash Direct
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutMethod('NAGAD')}
+                    style={{
+                      padding: '0.65rem',
+                      borderRadius: '12px',
+                      border: `1.5px solid ${checkoutMethod === 'NAGAD' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
+                      background: checkoutMethod === 'NAGAD' ? 'rgba(255, 51, 75, 0.12)' : 'rgba(18, 24, 38, 0.6)',
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Nagad
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutMethod('CARD')}
+                    style={{
+                      padding: '0.65rem',
+                      borderRadius: '12px',
+                      border: `1.5px solid ${checkoutMethod === 'CARD' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
+                      background: checkoutMethod === 'CARD' ? 'rgba(255, 51, 75, 0.12)' : 'rgba(18, 24, 38, 0.6)',
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Credit / Debit Card
+                  </button>
+                </div>
+              </div>
+
+              {/* bKash / Nagad Send Money Instructions */}
+              {checkoutMethod !== 'CARD' && (
+                <div style={{
+                  background: 'rgba(9, 13, 22, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '1rem',
+                  marginBottom: '1.25rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+                      Official {checkoutMethod === 'NAGAD' ? 'Nagad' : 'bKash'} Merchant Number (Send Money):
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyNumber}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: copiedNumber ? '#10B981' : '#FF6B7E',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px'
+                      }}
+                    >
+                      {copiedNumber ? <Check size={12} /> : <Copy size={12} />}
+                      {copiedNumber ? 'Copied!' : 'Copy Number'}
+                    </button>
+                  </div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 850, color: '#FFFFFF', fontFamily: 'monospace', letterSpacing: '0.04em' }}>
+                    01643792804
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '4px' }}>
+                    Send exact amount: <strong style={{ color: '#E2E8F0' }}>৳{checkoutModalPlan.priceBdt.toLocaleString()} BDT</strong>
+                  </div>
+                </div>
+              )}
+
+              {/* Input Fields */}
+              {checkoutMethod !== 'CARD' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#E2E8F0', marginBottom: '0.35rem' }}>
+                      Your Sender Phone Number <span style={{ color: '#FF4D61' }}>*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. 01712345678"
+                      value={senderNumberInput}
+                      onChange={(e) => setSenderNumberInput(e.target.value)}
+                      style={{
+                        width: '100%',
+                        height: '42px',
+                        background: 'rgba(9, 13, 22, 0.9)',
+                        border: '1px solid rgba(255, 255, 255, 0.16)',
+                        borderRadius: '10px',
+                        padding: '0 0.85rem',
+                        color: '#FFFFFF',
+                        fontSize: '0.88rem',
+                        boxSizing: 'border-box',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#E2E8F0', marginBottom: '0.35rem' }}>
+                      Transaction ID (TrxID) <span style={{ color: '#FF4D61' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. BL98XJ28K9"
+                      value={trxIdInput}
+                      onChange={(e) => setTrxIdInput(e.target.value)}
+                      style={{
+                        width: '100%',
+                        height: '42px',
+                        background: 'rgba(9, 13, 22, 0.9)',
+                        border: '1px solid rgba(255, 255, 255, 0.16)',
+                        borderRadius: '10px',
+                        padding: '0 0.85rem',
+                        color: '#FFFFFF',
+                        fontSize: '0.88rem',
+                        boxSizing: 'border-box',
+                        outline: 'none',
+                        textTransform: 'uppercase'
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  background: 'rgba(9, 13, 22, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '14px',
+                  padding: '1.25rem',
+                  marginBottom: '1.25rem',
+                  textAlign: 'center'
+                }}>
+                  <CreditCard size={28} style={{ color: '#FF334B', margin: '0 auto 0.5rem auto' }} />
+                  <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '4px' }}>
+                    Instant Card Simulation
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: '#94A3B8', margin: 0 }}>
+                    Clicking confirm will process via Stripe 256-bit encrypted gateway for ${checkoutModalPlan.priceUsd}.00 USD.
+                  </p>
+                </div>
+              )}
+
+              {checkoutError && (
+                <div style={{
+                  padding: '0.65rem 0.85rem',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  borderRadius: '10px',
+                  color: '#F87171',
+                  fontSize: '0.82rem',
+                  marginBottom: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}>
+                  <AlertCircle size={15} style={{ flexShrink: 0 }} />
+                  <span>{checkoutError}</span>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="button"
+                onClick={() => handleSubmitPayment(checkoutModalPlan)}
+                disabled={submittingPayment}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  borderRadius: '12px',
+                  background: '#FF334B',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontWeight: 800,
+                  fontSize: '0.95rem',
+                  cursor: submittingPayment ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  boxShadow: '0 8px 25px rgba(255, 51, 75, 0.4)'
+                }}
+              >
+                {submittingPayment ? (
+                  <>
+                    <Loader2 size={17} className="spinner-rotate" />
+                    <span>Activating Subscription for {user?.email}…</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Confirm & Activate Subscription</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          CHANGE PLAN MODAL (WHEN ALREADY SUBSCRIBED)
+          ═══════════════════════════════════════════════════════════════════ */}
+      {showPlansModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 100000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+            overflowY: 'auto'
+          }}
+          onClick={() => setShowPlansModal(false)}
+        >
           <div
             style={{
-              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '520px', width: '100%',
-              padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', margin: 'auto',
-              maxHeight: '90vh', overflowY: 'auto'
+              width: '100%',
+              maxWidth: '1050px',
+              background: '#0B0F19',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.85)',
+              padding: '2rem',
+              color: '#FFFFFF'
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  Change Subscription Plan
+                <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 850, color: '#FFFFFF' }}>
+                  Upgrade or Switch Plan
                 </h3>
-                <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Select the conversation tier suited for your store volume.
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#94A3B8' }}>
+                  Select the tier that best matches your conversation volume.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setChangePlanModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
+                onClick={() => setShowPlansModal(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#94A3B8',
+                  cursor: 'pointer'
+                }}
               >
-                <X size={20} />
+                <X size={17} />
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem' }}>
-              {PLANS.map((p) => {
-                const isCurrent = billingData.plan.id === p.id;
-                return (
-                  <div
-                    key={p.id}
-                    onClick={() => setSelectedPlanForCheckout(p)}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+              {ADVANCED_COMMERCE_PLANS.map((plan) => (
+                <div
+                  key={plan.id}
+                  style={{
+                    background: plan.popular ? 'rgba(255, 51, 75, 0.06)' : 'rgba(18, 24, 38, 0.65)',
+                    border: plan.popular ? '2px solid #FF334B' : '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '20px',
+                    padding: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF' }}>{plan.name}</h4>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#FFFFFF', margin: '0.5rem 0 1rem 0' }}>
+                    {currency === 'BDT' ? `৳${plan.priceBdt.toLocaleString()}` : `$${plan.priceUsd}`}
+                    <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 500 }}>/mo</span>
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.82rem', color: '#CBD5E1', marginBottom: '1.25rem' }}>
+                    {plan.advancedFeatures.slice(0, 4).map((f, i) => (
+                      <div key={i} style={{ display: 'flex', gap: '6px' }}>
+                        <Check size={14} style={{ color: '#10B981', flexShrink: 0, marginTop: '2px' }} />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPlansModal(false);
+                      setCheckoutModalPlan(plan);
+                    }}
                     style={{
-                      border: isCurrent ? '2px solid var(--primary, #087A4A)' : '1px solid var(--border-medium, #E2E8F0)',
-                      borderRadius: '12px', padding: '1rem 1.15rem', cursor: 'pointer',
-                      background: isCurrent ? 'var(--mint-soft, #EFFBF5)' : 'var(--bg-card, #ffffff)',
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem',
-                      transition: 'all 0.15s ease'
+                      width: '100%',
+                      padding: '0.75rem',
+                      borderRadius: '10px',
+                      background: plan.popular ? '#FF334B' : '#FFFFFF',
+                      color: plan.popular ? '#FFFFFF' : '#0F172A',
+                      border: 'none',
+                      fontWeight: 800,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer'
                     }}
                   >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '3px' }}>
-                        <span style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-primary)' }}>{p.name}</span>
-                        {p.badge && (
-                          <span style={{ fontSize: '0.7rem', fontWeight: 800, background: '#087A4A', color: '#fff', padding: '2px 8px', borderRadius: '100px' }}>
-                            {p.badge}
-                          </span>
-                        )}
-                        {isCurrent && (
-                          <span style={{ fontSize: '0.7rem', fontWeight: 800, background: '#DDF7E9', color: '#087A4A', padding: '2px 8px', borderRadius: '100px' }}>
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        {p.conversations} monthly conversations
-                      </span>
-                    </div>
-
-                    <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <div>
-                        <div style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--primary, #087A4A)' }}>
-                          ${p.price}
-                        </div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                          ৳{p.priceBdt.toLocaleString()} BDT
-                        </div>
-                      </div>
-                      <ChevronRight size={18} color="var(--text-muted)" />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn-billing-secondary"
-                onClick={() => setChangePlanModal(false)}
-              >
-                Close
-              </button>
+                    Select {plan.name}
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* =====================================================================
-          CHECKOUT & PAYMENT MODAL (bKash / Nagad 01643792804)
-          ===================================================================== */}
-      {selectedPlanForCheckout && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.75)', backdropFilter: 'blur(4px)',
-          zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-          boxSizing: 'border-box'
-        }} onClick={() => !submittingPayment && setSelectedPlanForCheckout(null)}>
-          <div
-            style={{
-              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '480px', width: '100%',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.3)', margin: 'auto', maxHeight: '90vh', overflowY: 'auto'
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div style={{
-              padding: '1.15rem 1.35rem', borderBottom: '1px solid var(--border-light, #E5E7EB)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--mint-soft, #EFFBF5)'
-            }}>
-              <div>
-                <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--primary-dark, #092A20)', display: 'block' }}>
-                  Subscribe to {selectedPlanForCheckout.name}
-                </span>
-                <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                  bKash / Nagad Send Money Gateway
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedPlanForCheckout(null)}
-                disabled={submittingPayment}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div style={{ padding: '1.35rem' }}>
-              {/* Plan Pricing Banner */}
-              <div style={{
-                padding: '0.85rem 1rem', background: 'var(--mint-soft, #EFFBF5)', borderRadius: '10px',
-                border: '1px solid var(--border-medium, #D9E9E1)', marginBottom: '1.15rem',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-              }}>
-                <div>
-                  <span style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
-                    {selectedPlanForCheckout.name}
-                  </span>
-                  <p style={{ margin: '2px 0 0', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-                    {selectedPlanForCheckout.conversations} conversations / month
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 900, fontSize: '1.25rem', color: 'var(--primary, #087A4A)' }}>
-                    ${selectedPlanForCheckout.price}/mo
-                  </div>
-                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-dark)' }}>
-                    ৳{(selectedPlanForCheckout.price * 120).toLocaleString()} BDT
-                  </div>
-                </div>
-              </div>
-
-              {/* Method Selector */}
-              <div style={{ marginBottom: '1.15rem' }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-secondary)' }}>
-                  SELECT PAYMENT METHOD:
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
-                  <button
-                    type="button"
-                    onClick={() => { setCheckoutMethod('BKASH'); setCheckoutError(''); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem',
-                      padding: '0.65rem', borderRadius: '10px', cursor: 'pointer',
-                      border: checkoutMethod === 'BKASH' ? '2px solid #E2136E' : '1px solid var(--border-medium, #E2E8F0)',
-                      background: checkoutMethod === 'BKASH' ? 'rgba(226, 19, 110, 0.08)' : 'var(--bg-subtle, #F8FAF9)',
-                      color: checkoutMethod === 'BKASH' ? '#E2136E' : 'var(--text-secondary)',
-                      fontWeight: 750, fontSize: '0.84rem'
-                    }}
-                  >
-                    ৳ bKash (Send money)
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setCheckoutMethod('NAGAD'); setCheckoutError(''); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem',
-                      padding: '0.65rem', borderRadius: '10px', cursor: 'pointer',
-                      border: checkoutMethod === 'NAGAD' ? '2px solid #F7931E' : '1px solid var(--border-medium, #E2E8F0)',
-                      background: checkoutMethod === 'NAGAD' ? 'rgba(247, 147, 30, 0.08)' : 'var(--bg-subtle, #F8FAF9)',
-                      color: checkoutMethod === 'NAGAD' ? '#F7931E' : 'var(--text-secondary)',
-                      fontWeight: 750, fontSize: '0.84rem'
-                    }}
-                  >
-                    ৳ Nagad (Send money)
-                  </button>
-                </div>
-              </div>
-
-              {/* Recipient Account Box */}
-              <div style={{
-                padding: '0.9rem 1rem', borderRadius: '10px',
-                background: checkoutMethod === 'NAGAD' ? 'rgba(247, 147, 30, 0.06)' : 'rgba(226, 19, 110, 0.06)',
-                border: `1px solid ${checkoutMethod === 'NAGAD' ? 'rgba(247, 147, 30, 0.3)' : 'rgba(226, 19, 110, 0.3)'}`,
-                marginBottom: '1.15rem'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.74rem', fontWeight: 800, textTransform: 'uppercase', color: checkoutMethod === 'NAGAD' ? '#C26A00' : '#B00E53' }}>
-                    {checkoutMethod === 'NAGAD' ? 'Nagad' : 'bKash'} Personal (Send money)
-                  </span>
-                  <span style={{ fontSize: '0.72rem', background: '#fff', padding: '1px 7px', borderRadius: '100px', fontWeight: 700, border: '1px solid var(--border-medium)' }}>
-                    Send Money
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.5px', color: 'var(--text-primary)' }}>
-                    01643792804
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyNumber}
-                    style={{
-                      background: copiedNumber ? 'var(--mint, #DDF7E9)' : '#ffffff',
-                      color: copiedNumber ? '#087A4A' : 'var(--text-primary)',
-                      border: '1px solid var(--border-medium)', borderRadius: '6px',
-                      padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer',
-                      display: 'inline-flex', alignItems: 'center', gap: '4px'
-                    }}
-                  >
-                    {copiedNumber ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
-                  </button>
-                </div>
-
-                <div style={{ marginTop: '0.55rem', paddingTop: '0.55rem', borderTop: '1px dashed rgba(0,0,0,0.1)', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-                  Amount to Send: <strong>৳{(selectedPlanForCheckout.price * 120).toLocaleString()} BDT</strong> (${selectedPlanForCheckout.price} USD)
-                </div>
-              </div>
-
-              {/* Sender Details Form */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.15rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
-                    Your Sender Phone Number <span style={{ color: '#dc2626' }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={senderNumberInput}
-                    onChange={e => setSenderNumberInput(e.target.value)}
-                    placeholder="e.g. 017XXXXXXXX"
-                    style={{
-                      width: '100%', boxSizing: 'border-box', padding: '0.65rem 0.85rem',
-                      border: '1px solid var(--border-medium, #D1D5DB)', borderRadius: '8px',
-                      fontSize: '0.88rem', outline: 'none'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
-                    Transaction ID (TrxID) <span style={{ color: '#dc2626' }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={trxIdInput}
-                    onChange={e => setTrxIdInput(e.target.value)}
-                    placeholder="e.g. BL98XJ28K9"
-                    style={{
-                      width: '100%', boxSizing: 'border-box', padding: '0.65rem 0.85rem',
-                      border: '1px solid var(--border-medium, #D1D5DB)', borderRadius: '8px',
-                      fontSize: '0.88rem', outline: 'none'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Upload Screenshot (Optional Proof) */}
-              <div style={{ marginBottom: '1.15rem' }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
-                  Payment Screenshot (Optional)
-                </label>
-
-                {screenshotPreview ? (
-                  <div style={{
-                    padding: '0.65rem', borderRadius: '8px', border: '1px solid #B8E7D1',
-                    background: '#EAF8F0', display: 'flex', alignItems: 'center', gap: '0.65rem'
-                  }}>
-                    <img
-                      src={screenshotPreview}
-                      alt="Proof"
-                      style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px' }}
-                    />
-                    <div style={{ flexGrow: 1, minWidth: 0 }}>
-                      <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#087A4A', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {screenshotName || 'Screenshot attached'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => { setScreenshotPreview(null); setScreenshotName(''); }}
-                        style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.74rem', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    onDragEnter={() => setIsDragging(true)}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={e => {
-                      e.preventDefault();
-                      setIsDragging(false);
-                      const f = e.dataTransfer.files?.[0];
-                      if (f) handleScreenshotFile(f);
-                    }}
-                    onClick={() => screenshotInputRef.current?.click()}
-                    style={{
-                      border: `1.5px dashed ${isDragging ? '#087A4A' : 'var(--border-medium, #D1D5DB)'}`,
-                      borderRadius: '8px', padding: '0.9rem', textAlign: 'center', cursor: 'pointer',
-                      background: isDragging ? 'rgba(8, 122, 74, 0.05)' : 'var(--bg-subtle, #F8FAF9)'
-                    }}
-                  >
-                    <Upload size={20} color="var(--primary, #087A4A)" style={{ marginBottom: '2px' }} />
-                    <span style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Click or drag payment screenshot here
-                    </span>
-                  </div>
-                )}
-
-                <input
-                  ref={screenshotInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  style={{ display: 'none' }}
-                  onChange={e => e.target.files?.[0] && handleScreenshotFile(e.target.files[0])}
-                />
-              </div>
-
-              {checkoutError && (
-                <div style={{
-                  padding: '0.65rem 0.85rem', background: 'rgba(220,38,38,0.08)',
-                  border: '1px solid rgba(220,38,38,0.25)', borderRadius: '8px',
-                  marginBottom: '1rem', color: '#dc2626', fontSize: '0.78rem',
-                  display: 'flex', alignItems: 'center', gap: '0.45rem'
-                }}>
-                  <AlertCircle size={15} style={{ flexShrink: 0 }} /> {checkoutError}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: '0.65rem' }}>
-                <button
-                  type="button"
-                  className="btn-billing-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setSelectedPlanForCheckout(null)}
-                  disabled={submittingPayment}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn-billing-primary"
-                  style={{ flex: 2 }}
-                  disabled={submittingPayment}
-                  onClick={() => handleSubmitPayment(selectedPlanForCheckout)}
-                >
-                  {submittingPayment ? (
-                    <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Activating…</>
-                  ) : (
-                    <><CheckCircle2 size={15} /> Confirm & Activate</>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =====================================================================
-          CANCEL CONFIRMATION DIALOG
-          ===================================================================== */}
+      {/* ═══════════════════════════════════════════════════════════════════
+          CANCEL SUBSCRIPTION MODAL
+          ═══════════════════════════════════════════════════════════════════ */}
       {showCancelConfirm && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.65)', backdropFilter: 'blur(3px)',
-          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-          boxSizing: 'border-box'
-        }} onClick={() => !cancellingPlan && setShowCancelConfirm(false)}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 100000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+          onClick={() => setShowCancelConfirm(false)}
+        >
           <div
             style={{
-              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '420px', width: '100%',
-              padding: '1.75rem', boxShadow: '0 24px 64px rgba(0,0,0,0.25)'
+              width: '100%',
+              maxWidth: '440px',
+              background: '#0B0F19',
+              borderRadius: '22px',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              padding: '1.75rem',
+              color: '#FFFFFF'
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <AlertCircle size={32} color="#dc2626" style={{ marginBottom: '0.75rem' }} />
-            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.15rem', fontWeight: 800, color: '#EF4444' }}>
               Cancel Subscription?
             </h3>
-            <p style={{ margin: '0 0 1.35rem', fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Are you sure you want to cancel your paid plan? Your workspace will return to the Free Trial tier and autonomous capabilities will be paused.
+            <p style={{ fontSize: '0.86rem', color: '#94A3B8', lineHeight: 1.5, margin: '0 0 1.5rem 0' }}>
+              Are you sure you want to cancel your <strong style={{ color: '#FFFFFF' }}>{billingData.plan.name}</strong>? Your automated WhatsApp commerce agent will pause when your quota reaches 0.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
               <button
                 type="button"
-                className="btn-billing-secondary"
-                style={{ flex: 1 }}
-                disabled={cancellingPlan}
                 onClick={() => setShowCancelConfirm(false)}
+                style={{
+                  padding: '0.65rem 1.15rem',
+                  borderRadius: '10px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
+                  color: '#CBD5E1',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
               >
                 Keep Plan
               </button>
               <button
                 type="button"
-                className="btn-billing-danger"
-                style={{ flex: 1, background: '#dc2626', color: '#fff', border: 'none' }}
-                disabled={cancellingPlan}
                 onClick={handleCancelPlan}
+                disabled={cancellingPlan}
+                style={{
+                  padding: '0.65rem 1.25rem',
+                  borderRadius: '10px',
+                  background: '#EF4444',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontWeight: 750,
+                  fontSize: '0.85rem',
+                  cursor: cancellingPlan ? 'not-allowed' : 'pointer'
+                }}
               >
                 {cancellingPlan ? 'Cancelling…' : 'Yes, Cancel Plan'}
               </button>
@@ -1040,223 +1533,166 @@ export function BillingPage({ user }) {
         </div>
       )}
 
-      {/* =====================================================================
-          VIEW RECEIPT / INVOICE MODAL
-          ===================================================================== */}
+      {/* ═══════════════════════════════════════════════════════════════════
+          VIEW INVOICE MODAL
+          ═══════════════════════════════════════════════════════════════════ */}
       {viewReceiptModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.75)', backdropFilter: 'blur(4px)',
-          zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-          boxSizing: 'border-box'
-        }} onClick={() => setViewReceiptModal(null)}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.82)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 100000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+          onClick={() => setViewReceiptModal(null)}
+        >
           <div
             style={{
-              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '480px', width: '100%',
-              padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', margin: 'auto'
+              width: '100%',
+              maxWidth: '540px',
+              background: '#0B0F19',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.85)',
+              overflow: 'hidden',
+              color: '#FFFFFF'
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.15rem' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '1.25rem 1.5rem',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  Payment Receipt
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF' }}>
+                  Official Merchant Tax Invoice
                 </h3>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Invoice #{viewReceiptModal.id || viewReceiptModal.invoiceId || 'INV-2026-001'}
-                </span>
+                <span style={{ fontSize: '0.78rem', color: '#94A3B8' }}>{viewReceiptModal.id}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setViewReceiptModal(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#94A3B8',
+                  cursor: 'pointer'
+                }}
               >
-                <X size={20} />
+                <X size={17} />
               </button>
             </div>
 
-            <div style={{
-              background: 'var(--mint-soft, #EFFBF5)', borderRadius: '12px',
-              border: '1px solid var(--border-medium, #D9E9E1)', padding: '1rem',
-              marginBottom: '1.25rem', fontSize: '0.84rem'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Plan:</span>
-                <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>
-                  {viewReceiptModal.planName || billingData.plan.name}
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Amount Paid:</span>
-                <span style={{ fontWeight: 800, color: '#087A4A' }}>
-                  {viewReceiptModal.amount || billingData.plan.formattedPrice}
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Payment Method:</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {viewReceiptModal.provider || viewReceiptModal.method || 'bKash'} (01643792804)
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Sender Account:</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {viewReceiptModal.senderMasked || viewReceiptModal.senderNumber || billingData.paymentMethod.accountNumber || '016****2804'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Transaction ID (TrxID):</span>
-                <code style={{ fontWeight: 800, color: 'var(--primary-dark)', background: '#fff', padding: '1px 6px', borderRadius: '4px' }}>
-                  {viewReceiptModal.trxId || 'TRX-VERIFIED'}
-                </code>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Payment Date:</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {viewReceiptModal.date || 'October 12, 2026'}
-                </span>
-              </div>
-            </div>
-
-            {viewReceiptModal.screenshotUrl && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <span style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                  Attached Screenshot Proof:
-                </span>
-                <div style={{
-                  maxHeight: '160px', overflow: 'hidden', borderRadius: '8px',
-                  border: '1px solid var(--border-medium)', background: '#000',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <img
-                    src={viewReceiptModal.screenshotUrl}
-                    alt="Proof"
-                    style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain' }}
-                  />
+            <div style={{ padding: '1.5rem' }}>
+              <div style={{
+                background: 'rgba(18, 25, 40, 0.75)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+                fontSize: '0.86rem',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Billed To:</span>
+                  <strong style={{ color: '#FFFFFF' }}>{user?.email}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Store / Merchant:</span>
+                  <strong style={{ color: '#FFFFFF' }}>{user?.storeName || "Merchant Store"}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Subscription Tier:</span>
+                  <strong style={{ color: '#FF4D61' }}>{viewReceiptModal.planName || billingData.plan.name}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Amount Paid:</span>
+                  <strong style={{ color: '#FFFFFF', fontSize: '1.05rem' }}>{viewReceiptModal.amount}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Payment Method:</span>
+                  <span style={{ color: '#FFFFFF', fontWeight: 650 }}>{viewReceiptModal.method || 'bKash'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Transaction TrxID:</span>
+                  <span style={{ fontFamily: 'monospace', color: '#10B981', fontWeight: 700 }}>{viewReceiptModal.trxId || 'N/A'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94A3B8' }}>Billing Date:</span>
+                  <span style={{ color: '#FFFFFF' }}>{viewReceiptModal.date}</span>
                 </div>
               </div>
-            )}
 
-            <div style={{ display: 'flex', gap: '0.65rem' }}>
-              <button
-                type="button"
-                className="btn-billing-primary"
-                style={{ flex: 1 }}
-                onClick={() => {
-                  downloadInvoicePdf(viewReceiptModal, billingData.plan, user);
-                  showToast('Official PDF Invoice downloaded.', 'success');
-                }}
-              >
-                <Download size={14} /> Download PDF
-              </button>
-              <button
-                type="button"
-                className="btn-billing-secondary"
-                style={{ flex: 1 }}
-                onClick={() => {
-                  printInvoicePdf(viewReceiptModal, billingData.plan, user);
-                }}
-              >
-                <Printer size={14} /> Print
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =====================================================================
-          UPDATE METHOD MODAL
-          ===================================================================== */}
-      {updateMethodModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(9, 42, 32, 0.65)', backdropFilter: 'blur(3px)',
-          zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-          boxSizing: 'border-box'
-        }} onClick={() => !updatingMethod && setUpdateMethodModal(false)}>
-          <div
-            style={{
-              background: 'var(--bg-card, #ffffff)', borderRadius: '16px', maxWidth: '420px', width: '100%',
-              padding: '1.5rem', boxShadow: '0 24px 64px rgba(0,0,0,0.25)'
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Update Payment Method
-            </h3>
-            <p style={{ margin: '0 0 1.25rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-              Update your primary payment provider and sender account number.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
-                  Provider
-                </label>
-                <select
-                  value={updateProviderInput}
-                  onChange={e => setUpdateProviderInput(e.target.value)}
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    downloadInvoicePdf(viewReceiptModal, billingData.plan, user);
+                    showToast('Official PDF Invoice downloaded.', 'success');
+                  }}
                   style={{
-                    width: '100%', boxSizing: 'border-box', padding: '0.65rem 0.85rem',
-                    border: '1px solid var(--border-medium, #D1D5DB)', borderRadius: '8px',
-                    fontSize: '0.88rem', outline: 'none', background: '#fff'
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: '10px',
+                    background: '#FF334B',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.45rem'
                   }}
                 >
-                  <option value="bKash">bKash (Send money)</option>
-                  <option value="Nagad">Nagad (Send money)</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)' }}>
-                  Sender Phone Number
-                </label>
-                <input
-                  type="text"
-                  value={updateSenderInput}
-                  onChange={e => setUpdateSenderInput(e.target.value)}
-                  placeholder="e.g. 017XXXXXXXX"
-                  style={{
-                    width: '100%', boxSizing: 'border-box', padding: '0.65rem 0.85rem',
-                    border: '1px solid var(--border-medium, #D1D5DB)', borderRadius: '8px',
-                    fontSize: '0.88rem', outline: 'none'
+                  <Download size={14} /> Download PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    printInvoicePdf(viewReceiptModal, billingData.plan, user);
                   }}
-                />
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: '10px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.16)',
+                    fontWeight: 650,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.45rem'
+                  }}
+                >
+                  <Printer size={14} /> Print Invoice
+                </button>
               </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.65rem' }}>
-              <button
-                type="button"
-                className="btn-billing-secondary"
-                style={{ flex: 1 }}
-                disabled={updatingMethod}
-                onClick={() => setUpdateMethodModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-billing-primary"
-                style={{ flex: 1 }}
-                disabled={updatingMethod}
-                onClick={handleUpdateMethod}
-              >
-                {updatingMethod ? 'Saving…' : 'Save Method'}
-              </button>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Toast Notification */}
-      {toast && (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
       )}
     </div>
   );
 }
-

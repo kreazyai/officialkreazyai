@@ -570,39 +570,69 @@ export function SolutionsPage({ onNavigate }) {
         </div>
 
         {/* Final CTA Banner */}
-        <div style={{
-          background: 'var(--primary-dark)',
+        <div className="final-cta-card" style={{
+          background: 'linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%)',
+          border: '1px solid rgba(255, 51, 75, 0.32)',
           borderRadius: '24px',
-          padding: 'clamp(2rem, 5vw, 3.5rem)',
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12)',
+          padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
-          color: '#FFFFFF',
-          border: '1.5px solid rgba(15, 169, 104, 0.3)',
-          boxShadow: '0 20px 50px rgba(9, 42, 32, 0.2)'
+          color: '#FFFFFF'
         }}>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: 800, marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.35rem)', fontWeight: 850, letterSpacing: '-0.025em', color: '#FFFFFF', marginBottom: '0.85rem' }}>
             {t.ctaTitle}
           </h2>
-          <p style={{ maxWidth: '580px', margin: '0 auto 1.75rem auto', color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.975rem', lineHeight: 1.6 }}>
+          <p style={{ maxWidth: '620px', margin: '0 auto 2rem auto', color: '#94A3B8', fontSize: '1rem', lineHeight: 1.6 }}>
             {t.ctaSub}
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <Button
-              variant="primary"
-              size="lg"
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              type="button"
               onClick={() => onNavigate('book-demo')}
-              style={{ background: 'var(--green)', borderColor: 'var(--green)', borderRadius: '999px', color: '#FFFFFF' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: '#FF334B',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 51, 75, 0.5)',
+                borderRadius: '12px',
+                padding: '0.85rem 1.75rem',
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#FF4D61'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#FF334B'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <span>{t.ctaBook}</span>
               <ArrowRight size={17} />
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
+            </button>
+            <button
+              type="button"
               onClick={() => onNavigate('contact')}
-              style={{ background: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.25)', borderRadius: '999px', color: '#FFFFFF' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                padding: '0.85rem 1.75rem',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <span>{t.ctaTalk}</span>
-            </Button>
+            </button>
           </div>
         </div>
       </div>

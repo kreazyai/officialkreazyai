@@ -586,6 +586,81 @@ export const adminService = {
     }
   },
 
+  async impersonateUser(id) {
+    try {
+      const res = await apiClient.post(`/admin/impersonate/${id}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('IMPERSONATE_FAILED', err.message || 'Failed to impersonate customer');
+    }
+  },
+
+  async getTenantsInventory(params = {}) {
+    const query = new URLSearchParams();
+    if (params.search) query.set('search', params.search);
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    try {
+      const res = await apiClient.get(`/admin/tenants-inventory${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_INVENTORY_FAILED', err.message || 'Failed to fetch inventory');
+    }
+  },
+
+  async getTenantProducts(businessId) {
+    try {
+      const res = await apiClient.get(`/admin/tenants-inventory/${businessId}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_PRODUCTS_FAILED', err.message || 'Failed to fetch tenant products');
+    }
+  },
+
+  async getScheduleBookings() {
+    try {
+      const res = await apiClient.get('/admin/schedule');
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_SCHEDULE_FAILED', err.message || 'Failed to fetch schedule bookings');
+    }
+  },
+
+  async updateScheduleStatus(type, id, status) {
+    try {
+      const res = await apiClient.patch(`/admin/schedule/${type}/${id}`, { status });
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('UPDATE_SCHEDULE_FAILED', err.message || 'Failed to update schedule status');
+    }
+  },
+
+  async getSignups(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit || 20);
+    if (params.search) query.set('search', params.search);
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    try {
+      const res = await apiClient.get(`/admin/signups${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_SIGNUPS_FAILED', err.message || 'Failed to fetch signups');
+    }
+  },
+
+  async getLoginSessions(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit || 25);
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    try {
+      const res = await apiClient.get(`/admin/logins${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_LOGINS_FAILED', err.message || 'Failed to fetch login sessions');
+    }
+  },
+
   async getLeads() {
     return leadService.getAll();
   },
@@ -1499,6 +1574,24 @@ export const authService = {
 
     adminService.logAuditAction('GOOGLE_AUTH_SUCCESS', workspaceId, { email: resolvedEmail, name: resolvedName });
     return user;
+  },
+  async sendOtp(email, storeName, country = 'Worldwide') {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const res = await apiClient.post('/auth/send-otp', {
+      email: cleanEmail,
+      storeName: storeName || 'My Store',
+      country
+    });
+    return res;
+  },
+
+  async verifyOtp(email, otp) {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const res = await apiClient.post('/auth/verify-otp', {
+      email: cleanEmail,
+      otp: (otp || '').trim()
+    });
+    return res;
   },
   async registerWorkspace({ storeName, ownerName, email, password, plan = 'Growth ($119/mo)' }) {
     const cleanEmail = (email || '').trim().toLowerCase();

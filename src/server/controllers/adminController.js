@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import { getDatabase, resolveDbPath, POSTGRES_TABLES_ORDERED } from '../config/database.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
@@ -1002,4 +1003,379 @@ export const adminController = {
       next(err);
     }
   }
+,
+
+  /**
+   * Impersonate Customer: Allows super-admin to view and route into a customer dashboard
+   */
+  async impersonateUser(req, res, next) {
+    try {
+      const { id } = req.params;
+      const db = getDatabase();
+
+      let user = await db.prepare(`
+        SELECT u.id, u.business_id, u.email, u.name, u.role, u.is_super_admin, b.name as store_name, b.plan as store_plan
+        FROM users u
+        LEFT JOIN businesses b ON u.business_id = b.id
+        WHERE u.id = ? OR u.business_id = ?
+        LIMIT 1
+      `).get(id, id);
+
+      if (!user) {
+        return errorResponse(res, 'Target customer account not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+      }
+
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          businessId: user.business_id,
+          role: user.role || 'OWNER',
+          email: user.email,
+          isImpersonating: true,
+          adminEmail: req.user.email
+        },
+        config.auth.jwtSecret,
+        { expiresIn: '8h' }
+      );
+
+      const userProfile = {
+        id: user.id,
+        businessId: user.business_id,
+        business_id: user.business_id,
+        workspaceId: user.business_id,
+        storeName: user.store_name || 'Customer Store',
+        name: user.name,
+        email: user.email,
+        role: user.role || 'OWNER',
+        plan: user.store_plan || 'Growth',
+        is_super_admin: false,
+        isImpersonated: true,
+        impersonatedBy: req.user.email
+      };
+
+      logger.info(`Super-admin ${req.user.email} impersonated customer ${user.email} (workspace ${user.business_id})`);
+
+      return successResponse(res, {
+        token,
+        user: userProfile,
+        workspace: {
+          id: user.business_id,
+          name: user.store_name || 'Customer Store',
+          plan: user.store_plan || 'Growth'
+        },
+        returnUrl: '/dashboard/overview'
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Multi-Tenant Customer Inventory: List all account holders with their product stats
+   */
+  async getTenantsInventory(req, res, next) {
+    try {
+      const db = getDatabase();
+      const search = (req.query.search || '').trim().toLowerCase();
+
+      let query = `
+        SELECT 
+          b.id as business_id,
+          b.name as business_name,
+          b.slug as business_slug,
+          b.owner_name,
+          b.owner_email,
+          b.plan,
+          b.status,
+          b.created_at,
+          COUNT(p.id) as total_products,
+          SUM(CASE WHEN p.stock > 0 THEN 1 ELSE 0 END) as in_stock_count,
+          SUM(CASE WHEN p.stock <= 5 AND p.stock > 0 THEN 1 ELSE 0 END) as low_stock_count,
+          SUM(CASE WHEN p.stock <= 0 THEN 1 ELSE 0 END) as out_of_stock_count,
+          COALESCE(SUM(p.price * p.stock), 0) as total_catalog_value
+        FROM businesses b
+        LEFT JOIN products p ON b.id = p.business_id
+        GROUP BY b.id
+        ORDER BY b.created_at DESC
+      `;
+
+      let tenants = (await db.prepare(query).all()) || [];
+
+      if (search) {
+        tenants = tenants.filter(t => 
+          (t.business_name || '').toLowerCase().includes(search) ||
+          (t.owner_name || '').toLowerCase().includes(search) ||
+          (t.owner_email || '').toLowerCase().includes(search)
+        );
+      }
+
+      return successResponse(res, {
+        totalTenants: tenants.length,
+        tenants: tenants.map(t => ({
+          businessId: t.business_id,
+          businessName: t.business_name,
+          slug: t.business_slug,
+          ownerName: t.owner_name || 'Store Merchant',
+          ownerEmail: t.owner_email,
+          plan: t.plan || 'Starter',
+          status: t.status || 'ACTIVE',
+          createdAt: t.created_at,
+          totalProducts: Number(t.total_products || 0),
+          inStockCount: Number(t.in_stock_count || 0),
+          lowStockCount: Number(t.low_stock_count || 0),
+          outOfStockCount: Number(t.out_of_stock_count || 0),
+          totalCatalogValue: Number(t.total_catalog_value || 0)
+        }))
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Multi-Tenant Customer Inventory: Inspect products belonging to a specific customer tenant
+   */
+  async getTenantProducts(req, res, next) {
+    try {
+      const { businessId } = req.params;
+      const db = getDatabase();
+
+      const business = await db.prepare('SELECT id, name, owner_name, owner_email, plan FROM businesses WHERE id = ?').get(businessId);
+      if (!business) {
+        return errorResponse(res, 'Business workspace not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+      }
+
+      const products = (await db.prepare(`
+        SELECT id, sku, name, category, price, stock, status, variants, image_url, ai_knowledge, created_at, updated_at
+        FROM products
+        WHERE business_id = ?
+        ORDER BY created_at DESC
+      `).all(businessId)) || [];
+
+      return successResponse(res, {
+        business: {
+          id: business.id,
+          name: business.name,
+          ownerName: business.owner_name,
+          ownerEmail: business.owner_email,
+          plan: business.plan
+        },
+        productsCount: products.length,
+        products: products.map(p => ({
+          id: p.id,
+          sku: p.sku,
+          name: p.name,
+          category: p.category || 'General',
+          price: Number(p.price || 0),
+          stock: Number(p.stock || 0),
+          status: p.status || (p.stock > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK'),
+          imageUrl: p.image_url,
+          aiKnowledge: p.ai_knowledge,
+          createdAt: p.created_at,
+          updatedAt: p.updated_at
+        }))
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Schedule & Bookings: Real-time list of all booked demo walkthroughs & founder meetings
+   */
+  async getScheduleBookings(req, res, next) {
+    try {
+      const db = getDatabase();
+
+      const demos = (await db.prepare(`
+        SELECT id, full_name, work_email, phone, company_name, company_size, primary_use_case, preferred_date, preferred_time, status, created_at
+        FROM demo_bookings
+        ORDER BY created_at DESC
+      `).all()) || [];
+
+      const founderCalls = (await db.prepare(`
+        SELECT id, full_name, email as work_email, '' as phone, company as company_name, role as company_size, automation_need as primary_use_case, '' as preferred_date, preferred_slot as preferred_time, status, created_at
+        FROM founder_meetings
+        ORDER BY created_at DESC
+      `).all()) || [];
+
+      const normalizedDemos = demos.map(d => ({
+        id: d.id,
+        type: 'DEMO',
+        clientName: d.full_name,
+        companyName: d.company_name,
+        email: d.work_email,
+        phone: d.phone || 'N/A',
+        channel: d.primary_use_case || 'WhatsApp Cloud Commerce',
+        preferredDate: d.preferred_date || 'Upcoming',
+        preferredTime: d.preferred_time || 'Business Hours',
+        status: d.status || 'PENDING',
+        createdAt: d.created_at,
+        meetingLink: 'https://meet.google.com/kz-demo-' + d.id.slice(-6)
+      }));
+
+      const normalizedFounders = founderCalls.map(f => ({
+        id: f.id,
+        type: 'FOUNDER',
+        clientName: f.full_name,
+        companyName: f.company_name,
+        email: f.work_email,
+        phone: f.phone || 'N/A',
+        channel: f.primary_use_case || 'Executive AI Strategy',
+        preferredDate: 'Scheduled',
+        preferredTime: f.preferred_time || 'Afternoon Slot',
+        status: f.status || 'CONFIRMED',
+        createdAt: f.created_at,
+        meetingLink: 'https://meet.google.com/kz-founder-' + f.id.slice(-6)
+      }));
+
+      const allBookings = [...normalizedDemos, ...normalizedFounders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      return successResponse(res, {
+        totalBookings: allBookings.length,
+        pendingCount: allBookings.filter(b => b.status === 'PENDING').length,
+        confirmedCount: allBookings.filter(b => b.status === 'CONFIRMED').length,
+        completedCount: allBookings.filter(b => b.status === 'COMPLETED').length,
+        bookings: allBookings
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Update Schedule Booking Status
+   */
+  async updateScheduleStatus(req, res, next) {
+    try {
+      const { type, id } = req.params;
+      const { status } = req.body;
+      const validStatuses = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+
+      if (!validStatuses.includes(status)) {
+        return errorResponse(res, 'Invalid schedule status.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      const db = getDatabase();
+      const table = type.toUpperCase() === 'FOUNDER' ? 'founder_meetings' : 'demo_bookings';
+
+      await db.prepare(`UPDATE ${table} SET status = ? WHERE id = ?`).run(status, id);
+
+      return successResponse(res, { id, type, status, message: 'Schedule session updated successfully.' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Dedicated Sign-Up Records Page: Detailed list of all registered merchants with worldwide country
+   */
+  async getSignups(req, res, next) {
+    try {
+      const db = getDatabase();
+      const page = Math.max(1, parseInt(req.query.page || '1', 10));
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
+      const offset = (page - 1) * limit;
+      const search = (req.query.search || '').trim().toLowerCase();
+
+      let queryWhere = 'WHERE u.is_super_admin = 0';
+      const params = [];
+
+      if (search) {
+        queryWhere += ' AND (LOWER(u.name) LIKE ? OR LOWER(u.email) LIKE ? OR LOWER(b.name) LIKE ?)';
+        const s = `%${search}%`;
+        params.push(s, s, s);
+      }
+
+      const totalCountRow = await db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM users u 
+        LEFT JOIN businesses b ON u.business_id = b.id 
+        ${queryWhere}
+      `).get(...params);
+      const totalCount = Number(totalCountRow?.count || 0);
+
+      const rows = (await db.prepare(`
+        SELECT 
+          u.id, 
+          u.name, 
+          u.email, 
+          u.role, 
+          u.created_at, 
+          b.id as business_id,
+          b.name as business_name,
+          b.plan as business_plan,
+          b.status as business_status,
+          COALESCE(bp.country, 'United States') as country,
+          COALESCE(up.phone, bp.business_phone, 'N/A') as phone,
+          COALESCE(up.email_verified, 1) as email_verified
+        FROM users u
+        LEFT JOIN businesses b ON u.business_id = b.id
+        LEFT JOIN business_profiles bp ON b.id = bp.business_id
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        ${queryWhere}
+        ORDER BY u.created_at DESC
+        LIMIT ? OFFSET ?
+      `).all(...params, limit, offset)) || [];
+
+      return successResponse(res, {
+        totalSignups: totalCount,
+        page,
+        limit,
+        totalPages: Math.ceil(totalCount / limit) || 1,
+        signups: rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          email: r.email,
+          businessId: r.business_id,
+          businessName: r.business_name || 'My Store',
+          plan: r.business_plan || 'Starter',
+          country: r.country || 'Worldwide',
+          phone: r.phone,
+          status: r.business_status || 'ACTIVE',
+          emailVerified: r.email_verified === 1,
+          createdAt: r.created_at
+        }))
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Dedicated Login Sessions & Active Devices Page
+   */
+  async getLoginSessions(req, res, next) {
+    try {
+      const db = getDatabase();
+      const page = Math.max(1, parseInt(req.query.page || '1', 10));
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '25', 10)));
+      const offset = (page - 1) * limit;
+
+      const totalRow = await db.prepare('SELECT COUNT(*) as count FROM login_sessions').get();
+      const totalSessions = Number(totalRow?.count || 0);
+
+      const activeDevicesRow = await db.prepare('SELECT COUNT(*) as count FROM login_sessions WHERE is_active = 1').get();
+      const activeDevicesCount = Number(activeDevicesRow?.count || 0);
+
+      const sessions = (await db.prepare(`
+        SELECT id, user_id, email, user_name, business_name, ip_address, country, device_type, os, browser, is_active, created_at, last_active_at
+        FROM login_sessions
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+      `).all(limit, offset)) || [];
+
+      return successResponse(res, {
+        totalSessions,
+        activeDevicesCount,
+        page,
+        limit,
+        totalPages: Math.ceil(totalSessions / limit) || 1,
+        sessions
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
 };

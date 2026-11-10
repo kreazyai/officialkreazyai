@@ -99,7 +99,11 @@ export function AuthProvider({ children }) {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('kreazy_auth_sync', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('kreazy_auth_sync', handleStorageChange);
+    };
   }, []);
 
   const login = useCallback(async (email, password, isDemo = false) => {
@@ -169,6 +173,8 @@ export function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     register,
+    sendOtp: authService.sendOtp,
+    verifyOtp: authService.verifyOtp,
     logout,
     refreshUser,
     updateUser

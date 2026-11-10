@@ -1,3 +1,4 @@
+import { apiClient } from '../../api/client';
 import React from 'react';
 import { 
   LayoutDashboard, 
@@ -13,6 +14,8 @@ import {
   Sparkles, 
   ChevronDown,
   LogOut,
+  ShieldCheck,
+  ArrowRight,
   X,
   Home,
   CreditCard,
@@ -21,6 +24,35 @@ import {
 
 export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen, onCloseMobile, user, onNavigate }) {
   const isDemo = Boolean(user?.isDemo);
+  const isImpersonating = Boolean(
+    user?.isImpersonated || 
+    user?.is_impersonated ||
+    sessionStorage.getItem('kreazy_superadmin_auth_backup') ||
+    localStorage.getItem('kreazy_superadmin_auth_backup')
+  );
+
+  const handleReturnToAdmin = () => {
+    const backupToken = sessionStorage.getItem('kreazy_superadmin_auth_backup') || localStorage.getItem('kreazy_superadmin_auth_backup');
+    const backupUser = sessionStorage.getItem('kreazy_superadmin_user_backup') || localStorage.getItem('kreazy_superadmin_user_backup');
+    if (backupToken) {
+      apiClient.setAuthToken(backupToken);
+      sessionStorage.removeItem('kreazy_superadmin_auth_backup');
+      localStorage.removeItem('kreazy_superadmin_auth_backup');
+    }
+    if (backupUser) {
+      localStorage.setItem('kreazy_auth_user', backupUser);
+      sessionStorage.removeItem('kreazy_superadmin_user_backup');
+      localStorage.removeItem('kreazy_superadmin_user_backup');
+    }
+    window.dispatchEvent(new CustomEvent('kreazy_auth_sync', { detail: null }));
+    window.dispatchEvent(new Event('storage'));
+    if (onCloseMobile) onCloseMobile();
+    if (onNavigate) {
+      onNavigate('admin');
+    } else {
+      window.location.href = '/admin';
+    }
+  };
 
   const navItems = [
     { id: 'overview', path: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
@@ -159,6 +191,30 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
           </div>
         </div>
 
+        {isImpersonating && (
+          <button
+            type="button"
+            onClick={handleReturnToAdmin}
+            className="btn btn-sm"
+            style={{
+              justifyContent: 'flex-start',
+              gap: '0.65rem',
+              color: '#A78BFA',
+              backgroundColor: 'rgba(167, 139, 250, 0.12)',
+              border: '1px solid rgba(167, 139, 250, 0.35)',
+              borderRadius: 0,
+              padding: '0.55rem 0.85rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              width: '100%',
+              marginBottom: '0.5rem',
+              transition: 'all var(--transition-fast)'
+            }}
+          >
+            <ShieldCheck size={16} />
+            <span>Return to Admin</span>
+          </button>
+        )}
         <button 
           type="button" 
           onClick={() => {

@@ -472,13 +472,53 @@ export function FeaturesPage({ onNavigate }) {
           <p style={{ maxWidth: '500px', margin: '0 auto 1.5rem auto', fontSize: '0.925rem' }}>
             {data.ctaDesc}
           </p>
-          <div className="features-cta-actions">
-            <Button variant="primary" onClick={() => onNavigate('book-demo')}>
-              {data.ctaBtnDemo}
-            </Button>
-            <Button variant="secondary" onClick={() => onNavigate('contact')}>
-              {data.ctaBtnContact}
-            </Button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={() => onNavigate('book-demo')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: '#FF334B',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 51, 75, 0.5)',
+                borderRadius: '12px',
+                padding: '0.85rem 1.75rem',
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#FF4D61'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#FF334B'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <span>{data.ctaBtnDemo}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('contact')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                padding: '0.85rem 1.75rem',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <span>{data.ctaBtnContact}</span>
+            </button>
           </div>
         </div>
       </div>

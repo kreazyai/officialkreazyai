@@ -50,6 +50,9 @@ authRouter.get('/admin-login/', (req, res) => {
   res.setHeader('Allow', 'POST');
   return errorResponse(res, 'Admin login requires HTTP POST with email and password.', API_ERROR_CODES.METHOD_NOT_ALLOWED, HTTP_STATUS.METHOD_NOT_ALLOWED);
 });
+authRouter.post('/send-otp', authController.sendOtp);
+authRouter.post('/verify-otp', authController.verifyOtp);
+authRouter.post('/resend-otp', authController.sendOtp);
 authRouter.post('/google', authController.googleAuth);
 authRouter.get('/google/config', authController.googleConfig);
 authRouter.post('/forgot-password', authController.forgotPassword);
@@ -239,6 +242,21 @@ adminRouter.get('/database/backup', adminController.exportDatabase);
 // Billing & Payment Invoices Verification
 adminRouter.get('/invoices', adminController.getInvoices);
 adminRouter.patch('/invoices/:id/verify', adminController.verifyInvoice);
+
+// Customer Dashboard Impersonation
+adminRouter.post('/impersonate/:id', adminController.impersonateUser);
+
+// Multi-Tenant Inventory Inspection
+adminRouter.get('/tenants-inventory', adminController.getTenantsInventory);
+adminRouter.get('/tenants-inventory/:businessId', adminController.getTenantProducts);
+
+// Schedule & Bookings Management
+adminRouter.get('/schedule', adminController.getScheduleBookings);
+adminRouter.patch('/schedule/:type/:id', adminController.updateScheduleStatus);
+
+// Sign-Up Records & Login Sessions
+adminRouter.get('/signups', adminController.getSignups);
+adminRouter.get('/logins', adminController.getLoginSessions);
 
 apiRouter.use('/admin', adminRouter);
 

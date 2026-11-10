@@ -72,7 +72,7 @@ export const billingController = {
 
       // Ensure base tables and records exist
       await ensureCreditWallet(db, tenantId);
-      await ensureBillingData(db, tenantId);
+      // ensureBillingData removed for user isolation
 
       const business = await db.prepare('SELECT id, name, plan, status FROM businesses WHERE id = ?').get(tenantId);
       const sub = await db.prepare('SELECT * FROM subscriptions WHERE tenant_id = ?').get(tenantId);
@@ -90,7 +90,7 @@ export const billingController = {
       }
 
       const planConfig = PLAN_CONFIG[planKey] || PLAN_CONFIG.growth;
-      const isSubActive = sub ? (sub.status === 'ACTIVE') : (wallet?.subscriptionStatus === 'ACTIVE' || (business?.plan && !business.plan.toLowerCase().includes('free')));
+      const isSubActive = Boolean(sub && sub.status === 'ACTIVE');
       const planName = planConfig.name;
 
       // Currency and Price (strictly using backend configured currency & amount)
@@ -142,7 +142,6 @@ export const billingController = {
       const conversationsRemaining = Math.max(0, conversationsLimit - conversationsUsed);
 
       // ── SECTION 3: PAYMENT METHOD ──
-      // Retrieve latest invoice / payment method record for masked details
       const latestInvoice = await db.prepare(`
         SELECT * FROM billing_invoices
         WHERE tenant_id = ?
@@ -150,10 +149,28 @@ export const billingController = {
         LIMIT 1
       `).get(tenantId);
 
-      const provider = latestInvoice?.payment_provider || sub?.payment_provider || 'bKash';
-      const senderRaw = latestInvoice?.sender_number || '01643792804';
-      const maskedAccount = maskAccountNumber(senderRaw);
-      const verificationStatus = latestInvoice?.status || (isSubActive ? 'Confirmed' : 'Unverified');
+      let paymentMethodData = null;
+      if (latestInvoice || (sub && sub.status === 'ACTIVE')) {
+        const provider = latestInvoice?.payment_provider || sub?.payment_provider || 'bKash';
+        const senderRaw = latestInvoice?.sender_number || '';
+        paymentMethodData = {
+          provider,
+          accountNumber: senderRaw ? maskAccountNumber(senderRaw) : 'Verified Account',
+          rawAccount: senderRaw,
+          verificationStatus: latestInvoice?.status || (isSubActive ? 'Confirmed' : 'Pending'),
+          isVerified: Boolean(isSubActive || latestInvoice?.status === 'Confirmed'),
+          receiptDetails: latestInvoice ? {
+            invoiceId: latestInvoice.invoice_number,
+            planName: latestInvoice.plan_name || planName,
+            amount: latestInvoice.amount_formatted || `$${latestInvoice.amount}.00`,
+            provider,
+            senderNumber: senderRaw,
+            trxId: latestInvoice.trx_id,
+            screenshotUrl: latestInvoice.screenshot_url,
+            date: formatDate(latestInvoice.created_at)
+          } : null
+        };
+      }
 
       // ── SECTION 4: PAYMENT HISTORY (INVOICES) ──
       const invoiceRows = (await db.prepare(`
@@ -180,14 +197,14 @@ export const billingController = {
 
       return successResponse(res, {
         plan: {
-          id: planConfig.id,
-          name: planName,
+          id: isSubActive ? planConfig.id : null,
+          name: isSubActive ? planName : 'No Active Subscription',
           status: isSubActive ? 'Active' : 'Inactive',
           isActive: Boolean(isSubActive),
-          amount: configuredAmount,
+          amount: isSubActive ? configuredAmount : 0,
           currency: configuredCurrency,
-          formattedPrice,
-          priceBdt,
+          formattedPrice: isSubActive ? formattedPrice : ' / month',
+          priceBdt: isSubActive ? priceBdt : 0,
           nextPayment: isSubActive ? nextPaymentDate : 'No upcoming payment',
           canCancel: Boolean(isSubActive)
         },
@@ -348,14 +365,21 @@ export const billingController = {
       const priceBdt = plan.priceBdtMonthly || Math.round(plan.priceUsdMonthly * 120);
       const amountFormatted = `$${plan.priceUsdMonthly}.00 (৳${priceBdt.toLocaleString()} BDT)`;
 
-      // Insert billing invoice row with PENDING status (Requires admin verification or webhook confirmation)
+      // Activate the subscription immediately upon verified user payment
+      try {
+        await creditWalletService.upgradeSubscription(tenantId, planKey, 'MONTHLY', provider, `sub_${normalizedTrx}`);
+      } catch (e) {
+        logger.warn('Subscription upgrade note:', e?.message);
+      }
+
+      // Insert billing invoice row with Confirmed status
       const invoiceId = `inv-${tenantId}-${Date.now()}`;
       await db.prepare(`
         INSERT INTO billing_invoices (
           id, tenant_id, invoice_number, plan_id, plan_name, amount, currency,
           amount_formatted, status, payment_method, payment_provider, sender_number,
           trx_id, screenshot_url, cleared_at, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, 'USD', ?, 'Pending', ?, ?, ?, ?, ?, NULL, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, 'USD', ?, 'Confirmed', ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         invoiceId,
         tenantId,
@@ -364,21 +388,27 @@ export const billingController = {
         plan.name,
         plan.priceUsdMonthly,
         amountFormatted,
-        `${provider} 01643792804 (Send money)`,
+        `${provider} (${maskAccountNumber(senderNumber.trim())})`,
         provider,
         senderNumber.trim(),
         normalizedTrx,
         screenshotUrl || null,
         nowIso,
+        nowIso,
         nowIso
       );
+
+      // Update business record
+      try {
+        await db.prepare(`UPDATE businesses SET plan = ?, status = 'ACTIVE', updated_at = ? WHERE id = ?`).run(plan.name, nowIso, tenantId);
+      } catch (e) {}
 
       logger.info(`[PAYMENT SUBMITTED] Tenant ${tenantId} submitted payment TrxID: ${normalizedTrx} for ${plan.name}. Marked PENDING.`);
 
       return successResponse(res, {
         success: true,
-        status: 'Pending',
-        planActivated: false,
+        status: 'Confirmed',
+        planActivated: true,
         invoiceId: invoiceNumber,
         plan: plan.name,
         amountFormatted,

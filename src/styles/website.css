@@ -2024,9 +2024,9 @@
 }
 
 .pricing-currency-btn.active {
-  background: var(--primary-dark);
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(9, 42, 32, 0.16);
+  background: #FF334B !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(255, 51, 75, 0.3) !important;
 }
 
 .pricing-mode-btn {
@@ -2050,9 +2050,9 @@
 }
 
 .pricing-mode-btn.active {
-  background: var(--primary-dark);
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(9, 42, 32, 0.16);
+  background: #FF334B !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(255, 51, 75, 0.3) !important;
 }
 
 .pricing-save-badge {
@@ -3044,9 +3044,9 @@
 }
 
 .conv-step-btn.current {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  color: #FFFFFF;
+  background: #FF334B !important;
+  border-color: #FF334B !important;
+  color: #FFFFFF !important;
 }
 
 /* Right Breakdown Column */
@@ -3281,9 +3281,9 @@
 }
 
 .capsule-filter-btn.active {
-  background: var(--primary-dark) !important;
+  background: #FF334B !important;
   color: #FFFFFF !important;
-  box-shadow: 0 4px 12px rgba(9, 42, 32, 0.16) !important;
+  box-shadow: 0 4px 12px rgba(255, 51, 75, 0.3) !important;
 }
 
 .features-grid {
@@ -3293,11 +3293,12 @@
 }
 
 .feature-card {
-  background: #FFFFFF;
-  border: 1px solid var(--border);
+  background: rgba(18, 24, 38, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: var(--radius-xl);
   padding: 1.75rem;
   display: flex;
+  color: #FFFFFF !important;
   flex-direction: column;
   gap: 0.75rem;
   box-shadow: var(--shadow-sm);
@@ -3323,12 +3324,20 @@
 }
 
 .features-cta-card {
-  background: linear-gradient(135deg, #EFFBF5 0%, #DDF7E9 100%);
-  border: 1px solid var(--green-light);
-  border-radius: var(--radius-2xl);
-  padding: 2.75rem 2rem;
+  background: linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 51, 75, 0.32) !important;
+  border-radius: 24px !important;
+  padding: clamp(2.5rem, 5vw, 4rem) 2rem !important;
   text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12) !important;
   margin-top: var(--space-12);
+  color: #FFFFFF !important;
+}
+.features-cta-card h3 {
+  color: #FFFFFF !important;
+}
+.features-cta-card p {
+  color: #94A3B8 !important;
 }
 
 .features-cta-actions {
@@ -5011,5 +5020,235 @@
 @media (max-width: 360px) {
   .proof-metrics-grid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =====================================================================
+   COMPREHENSIVE FOOTER SUBPAGES & MOBILE/DESKTOP UI/UX ENHANCEMENTS
+   ===================================================================== */
+
+/* 1. FAQ Modular Boxes & Accordion (Dark Contrast Perfection) */
+.faq-box,
+.faq-item {
+  background: rgba(18, 24, 38, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 16px !important;
+  margin-bottom: 0.95rem !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: all 0.22s ease !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.faq-box:hover,
+.faq-item:hover {
+  border-color: rgba(255, 51, 75, 0.35) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
+}
+
+.faq-box.open,
+.faq-item.open {
+  border-color: rgba(255, 51, 75, 0.5) !important;
+  background: rgba(22, 30, 48, 0.88) !important;
+  box-shadow: 0 10px 32px rgba(255, 51, 75, 0.08) !important;
+}
+
+.faq-trigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 1.35rem 1.6rem !important;
+  background: transparent !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  font-size: 1.05rem !important;
+  font-weight: 650 !important;
+  line-height: 1.4 !important;
+}
+
+.faq-trigger span {
+  color: #FFFFFF !important;
+  flex: 1 !important;
+}
+
+.faq-trigger-icon {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #FF6B7E !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  margin-left: 1rem !important;
+  transition: all 0.25s ease !important;
+}
+
+.faq-box.open .faq-trigger-icon {
+  background: #FF334B !important;
+  color: #FFFFFF !important;
+  border-color: #FF334B !important;
+  transform: rotate(180deg) !important;
+}
+
+.faq-answer {
+  padding: 0 1.6rem 1.5rem 1.6rem !important;
+  color: #CBD5E1 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.65 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding-top: 1.15rem !important;
+}
+
+.faq-answer p {
+  color: #CBD5E1 !important;
+  margin: 0 !important;
+}
+
+/* 2. Capsule Category Filters */
+.capsule-filter-group {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.6rem !important;
+  padding: 0.35rem !important;
+  background: rgba(14, 19, 31, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 999px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+
+.capsule-filter-btn {
+  padding: 0.5rem 1.15rem !important;
+  border-radius: 999px !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: #94A3B8 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.capsule-filter-btn:hover {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.capsule-filter-btn.active {
+  background: #FF334B !important;
+  color: #FFFFFF !important;
+  border-color: #FF334B !important;
+  box-shadow: 0 4px 14px rgba(255, 51, 75, 0.35) !important;
+}
+
+/* 3. Legal Privacy & Terms Content Cards */
+.legal-card-container,
+.legal-page-card {
+  background: rgba(18, 24, 38, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 24px !important;
+  padding: clamp(1.5rem, 4vw, 2.75rem) !important;
+  color: #CBD5E1 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+}
+
+.legal-page-card h1,
+.legal-page-card h2,
+.legal-page-card h3 {
+  color: #FFFFFF !important;
+}
+
+.legal-page-card p {
+  color: #94A3B8 !important;
+  line-height: 1.75 !important;
+  font-size: 0.98rem !important;
+}
+
+/* 4. Responsive Layouts for Mobile (< 768px and < 480px) */
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 3rem 1.25rem 2rem 1.25rem !important;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2rem 1.25rem !important;
+  }
+
+  .footer-brand-col {
+    grid-column: 1 / -1 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .about-pillars-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.15rem !important;
+    margin: 1.5rem 0 !important;
+  }
+
+  .contact-page-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  .demo-page-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1.75rem !important;
+  }
+
+  .demo-form-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .demo-sidebar-card,
+  .demo-form-card,
+  .contact-form-card {
+    padding: 1.5rem 1.25rem !important;
+    border-radius: 18px !important;
+  }
+
+  .capsule-filter-group {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+    scrollbar-width: none !important;
+  }
+
+  .capsule-filter-group::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.75rem !important;
+  }
+
+  .footer-bottom {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    text-align: center !important;
+  }
+
+  .footer-bottom-links {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.85rem !important;
+  }
+
+  .section-header h1 {
+    font-size: 1.85rem !important;
   }
 }

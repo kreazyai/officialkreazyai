@@ -3,7 +3,8 @@ import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
-import { GoogleAuthButton, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
+import { GoogleAuthButton } from '../../components/auth/GoogleVerificationModal';
+import { triggerGoogleNativeAuth } from '../../services/googleAuth';
 
 export function LoginPage({ onNavigate, onLoginSuccess }) {
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
@@ -51,15 +52,25 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
     }
   };
 
-  const handleGoogleSuccess = async (googleData) => {
-    try {
-      const user = await loginWithGoogle(googleData);
-      if (onLoginSuccess) onLoginSuccess(user);
-      setIsGoogleModalOpen(false);
-      onNavigate('dashboard');
-    } catch (err) {
-      setError(err?.message || 'Google authentication failed. Please try again.');
-    }
+  const handleGoogleClick = () => {
+    setError('');
+    triggerGoogleNativeAuth({
+      onSuccess: async (googleProfile) => {
+        setLoading(true);
+        try {
+          const user = await loginWithGoogle(googleProfile);
+          if (onLoginSuccess) onLoginSuccess(user);
+          onNavigate('dashboard');
+        } catch (err) {
+          setError(err?.message || 'Google authentication failed.');
+        } finally {
+          setLoading(false);
+        }
+      },
+      onError: (err) => {
+        setError(err?.message || 'Google account selection was cancelled.');
+      }
+    });
   };
 
   return (
@@ -87,7 +98,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
         {/* Clean Google Authentication Button */}
         <GoogleAuthButton
           text="Continue with Google"
-          onClick={() => setIsGoogleModalOpen(true)}
+          onClick={handleGoogleClick}
         />
 
         {/* Clear Divider */}

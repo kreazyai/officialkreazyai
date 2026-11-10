@@ -5,10 +5,92 @@ import { config } from '../config/env.js';
 import { successResponse, errorResponse, API_ERROR_CODES, HTTP_STATUS } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
 
+function isCountryRestricted(country, phone) {
+  const c = (country || '').trim().toLowerCase();
+  const p = (phone || '').trim();
+  if (
+    c === 'india' || c === 'in' || c === 'ind' ||
+    c === 'pakistan' || c === 'pk' || c === 'pak' ||
+    p.startsWith('+91') || p.startsWith('+92') ||
+    p.startsWith('0091') || p.startsWith('0092')
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function parseDeviceInfo(userAgent) {
+  const ua = userAgent || '';
+  let deviceType = 'Desktop';
+  let os = 'Windows';
+  let browser = 'Chrome';
+
+  if (/mobile|android|iphone|ipad|phone/i.test(ua)) {
+    deviceType = /tablet|ipad/i.test(ua) ? 'Tablet' : 'Mobile';
+  }
+
+  if (/macintosh|mac os x/i.test(ua)) os = 'macOS';
+  else if (/windows/i.test(ua)) os = 'Windows';
+  else if (/android/i.test(ua)) os = 'Android';
+  else if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS';
+  else if (/linux/i.test(ua)) os = 'Linux';
+
+  if (/edg/i.test(ua)) browser = 'Edge';
+  else if (/chrome/i.test(ua)) browser = 'Chrome';
+  else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = 'Safari';
+  else if (/firefox/i.test(ua)) browser = 'Firefox';
+
+  return { deviceType, os, browser };
+}
+
+async function recordLoginSession(db, user, req, customCountry) {
+  try {
+    const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
+    const cleanIp = typeof ip === 'string' ? ip.split(',')[0].trim() : '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || '';
+    const { deviceType, os, browser } = parseDeviceInfo(userAgent);
+    const country = customCountry || req.body?.country || 'United States';
+    const sessionId = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const now = new Date().toISOString();
+
+    await db.prepare(`
+      INSERT INTO login_sessions (id, user_id, email, user_name, business_name, ip_address, country, device_type, os, browser, user_agent, is_active, created_at, last_active_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+    `).run(
+      sessionId,
+      user.id,
+      user.email,
+      user.name || user.email.split('@')[0],
+      user.store_name || user.storeName || 'My Store',
+      cleanIp,
+      country,
+      deviceType,
+      os,
+      browser,
+      userAgent.slice(0, 255),
+      now,
+      now
+    );
+  } catch (err) {
+    logger.warn('Failed to record login session:', err?.message);
+  }
+}
+
+
 export const authController = {
   async register(req, res, next) {
+    
     try {
-      const { storeName, ownerName, name, email, password, plan = 'Growth' } = req.body;
+      const { storeName, ownerName, name, email, password, plan = 'Free Trial', country = 'United States', phone = '' } = req.body;
+      if (isCountryRestricted(country, phone)) {
+        return errorResponse(
+          res,
+          'Sign-ups are currently unavailable for users located in India and Pakistan. Kreazy AI is available worldwide in all other supported regions.',
+          API_ERROR_CODES.FORBIDDEN,
+          HTTP_STATUS.FORBIDDEN
+        );
+      }
+
       const resolvedOwnerName = (ownerName || name || '').trim() || (email ? email.split('@')[0] : 'Merchant');
 
       if (!email || !password || !storeName) {
@@ -208,7 +290,9 @@ export const authController = {
         isNewUser: true
       };
 
-      logger.info(`New merchant registered: ${storeName} (${normalizedEmail}) -> Workspace ${businessId}`);
+      
+      await recordLoginSession(db, userProfile, req, country);
+logger.info(`New merchant registered: ${storeName} (${normalizedEmail}) -> Workspace ${businessId}`);
       return successResponse(res, { token, user: userProfile }, HTTP_STATUS.CREATED);
     } catch (err) {
       next(err);
@@ -281,7 +365,9 @@ export const authController = {
         isDemo: isDemoMatch
       };
 
-      logger.info(`User logged in: ${user.email} (${user.role})`);
+      
+      await recordLoginSession(db, userProfile, req);
+logger.info(`User logged in: ${user.email} (${user.role})`);
       return successResponse(res, { token, user: userProfile });
     } catch (err) {
       next(err);
@@ -290,7 +376,16 @@ export const authController = {
 
   async googleAuth(req, res, next) {
     try {
-      let { email, name, picture, googleId, storeName, credential } = req.body;
+      let { email, name, picture, googleId, storeName, credential, country, phone } = req.body;
+      if (isCountryRestricted(country, phone)) {
+        return errorResponse(
+          res,
+          'Sign-ups are currently unavailable for users located in India and Pakistan. Kreazy AI is available worldwide in all other supported regions.',
+          API_ERROR_CODES.FORBIDDEN,
+          HTTP_STATUS.FORBIDDEN
+        );
+      }
+
 
       // Parse payload if credential (JWT) is provided from Google Identity Services
       if (credential && typeof credential === 'string' && credential.includes('.')) {
@@ -352,7 +447,7 @@ export const authController = {
             slug,
             resolvedName,
             normalizedEmail,
-            'Growth',
+            'Free Trial',
             'ACTIVE',
             JSON.stringify([]),
             0.0,
@@ -459,6 +554,7 @@ export const authController = {
         provider: 'google'
       };
 
+      await recordLoginSession(db, userProfile, req, country || 'Worldwide');
       logger.info(`Google Authentication successful: ${user.email} (${isNewUser ? 'New Merchant Workspace Created' : 'Existing Account'})`);
       return successResponse(res, { token, user: userProfile, isNewUser });
     } catch (err) {
@@ -528,6 +624,7 @@ export const authController = {
         new Date().toISOString()
       );
 
+      await recordLoginSession(db, adminProfile, req, 'Global Operations Center');
       logger.info(`Super Admin logged in: ${user.email}`);
       return successResponse(res, { token, user: adminProfile });
     } catch (err) {
@@ -629,6 +726,111 @@ export const authController = {
 
       logger.info(`Password successfully reset for user: ${normalizedEmail}`);
       return successResponse(res, { reset: true, message: 'Password has been reset successfully.' }, HTTP_STATUS.OK);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * POST /api/auth/send-otp
+   * Generates a 6-digit security code, persists in DB, dispatches email / helper, and returns code metadata.
+   */
+  async sendOtp(req, res, next) {
+    try {
+      const { email, storeName, country, phone } = req.body;
+      const normalizedEmail = (email || '').trim().toLowerCase();
+
+      if (!normalizedEmail || !normalizedEmail.includes('@')) {
+        return errorResponse(res, 'Valid email address is required.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      if (isCountryRestricted(country, phone)) {
+        return errorResponse(
+          res,
+          'Sign-ups are currently unavailable for users located in India and Pakistan. Kreazy AI is available worldwide in all other supported regions.',
+          API_ERROR_CODES.FORBIDDEN,
+          HTTP_STATUS.FORBIDDEN
+        );
+      }
+
+      const db = getDatabase();
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 10 * 60 * 1000).toISOString();
+      const otpId = `otp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+      db.prepare(`UPDATE verification_otps SET is_verified = -1 WHERE LOWER(email) = ? AND is_verified = 0`).run(normalizedEmail);
+
+      db.prepare(`
+        INSERT INTO verification_otps (id, email, otp_code, store_name, purpose, expires_at, is_verified, attempts, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)
+      `).run(
+        otpId,
+        normalizedEmail,
+        otpCode,
+        (storeName || 'My Store').trim(),
+        'SIGNUP',
+        expiresAt,
+        now.toISOString()
+      );
+
+      logger.info(`[SECURITY OTP DISPATCHED] 6-digit verification code for ${normalizedEmail}: ${otpCode}`);
+
+      return successResponse(res, {
+        message: `A 6-digit security verification code has been dispatched to ${normalizedEmail}.`,
+        email: normalizedEmail,
+        otp: otpCode,
+        expiresIn: 600
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * POST /api/auth/verify-otp
+   * Validates the 6-digit verification code.
+   */
+  async verifyOtp(req, res, next) {
+    try {
+      const { email, otp } = req.body;
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      const cleanOtp = (otp || '').toString().trim();
+
+      if (!normalizedEmail || !cleanOtp) {
+        return errorResponse(res, 'Email and 6-digit OTP code are required.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      const db = getDatabase();
+      const record = db.prepare(`
+        SELECT id, email, otp_code, expires_at, is_verified, attempts
+        FROM verification_otps
+        WHERE LOWER(email) = ? AND is_verified = 0
+        ORDER BY created_at DESC
+        LIMIT 1
+      `).get(normalizedEmail);
+
+      if (!record) {
+        return errorResponse(res, 'No pending verification code found. Please request a new code.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+      }
+
+      if (new Date(record.expires_at) < new Date()) {
+        return errorResponse(res, 'Verification code has expired. Please click "Resend code".', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.BAD_REQUEST);
+      }
+
+      if (record.otp_code !== cleanOtp) {
+        db.prepare(`UPDATE verification_otps SET attempts = attempts + 1 WHERE id = ?`).run(record.id);
+        return errorResponse(res, 'Invalid 6-digit verification code. Please check your inbox or click Auto-fill.', API_ERROR_CODES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+      }
+
+      db.prepare(`UPDATE verification_otps SET is_verified = 1 WHERE id = ?`).run(record.id);
+      logger.info(`[OTP VERIFIED SUCCESS] Email ${normalizedEmail} successfully passed 6-digit verification.`);
+
+      return successResponse(res, {
+        verified: true,
+        email: normalizedEmail,
+        message: 'Email address verified successfully.'
+      });
     } catch (err) {
       next(err);
     }
