@@ -13,16 +13,16 @@ import { conversationService } from '../../services/api';
 
 // ── Channel config ────────────────────────────────────────────────────────────
 const CHANNELS = {
-  whatsapp: { label: 'WhatsApp', color: '#25D366', bg: 'rgba(37,211,102,0.12)', icon: '📱' },
-  instagram: { label: 'Instagram', color: '#E1306C', bg: 'rgba(225,48,108,0.12)', icon: '📸' },
-  facebook: { label: 'Facebook', color: '#1877F2', bg: 'rgba(24,119,242,0.12)', icon: '👥' },
-  WHATSAPP: { label: 'WhatsApp', color: '#25D366', bg: 'rgba(37,211,102,0.12)', icon: '📱' },
-  INSTAGRAM: { label: 'Instagram', color: '#E1306C', bg: 'rgba(225,48,108,0.12)', icon: '📸' },
-  FACEBOOK: { label: 'Facebook', color: '#1877F2', bg: 'rgba(24,119,242,0.12)', icon: '👥' },
-  website: { label: 'Website', color: '#7C3AED', bg: 'rgba(124,58,237,0.12)', icon: '🌐' },
+  whatsapp: { label: 'WhatsApp', color: '#25D366', bg: 'rgba(37,211,102,0.12)', icon: 'WA' },
+  instagram: { label: 'Instagram', color: '#E1306C', bg: 'rgba(225,48,108,0.12)', icon: 'IG' },
+  facebook: { label: 'Facebook', color: '#1877F2', bg: 'rgba(24,119,242,0.12)', icon: 'FB' },
+  WHATSAPP: { label: 'WhatsApp', color: '#25D366', bg: 'rgba(37,211,102,0.12)', icon: 'WA' },
+  INSTAGRAM: { label: 'Instagram', color: '#E1306C', bg: 'rgba(225,48,108,0.12)', icon: 'IG' },
+  FACEBOOK: { label: 'Facebook', color: '#1877F2', bg: 'rgba(24,119,242,0.12)', icon: 'FB' },
+  website: { label: 'Website', color: '#7C3AED', bg: 'rgba(124,58,237,0.12)', icon: 'WEB' },
 };
 
-const getChannel = (ch) => CHANNELS[ch] || { label: ch, color: 'var(--text-muted)', bg: 'var(--bg-subtle)', icon: '💬' };
+const getChannel = (ch) => CHANNELS[ch] || { label: ch, color: 'var(--text-muted)', bg: 'var(--bg-subtle)', icon: 'MSG' };
 
 const STATUS_MAP = {
   ACTIVE: { label: 'Active', color: '#22c55e' },
@@ -263,7 +263,7 @@ function ConvItem({ conv, isActive, onClick }) {
           whiteSpace: 'nowrap', color: 'var(--text-muted)',
           fontWeight: isUnread ? 600 : 400,
         }}>
-          {lastMsg?.sender === 'customer' ? '' : lastMsg?.is_ai || lastMsg?.isAi ? '🤖 ' : '↩ '}
+          {lastMsg?.sender === 'customer' ? '' : lastMsg?.is_ai || lastMsg?.isAi ? '' : ''}
           {preview}
         </div>
       </div>
@@ -795,9 +795,9 @@ export function MessagesPage({ user, onNavigateModule }) {
           <div style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '2px' }}>
             {[
               { key: 'all', label: 'All' },
-              { key: 'whatsapp', label: '📱 WA' },
-              { key: 'instagram', label: '📸 IG' },
-              { key: 'facebook', label: '👥 FB' },
+              { key: 'whatsapp', label: 'WA' },
+              { key: 'instagram', label: 'IG' },
+              { key: 'facebook', label: 'FB' },
             ].map(f => (
               <button
                 key={f.key}

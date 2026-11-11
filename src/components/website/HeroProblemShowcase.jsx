@@ -20,8 +20,8 @@ export function HeroProblemShowcase({ onExploreApp, onBookDemo }) {
             <span>KreazyAI Autonomous Engine: Active on WhatsApp, Instagram & Messenger</span>
           </div>
           <div className="solution-stats-quick">
-            <span className="quick-stat">⚡ 1.2s Avg Reply</span>
-            <span className="quick-stat">🎯 87% Autonomous Resolution</span>
+            <span className="quick-stat">1.2s Avg Reply</span>
+            <span className="quick-stat">87% Autonomous Resolution</span>
           </div>
         </div>
 

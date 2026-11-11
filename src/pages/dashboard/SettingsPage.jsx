@@ -1870,7 +1870,7 @@ function BillingSection({ user, onToast }) {
       setTrxId('');
       setScreenshotPreview(null);
       setScreenshotName('');
-      if (onToast) onToast(`🎉 Payment submitted! Your subscription to ${plan.name} is now active.`, 'success');
+      if (onToast) onToast(`Payment confirmed. Your subscription to ${plan.name} is now active.`, 'success');
     }, 750);
   };
 

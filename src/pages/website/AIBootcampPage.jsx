@@ -241,7 +241,7 @@ export function AIBootcampPage({ onNavigate }) {
                       padding: '2px 7px',
                       borderRadius: '6px'
                     }}>
-                      ✓ VERIFIED MENTOR
+                      VERIFIED MENTOR
                     </span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#FBBF24', fontWeight: 600 }}>
@@ -875,7 +875,7 @@ export function AIBootcampPage({ onNavigate }) {
           }}>
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#FBBF24', fontSize: '1rem', marginBottom: '0.4rem' }}>
-                🎓 Students & Graduates
+                Students & Graduates
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
                 Gain the competitive edge with hands-on enterprise AI skills that traditional university curriculums don't teach.
@@ -884,7 +884,7 @@ export function AIBootcampPage({ onNavigate }) {
 
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#38BDF8', fontSize: '1rem', marginBottom: '0.4rem' }}>
-                💼 Software Engineers
+                Software Engineers
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
                 Upgrade from writing boilerplate CRUD to orchestrating intelligent agents, vector embeddings, and official Meta APIs.
@@ -893,7 +893,7 @@ export function AIBootcampPage({ onNavigate }) {
 
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#34D399', fontSize: '1rem', marginBottom: '0.4rem' }}>
-                🚀 Freelancers & Agencies
+                Freelancers & Agencies
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
                 Stop competing on $10/hour tasks. Package high-value autonomous commerce workflows that clients eagerly pay recurring fees for.
@@ -902,7 +902,7 @@ export function AIBootcampPage({ onNavigate }) {
 
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#FF6B7E', fontSize: '1rem', marginBottom: '0.4rem' }}>
-                🛍 E-Commerce Store Owners
+                E-Commerce Store Owners
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
                 Learn how to put your customer support, inventory reservations, and checkout on 24/7 autopilot without hiring more moderators.

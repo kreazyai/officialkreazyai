@@ -23,7 +23,7 @@ export function TrustedBrandsBar() {
             {/* Expedia */}
             <div className="brand-logo-item">
               <span className="brand-text-logo expedia-logo">
-                <span className="brand-expedia-icon">✈</span> Expedia
+                Expedia
               </span>
             </div>
 

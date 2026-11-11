@@ -144,36 +144,36 @@ export function HomePage({ onNavigate, user }) {
   // Top 8 Buyer Objections FAQs
   const homeFaqs = [
     {
-      q: 'What exactly is KREAZY AI and how does it help my business?',
-      a: 'KREAZY AI is a 24/7 AI sales and automation agent built for businesses communicating on WhatsApp, Instagram, Messenger, and Web. It automatically replies to customer messages, answers product and pricing questions, guides sizing, collects delivery details, and creates confirmed orders directly in chat so you never lose a customer to slow response times.'
+      q: 'What is KREAZY AI?',
+      a: 'A 24/7 AI sales agent for WhatsApp, Instagram, and Messenger. It answers product questions, guides sizing, and closes orders directly in chat.'
     },
     {
-      q: 'Which channels does KREAZY AI support?',
-      a: 'KREAZY AI natively supports WhatsApp Business (via official Meta Cloud API), Instagram Direct Messages & Story Mentions, Facebook Messenger, and Website Live Chat. All customer messages and orders are synced into one central workspace.'
+      q: 'Which channels are supported?',
+      a: 'Official WhatsApp Business Cloud API, Instagram Direct & Stories, Facebook Messenger, and Web Live Chat.'
     },
     {
-      q: 'Can KREAZY AI take customer orders automatically without a website?',
-      a: 'Yes! Many social commerce sellers take orders directly in chat without forcing customers onto an external website. KREAZY AI collects the customer\'s name, phone number, delivery address, item variant, and payment preference (Cash on Delivery, bKash, or card), confirms the order, and syncs it to your dashboard.'
+      q: 'Can it take orders without a website?',
+      a: 'Yes. The AI collects items, sizing, delivery address, and payment method (COD, bKash, Card) directly in chat.'
     },
     {
-      q: 'What happens when a customer asks to speak with a human agent?',
-      a: 'Whenever a customer requests a real person, asks for custom adjustments, or when the AI detects an edge case, KREAZY AI triggers an instant human handoff. The conversation is highlighted in your inbox with full context and an AI-drafted reply, allowing your human staff to take over seamlessly with a single click.'
+      q: 'How does human handoff work?',
+      a: 'Staff can step in anytime with one click. The AI provides complete chat context and drafted suggestions.'
     },
     {
-      q: 'Can KREAZY AI understand Bengali and mixed Banglish messages?',
-      a: 'Yes. KREAZY AI natively understands Bangla script, English, and Romanized Banglish (e.g., "Ei shirt er L size hobe? Delivery charge koto?"). It responds in natural, polite conversational tone matching your customer\'s language.'
+      q: 'Does it understand Bangla and Banglish?',
+      a: 'Yes. It natively understands Bangla, Banglish, Spanish, and English.'
     },
     {
-      q: 'Does KREAZY AI work with Facebook and Instagram ads?',
-      a: 'Yes. When you run Meta "Click-to-WhatsApp" or "Click-to-Instagram Direct" ads, KREAZY AI greets leads in under 1.5 seconds before they lose interest. Furthermore, our integrated Meta Conversions API (CAPI) sends confirmed purchase events back to Meta Ads to optimize your targeting and ROAS.'
+      q: 'Does it work with Meta ads?',
+      a: 'Yes. It engages Click-to-WhatsApp and Instagram ad leads in under 1.5s, sending purchase events back to Meta CAPI.'
     },
     {
-      q: 'How does the 7-day free trial and pricing work?',
-      a: 'You can test KREAZY AI completely free for 7 days with 500 AI conversations on any channel—no credit card required. After the trial, the Standard plan starts at ৳1,990/month (or $19/month). There are no contracts and you can cancel anytime.'
+      q: 'How does the free trial work?',
+      a: '7-day free trial with 500 AI conversations. No credit card required. Cancel anytime.'
     },
     {
-      q: 'How long does setup take and do I need coding experience?',
-      a: 'Zero coding is required. Connecting your Meta channels takes approximately 5 minutes using official Meta OAuth login. You can upload your product catalog, size guides, and delivery policies directly, and your AI sales agent is ready to start responding immediately.'
+      q: 'How long does setup take?',
+      a: '5 minutes with zero coding. Connect via official Meta login and upload your catalog.'
     }
   ];
 
@@ -523,7 +523,7 @@ export function HomePage({ onNavigate, user }) {
             >
               <div className="hero-modal-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <div className="hero-play-circle" style={{ color: '#00A859' }}>▶</div>
+                  <div className="hero-play-circle" style={{ color: '#00A859' }}>Play</div>
                   <h3 className="hero-modal-title">{t('hero.modalTitle', 'KreazyAI Live Platform Demo')}</h3>
                 </div>
                 <button
@@ -1156,7 +1156,7 @@ export function HomePage({ onNavigate, user }) {
               </Button>
             </div>
             <div style={{ marginTop: '1.25rem', fontSize: '0.825rem', color: 'var(--text-secondary)', position: 'relative', zIndex: 1 }}>
-              {t('finalCta.guarantee', '⚡ Connects in 5 minutes • No credit card required • Cancel anytime')}
+              {t('finalCta.guarantee', 'Connects in 5 minutes • No credit card required • Cancel anytime')}
             </div>
           </div>
         </div>

@@ -293,7 +293,7 @@ export function OnboardingPage({ onNavigate, user }) {
                   />
                 </div>
                 <div style={tipBox}>
-                  💡 You can bulk sync your entire 500+ SKU catalog automatically from Shopify or CSV in your dashboard anytime.
+                  You can bulk sync your catalog from Shopify or CSV in your dashboard anytime.
                 </div>
               </div>
             </div>

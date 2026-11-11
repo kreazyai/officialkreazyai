@@ -150,7 +150,7 @@ export function WebsiteChatWidget({ onNavigate }) {
     {
       id: 'msg-init',
       sender: 'bot',
-      text: "Hi there! 👋\n\nWhat brings you here today?",
+      text: "Hi there! \n\nWhat brings you here today?",
       time: 'Just now'
     }
   ]);
@@ -205,8 +205,8 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "এক মুহূর্ত অপেক্ষা করুন, আমি আমাদের ফিচার ও প্ল্যানগুলো দেখে নিচ্ছি।\n\nআপনার Kreazy AI স্টোরের লক্ষ্য ও প্রয়োজনীয়তার ওপর নির্ভর করবে সেরা সার্ভিস কোনটি!\n\nআমরা ৩টি সমন্বিত প্ল্যান অফার করি যা আপনার হোয়াটসঅ্যাপ ও ইনস্টাগ্রাম বিক্রয় সম্পূর্ণ স্বয়ংক্রিয় করে:\n\n1. **Starter প্ল্যান ($49 / মাস - ~৳৫,৮৮০)**: ১,০০০ মাসিক স্বয়ংক্রিয় কথোপকথন, ১টি মেটা ভেরিফাইড হোয়াটসঅ্যাপ নম্বর এবং রিয়েল-টাইম ক্যাটালগ সিঙ্ক।\n\n2. **Growth প্ল্যান ($119 / মাস - ~৳১৪,২৮০)**: ৫,০০০ মাসিক কথোপকথন, হোয়াটসঅ্যাপ + ইনস্টাগ্রাম + মেসেঞ্জার ওমনিচ্যানেল এবং ইন-চ্যাট ক্যাশ অন ডেলিভারি (COD) চেকআউট।\n\n3. **Scale প্ল্যান ($299 / মাস - ~৳৩৫,৮৮০)**: ২৫,০০০ মাসিক কথোপকথন, ডেডিকেটেড ম্যানেজার, কাস্টম এআই ট্রেনিং ও মাল্টিপল এজেন্ট হ্যান্ডঅফ।\n\nআপনি আমাদের **প্রাইসিং পেজে** বিস্তারিত ফিচার তুলনা দেখতে পারেন।\n\nআপনি কি মূলত সামাজিক মাধ্যমে সেলস বাড়াতে চান, গ্রাহক সেবাকে স্বয়ংক্রিয় করতে চান, নাকি ওমনিচ্যানেল কমার্স পরিচালনা করতে চান? আপনার স্টোর সম্পর্কে আমাকে বলুন!",
           actions: [
-            { label: '💰 প্রাইসিং প্ল্যান দেখুন', type: 'navigate', target: 'pricing', icon: DollarSign },
-            { label: '📅 লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'প্রাইসিং প্ল্যান দেখুন', type: 'navigate', target: 'pricing', icon: DollarSign },
+            { label: 'লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -220,8 +220,8 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "Kreazy AI সরাসরি মেটার অফিসিয়াল ক্লাউড এপিআই-এর সাথে কাজ করে:\n\n১. **তাত্ক্ষণিক উত্তর**: গ্রাহক যেকোনো মেসেজ দিলে ২ সেকেন্ডের মধ্যে প্রোডাক্ট স্পেসিফিকেশন ও সাইজ সহ নির্ভুল উত্তর দেয়।\n\n২. **ইনভেন্টরি সিঙ্ক**: স্টকে প্রোডাক্ট আছে কি না যাচাই করে স্বয়ংক্রিয় সাইজ ও রঙের রিকমেন্ডেশন পাঠায়।\n\n৩. **অর্ডার কনফার্মেশন ও কুরিয়ার**: চ্যাটেই নাম, ঠিকানা ও ফোন নম্বর সংগ্রহ করে Steadfast, Pathao বা RedX-এ সরাসরি পার্সেল বুক করে দেয়।\n\nআপনি চাইলে এখনই আমাদের সাথে একটি ১৫ মিনিটের লাইভ ডেমো বুক করতে পারেন!",
           actions: [
-            { label: '📅 লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar },
-            { label: '🚀 সলিউশনস দেখুন', type: 'navigate', target: 'solutions', icon: ArrowRight }
+            { label: 'লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar },
+            { label: 'সলিউশনস দেখুন', type: 'navigate', target: 'solutions', icon: ArrowRight }
           ]
         };
       }
@@ -235,8 +235,8 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "Kreazy AI সরাসরি বাংলাদেশের শীর্ষ লজিস্টিকস প্ল্যাটফর্মের সাথে সংযুক্ত:\n\n• **Steadfast Courier**: এক ক্লিকে স্বয়ংক্রিয় ট্র্যাকিং আইডি ও পার্সেল বুকিং।\n• **Pathao Courier**: রিয়েল-টাইম ডেলিভারি আপডেট ও ওয়েবহুক সিঙ্ক।\n• **RedX & Paperfly**: অর্ডার বের হলে গ্রাহকের হোয়াটসঅ্যাপে অটো ট্র্যাকিং মেসেজ পাঠানো।",
           actions: [
-            { label: '🚚 ইন্টিগ্রেশনসমূহ দেখুন', type: 'navigate', target: 'integrations', icon: Truck },
-            { label: '📅 লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'ইন্টিগ্রেশনসমূহ দেখুন', type: 'navigate', target: 'integrations', icon: Truck },
+            { label: 'লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -249,7 +249,7 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "চমৎকার! আমাদের মার্চেন্ট কনসালটেন্ট আপনার স্টোরের জন্য একটি পারসোনালাইজড ১৫ মিনিটের লাইভ ডেমো পরিচালনা করবেন।\n\nডেমোতে আপনি সরাসরি আপনার ফেসবুক পেজ বা হোয়াটসঅ্যাপে কীভাবে স্বয়ংক্রিয়ভাবে প্রোডাক্ট বিক্রি ও অর্ডার কনফার্ম হবে তা দেখতে পাবেন।",
           actions: [
-            { label: '📅 লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -262,7 +262,7 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "আমাদের মার্চেন্ট সাপোর্ট টিম ২৪/৭ প্রস্তুত রয়েছে!\n\n• **সরাসরি হোয়াটসঅ্যাপ**: +880 1712-345678\n• **ইমেইল**: sales@kreazyai.com\n\nআপনার ফোন নম্বরটি এখানে লিখে পাঠালে আমাদের সিনিয়র অটোমেশন ইঞ্জিনিয়ার ১৫ মিনিটের মধ্যে আপনার সাথে যোগাযোগ করবেন।",
           actions: [
-            { label: '💬 সরাসরি হোয়াটসঅ্যাপে চ্যাট', type: 'whatsapp', target: '+8801712345678', icon: ArrowRight }
+            { label: 'সরাসরি হোয়াটসঅ্যাপে চ্যাট', type: 'whatsapp', target: '+8801712345678', icon: ArrowRight }
           ]
         };
       }
@@ -270,9 +270,9 @@ export function WebsiteChatWidget({ onNavigate }) {
       // Polite / Thanks
       if (clean.includes('dhonnobad') || clean.includes('ধন্যবাদ') || clean.includes('thik ase') || clean.includes('accha')) {
         return {
-          text: "আপনাকে অনেক ধন্যবাদ! 😊 আপনার ব্যবসা সম্পর্কিত যেকোনো প্রশ্ন বা সহায়তার জন্য আমি সব সময় আছি। শুভকামনা!",
+          text: "আপনাকে অনেক ধন্যবাদ!  আপনার ব্যবসা সম্পর্কিত যেকোনো প্রশ্ন বা সহায়তার জন্য আমি সব সময় আছি। শুভকামনা!",
           actions: [
-            { label: '📅 লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -281,8 +281,8 @@ export function WebsiteChatWidget({ onNavigate }) {
       return {
         text: "ধন্যবাদ আপনার বার্তার জন্য! আমি Kreazy AI-এর সার্ভিস কোপাইলট। আপনার স্টোরের হোয়াটসঅ্যাপ, ইনস্টাগ্রাম বা মেসেঞ্জারে স্বয়ংক্রিয় বিক্রয় ও কাস্টমার সাপোর্ট শুরু করতে আমি কীভাবে আপনাকে সহায়তা করতে পারি?",
         actions: [
-          { label: '💰 প্রাইসিং প্ল্যান দেখুন', type: 'navigate', target: 'pricing', icon: DollarSign },
-          { label: '📅 লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
+          { label: 'প্রাইসিং প্ল্যান দেখুন', type: 'navigate', target: 'pricing', icon: DollarSign },
+          { label: 'লাইভ ডেমো বুক করুন', type: 'navigate', target: 'book-demo', icon: Calendar }
         ]
       };
     }
@@ -298,8 +298,8 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "Un momento mientras reviso nuestras funciones y planes para usted.\n\n¡El mejor servicio depende de lo que desee lograr con su tienda en Kreazy AI!\n\nOfrecemos planes Starter, Growth y Scale diseñados para desbloquear automatización avanzada en WhatsApp e Instagram:\n\n1. **Starter ($49 / mes)**: incluye 1,000 conversaciones automatizadas, 1 línea de WhatsApp Business y sincronización de catálogo en tiempo real.\n\n2. **Growth ($119 / mes)**: agrega omnicanalidad (WhatsApp + Instagram + Messenger), finalización de compra automatizada y enlaces de seguimiento logístico.\n\n3. **Scale ($299 / mes)**: ofrece 25,000 conversaciones automatizadas, herramientas de gestión de IA, transferencia a agentes humanos y entrenamiento personalizado de IA.\n\nPuede ver la comparativa completa de funciones y precios en nuestra **página de precios**.\n\n¿Desea utilizar Kreazy AI para ventas sociales, atención al cliente o comercio omnicanal? ¡Cuénteme qué funciones son más importantes para usted!",
           actions: [
-            { label: '💰 Ver Planes de Precios', type: 'navigate', target: 'pricing', icon: DollarSign },
-            { label: '📅 Reservar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'Ver Planes de Precios', type: 'navigate', target: 'pricing', icon: DollarSign },
+            { label: 'Reservar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -312,8 +312,8 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "Kreazy AI se conecta directamente a la API oficial de Meta Cloud:\n\n1. **Respuestas en menos de 2 segundos**: Responde preguntas sobre productos 24/7 sin tiempo de espera.\n\n2. **Catálogo e inventario en vivo**: Verifica tallas, colores y existencias en tiempo real.\n\n3. **Checkout dentro del chat**: Recopila la dirección de entrega y confirma pedidos al instante.\n\n¿Le gustaría agendar una demostración en vivo de 15 minutos?",
           actions: [
-            { label: '📅 Agendar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar },
-            { label: '🚀 Explorar Soluciones', type: 'navigate', target: 'solutions', icon: ArrowRight }
+            { label: 'Agendar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar },
+            { label: 'Explorar Soluciones', type: 'navigate', target: 'solutions', icon: ArrowRight }
           ]
         };
       }
@@ -323,7 +323,7 @@ export function WebsiteChatWidget({ onNavigate }) {
         return {
           text: "¡Con gusto! Nuestro equipo de arquitectos comerciales le mostrará una sesión personalizada de 15 minutos para ver la sincronización en vivo y pedidos automatizados.",
           actions: [
-            { label: '📅 Reservar Demostración en Vivo', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'Reservar Demostración en Vivo', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -331,9 +331,9 @@ export function WebsiteChatWidget({ onNavigate }) {
       // Thanks / Polite
       if (clean.includes('gracias') || clean.includes('ok') || clean.includes('perfecto')) {
         return {
-          text: "¡De nada! 😊 Estaré aquí si necesita algo más. ¡Mucho éxito con su negocio!",
+          text: "¡De nada!  Estaré aquí si necesita algo más. ¡Mucho éxito con su negocio!",
           actions: [
-            { label: '📅 Agendar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar }
+            { label: 'Agendar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar }
           ]
         };
       }
@@ -342,8 +342,8 @@ export function WebsiteChatWidget({ onNavigate }) {
       return {
         text: "¡Hola! Gracias por contactarnos. Soy el Copiloto de IA de Kreazy AI. ¿En qué puedo ayudarle hoy con la automatización de sus ventas en WhatsApp e Instagram?",
         actions: [
-          { label: '💰 Ver Precios', type: 'navigate', target: 'pricing', icon: DollarSign },
-          { label: '📅 Reservar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar }
+          { label: 'Ver Precios', type: 'navigate', target: 'pricing', icon: DollarSign },
+          { label: 'Reservar Demostración', type: 'navigate', target: 'book-demo', icon: Calendar }
         ]
       };
     }
@@ -358,8 +358,8 @@ export function WebsiteChatWidget({ onNavigate }) {
       return {
         text: "One moment while I look into our features and plans for you.\n\nThe best service depends on what you're looking to achieve with your Kreazy AI store!\n\nWe offer Starter, Growth, and Scale plans that unlock advanced automation, deeper insights, and omnichannel sales tools:\n\n1. **Starter ($49/mo)** includes essentials like 1,000 automated chats, 1 WhatsApp Business line, and real-time stock sync.\n\n2. **Growth ($119/mo)** adds custom sales flows, WhatsApp + Instagram + Messenger omnichannel, and automated courier checkout.\n\n3. **Scale ($299/mo)** offers 25,000 automated chats, AI management tools, multi-agent human handoff, and dedicated AI model training.\n\nYou can check out full plan features and pricing on our **compare plans page**.\n\nAre you looking to use Kreazy AI for social selling, automated customer support, or multi-channel commerce? Let me know what features matter most to you!",
         actions: [
-          { label: '💰 Compare Pricing Plans', type: 'navigate', target: 'pricing', icon: DollarSign },
-          { label: '📅 Book a 1-on-1 Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
+          { label: 'Compare Pricing Plans', type: 'navigate', target: 'pricing', icon: DollarSign },
+          { label: 'Book a 1-on-1 Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
         ]
       };
     }
@@ -369,8 +369,8 @@ export function WebsiteChatWidget({ onNavigate }) {
       return {
         text: "What can I help you with? Feel free to ask about WhatsApp automation, live catalog sync, courier tracking, or our pricing plans!",
         actions: [
-          { label: '💰 Pricing Details', type: 'navigate', target: 'pricing', icon: DollarSign },
-          { label: '📅 Book a Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
+          { label: 'Pricing Details', type: 'navigate', target: 'pricing', icon: DollarSign },
+          { label: 'Book a Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
         ]
       };
     }
@@ -394,8 +394,8 @@ export function WebsiteChatWidget({ onNavigate }) {
       return {
         text: "We'd love to give you a personalized 15-minute consultation! Our commerce automation architect will walk you through live catalog syncing, instant stock verification, and automated order booking directly in WhatsApp.",
         actions: [
-          { label: '📅 Go to Book Demo Page', type: 'navigate', target: 'book-demo', icon: Calendar },
-          { label: '💬 WhatsApp Sales Directly', type: 'whatsapp', target: '+8801712345678', icon: ArrowRight }
+          { label: 'Go to Book Demo Page', type: 'navigate', target: 'book-demo', icon: Calendar },
+          { label: 'WhatsApp Sales Directly', type: 'whatsapp', target: '+8801712345678', icon: ArrowRight }
         ]
       };
     }
@@ -405,8 +405,8 @@ export function WebsiteChatWidget({ onNavigate }) {
       return {
         text: "Kreazy AI seamlessly integrates with premier logistics providers:\n\n• **Steadfast Courier**: Automatic parcel consignment creation and tracking IDs.\n• **Pathao Courier**: Instant order push and delivery status webhooks.\n• **RedX & Paperfly**: Automated tracking link dispatched to your buyer's WhatsApp as soon as parcel is in transit.",
         actions: [
-          { label: '🚚 View Integrations', type: 'navigate', target: 'integrations', icon: Truck },
-          { label: '📅 Book Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
+          { label: 'View Integrations', type: 'navigate', target: 'integrations', icon: Truck },
+          { label: 'Book Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
         ]
       };
     }
@@ -414,9 +414,9 @@ export function WebsiteChatWidget({ onNavigate }) {
     // Polite / Thank you (matching cb2_sec_20.jpg)
     if (clean.includes('thank') || clean.includes('thanks') || clean.includes('okay') || clean.includes('alright')) {
       return {
-        text: "You're very welcome! Feel free to ask if anything else comes up, or schedule a quick walkthrough whenever you're ready to automate your store. Have a great day! 😊",
+        text: "You're very welcome! Feel free to ask if anything else comes up, or schedule a quick walkthrough whenever you're ready to automate your store. Have a great day! ",
         actions: [
-          { label: '📅 Schedule Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
+          { label: 'Schedule Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
         ]
       };
     }
@@ -425,8 +425,8 @@ export function WebsiteChatWidget({ onNavigate }) {
     return {
       text: "Thanks for reaching out! I'm Kreazy Copilot. I can guide you through setting up AI agents on WhatsApp and Instagram, connecting your product catalog, or choosing the best subscription plan. What would you like to explore?",
       actions: [
-        { label: '💰 Compare Pricing Plans', type: 'navigate', target: 'pricing', icon: DollarSign },
-        { label: '📅 Book a 1-on-1 Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
+        { label: 'Compare Pricing Plans', type: 'navigate', target: 'pricing', icon: DollarSign },
+        { label: 'Book a 1-on-1 Live Demo', type: 'navigate', target: 'book-demo', icon: Calendar }
       ]
     };
   };
@@ -503,7 +503,7 @@ export function WebsiteChatWidget({ onNavigate }) {
       {
         id: 'msg-init',
         sender: 'bot',
-        text: "Hi there! 👋\n\nWhat brings you here today?",
+        text: "Hi there! \n\nWhat brings you here today?",
         time: 'Just now'
       }
     ]);
@@ -528,7 +528,7 @@ export function WebsiteChatWidget({ onNavigate }) {
               <div className="kreazy-cb-home-header">
                 <div className="kreazy-cb-home-header-top">
                   <div className="kreazy-cb-brand-asterisk">
-                    <span className="kreazy-cb-asterisk-icon">✱</span>
+                    
                     <span className="kreazy-cb-brand-tagline">Kreazy AI</span>
                   </div>
                   <button
@@ -543,7 +543,7 @@ export function WebsiteChatWidget({ onNavigate }) {
                 </div>
 
                 <div className="kreazy-cb-home-hero-text">
-                  <h1 className="kreazy-cb-home-hero-h1">Hi there 👋</h1>
+                  <h1 className="kreazy-cb-home-hero-h1">Hello</h1>
                   <h2 className="kreazy-cb-home-hero-h2">How can we help?</h2>
                 </div>
               </div>
@@ -903,7 +903,7 @@ export function WebsiteChatWidget({ onNavigate }) {
           <ChevronDown size={28} strokeWidth={2.4} />
         ) : (
           <span className="kreazy-cb-launcher-hand" role="img" aria-label="Waving hand">
-            👋
+            
           </span>
         )}
       </button>

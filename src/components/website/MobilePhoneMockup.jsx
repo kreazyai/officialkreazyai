@@ -97,10 +97,10 @@ const SCRIPT_MESSAGES = [
 ];
 
 const CHANNELS_CONFIG = {
-  whatsapp: { label: 'WhatsApp', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.15)', icon: '📱' },
-  instagram: { label: 'Instagram', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)', icon: '📸' },
-  messenger: { label: 'Messenger', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)', icon: '💬' },
-  shopify: { label: 'Shopify Sync', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', icon: '🛍️' }
+  whatsapp: { label: 'WhatsApp', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.15)', icon: '' },
+  instagram: { label: 'Instagram', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)', icon: '' },
+  messenger: { label: 'Messenger', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)', icon: '' },
+  shopify: { label: 'Shopify Sync', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', icon: '' }
 };
 
 export function MobilePhoneMockup({ activeChannel = 'all', onSelectChannel }) {
@@ -221,7 +221,7 @@ export function MobilePhoneMockup({ activeChannel = 'all', onSelectChannel }) {
               <div className="phone-header-meta">
                 <div className="phone-header-title">
                   <span>KreazyAI Assistant</span>
-                  <span className="phone-verified-tick" title="Verified Business AI">✓</span>
+                  <Check size={10} className="phone-verified-tick" />
                 </div>
                 <div className="phone-header-sub">
                   <span className="phone-active-dot"></span>
@@ -280,7 +280,7 @@ export function MobilePhoneMockup({ activeChannel = 'all', onSelectChannel }) {
                       <div className="phone-ai-sender-tag">
                         <Bot size={11} color="var(--bright-olive)" />
                         <span>KreazyAI</span>
-                        <span className="phone-ai-speed">• ⚡ {msg.responseTime}</span>
+                        <span className="phone-ai-speed">• {msg.responseTime}</span>
                       </div>
                     )}
 

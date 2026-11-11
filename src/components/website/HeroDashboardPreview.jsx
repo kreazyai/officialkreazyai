@@ -250,7 +250,7 @@ export function HeroDashboardPreview({ onExploreApp }) {
                     </div>
                   </div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--bright-olive)', marginTop: '3px', marginRight: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Bot size={11} /> 10:15 AM • AI Copilot ✓✓
+                    <Bot size={11} /> 10:15 AM • AI Copilot
                   </div>
                 </div>
 

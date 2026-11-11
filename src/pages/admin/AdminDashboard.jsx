@@ -364,7 +364,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
     try {
       const res = await adminService.flushCache();
       if (res && res.success) {
-        showToast('⚡ System cache & memory stores flushed');
+        showToast('Cache and memory stores flushed');
         loadSystemHealth();
       } else {
         showToast('Cache flush completed');
@@ -378,7 +378,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
     try {
       const res = await adminService.vacuumDatabase();
       if (res && res.success) {
-        showToast(`🧹 DB optimized (${res.data?.durationMs || 10}ms)`);
+        showToast(`Database optimized (${res.data?.durationMs || 10}ms)`);
         loadSystemHealth();
       } else {
         showToast('Database WAL checkpoint executed');
@@ -836,7 +836,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.totalUsers).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Real registered database accounts
+                    Registered accounts
                   </div>
                 </div>
 
@@ -849,7 +849,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.activeUsers).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Active sessions & recent activity
+                    Active sessions
                   </div>
                 </div>
 
@@ -862,7 +862,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.totalBusinesses).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Total merchant tenant workspaces
+                    Merchant workspaces
                   </div>
                 </div>
 
@@ -875,7 +875,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.connectedBusinesses).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Workspaces with connected channels
+                    Connected channels
                   </div>
                 </div>
 
@@ -888,7 +888,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.activeIntegrations).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Live Meta & WhatsApp connections
+                    Active channels
                   </div>
                 </div>
 
@@ -901,7 +901,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.activeAutomations).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Stores with enabled AI auto-reply
+                    Stores with AI active
                   </div>
                 </div>
 
@@ -914,7 +914,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.automationRuns).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Total autonomous AI executions
+                    AI executions
                   </div>
                 </div>
 
@@ -927,7 +927,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     {metrics ? Number(metrics.messagesAutomated).toLocaleString() : '—'}
                   </div>
                   <div className="mac-metric-sub">
-                    Customer conversations handled
+                    Conversations handled
                   </div>
                 </div>
               </div>
@@ -2632,9 +2632,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                               borderRadius: '6px',
                               fontSize: '12px',
                               fontWeight: 600,
-                              color: '#1F2937'
+                              color: '#CBD5E1'
                             }}>
-                              <span>🌐</span>
+                              <Globe size={13} style={{ color: '#94A3B8' }} />
                               <span>{signup.country}</span>
                             </span>
                           </td>

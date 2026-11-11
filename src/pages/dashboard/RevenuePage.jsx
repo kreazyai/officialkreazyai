@@ -552,7 +552,7 @@ export function RevenuePage({ user, onNavigateModule }) {
             <div className="best-selling-numbered-list" aria-label="Top 3 best selling products">
               {topProducts.map((product, idx) => {
                 const rankNum = product.rank || idx + 1;
-                const medal = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : '🥉';
+                const medal = `#${rankNum}`;
                 return (
                   <div key={product.name + idx} className={`best-selling-product-item rank-${rankNum}`}>
                     <div className={`product-rank-badge rank-badge-${rankNum}`} aria-label={`Rank ${rankNum}`}>

@@ -42,9 +42,9 @@ const WORKFLOW_CONTENT = {
       b3: 'Automatic image & specification card previews',
       boxTitle: 'Synchronized Store Knowledge',
       autoSync: 'Auto-Sync On',
-      item1: '📦 48 Products active in AI Knowledge Base',
-      item2: '📐 Sizing charts, dimensions & materials indexed',
-      item3: '🚚 Shipping rates & return policies loaded'
+      item1: '48 Products active in AI Knowledge Base',
+      item2: 'Sizing charts, dimensions & materials indexed',
+      item3: 'Shipping rates & return policies loaded'
     },
     step3: {
       number: '03',
@@ -122,9 +122,9 @@ const WORKFLOW_CONTENT = {
       b3: 'স্বয়ংক্রিয় ছবি ও স্পেসিফিকেশন কার্ড প্রিভিউ',
       boxTitle: 'সিঙ্ক করা স্টোর নলেজ',
       autoSync: 'অটো-সিঙ্ক চালু',
-      item1: '📦 ৪৮টি পণ্য এআই নলেজ বেসে সক্রিয়',
-      item2: '📐 সাইজ চার্ট, মাপ ও কাপড়ের বিবরণ সংরক্ষিত',
-      item3: '🚚 ডেলিভারি চার্জ ও রিটার্ন পলিসি যুক্ত'
+      item1: '৪৮টি পণ্য এআই নলেজ বেসে সক্রিয়',
+      item2: 'সাইজ চার্ট, মাপ ও কাপড়ের বিবরণ সংরক্ষিত',
+      item3: 'ডেলিভারি চার্জ ও রিটার্ন পলিসি যুক্ত'
     },
     step3: {
       number: '০৩',
@@ -202,9 +202,9 @@ const WORKFLOW_CONTENT = {
       b3: 'Vistas previas automáticas de imágenes y especificaciones',
       boxTitle: 'Conocimiento de Tienda Sincronizado',
       autoSync: 'Auto-Sincro Activo',
-      item1: '📦 48 productos activos en la base de IA',
-      item2: '📐 Tablas de tallas, medidas y materiales indexados',
-      item3: '🚚 Tarifas de envío y políticas de devolución cargadas'
+      item1: '48 productos activos en la base de IA',
+      item2: 'Tablas de tallas, medidas y materiales indexados',
+      item3: 'Tarifas de envío y políticas de devolución cargadas'
     },
     step3: {
       number: '03',

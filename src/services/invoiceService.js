@@ -280,7 +280,7 @@ export function generateInvoiceHtml(invoice, plan, user) {
   <div class="top-actions-bar">
     <div style="font-size: 13px; font-weight: 600;">Kreazy AI Billing System • Verified Tax Invoice</div>
     <div style="display: flex; gap: 10px;">
-      <button class="btn-action" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="btn-action" onclick="window.print()">Print / Save PDF</button>
     </div>
   </div>
 
@@ -296,7 +296,7 @@ export function generateInvoiceHtml(invoice, plan, user) {
       </div>
       <div class="invoice-title-block">
         <div class="invoice-title">TAX INVOICE</div>
-        <div class="invoice-status-badge">✓ PAYMENT CLEARED & CONFIRMED</div>
+        <div class="invoice-status-badge">PAYMENT CONFIRMED</div>
       </div>
     </div>
 
@@ -324,7 +324,7 @@ export function generateInvoiceHtml(invoice, plan, user) {
     <!-- Payment Gateway Cleared Confirmation Banner -->
     <div class="payment-cleared-banner">
       <div class="cleared-left">
-        <div class="cleared-check">✓</div>
+        <div class="cleared-check">OK</div>
         <div>
           <div style="font-weight: 800; font-size: 14px; color: #092A20;">
             Mobile Payment Verified & Cleared
@@ -421,7 +421,7 @@ export function generateInvoiceHtml(invoice, plan, user) {
       </div>
 
       <div class="digital-seal-badge">
-        <span>🛡️</span>
+        
         <span>DIGITALLY VERIFIED BY KREAZY AI GATEWAY</span>
       </div>
     </div>

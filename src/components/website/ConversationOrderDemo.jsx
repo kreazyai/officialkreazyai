@@ -323,7 +323,7 @@ export function ConversationOrderDemo({ onNavigate }) {
               <div>
                 <div className="conv-sender-name">
                   <span>{scenario.channelName}</span>
-                  <span className="conv-verified-badge" title="Official Meta Verified">✓</span>
+                  <Check size={11} className="conv-verified-badge" />
                 </div>
                 <div className="conv-sender-status">
                   <span className="conv-status-pulse" />
@@ -353,7 +353,7 @@ export function ConversationOrderDemo({ onNavigate }) {
                     <div className="conv-msg-agent-tag">
                       <Bot size={11} color="var(--bright-olive)" />
                       <span>KreazyAI</span>
-                      <span className="conv-speed-tag">⚡ {step.speed}</span>
+                      <span className="conv-speed-tag">{step.speed}</span>
                     </div>
                   )}
 
@@ -406,14 +406,14 @@ export function ConversationOrderDemo({ onNavigate }) {
 
                     <div className="conv-msg-meta">
                       <span>{step.time}</span>
-                      {!isCust && <span className="conv-read-ticks">✓✓</span>}
+                      {!isCust && <CheckCheck size={12} className="conv-read-ticks" />}
                     </div>
                   </div>
 
                   {/* Micro Context Annotation */}
                   {step.annotation && (
                     <div className={`conv-annotation ${isCust ? 'anno-left' : 'anno-right'}`}>
-                      <span>💡 {step.annotation}</span>
+                      <span>{step.annotation}</span>
                     </div>
                   )}
                 </div>
@@ -522,7 +522,7 @@ export function ConversationOrderDemo({ onNavigate }) {
               <ArrowRight size={15} />
             </button>
             <div className="conv-sub-trust">
-              <span>⚡ Connects in 5 minutes</span>
+              <span>Connects in 5 minutes</span>
               <span>•</span>
               <span>No credit card required</span>
             </div>

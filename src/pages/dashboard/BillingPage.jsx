@@ -399,7 +399,7 @@ export function BillingPage({ user: propUser }) {
 
       // Add dashboard notification
       addDashboardNotification({
-        title: `🎉 ${plan.name} Activated!`,
+        title: `${plan.name} Activated`,
         desc: `Your merchant workspace is now upgraded to ${plan.name} with ${plan.conversationsFormatted} monthly automated AI chats.`,
         type: 'payment',
         time: 'Just now',
@@ -970,7 +970,7 @@ export function BillingPage({ user: propUser }) {
                           <span style={{ fontSize: '0.88rem', color: '#94A3B8', fontWeight: 600 }}>/ month</span>
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#10B981', fontWeight: 650, marginTop: '4px' }}>
-                          ⚡ Includes {plan.conversationsFormatted} automated AI conversations
+                          Includes {plan.conversationsFormatted} automated AI conversations
                         </div>
                       </div>
 
@@ -1105,7 +1105,7 @@ export function BillingPage({ user: propUser }) {
                 <div>
                   <strong style={{ fontSize: '1rem', color: '#FFFFFF' }}>{checkoutModalPlan.name} (Monthly)</strong>
                   <div style={{ fontSize: '0.78rem', color: '#10B981', marginTop: '2px' }}>
-                    ⚡ {checkoutModalPlan.conversationsFormatted} AI conversations included
+                    {checkoutModalPlan.conversationsFormatted} AI conversations included
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>

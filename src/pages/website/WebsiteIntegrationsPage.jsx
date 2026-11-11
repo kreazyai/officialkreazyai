@@ -35,7 +35,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'WhatsApp Business Cloud',
         partnerTag: 'Official Meta Partner',
-        setupTime: '⚡ 2 min setup',
+        setupTime: '2 min setup',
         desc: 'Official Meta Cloud API. Automates 1-on-1 customer chats, product catalog cards, interactive button menus, and order tracking alerts.',
         features: ['Verified green checkmark compatible', 'Interactive buttons & list messages', 'Automated shipping alerts & notifications']
       },
@@ -44,7 +44,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'Instagram Direct Automation',
         partnerTag: 'Official Meta Graph',
-        setupTime: '⚡ 1 click connect',
+        setupTime: '1 click connect',
         desc: 'Direct integration with Instagram Professional. Auto-respond to story mentions, post comments, and DMs with interactive product cards.',
         features: ['Story mention auto-replies', 'Comment-to-DM automated triggers', 'In-chat product catalog browsing']
       },
@@ -53,7 +53,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'Facebook Messenger Pages',
         partnerTag: 'Official Meta Graph',
-        setupTime: '⚡ 1 click connect',
+        setupTime: '1 click connect',
         desc: 'Synchronizes your business Facebook page inbox. Converts Click-to-Messenger ad traffic into confirmed paid orders with zero delay.',
         features: ['Paid ad lead instant conversion', 'Multi-page consolidated inbox', 'Automated customer contact saving']
       },
@@ -62,7 +62,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'Website Live Chat SDK',
         partnerTag: 'Embeddable JS',
-        setupTime: '⚡ Copy & paste snippet',
+        setupTime: 'Copy & paste snippet',
         desc: 'Lightweight, high-speed chat widget for your website or online store. Engages visitors and captures orders without slowing down page load.',
         features: ['Sub-20kb asynchronous script', 'Customizable brand color & avatar', 'Seamless visitor-to-order flow']
       },
@@ -71,7 +71,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'ecommerce',
         name: 'Shopify Storefront Sync',
         partnerTag: 'Direct OAuth App',
-        setupTime: '⚡ Real-time sync',
+        setupTime: 'Real-time sync',
         desc: 'Bi-directional synchronization with Shopify. Live inventory reservation, product variant lookup, and automatic order creation.',
         features: ['Real-time SKU & stock balance', 'Automated order and customer sync', 'Discount code validation']
       },
@@ -80,7 +80,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'ecommerce',
         name: 'WooCommerce API v3',
         partnerTag: 'REST Integration',
-        setupTime: '⚡ 3 min setup',
+        setupTime: '3 min setup',
         desc: 'Connect your WordPress WooCommerce store. Search products, verify stock availability, and push confirmed in-chat orders instantly.',
         features: ['Automatic order creation in WP', 'Customer billing address sync', 'Real-time category indexing']
       },
@@ -89,7 +89,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'Steadfast Courier API',
         partnerTag: 'Bangladesh Logistics',
-        setupTime: '⚡ Auto-dispatch',
+        setupTime: 'Auto-dispatch',
         desc: 'Generate courier consignment numbers and print shipping invoices the second an order is confirmed in WhatsApp or Messenger.',
         features: ['Automated tracking number generation', 'Dhaka & nationwide parcel delivery', 'In-chat delivery status retrieval']
       },
@@ -98,7 +98,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'Pathao Courier Ingestion',
         partnerTag: 'Merchant Partner',
-        setupTime: '⚡ Auto-dispatch',
+        setupTime: 'Auto-dispatch',
         desc: 'Direct courier booking via Pathao Merchant API. Push customer phone number, delivery address, and COD amount with automated dispatch.',
         features: ['Instant delivery pickup requests', 'Real-time parcel webhook updates', 'Automated COD reconciliation']
       },
@@ -107,7 +107,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'RedX Logistics API',
         partnerTag: 'Enterprise Delivery',
-        setupTime: '⚡ Auto-dispatch',
+        setupTime: 'Auto-dispatch',
         desc: 'Nationwide Bangladesh parcel logistics. Automatic order dispatching, invoice printing, and delivery notifications sent to customer chats.',
         features: ['Full district coverage mapping', 'Live tracking URL auto-sent to buyer', 'Automated return alert tracking']
       },
@@ -116,7 +116,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'Google Sheets Live Sync',
         partnerTag: 'Cloud Sync',
-        setupTime: '⚡ Instant setup',
+        setupTime: 'Instant setup',
         desc: 'Instantly append verified customer phone numbers, orders, items purchased, and revenue totals into your Google Sheets spreadsheet.',
         features: ['Zero delay row appending', 'Separate sheets per channel or date', 'Custom column mapping']
       },
@@ -125,7 +125,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'HubSpot CRM Integration',
         partnerTag: 'CRM Connector',
-        setupTime: '⚡ OAuth connect',
+        setupTime: 'OAuth connect',
         desc: 'Sync qualified retail leads, conversational transcripts, and deal stages directly into your HubSpot sales pipeline.',
         features: ['Lead contact timeline logging', 'Automated deal creation', 'Custom property mapping']
       },
@@ -134,7 +134,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'Custom REST API & Webhooks',
         partnerTag: 'Developer Platform',
-        setupTime: '⚡ HMAC SHA-256',
+        setupTime: 'HMAC SHA-256',
         desc: 'Connect your proprietary ERP, warehouse system, or POS backend with real-time JSON webhooks and REST endpoints.',
         features: ['HMAC SHA-256 signature verification', 'Sub-second event delivery', 'Full request retry queue']
       }
@@ -170,7 +170,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'হোয়াটসঅ্যাপ বিজনেস ক্লাউড',
         partnerTag: 'অফিসিয়াল মেটা পার্টনার',
-        setupTime: '⚡ মাত্র ২ মিনিটে সেটআপ',
+        setupTime: 'মাত্র ২ মিনিটে সেটআপ',
         desc: 'মেটার অফিশিয়াল ক্লাউড এপিআই। ওয়ান-অন-ওয়ান চ্যাট, প্রোডাক্ট ক্যাটালগ কার্ড, ইন্টারেক্টিভ বাটন এবং ট্র্যাকিং এলার্ট অটোমেট করে।',
         features: ['গ্রিন টিকমার্ক একাউন্টের সাথে পূর্ণ উপযোগী', 'ইন্টারেক্টিভ বাটন ও লিস্ট মেসেজ', 'স্বয়ংক্রিয় শিপিং ও ডেলিভারি নোটিফিকেশন']
       },
@@ -179,7 +179,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'ইনস্টাগ্রাম ডিরেক্ট অটোমেশন',
         partnerTag: 'অফিসিয়াল মেটা গ্রাফ',
-        setupTime: '⚡ ১-ক্লিকে সংযোগ',
+        setupTime: '১-ক্লিকে সংযোগ',
         desc: 'ইনস্টাগ্রাম প্রফেশনাল একাউন্টের সাথে সরাসরি যুক্ত। স্টোরি মেনশন, কমেন্ট ও ইনবক্স মেসেজে সাথে সাথে প্রোডাক্ট কার্ড পাঠায়।',
         features: ['স্টোরি মেনশন অটো-রিপ্লাই', 'কমেন্ট-টু-ডিএম অটোমেটেড ট্রিগার', 'ইন-চ্যাটে ক্যাটালগ ব্রাউজিং সুবিধা']
       },
@@ -188,7 +188,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'ফেসবুক মেসেঞ্জার পেজ',
         partnerTag: 'অফিসিয়াল মেটা গ্রাফ',
-        setupTime: '⚡ ১-ক্লিকে সংযোগ',
+        setupTime: '১-ক্লিকে সংযোগ',
         desc: 'আপনার অফিশিয়াল ফেসবুক পেজের ইনবক্স সিঙ্ক করে। বিজ্ঞাপনে ক্লিক করা কাস্টমারদের কোনো বিলম্ব ছাড়াই কনফার্মড অর্ডারে রূপান্তর করে।',
         features: ['পেইড অ্যাড লিড তাৎক্ষণিক কনভার্সন', 'মাল্টি-পেজ একীভূত ইনবক্স', 'স্বয়ংক্রিয় গ্রাহক যোগাযোগ সংরক্ষণ']
       },
@@ -197,7 +197,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'ওয়েবসাইট লাইভ চ্যাট এসডিকে',
         partnerTag: 'এমবেডেবল জেএস',
-        setupTime: '⚡ কপি-পেস্ট কোড স্নিপেট',
+        setupTime: 'কপি-পেস্ট কোড স্নিপেট',
         desc: 'আপনার ওয়েবসাইটের জন্য দ্রুতগতির লাইভ চ্যাট উইজেট। সাইটের স্পিড না কমিয়েই ভিজিটরদের সাথে যুক্ত হয় ও অর্ডার নিশ্চিত করে।',
         features: ['২০ কিলোবাইটেরও হালকা এসিঙ্ক স্ক্রিপ্ট', 'কাস্টম ব্র্যান্ড কালার ও অ্যাভাটার', 'ভিজিটর থেকে অর্ডারে নির্বিঘ্ন রূপান্তর']
       },
@@ -206,7 +206,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'ecommerce',
         name: 'শপিফাই স্টোরফ্রন্ট সিঙ্ক',
         partnerTag: 'ডাইরেক্ট ও-অথ অ্যাপ',
-        setupTime: '⚡ রিয়েল-টাইম সিঙ্ক',
+        setupTime: 'রিয়েল-টাইম সিঙ্ক',
         desc: 'শপিফাই-এর সাথে দ্বিমুখী সিঙ্ক। লাইভ ইনভেন্টরি রিজার্ভেশন, প্রোডাক্ট ভেরিয়েন্ট যাচাই এবং স্বয়ংক্রিয় অর্ডার তৈরি।',
         features: ['রিয়েল-টাইম এসকেইউ ও স্টক ব্যালেন্স', 'স্বয়ংক্রিয় অর্ডার ও গ্রাহক সিঙ্ক', 'ডিসকাউন্ট কুপন যাচাইকরণ']
       },
@@ -215,7 +215,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'ecommerce',
         name: 'উ-কমার্স এপিআই ৩.০',
         partnerTag: 'রেস্ট ইন্টিগ্রেশন',
-        setupTime: '⚡ ৩ মিনিটে সেটআপ',
+        setupTime: '৩ মিনিটে সেটআপ',
         desc: 'আপনার ওয়ার্ডপ্রেস উ-কমার্স স্টোর যুক্ত করুন। পণ্য সার্চ, স্টক প্রাপ্যতা যাচাই এবং চ্যাট থেকে সরাসরি অর্ডার প্লেস করুন।',
         features: ['ওয়ার্ডপ্রেসে স্বয়ংক্রিয় অর্ডার তৈরি', 'গ্রাহকের বিলিং ও শিপিং ঠিকানা সিঙ্ক', 'রিয়েল-টাইম ক্যাটাগরি ইনডেক্সিং']
       },
@@ -224,7 +224,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'স্টিডফাস্ট কুরিয়ার এপিআই',
         partnerTag: 'বাংলাদেশ লজিস্টিকস',
-        setupTime: '⚡ অটো-ডিসপ্যাচ',
+        setupTime: 'অটো-ডিসপ্যাচ',
         desc: 'হোয়াটসঅ্যাপ বা মেসেঞ্জারে অর্ডার কনফার্ম হওয়ার সাথে সাথেই পার্সেল কনসাইনমেন্ট তৈরি ও ইনভয়েস প্রিন্ট করার সুবিধা।',
         features: ['স্বয়ংক্রিয় ট্র্যাকিং নম্বর তৈরি', 'সারা বাংলাদেশে নির্ভরযোগ্য ডেলিভারি', 'চ্যাটের ভেতর লাইভ পার্সেল ট্র্যাকিং']
       },
@@ -233,7 +233,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'পাঠাও কুরিয়ার লজিস্টিকস',
         partnerTag: 'মার্চেন্ট পার্টনার',
-        setupTime: '⚡ অটো-ডিসপ্যাচ',
+        setupTime: 'অটো-ডিসপ্যাচ',
         desc: 'পাঠাও মার্চেন্ট এপিআই-এর মাধ্যমে সরাসরি পার্সেল বুকিং। গ্রাহকের ফোন নম্বর, ঠিকানা ও সিওডি এমাউন্ট পাঠিয়ে সাথে সাথে পিকআপ রিকোয়েস্ট।',
         features: ['তাৎক্ষণিক পিকআপ রিকোয়েস্ট তৈরি', 'রিয়েল-টাইম পার্সেল ওয়েবহুক আপডেট', 'স্বয়ংক্রিয় সিওডি পেমেন্ট সমন্বয়']
       },
@@ -242,7 +242,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'রেডএক্স ডেলিভারি এপিআই',
         partnerTag: 'এন্টারপ্রাইজ ডেলিভারি',
-        setupTime: '⚡ অটো-ডিসপ্যাচ',
+        setupTime: 'অটো-ডিসপ্যাচ',
         desc: 'সারাদেশে পার্সেল লজিস্টিকস। স্বয়ংক্রিয় অর্ডার বুকিং, চালান প্রিন্ট এবং গ্রাহকের চ্যাটে ডেলিভারি আপডেট প্রেরণ।',
         features: ['৬৪ জেলায় পূর্ণ কভারেজ ম্যাপিং', 'গ্রাহককে স্বয়ংক্রিয় ট্র্যাকিং লিংক প্রদান', 'রিটার্ন পার্সেলের দ্রুত নোটিফিকেশন']
       },
@@ -251,7 +251,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'গুগল শিটস লাইভ সিঙ্ক',
         partnerTag: 'ক্লাউড সিঙ্ক',
-        setupTime: '⚡ তাৎক্ষণিক সেটআপ',
+        setupTime: 'তাৎক্ষণিক সেটআপ',
         desc: 'যাচাইকৃত ফোন নম্বর, অর্ডার, পণ্যের তালিকা এবং আয়ের পরিমাণ সরাসরি আপনার গুগল স্প্রেডশিটে সেভ করুন।',
         features: ['কোনো বিলম্ব ছাড়াই রো যোগ করার সুবিধা', 'চ্যানেল বা তারিখভিত্তিক আলাদা শিট', 'কাস্টম কলাম ম্যাপিং']
       },
@@ -260,7 +260,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'হ্যাবস্পট সিআরএম ইন্টিগ্রেশন',
         partnerTag: 'সিআরএম কানেক্টর',
-        setupTime: '⚡ ও-অথ সংযোগ',
+        setupTime: 'ও-অথ সংযোগ',
         desc: 'যোগ্য রিটেল লিড, কথোপকথনের বিবরণ এবং ডিল পর্যায় সরাসরি আপনার হ্যাবস্পট সেলস পাইপলাইনে যুক্ত করুন।',
         features: ['লিড কন্টাক্ট টাইমলাইন সংরক্ষণ', 'স্বয়ংক্রিয় ডিল তৈরি', 'কাস্টম প্রপার্টি ম্যাপিং']
       },
@@ -269,7 +269,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'কাস্টম রেস্ট এপিআই ও ওয়েবহুক',
         partnerTag: 'ডেভেলপার প্ল্যাটফর্ম',
-        setupTime: '⚡ HMAC SHA-256',
+        setupTime: 'HMAC SHA-256',
         desc: 'রিয়েল-টাইম JSON ওয়েবহুক এবং REST এন্ডপয়েন্টের মাধ্যমে আপনার নিজস্ব ERP, ওয়্যারহাউস বা POS সফটওয়্যার যুক্ত করুন।',
         features: ['HMAC SHA-256 নিরাপত্তা সিগনেচার', 'সাব-সেকেন্ড ইভেন্ট ডেলিভারি', 'ফুল রিকোয়েস্ট রিট্রাই কিউ']
       }
@@ -305,7 +305,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'WhatsApp Business Cloud',
         partnerTag: 'Socio Oficial de Meta',
-        setupTime: '⚡ Configuración en 2 min',
+        setupTime: 'Configuración en 2 min',
         desc: 'API oficial de Meta Cloud. Automatiza conversaciones privadas, catálogos, botones interactivos y alertas de envío.',
         features: ['Compatible con verificación oficial', 'Botones interactivos y listas', 'Alertas automáticas de paquetería']
       },
@@ -314,7 +314,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'Automatización de Instagram Direct',
         partnerTag: 'API Oficial de Meta Graph',
-        setupTime: '⚡ Conexión en 1 clic',
+        setupTime: 'Conexión en 1 clic',
         desc: 'Integración directa con Instagram Professional. Responde historias, comentarios y mensajes privados con tarjetas de producto.',
         features: ['Respuestas a menciones de historias', 'Disparadores de comentario a DM', 'Catálogo de productos en chat']
       },
@@ -323,7 +323,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'Páginas de Facebook Messenger',
         partnerTag: 'API Oficial de Meta Graph',
-        setupTime: '⚡ Conexión en 1 clic',
+        setupTime: 'Conexión en 1 clic',
         desc: 'Sincroniza la bandeja de entrada de su página comercial. Convierte prospectos de anuncios de mensajes en ventas confirmadas al instante.',
         features: ['Conversión rápida de anuncios', 'Bandeja consolidada multipágina', 'Guardado automático de contactos']
       },
@@ -332,7 +332,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'meta',
         name: 'SDK de Chat en Vivo para Web',
         partnerTag: 'Script JS Integrable',
-        setupTime: '⚡ Código para copiar y pegar',
+        setupTime: 'Código para copiar y pegar',
         desc: 'Widget de chat ligero y ultra veloz para su tienda o sitio web. Capta visitantes y pedidos sin afectar la velocidad de carga.',
         features: ['Script asíncrono menor a 20kb', 'Color y avatar personalizables', 'Conversión fluida de visitante a comprador']
       },
@@ -341,7 +341,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'ecommerce',
         name: 'Sincronización con Shopify',
         partnerTag: 'Aplicación Directa OAuth',
-        setupTime: '⚡ Sincro en tiempo real',
+        setupTime: 'Sincro en tiempo real',
         desc: 'Sincronización bidireccional con Shopify. Reserva de existencias en vivo, búsqueda de variantes y creación automática de pedidos.',
         features: ['Balance de SKU en tiempo real', 'Sincro de pedidos y clientes', 'Validación de cupones de descuento']
       },
@@ -350,7 +350,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'ecommerce',
         name: 'WooCommerce API v3',
         partnerTag: 'Integración REST',
-        setupTime: '⚡ Configuración en 3 min',
+        setupTime: 'Configuración en 3 min',
         desc: 'Conecte su tienda WordPress WooCommerce. Busque productos, verifique stock y envíe pedidos confirmados en chat al instante.',
         features: ['Creación automática de pedidos en WP', 'Sincronización de direcciones de facturación', 'Indexación de categorías en vivo']
       },
@@ -359,7 +359,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'API de Paquetería Steadfast',
         partnerTag: 'Logística Regional',
-        setupTime: '⚡ Despacho automático',
+        setupTime: 'Despacho automático',
         desc: 'Genera números de seguimiento e imprime facturas en el segundo en que se confirma un pedido en WhatsApp o Messenger.',
         features: ['Generación automática de guía', 'Cobertura metropolitana y nacional', 'Consulta de estado de envío en chat']
       },
@@ -368,7 +368,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'Integración de Envíos Pathao',
         partnerTag: 'Socio de Comercios',
-        setupTime: '⚡ Despacho automático',
+        setupTime: 'Despacho automático',
         desc: 'Reserva directa de envíos mediante la API comercial de Pathao. Envía teléfono, dirección y cobro contra entrega con recogida automática.',
         features: ['Solicitudes de recogida instantáneas', 'Actualizaciones por webhook en tiempo real', 'Conciliación automática de cobro']
       },
@@ -377,7 +377,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'logistics',
         name: 'API de Logística RedX',
         partnerTag: 'Distribución Empresarial',
-        setupTime: '⚡ Despacho automático',
+        setupTime: 'Despacho automático',
         desc: 'Logística y distribución integral. Despacho automatizado de paquetes, facturas y alertas al chat del comprador.',
         features: ['Mapeo de cobertura completa', 'Enlace de seguimiento enviado al comprador', 'Alertas de devolución automatizadas']
       },
@@ -386,7 +386,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'Sincronización con Google Sheets',
         partnerTag: 'Sincronización en la Nube',
-        setupTime: '⚡ Configuración instantánea',
+        setupTime: 'Configuración instantánea',
         desc: 'Guarde de inmediato teléfonos verificados, pedidos, artículos adquiridos y montos de ventas en su hoja de cálculo.',
         features: ['Inserción de filas sin demora', 'Hojas separadas por canal o fecha', 'Mapeo personalizado de columnas']
       },
@@ -395,7 +395,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'Integración con HubSpot CRM',
         partnerTag: 'Conector de CRM',
-        setupTime: '⚡ Conexión OAuth',
+        setupTime: 'Conexión OAuth',
         desc: 'Sincronice prospectos calificados, transcripciones de chats y etapas de venta directamente en su pipeline de HubSpot.',
         features: ['Registro de cronología del contacto', 'Creación automática de negocios', 'Mapeo de propiedades a medida']
       },
@@ -404,7 +404,7 @@ const INTEGRATIONS_LANG_DATA = {
         category: 'crm',
         name: 'API REST y Webhooks Personalizados',
         partnerTag: 'Plataforma para Desarrolladores',
-        setupTime: '⚡ HMAC SHA-256',
+        setupTime: 'HMAC SHA-256',
         desc: 'Conecte su ERP propio, sistema de almacén o terminal punto de venta con webhooks JSON en tiempo real y endpoints REST.',
         features: ['Firma de seguridad HMAC SHA-256', 'Entrega de eventos en milisegundos', 'Cola de reintentos completa']
       }

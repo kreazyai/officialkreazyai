@@ -56,7 +56,7 @@ const KB = [
   {
     patterns: ['hello', 'hi ', 'hey ', 'help', 'start', 'begin'],
     reply:
-      "**Hello! 👋 I'm KreazyAI Assistant**\n\nI specialize in helping you set up and troubleshoot your integrations. Here's what I can help with:\n\n• 📱 **WhatsApp Business** — Connect & automate\n• 💬 **Facebook Messenger** — Page inbox automation\n• 📸 **Instagram Direct** — DM & story automation\n• 🛍️ **Shopify** — E-commerce messaging sync\n• 🔗 **QR Code setup** — Step-by-step guidance\n\nJust ask me anything about connecting your channels!",
+      "**Hello! I'm KreazyAI Assistant**\n\nI specialize in helping you set up and troubleshoot your integrations. Here's what I can help with:\n\n• **WhatsApp Business** — Connect & automate\n• **Facebook Messenger** — Page inbox automation\n• **Instagram Direct** — DM & story automation\n• **Shopify** — E-commerce messaging sync\n• **QR Code setup** — Step-by-step guidance\n\nJust ask me anything about connecting your channels!",
   },
   {
     patterns: ['price', 'cost', 'plan', 'billing', 'subscription'],
@@ -111,7 +111,7 @@ export function AiAssistantPage() {
       id: 1,
       sender: 'bot',
       text:
-        "**Hello! 👋 I'm KreazyAI Assistant**\n\nI specialize in helping you set up and troubleshoot your integrations. Here's what I can help with:\n\n• 📱 **WhatsApp Business** — Connect & automate\n• 💬 **Facebook Messenger** — Page inbox automation\n• 📸 **Instagram Direct** — DM & story automation\n• 🛍️ **Shopify** — E-commerce messaging sync\n• 🔗 **QR Code setup** — Step-by-step guidance\n\nJust ask me anything about connecting your channels!",
+        "**Hello! I'm KreazyAI Assistant**\n\nI specialize in helping you set up and troubleshoot your integrations. Here's what I can help with:\n\n• **WhatsApp Business** — Connect & automate\n• **Facebook Messenger** — Page inbox automation\n• **Instagram Direct** — DM & story automation\n• **Shopify** — E-commerce messaging sync\n• **QR Code setup** — Step-by-step guidance\n\nJust ask me anything about connecting your channels!",
       time: new Date(),
     },
   ]);
@@ -167,7 +167,7 @@ export function AiAssistantPage() {
           id: Date.now() + 1,
           sender: 'bot',
           isError: true,
-          text: `⚠️ **Error:** ${errMsg}`,
+          text: `Error: **Error:** ${errMsg}`,
           time: new Date(),
         },
       ]);
@@ -186,7 +186,7 @@ export function AiAssistantPage() {
       {
         id: 1,
         sender: 'bot',
-        text: "**Hello! 👋 I'm KreazyAI Assistant**\n\nI'm here to help you connect and troubleshoot your integrations. Which platform would you like help with today?",
+        text: "**Hello! I'm KreazyAI Assistant**\n\nI'm here to help you connect and troubleshoot your integrations. Which platform would you like help with today?",
         time: new Date(),
       },
     ]);

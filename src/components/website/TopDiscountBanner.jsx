@@ -72,7 +72,7 @@ export function TopDiscountBanner({
       <div className="container site-discount-banner-inner">
         <div className="discount-banner-content" onClick={handleClaimOffer} style={{ cursor: 'pointer' }}>
           <span className="discount-banner-badge">
-            <span className="discount-emoji" aria-hidden="true">🎉</span>
+            
             <span className="discount-badge-label">{effectiveBadge}</span>
           </span>
 

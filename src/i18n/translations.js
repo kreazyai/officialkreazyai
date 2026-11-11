@@ -4,9 +4,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SUPPORTED_LANGUAGES = [
-  { code: 'en', label: 'English', nativeName: 'English', flag: '🇺🇸' },
-  { code: 'bn', label: 'Bengali', nativeName: 'বাংলা', flag: '🇧🇩' },
-  { code: 'es', label: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
+  { code: 'en', label: 'English', nativeName: 'English', flag: 'US' },
+  { code: 'bn', label: 'Bengali', nativeName: 'বাংলা', flag: 'BD' },
+  { code: 'es', label: 'Spanish', nativeName: 'Español', flag: 'ES' },
 ];
 
 export const translations = {
@@ -197,7 +197,7 @@ export const translations = {
       subtitle: 'Let KREAZY AI handle the repetitive work while your team focuses on customers and growth.',
       startBtn: 'Start with KREAZY AI',
       demoBtn: 'Book a 1-on-1 Demo',
-      guarantee: '⚡ Connects in 5 minutes • No credit card required • Cancel anytime'
+      guarantee: 'Connects in 5 minutes • No credit card required • Cancel anytime'
     },
     pricing: {
       eyebrow: 'TRANSPARENT PRICING',
@@ -553,7 +553,7 @@ export const translations = {
       subtitle: 'ক্রেজি এআই-কে সাধারণ কাজগুলো সামলাতে দিন, আপনার টিম বড় প্রবৃদ্ধির দিকে মনোযোগ দিক।',
       startBtn: 'ক্রেজি এআই দিয়ে শুরু করুন',
       demoBtn: '১-অন-১ ডেমো বুক করুন',
-      guarantee: '⚡ ৫ মিনিটে কানেক্ট করুন • কোন ক্রেডিট কার্ড লাগবে না • যেকোনো সময় বাতিলযোগ্য'
+      guarantee: '৫ মিনিটে কানেক্ট করুন • কোন ক্রেডিট কার্ড লাগবে না • যেকোনো সময় বাতিলযোগ্য'
     },
     pricing: {
       eyebrow: 'স্বচ্ছ মূল্য তালিকা',
@@ -909,7 +909,7 @@ export const translations = {
       subtitle: 'Deja que KREAZY AI gestione las tareas repetitivas mientras tu equipo se enfoca en atender a los clientes y crecer.',
       startBtn: 'Comenzar con KREAZY AI',
       demoBtn: 'Agendar Demo 1 a 1',
-      guarantee: '⚡ Conecta en 5 minutos • Sin tarjeta de crédito • Cancela cuando quieras'
+      guarantee: 'Conecta en 5 minutos • Sin tarjeta de crédito • Cancela cuando quieras'
     },
     pricing: {
       eyebrow: 'PRECIOS TRANSPARENTES',
