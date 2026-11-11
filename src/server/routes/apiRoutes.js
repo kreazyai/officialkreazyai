@@ -229,9 +229,11 @@ adminRouter.get('/automations', adminController.getAutomations);
 adminRouter.get('/activity', adminController.getAuditLogs);
 adminRouter.get('/audit-logs', adminController.getAuditLogs);
 
-// System Health
+// System Health & Engine Telemetry
 adminRouter.get('/system-health', adminController.getSystemHealth);
 adminRouter.get('/health', adminController.getSystemHealth);
+adminRouter.post('/cache/flush', adminController.flushCache);
+adminRouter.post('/system/vacuum', adminController.vacuumDatabase);
 
 // Public Demo & Lead Intake Management
 adminRouter.get('/leads', adminController.getAllLeads);

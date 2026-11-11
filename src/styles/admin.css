@@ -763,13 +763,13 @@
 }
 
 .mac-metric-card {
-  background: var(--mac-bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--mac-border-subtle);
+  background: linear-gradient(145deg, rgba(14, 20, 33, 0.95) 0%, rgba(8, 12, 20, 0.98) 100%) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 20px 22px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -785,13 +785,13 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 51, 75, 0.35), transparent);
 }
 
 .mac-metric-card:hover {
-  border-color: rgba(255, 51, 75, 0.4);
+  border-color: rgba(255, 51, 75, 0.45) !important;
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 51, 75, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 51, 75, 0.14);
 }
 
 .mac-metric-top {
@@ -914,15 +914,17 @@
 
 .mac-table th,
 .mac-data-table th,
-.mac-admin-table th {
+.mac-admin-table th,
+.mac-table thead th,
+.mac-table thead tr {
   padding: 11px 14px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--mac-text-muted);
-  border-bottom: 1px solid var(--mac-border-subtle);
+  color: var(--mac-text-muted) !important;
+  border-bottom: 1px solid var(--mac-border-subtle) !important;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(18, 25, 42, 0.95);
+  background: #0B101B !important;
   white-space: nowrap;
 }
 
@@ -930,9 +932,10 @@
 .mac-data-table td,
 .mac-admin-table td {
   padding: 13px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--mac-text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: var(--mac-text-secondary) !important;
   vertical-align: middle;
+  background: transparent !important;
 }
 
 .mac-table tr:last-child td,
@@ -1746,5 +1749,225 @@
   }
   .mac-metric-sub {
     font-size: 10px !important;
+  }
+}
+
+/* ─── 10. ElevenLabs-Grade Telemetry Strip & Domain Nav ───────────── */
+.mac-nav-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.mac-nav-group-title {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  color: var(--mac-text-dim);
+  padding: 8px 12px 4px;
+  text-transform: uppercase;
+}
+
+.mac-nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Telemetry Strip */
+.mac-telemetry-strip {
+  background: rgba(10, 14, 23, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--mac-border-subtle);
+  padding: 8px clamp(14px, 2.5vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+}
+
+.mac-telemetry-items {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mac-telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--mac-text-muted);
+  font-size: 11.5px;
+}
+
+.mac-telemetry-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mac-telemetry-dot.live {
+  background-color: #22C55E;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+  animation: macPulseDot 2s infinite ease-in-out;
+}
+
+@keyframes macPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.mac-telemetry-label {
+  font-weight: 600;
+  color: var(--mac-text-dim);
+}
+
+.mac-telemetry-val {
+  font-weight: 700;
+  color: var(--mac-text-secondary);
+}
+
+.mac-telemetry-val.highlight {
+  color: #4ADE80;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.mac-telemetry-val.highlight-amber {
+  color: #FBBF24;
+}
+
+.mac-telemetry-sub {
+  color: var(--mac-text-dim);
+  font-size: 10.5px;
+}
+
+.mac-telemetry-icon {
+  flex-shrink: 0;
+}
+
+.mac-telemetry-icon.green { color: #22C55E; }
+.mac-telemetry-icon.blue { color: #38BDF8; }
+.mac-telemetry-icon.purple { color: #A855F7; }
+.mac-telemetry-icon.amber { color: #F59E0B; }
+
+.mac-telemetry-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mac-telemetry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--mac-border-strong);
+  color: var(--mac-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mac-telemetry-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Mobile Bottom Navigation Bar (ElevenLabs Mobile Experience) */
+.mac-mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mac-mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(8, 12, 20, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--mac-border-subtle);
+    z-index: 50;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 4px;
+    box-sizing: border-box;
+  }
+
+  .mac-bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--mac-text-dim);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    flex: 1;
+    transition: all 0.15s ease;
+  }
+
+  .mac-bottom-nav-item.active {
+    color: var(--mac-brand-accent);
+  }
+
+  .mac-bottom-nav-item svg {
+    transition: transform 0.15s ease;
+  }
+
+  .mac-bottom-nav-item.active svg {
+    transform: translateY(-1px);
+  }
+
+  .mac-bottom-badge {
+    position: absolute;
+    top: 4px;
+    right: calc(50% - 14px);
+    background: var(--mac-brand-accent);
+    color: #FFFFFF;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 0 4px;
+    border-radius: 999px;
+    min-width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #080C14;
+  }
+
+  /* Padding at bottom of content body so bottom nav does not obscure content */
+  .mac-admin-content-body {
+    padding-bottom: 80px !important;
+  }
+
+  .mac-admin-toast {
+    bottom: 74px !important;
+    right: 16px !important;
+    left: 16px !important;
+    justify-content: center;
+  }
+
+  .mac-telemetry-strip {
+    display: none; /* Hide on small mobile to give maximum screen to data */
   }
 }

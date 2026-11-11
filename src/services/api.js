@@ -586,6 +586,24 @@ export const adminService = {
     }
   },
 
+  async flushCache() {
+    try {
+      const res = await apiClient.post('/admin/cache/flush');
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FLUSH_CACHE_FAILED', err.message || 'Failed to flush system cache');
+    }
+  },
+
+  async vacuumDatabase() {
+    try {
+      const res = await apiClient.post('/admin/system/vacuum');
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('VACUUM_FAILED', err.message || 'Failed to optimize database');
+    }
+  },
+
   async impersonateUser(id) {
     try {
       const res = await apiClient.post(`/admin/impersonate/${id}`);
