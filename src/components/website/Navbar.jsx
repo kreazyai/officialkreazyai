@@ -61,6 +61,7 @@ export function Navbar({
     { id: 'blog', label: t('nav.blog', 'Blog') },
     { id: 'solutions', label: t('nav.solutions', 'Solutions') },
     { id: 'integrations', label: t('nav.integrations', 'Integrations') },
+    { id: 'aibootcampwithsadat', label: 'AI Bootcamp', badge: 'FREE' },
   ];
 
   return (
@@ -99,8 +100,22 @@ export function Navbar({
                 key={item.id}
                 className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
                 onClick={() => handleLinkClick(item.id)}
+                style={item.badge ? { display: 'inline-flex', alignItems: 'center', gap: '5px' } : undefined}
               >
-                {item.label}
+<span>{item.label}</span>
+                {item.badge && (
+                  <span style={{
+                    fontSize: '0.65rem',
+                    fontWeight: 800,
+                    background: 'linear-gradient(135deg, #FF334B 0%, #F59E0B 100%)',
+                    color: '#FFFFFF',
+                    padding: '1px 6px',
+                    borderRadius: '999px',
+                    letterSpacing: '0.04em'
+                  }}>
+                    {item.badge}
+                  </span>
+                )}
               </span>
             ))}
           </nav>

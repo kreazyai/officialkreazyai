@@ -61,6 +61,7 @@ export function Footer({ onNavigate }) {
             <h5 className="footer-col-title">{t('footer.companyTitle')}</h5>
             <ul className="footer-links-list">
               <li><span onClick={() => handleNav('about')}>{t('footer.compAbout')}</span></li>
+              <li><span onClick={() => handleNav('aibootcampwithsadat')} style={{ color: '#FBBF24', fontWeight: 600 }}>⚡ AI Bootcamp (Free)</span></li>
               <li><span onClick={() => handleNav('founder-meeting')}>{t('footer.compFounder')}</span></li>
               <li><span onClick={() => handleNav('book-demo')}>{t('footer.compDemo')}</span></li>
               <li><span onClick={() => handleNav('contact')}>{t('footer.compContact')}</span></li>

@@ -26,6 +26,7 @@ const BookDemoPage = lazy(() => import('./pages/website/BookDemoPage').then(m =>
 const FounderMeetingPage = lazy(() => import('./pages/website/FounderMeetingPage').then(m => ({ default: m.FounderMeetingPage })));
 const FaqPage = lazy(() => import('./pages/website/FaqPage').then(m => ({ default: m.FaqPage })));
 const LegalPage = lazy(() => import('./pages/website/LegalPage').then(m => ({ default: m.LegalPage })));
+const AIBootcampPage = lazy(() => import('./pages/website/AIBootcampPage').then(m => ({ default: m.AIBootcampPage })));
 
 // ─── Auth & Onboarding pages (lazy-loaded) ───────────────────────────────────
 const LoginPage = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -161,6 +162,7 @@ function getRouteStateFromUrl() {
   if (root === 'about') return { page: 'about', dashboardModule: null, rawPath: pathname };
   if (root === 'contact') return { page: 'contact', dashboardModule: null, rawPath: pathname };
   if (root === 'how-it-works') return { page: 'how-it-works', dashboardModule: null, rawPath: pathname };
+  if (root === 'aibootcampwithsadat' || root === 'bootcamp' || root === 'ai-bootcamp') return { page: 'aibootcampwithsadat', dashboardModule: null, rawPath: pathname };
   if (root === 'book-demo') return { page: 'book-demo', dashboardModule: null, rawPath: pathname };
   if (root === 'founder-meeting') return { page: 'founder-meeting', dashboardModule: null, rawPath: pathname };
   if (root === 'faq' || root === 'resources') return { page: 'faq', dashboardModule: null, rawPath: pathname };
@@ -350,6 +352,7 @@ function AppContent() {
       pricing: '/pricing',
       about: '/about',
       contact: '/contact',
+      aibootcampwithsadat: '/aibootcampwithsadat',
       'book-demo': '/book-demo',
       'founder-meeting': '/founder-meeting',
       login: '/login',
@@ -583,6 +586,10 @@ function AppContent() {
 
               {routeState.page === 'contact' && (
                 <ContactPage onNavigate={handleNavigate} />
+              )}
+
+              {routeState.page === 'aibootcampwithsadat' && (
+                <AIBootcampPage onNavigate={handleNavigate} />
               )}
 
               {routeState.page === 'book-demo' && (

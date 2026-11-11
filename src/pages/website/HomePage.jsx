@@ -366,6 +366,43 @@ export function HomePage({ onNavigate, user }) {
           <div className="hero-split-grid">
             {/* Left Column: Headline, Value Proposition & Actions */}
             <div className="hero-col-left">
+              {/* AI Bootcamp Free Career Masterclass Pill */}
+              <div
+                onClick={() => onNavigate('aibootcampwithsadat')}
+                className="bootcamp-hero-pill"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.65rem',
+                  padding: '0.45rem 1.1rem 0.45rem 0.65rem',
+                  borderRadius: '999px',
+                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(255, 51, 75, 0.16) 100%)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  marginBottom: '1.25rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 20px rgba(245, 158, 11, 0.15)',
+                  transition: 'all 0.2s ease',
+                  alignSelf: 'flex-start'
+                }}
+              >
+                <span style={{
+                  background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)',
+                  color: '#FFFFFF',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}>
+                  FREE MASTERCLASS
+                </span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 650, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  AI Career Bootcamp with Sadat Sakib
+                  <ArrowRight size={14} color="#F59E0B" />
+                </span>
+              </div>
+
               {/* Main Headline */}
               <h1 className="hero-headline">
                 <span className="hero-headline-black">{t('hero.headlineBlack', 'Your Business')}</span>

@@ -1376,6 +1376,205 @@ export const adminController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  /**
+   * Public Intake: Register for Sadat Sakib AI Career Bootcamp Free Session
+   * POST /api/bootcamp/register
+   */
+  async registerBootcamp(req, res, next) {
+    try {
+      const {
+        fullName,
+        full_name,
+        email,
+        phone,
+        currentRole,
+        current_role,
+        experienceLevel,
+        experience_level,
+        primaryGoal,
+        primary_goal,
+        preferredSlot,
+        preferred_slot,
+        linkedinOrPortfolio,
+        linkedin_or_portfolio,
+        questions
+      } = req.body;
+
+      const resolvedName = (fullName || full_name || '').trim();
+      const resolvedEmail = (email || '').trim().toLowerCase();
+      const resolvedPhone = (phone || '').trim();
+      const resolvedRole = (currentRole || current_role || 'General Attendee').trim();
+      const resolvedExp = (experienceLevel || experience_level || 'Beginner').trim();
+      const resolvedGoal = (primaryGoal || primary_goal || 'Career Transition to AI').trim();
+      const resolvedSlot = (preferredSlot || preferred_slot || 'Next Saturday 8:00 PM BST / 10:00 AM EST').trim();
+      const resolvedPortfolio = (linkedinOrPortfolio || linkedin_or_portfolio || '').trim();
+      const resolvedQuestions = (questions || '').trim();
+
+      if (!resolvedName) {
+        return errorResponse(res, 'Full name is required for registration.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+      if (!resolvedEmail || !resolvedEmail.includes('@')) {
+        return errorResponse(res, 'Valid email address is required to receive session join details.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+      if (!resolvedPhone) {
+        return errorResponse(res, 'WhatsApp / Phone number is required for session reminders.', API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      const db = getDatabase();
+      const id = `bc-reg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      const now = new Date().toISOString();
+
+      // Check if already registered
+      const existing = await db.prepare('SELECT id FROM bootcamp_registrations WHERE LOWER(email) = ?').get(resolvedEmail);
+      if (existing) {
+        // Update their preferences
+        await db.prepare(`
+          UPDATE bootcamp_registrations
+          SET full_name = ?, phone = ?, current_role = ?, experience_level = ?, primary_goal = ?, preferred_slot = ?, linkedin_or_portfolio = ?, questions = ?
+          WHERE id = ?
+        `).run(resolvedName, resolvedPhone, resolvedRole, resolvedExp, resolvedGoal, resolvedSlot, resolvedPortfolio, resolvedQuestions, existing.id);
+
+        return successResponse(res, {
+          id: existing.id,
+          message: 'Your registration has been updated! See you at the live masterclass with Sadat Sakib.',
+          confirmed: true,
+          seatNumber: `SEAT-${existing.id.slice(-4).toUpperCase()}`
+        });
+      }
+
+      await db.prepare(`
+        INSERT INTO bootcamp_registrations (
+          id, full_name, email, phone, current_role, experience_level, primary_goal, preferred_slot, linkedin_or_portfolio, questions, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?)
+      `).run(
+        id,
+        resolvedName,
+        resolvedEmail,
+        resolvedPhone,
+        resolvedRole,
+        resolvedExp,
+        resolvedGoal,
+        resolvedSlot,
+        resolvedPortfolio,
+        resolvedQuestions,
+        now
+      );
+
+      logger.info(`[BOOTCAMP REGISTRATION] New attendee: ${resolvedName} (${resolvedEmail})`);
+
+      return successResponse(res, {
+        id,
+        message: 'Congratulations! Your free seat for AI Bootcamp with Sadat Sakib is confirmed.',
+        confirmed: true,
+        seatNumber: `SEAT-${id.slice(-4).toUpperCase()}`,
+        sessionSlot: resolvedSlot
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Super Admin: Get all AI Bootcamp Registrations
+   * GET /api/admin/bootcamp-registrations
+   */
+  async getBootcampRegistrations(req, res, next) {
+    try {
+      const db = getDatabase();
+      const page = Math.max(1, parseInt(req.query.page || '1', 10));
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '25', 10)));
+      const offset = (page - 1) * limit;
+      const search = (req.query.search || '').trim().toLowerCase();
+      const status = (req.query.status || '').trim();
+
+      let queryWhere = 'WHERE 1=1';
+      const params = [];
+
+      if (search) {
+        queryWhere += ' AND (LOWER(full_name) LIKE ? OR LOWER(email) LIKE ? OR phone LIKE ? OR LOWER(current_role) LIKE ? OR LOWER(primary_goal) LIKE ?)';
+        const s = `%${search}%`;
+        params.push(s, s, s, s, s);
+      }
+
+      if (status && status !== 'ALL') {
+        queryWhere += ' AND status = ?';
+        params.push(status);
+      }
+
+      const totalRow = await db.prepare(`SELECT COUNT(*) as count FROM bootcamp_registrations ${queryWhere}`).get(...params);
+      const totalCount = Number(totalRow?.count || 0);
+
+      const confirmedRow = await db.prepare("SELECT COUNT(*) as count FROM bootcamp_registrations WHERE status = 'CONFIRMED'").get();
+      const confirmedCount = Number(confirmedRow?.count || 0);
+
+      const registrations = (await db.prepare(`
+        SELECT id, full_name, email, phone, current_role, experience_level, primary_goal, preferred_slot, linkedin_or_portfolio, questions, status, created_at
+        FROM bootcamp_registrations
+        ${queryWhere}
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+      `).all(...params, limit, offset)) || [];
+
+      return successResponse(res, {
+        totalRegistrations: totalCount,
+        confirmedSeats: confirmedCount,
+        page,
+        limit,
+        totalPages: Math.ceil(totalCount / limit) || 1,
+        registrations
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Super Admin: Update registration status
+   * PATCH /api/admin/bootcamp-registrations/:id/status
+   */
+  async updateBootcampStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const validStatuses = ['CONFIRMED', 'WAITLISTED', 'ATTENDED', 'CANCELLED'];
+
+      if (!status || !validStatuses.includes(status)) {
+        return errorResponse(res, `Invalid status. Must be one of: ${validStatuses.join(', ')}`, API_ERROR_CODES.VALIDATION_FAILED, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      }
+
+      const db = getDatabase();
+      const result = await db.prepare('UPDATE bootcamp_registrations SET status = ? WHERE id = ?').run(status, id);
+
+      if (result.changes === 0) {
+        return errorResponse(res, 'Registration not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+      }
+
+      return successResponse(res, { message: `Registration status updated to ${status}.` });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Super Admin: Delete bootcamp registration
+   * DELETE /api/admin/bootcamp-registrations/:id
+   */
+  async deleteBootcampRegistration(req, res, next) {
+    try {
+      const { id } = req.params;
+      const db = getDatabase();
+      const result = await db.prepare('DELETE FROM bootcamp_registrations WHERE id = ?').run(id);
+
+      if (result.changes === 0) {
+        return errorResponse(res, 'Registration not found.', API_ERROR_CODES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+      }
+
+      return successResponse(res, { message: 'Registration deleted successfully.' });
+    } catch (err) {
+      next(err);
+    }
   }
 
 };

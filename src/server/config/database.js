@@ -353,6 +353,22 @@ export function runMigrations(db) {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
+    -- 11b. AI Career Bootcamp Registrations (Sadat Sakib Free Masterclass)
+    CREATE TABLE IF NOT EXISTS bootcamp_registrations (
+      id TEXT PRIMARY KEY,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      current_role TEXT,
+      experience_level TEXT,
+      primary_goal TEXT,
+      preferred_slot TEXT,
+      linkedin_or_portfolio TEXT,
+      questions TEXT,
+      status TEXT DEFAULT 'CONFIRMED',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
     -- 12. AI Configurations & Knowledge Parameters
     CREATE TABLE IF NOT EXISTS ai_configs (
       id TEXT PRIMARY KEY,

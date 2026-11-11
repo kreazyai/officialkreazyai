@@ -661,6 +661,29 @@ export const adminService = {
     }
   },
 
+  async getBootcampRegistrations(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit || 25);
+    if (params.search) query.set('search', params.search);
+    if (params.status && params.status !== 'ALL') query.set('status', params.status);
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    try {
+      const res = await apiClient.get(`/admin/bootcamp-registrations${qStr}`);
+      return successResponse(res);
+    } catch (err) {
+      return errorResponse('FETCH_BOOTCAMP_FAILED', err.message || 'Failed to fetch bootcamp registrations');
+    }
+  },
+
+  async updateBootcampStatus(id, status) {
+    return await apiClient.patch(`/admin/bootcamp-registrations/${id}/status`, { status });
+  },
+
+  async deleteBootcampRegistration(id) {
+    return await apiClient.delete(`/admin/bootcamp-registrations/${id}`);
+  },
+
   async getLeads() {
     return leadService.getAll();
   },
@@ -3037,3 +3060,56 @@ export const billingService = {
 };
 
 
+
+// =====================================================================
+// AI BOOTCAMP WITH SADAT SAKIB - REGISTRATIONS & MANAGEMENT SERVICE
+// =====================================================================
+export const bootcampService = {
+  async register(formData) {
+    try {
+      const res = await apiClient.post('/bootcamp/register', formData);
+      return res;
+    } catch (err) {
+      console.warn('[BOOTCAMP SERVICE] Backend offline fallback:', err);
+      // Resilient local simulation if backend unavailable
+      const stored = getStored('kreazy_bootcamp_registrations', []);
+      const newEntry = {
+        id: `bc-reg-${Date.now()}`,
+        full_name: formData.fullName || formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        current_role: formData.currentRole || formData.current_role,
+        experience_level: formData.experienceLevel || formData.experience_level,
+        primary_goal: formData.primaryGoal || formData.primary_goal,
+        preferred_slot: formData.preferredSlot || formData.preferred_slot,
+        status: 'CONFIRMED',
+        created_at: new Date().toISOString()
+      };
+      setStored('kreazy_bootcamp_registrations', [newEntry, ...stored]);
+      return { success: true, data: newEntry, confirmed: true };
+    }
+  },
+  async getRegistrations(params = {}) {
+    try {
+      const res = await apiClient.get('/admin/bootcamp-registrations', { params });
+      return res;
+    } catch (err) {
+      console.warn('[BOOTCAMP SERVICE] Using local registrations fallback:', err);
+      const stored = getStored('kreazy_bootcamp_registrations', []);
+      return {
+        success: true,
+        data: {
+          totalRegistrations: stored.length,
+          confirmedSeats: stored.filter(s => s.status === 'CONFIRMED').length,
+          registrations: stored
+        }
+      };
+    }
+  },
+  async updateStatus(id, status) {
+    return await apiClient.patch(`/admin/bootcamp-registrations/${id}/status`, { status });
+  },
+  async deleteRegistration(id) {
+    return await apiClient.delete(`/admin/bootcamp-registrations/${id}`);
+  }
+};

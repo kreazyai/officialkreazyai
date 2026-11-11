@@ -36,7 +36,8 @@ import {
   Laptop,
   Clock,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  GraduationCap
 } from 'lucide-react';
 import { adminService } from '../../services/api';
 import '../../styles/admin.css';
@@ -71,6 +72,11 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
   // Sign-Up Records States
   const [signupsData, setSignupsData] = useState({ totalSignups: 0, page: 1, limit: 20, totalPages: 1, signups: [] });
   const [signupSearch, setSignupSearch] = useState('');
+
+  // AI Bootcamp (Sadat Sakib) States
+  const [bootcampData, setBootcampData] = useState({ totalRegistrations: 0, confirmedSeats: 0, page: 1, limit: 25, totalPages: 1, registrations: [] });
+  const [bootcampSearch, setBootcampSearch] = useState('');
+  const [bootcampStatusFilter, setBootcampStatusFilter] = useState('ALL');
 
   // Login Sessions States
   const [loginSessionsData, setLoginSessionsData] = useState({ totalSessions: 0, activeDevicesCount: 0, page: 1, limit: 25, totalPages: 1, sessions: [] });
@@ -267,6 +273,39 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
     }
   };
 
+  // Load AI Bootcamp Registrations
+  const loadBootcampRegistrations = async (page = 1, search = bootcampSearch, status = bootcampStatusFilter) => {
+    try {
+      const res = await adminService.getBootcampRegistrations({ page, limit: 25, search, status });
+      if (res && res.success && res.data) {
+        setBootcampData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load bootcamp registrations:', err);
+    }
+  };
+
+  const handleUpdateBootcampStatus = async (id, status) => {
+    try {
+      await adminService.updateBootcampStatus(id, status);
+      showToast('Attendee status updated to ' + status);
+      loadBootcampRegistrations(bootcampData.page, bootcampSearch, bootcampStatusFilter);
+    } catch (err) {
+      showToast('Failed to update: ' + err.message);
+    }
+  };
+
+  const handleDeleteBootcampRegistration = async (id) => {
+    if (!window.confirm('Delete this attendee registration?')) return;
+    try {
+      await adminService.deleteBootcampRegistration(id);
+      showToast('Registration deleted');
+      loadBootcampRegistrations(bootcampData.page, bootcampSearch, bootcampStatusFilter);
+    } catch (err) {
+      showToast('Failed to delete: ' + err.message);
+    }
+  };
+
   // Load Login Sessions
   const loadLoginSessions = async (page = 1) => {
     try {
@@ -334,7 +373,8 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
       loadTenantsInventory(),
       loadSchedule(),
       loadSignups(signupsData.page),
-      loadLoginSessions(loginSessionsData.page)
+      loadLoginSessions(loginSessionsData.page),
+      loadBootcampRegistrations(1)
     ]);
     setIsSyncing(false);
     showToast('Platform data synchronized from database');
@@ -476,6 +516,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
 
   const navItems = [
     { id: 'overview', label: 'Overview & Telemetry', icon: LayoutDashboard },
+    { id: 'bootcamp', label: 'AI Bootcamp (Sadat)', icon: GraduationCap, badge: bootcampData?.totalRegistrations },
     { id: 'inventory', label: 'Tenants & Inventory', icon: Package, badge: metrics?.totalProducts },
     { id: 'schedule', label: 'Schedule & Bookings', icon: Calendar, badge: scheduleData?.pendingCount },
     { id: 'signups', label: 'Sign-Up Records', icon: UserPlus, badge: signupsData?.totalSignups },
@@ -1712,6 +1753,329 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI BOOTCAMP WITH SADAT SAKIB: REGISTRATIONS MANAGEMENT */}
+          {activeTab === 'bootcamp' && (
+            <div className="mac-view-container">
+              {/* Top Banner Notice */}
+              <div style={{
+                background: 'linear-gradient(135deg, #1C1917 0%, #291811 100%)',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                borderRadius: '16px',
+                padding: '1.25rem 1.5rem',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                color: '#FFFFFF'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                  <div style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #FF334B 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF'
+                  }}>
+                    <GraduationCap size={22} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
+                      AI Bootcamp Career Masterclass with Sadat Sakib
+                    </h3>
+                    <p style={{ margin: 0, fontSize: '0.84rem', color: '#D6D3D1' }}>
+                      Real-time attendee registrations for the 90-minute live interactive career masterclass.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <a
+                    href="/aibootcampwithsadat"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '8px',
+                      padding: '7px 14px',
+                      fontSize: '0.82rem',
+                      fontWeight: 650,
+                      color: '#FFFFFF',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <span>View Public Page</span>
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              </div>
+
+              {/* KPI Metrics Grid */}
+              <div className="mac-metrics-grid" style={{ marginBottom: '1.5rem' }}>
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-label">Total Registrations</span>
+                    <div className="mac-metric-icon-wrap" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
+                      <Users size={16} />
+                    </div>
+                  </div>
+                  <div className="mac-metric-value">{bootcampData.totalRegistrations || 0}</div>
+                  <div className="mac-metric-trend positive">
+                    <span>100% Verified Submissions</span>
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-label">Confirmed Seats</span>
+                    <div className="mac-metric-icon-wrap" style={{ background: 'rgba(15, 169, 104, 0.15)', color: '#0FA968' }}>
+                      <CheckCircle2 size={16} />
+                    </div>
+                  </div>
+                  <div className="mac-metric-value">{bootcampData.confirmedSeats || 0}</div>
+                  <div className="mac-metric-trend positive">
+                    <span>Batch Capacity: 50 Max</span>
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-label">Primary Target Goal</span>
+                    <div className="mac-metric-icon-wrap" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>
+                      <Zap size={16} />
+                    </div>
+                  </div>
+                  <div className="mac-metric-value" style={{ fontSize: '1.25rem' }}>AI Career & Agency</div>
+                  <div className="mac-metric-trend positive">
+                    <span>High-Income Transitions</span>
+                  </div>
+                </div>
+
+                <div className="mac-metric-card">
+                  <div className="mac-metric-top">
+                    <span className="mac-metric-label">Lead Mentor</span>
+                    <div className="mac-metric-icon-wrap" style={{ background: 'rgba(255, 51, 75, 0.15)', color: '#FF334B' }}>
+                      <GraduationCap size={16} />
+                    </div>
+                  </div>
+                  <div className="mac-metric-value" style={{ fontSize: '1.25rem' }}>Sadat Sakib</div>
+                  <div className="mac-metric-trend positive">
+                    <span>Founder @ Kreazy AI</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Registrations Table Panel */}
+              <div className="mac-panel-card">
+                <div className="mac-panel-header">
+                  <div className="mac-panel-header-left">
+                    <div className="mac-mini-traffic" aria-hidden="true">
+                      <span className="mac-traffic-dot mac-dot-close" />
+                      <span className="mac-traffic-dot mac-dot-minimize" />
+                      <span className="mac-traffic-dot mac-dot-maximize" />
+                    </div>
+                    <span className="mac-panel-title">Masterclass Attendees ({bootcampData.totalRegistrations} Registered)</span>
+                  </div>
+
+                  <div className="mac-panel-tools">
+                    <div className="mac-search-input-wrap">
+                      <Search size={14} className="mac-search-icon" />
+                      <input
+                        type="text"
+                        className="mac-search-input"
+                        placeholder="Search attendee name, email, phone, role..."
+                        value={bootcampSearch}
+                        onChange={(e) => {
+                          setBootcampSearch(e.target.value);
+                          loadBootcampRegistrations(1, e.target.value, bootcampStatusFilter);
+                        }}
+                      />
+                      {bootcampSearch && (
+                        <button
+                          type="button"
+                          className="mac-search-clear"
+                          onClick={() => {
+                            setBootcampSearch('');
+                            loadBootcampRegistrations(1, '', bootcampStatusFilter);
+                          }}
+                        >
+                          <X size={12} />
+                        </button>
+                      )}
+                    </div>
+
+                    <select
+                      className="mac-panel-select"
+                      value={bootcampStatusFilter}
+                      onChange={(e) => {
+                        setBootcampStatusFilter(e.target.value);
+                        loadBootcampRegistrations(1, bootcampSearch, e.target.value);
+                      }}
+                    >
+                      <option value="ALL">All Statuses</option>
+                      <option value="CONFIRMED">Confirmed</option>
+                      <option value="WAITLISTED">Waitlisted</option>
+                      <option value="ATTENDED">Attended</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+
+                    <button
+                      type="button"
+                      className="mac-icon-btn"
+                      onClick={() => loadBootcampRegistrations(bootcampData.page, bootcampSearch, bootcampStatusFilter)}
+                      title="Refresh attendees"
+                    >
+                      <RefreshCw size={13} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mac-table-container">
+                  <table className="mac-data-table">
+                    <thead>
+                      <tr>
+                        <th>Attendee Name</th>
+                        <th>WhatsApp & Email</th>
+                        <th>Professional Background</th>
+                        <th>Primary Goal</th>
+                        <th>Preferred Slot</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bootcampData.registrations.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6B7280' }}>
+                            <GraduationCap size={32} style={{ margin: '0 auto 0.75rem auto', opacity: 0.4 }} />
+                            <div>No bootcamp registrations found. Submissions from <code>/aibootcampwithsadat</code> will appear here automatically.</div>
+                          </td>
+                        </tr>
+                      ) : (
+                        bootcampData.registrations.map((attendee) => {
+                          const cleanPhone = (attendee.phone || '').replace(/[^0-9]/g, '');
+                          const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=Hi%20${encodeURIComponent(attendee.full_name)},%20this%20is%20from%20Sadat%20Sakib's%20AI%20Bootcamp%20team!` : null;
+
+                          return (
+                            <tr key={attendee.id}>
+                              <td>
+                                <strong style={{ color: '#F8FAFC', fontSize: '13.5px', fontWeight: 650 }}>{attendee.full_name}</strong>
+                                {attendee.questions && (
+                                  <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={attendee.questions}>
+                                    Q: "{attendee.questions}"
+                                  </div>
+                                )}
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                  <span style={{ color: '#94A3B8', fontFamily: 'monospace', fontSize: '12px' }}>{attendee.email}</span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ color: '#E2E8F0', fontWeight: 600, fontSize: '12px' }}>{attendee.phone}</span>
+                                    {waUrl && (
+                                      <a
+                                        href={waUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{
+                                          background: '#25D366',
+                                          color: '#FFFFFF',
+                                          borderRadius: '4px',
+                                          padding: '1px 5px',
+                                          fontSize: '10px',
+                                          fontWeight: 700,
+                                          textDecoration: 'none',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '2px'
+                                        }}
+                                        title="Send direct WhatsApp message"
+                                      >
+                                        WhatsApp
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span style={{
+                                  background: 'rgba(255, 255, 255, 0.08)',
+                                  color: '#F1F5F9',
+                                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '11.5px',
+                                  fontWeight: 600
+                                }}>
+                                  {attendee.current_role || 'Attendee'}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ fontSize: '12px', color: '#F8FAFC', fontWeight: 550 }}>
+                                  {attendee.primary_goal}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ fontSize: '11.5px', color: '#CBD5E1' }}>
+                                  {attendee.preferred_slot || 'Next Saturday'}
+                                </span>
+                              </td>
+                              <td>
+                                <select
+                                  value={attendee.status}
+                                  onChange={(e) => handleUpdateBootcampStatus(attendee.id, e.target.value)}
+                                  style={{
+                                    fontSize: '11px',
+                                    fontWeight: 700,
+                                    padding: '3px 8px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #D1D5DB',
+                                    background: attendee.status === 'CONFIRMED' ? '#DEF7EC' : attendee.status === 'ATTENDED' ? '#E1EFFE' : '#FDF2E9',
+                                    color: attendee.status === 'CONFIRMED' ? '#03543F' : attendee.status === 'ATTENDED' ? '#1E429F' : '#9F580A',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <option value="CONFIRMED">CONFIRMED</option>
+                                  <option value="WAITLISTED">WAITLISTED</option>
+                                  <option value="ATTENDED">ATTENDED</option>
+                                  <option value="CANCELLED">CANCELLED</option>
+                                </select>
+                              </td>
+                              <td>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteBootcampRegistration(attendee.id)}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#EF4444',
+                                    fontSize: '11px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    padding: '2px 6px'
+                                  }}
+                                >
+                                  Remove
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

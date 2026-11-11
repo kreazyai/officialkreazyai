@@ -60,6 +60,9 @@ authRouter.post('/reset-password', authController.resetPassword);
 authRouter.get('/me', authenticate, authController.getMe);
 apiRouter.use('/auth', authRouter);
 
+// Public Intake for AI Career Bootcamp with Sadat Sakib
+apiRouter.post('/bootcamp/register', adminController.registerBootcamp);
+
 // =====================================================================
 // 3. PRODUCT CATALOG ROUTES (Tenant-Scoped)
 // =====================================================================
@@ -257,6 +260,11 @@ adminRouter.patch('/schedule/:type/:id', adminController.updateScheduleStatus);
 // Sign-Up Records & Login Sessions
 adminRouter.get('/signups', adminController.getSignups);
 adminRouter.get('/logins', adminController.getLoginSessions);
+
+// AI Career Bootcamp Management (Sadat Sakib Masterclass)
+adminRouter.get('/bootcamp-registrations', adminController.getBootcampRegistrations);
+adminRouter.patch('/bootcamp-registrations/:id/status', adminController.updateBootcampStatus);
+adminRouter.delete('/bootcamp-registrations/:id', adminController.deleteBootcampRegistration);
 
 apiRouter.use('/admin', adminRouter);
 
