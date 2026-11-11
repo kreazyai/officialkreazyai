@@ -27,7 +27,8 @@
     "audit:pdf": "node ./scripts/generate-full-audit-pdf.mjs",
     "test:pdf": "node ./scripts/generate-test-cases-pdf.mjs",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "report:pdf": "node ./scripts/generate-sectors-value-pdf.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
