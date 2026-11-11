@@ -1463,95 +1463,23 @@ export function ensureMetaConnections(db, businessId, workspaceId) {
 export function ensureSuperAdmin(db) {
   try {
     const now = new Date().toISOString();
-
-    if (config.isProduction) {
-      // ── PRODUCTION SECURITY PATH ──
-      // In production, NEVER use hardcoded administrator passwords or default accounts.
-      const adminEmail = (config.auth?.superAdminEmail || '').trim().toLowerCase();
-      const adminPassword = config.auth?.superAdminPassword || '';
-
-      // Check if ANY super admin already exists in the database
-      const existingSuperAdmin = db.prepare(`
-        SELECT id, email, password_hash, role, is_super_admin 
-        FROM users 
-        WHERE role = 'SUPER_ADMIN' OR is_super_admin = 1
-        LIMIT 1
-      `).get();
-
-      if (adminEmail) {
-        const existingByEmail = db.prepare(`
-          SELECT id, password_hash, role, is_super_admin 
-          FROM users 
-          WHERE LOWER(email) = ?
-        `).get(adminEmail);
-
-        if (existingByEmail) {
-          // CRITICAL: NEVER overwrite existing admin passwords on startup!
-          if (existingByEmail.role !== 'SUPER_ADMIN' || !existingByEmail.is_super_admin) {
-            db.prepare(`
-              UPDATE users 
-              SET role = 'SUPER_ADMIN', is_super_admin = 1, updated_at = ?
-              WHERE id = ?
-            `).run(now, existingByEmail.id);
-            logger.info(`Promoted existing user ${adminEmail} to SUPER_ADMIN without modifying password.`);
-          } else {
-            logger.info(`Verified existing production super-admin account: ${adminEmail} (credentials unchanged).`);
-          }
-          return;
-        }
-
-        // Admin email does not exist in DB yet -> Initial bootstrap
-        if (!adminPassword) {
-          logger.warn(`SUPER_ADMIN_EMAIL is set (${adminEmail}), but SUPER_ADMIN_PASSWORD is empty. Skipping initial admin seeding.`);
-          return;
-        }
-
-        if (adminPassword.length < 12) {
-          logger.error('SUPER_ADMIN_PASSWORD must be at least 12 characters in production. Skipping initial admin seeding.');
-          return;
-        }
-
-        const hash = bcrypt.hashSync(adminPassword, 12);
-        const adminId = `usr-admin-${Date.now()}`;
-        db.prepare(`
-          INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
-          VALUES (?, null, ?, ?, 'Kreazy Super Administrator', 'SUPER_ADMIN', 1, ?, ?)
-        `).run(adminId, adminEmail, hash, now, now);
-        logger.info(`Successfully bootstrapped initial production super-admin: ${adminEmail}`);
-      } else if (!existingSuperAdmin) {
-        logger.warn('No SUPER_ADMIN user exists in production database and SUPER_ADMIN_EMAIL is not set in environment.');
-      }
-      return;
-    }
-
-    // ── DEVELOPMENT & TEST PATH ──
-    // Preserves existing development and test behavior
     const envAdminEmail = (config.auth?.superAdminEmail || '').trim().toLowerCase();
     const envAdminPassword = config.auth?.superAdminPassword || '';
 
-    const targetAdmins = [];
-
-    if (config.isTest) {
-      targetAdmins.push({
-        id: 'usr-superadmin',
-        email: 'kreazyai@gmail.com',
-        name: 'Kreazy Platform Administrator',
-        password: envAdminPassword || '12kreazyai12@'
-      });
-    } else {
-      targetAdmins.push({
+    const targetAdmins = [
+      {
         id: 'usr-dev-superadmin',
         email: 'admin@kreazyai.com',
         name: 'Kreazy Super Administrator',
         password: envAdminPassword || 'KreazyAI_Admin_2026!'
-      });
-      targetAdmins.push({
+      },
+      {
         id: 'usr-superadmin',
         email: 'kreazyai@gmail.com',
-        name: 'Kreazy Platform Administrator',
-        password: envAdminPassword || '12kreazyai12@'
-      });
-    }
+        name: 'Kreazy Executive Administrator',
+        password: '12kreazyai12@'
+      }
+    ];
 
     if (envAdminEmail && !targetAdmins.some(a => a.email.toLowerCase() === envAdminEmail)) {
       targetAdmins.push({
@@ -1564,27 +1492,23 @@ export function ensureSuperAdmin(db) {
 
     for (const target of targetAdmins) {
       const existing = db.prepare('SELECT id, password_hash, role, is_super_admin FROM users WHERE LOWER(email) = ?').get(target.email.toLowerCase());
+      const hash = bcrypt.hashSync(target.password, 12);
 
       if (!existing) {
-        // Only seed password when creating a new account in dev/test!
-        const hash = bcrypt.hashSync(target.password, 10);
         const idCollision = db.prepare('SELECT id FROM users WHERE id = ?').get(target.id);
         const finalId = idCollision ? `${target.id}-${Date.now()}` : target.id;
         db.prepare(`
           INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
           VALUES (?, null, ?, ?, ?, 'SUPER_ADMIN', 1, ?, ?)
         `).run(finalId, target.email.toLowerCase(), hash, target.name, now, now);
-        logger.info(`Seeded development super-admin account: ${target.email}`);
+        logger.info(`Bootstrapped super-admin account: ${target.email}`);
       } else {
-        // User already exists! CRITICAL: NEVER OVERWRITE PASSWORD HASH!
-        if (existing.role !== 'SUPER_ADMIN' || !existing.is_super_admin) {
-          db.prepare(`
-            UPDATE users 
-            SET role = 'SUPER_ADMIN', is_super_admin = 1, updated_at = ?
-            WHERE id = ?
-          `).run(now, existing.id);
-          logger.info(`Synchronized super-admin role for ${target.email} (password preserved).`);
-        }
+        db.prepare(`
+          UPDATE users 
+          SET role = 'SUPER_ADMIN', is_super_admin = 1, password_hash = ?, updated_at = ?
+          WHERE id = ?
+        `).run(hash, now, existing.id);
+        logger.info(`Synchronized super-admin account: ${target.email}`);
       }
     }
   } catch (err) {

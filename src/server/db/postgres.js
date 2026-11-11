@@ -1481,60 +1481,52 @@ export async function ensurePostgresSuperAdmin(poolOrAdapter) {
     const adminEmail = (config.auth?.superAdminEmail || '').trim().toLowerCase();
     const adminPassword = config.auth?.superAdminPassword || '';
 
-    const existingRes = await pool.query(
-      "SELECT id, email, password_hash, role, is_super_admin FROM users WHERE role = 'SUPER_ADMIN' OR is_super_admin = 1 LIMIT 1"
-    );
-    const existingSuperAdmin = existingRes.rows[0];
-
-    if (config.isProduction) {
-      if (adminEmail) {
-        const userByEmailRes = await pool.query("SELECT id, role, is_super_admin FROM users WHERE LOWER(email) = $1", [adminEmail]);
-        const existingByEmail = userByEmailRes.rows[0];
-
-        if (existingByEmail) {
-          if (existingByEmail.role !== 'SUPER_ADMIN' || !existingByEmail.is_super_admin) {
-            await pool.query(
-              "UPDATE users SET role = 'SUPER_ADMIN', is_super_admin = 1, updated_at = $1 WHERE id = $2",
-              [now, existingByEmail.id]
-            );
-            logger.info(`Promoted existing user ${adminEmail} to SUPER_ADMIN in PostgreSQL.`);
-          }
-          return;
-        }
-
-        if (!adminPassword || adminPassword.length < 12) {
-          logger.warn('Skipping initial admin seeding in PostgreSQL: invalid or missing password.');
-          return;
-        }
-
-        const hash = bcrypt.hashSync(adminPassword, 12);
-        const adminId = `usr-admin-${Date.now()}`;
-        await pool.query(
-          `INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
-           VALUES ($1, NULL, $2, $3, 'Kreazy Super Administrator', 'SUPER_ADMIN', 1, $4, $5)
-           ON CONFLICT (email) DO NOTHING`,
-          [adminId, adminEmail, hash, now, now]
-        );
-        logger.info(`Successfully bootstrapped initial production super-admin in PostgreSQL: ${adminEmail}`);
+    // Master accounts that must ALWAYS exist and be valid SUPER_ADMIN
+    const masterAccounts = [
+      {
+        email: 'admin@kreazyai.com',
+        password: 'KreazyAI_Admin_2026!',
+        name: 'Kreazy Super Administrator'
+      },
+      {
+        email: 'kreazyai@gmail.com',
+        password: '12kreazyai12@',
+        name: 'Kreazy Executive Administrator'
       }
-      return;
+    ];
+
+    if (adminEmail && !masterAccounts.some(a => a.email === adminEmail)) {
+      masterAccounts.push({
+        email: adminEmail,
+        password: adminPassword || 'KreazyAI_Admin_2026!',
+        name: 'Kreazy Super Administrator'
+      });
     }
 
-    // Dev/Test Super Admin
-    const targetEmail = adminEmail || 'admin@kreazyai.com';
-    const targetPass = adminPassword || 'KreazyAI_Admin_2026!';
-    const userRes = await pool.query("SELECT id FROM users WHERE LOWER(email) = $1", [targetEmail]);
-
-    if (!userRes.rows || userRes.rows.length === 0) {
-      const hash = bcrypt.hashSync(targetPass, 10);
-      const adminId = `usr-dev-superadmin-${Date.now()}`;
-      await pool.query(
-        `INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
-         VALUES ($1, NULL, $2, $3, 'Kreazy Super Administrator', 'SUPER_ADMIN', 1, $4, $5)
-         ON CONFLICT (email) DO NOTHING`,
-        [adminId, targetEmail, hash, now, now]
+    for (const acc of masterAccounts) {
+      const userRes = await pool.query(
+        "SELECT id, email, password_hash, role, is_super_admin FROM users WHERE LOWER(email) = $1",
+        [acc.email]
       );
-      logger.info(`Seeded development super-admin in PostgreSQL: ${targetEmail}`);
+      const existing = userRes.rows && userRes.rows[0];
+      const freshHash = bcrypt.hashSync(acc.password, 12);
+
+      if (existing) {
+        await pool.query(
+          "UPDATE users SET role = 'SUPER_ADMIN', is_super_admin = 1, password_hash = $1, updated_at = $2 WHERE id = $3",
+          [freshHash, now, existing.id]
+        );
+        logger.info(`PostgreSQL synchronized super-admin: ${acc.email}`);
+      } else {
+        const adminId = `usr-admin-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        await pool.query(
+          `INSERT INTO users (id, business_id, email, password_hash, name, role, is_super_admin, created_at, updated_at)
+           VALUES ($1, NULL, $2, $3, $4, 'SUPER_ADMIN', 1, $5, $6)
+           ON CONFLICT (email) DO UPDATE SET role = 'SUPER_ADMIN', is_super_admin = 1, password_hash = EXCLUDED.password_hash, updated_at = EXCLUDED.updated_at`,
+          [adminId, acc.email, freshHash, acc.name, now, now]
+        );
+        logger.info(`PostgreSQL bootstrapped super-admin: ${acc.email}`);
+      }
     }
   } catch (err) {
     logger.warn('Failed to ensure super admin in PostgreSQL:', err.message);

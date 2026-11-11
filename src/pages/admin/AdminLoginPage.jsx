@@ -20,6 +20,8 @@ export function AdminLoginPage({ onLoginSuccess }) {
     try {
       const res = await apiClient.post('/auth/admin-login', {
         email: cleanIdentifier,
+        identifier: cleanIdentifier,
+        username: cleanIdentifier,
         password: password
       });
 
