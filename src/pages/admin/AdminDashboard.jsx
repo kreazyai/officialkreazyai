@@ -676,9 +676,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 borderRadius: '8px',
                 fontSize: '12px',
                 fontWeight: 700,
-                background: '#EFFBF5',
-                color: '#087A4A',
-                border: '1px solid rgba(8, 122, 74, 0.3)',
+                background: 'rgba(34, 197, 94, 0.14)',
+                color: '#4ADE80',
+                border: '1px solid rgba(34, 197, 94, 0.35)',
                 textDecoration: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
@@ -1687,7 +1687,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                       </div>
                     </div>
 
-                    <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                    <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                       <button
                         type="button"
                         onClick={onLogout}
@@ -1959,7 +1959,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     <tbody>
                       {bootcampData.registrations.length === 0 ? (
                         <tr>
-                          <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6B7280' }}>
+                          <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94A3B8' }}>
                             <GraduationCap size={32} style={{ margin: '0 auto 0.75rem auto', opacity: 0.4 }} />
                             <div>No bootcamp registrations found. Submissions from <code>/aibootcampwithsadat</code> will appear here automatically.</div>
                           </td>
@@ -2041,7 +2041,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                     fontWeight: 700,
                                     padding: '3px 8px',
                                     borderRadius: '6px',
-                                    border: '1px solid #D1D5DB',
+                                    border: '1px solid rgba(255, 255, 255, 0.12)',
                                     background: attendee.status === 'CONFIRMED' ? '#DEF7EC' : attendee.status === 'ATTENDED' ? '#E1EFFE' : '#FDF2E9',
                                     color: attendee.status === 'CONFIRMED' ? '#03543F' : attendee.status === 'ATTENDED' ? '#1E429F' : '#9F580A',
                                     cursor: 'pointer'
@@ -2141,16 +2141,16 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                           <tr key={tenant.businessId}>
                             <td>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <strong style={{ color: '#111827', fontSize: '13.5px' }}>{tenant.businessName}</strong>
-                                <span style={{ color: '#6B7280', fontSize: '11.5px', fontFamily: 'monospace' }}>
+                                <strong style={{ color: '#F8FAFC', fontSize: '13.5px' }}>{tenant.businessName}</strong>
+                                <span style={{ color: '#94A3B8', fontSize: '11.5px', fontFamily: 'monospace' }}>
                                   {tenant.slug || tenant.businessId}
                                 </span>
                               </div>
                             </td>
                             <td>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span style={{ color: '#111827', fontWeight: 600 }}>{tenant.ownerName}</span>
-                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{tenant.ownerEmail}</span>
+                                <span style={{ color: '#F8FAFC', fontWeight: 600 }}>{tenant.ownerName}</span>
+                                <span style={{ color: '#94A3B8', fontSize: '12px' }}>{tenant.ownerEmail}</span>
                               </div>
                             </td>
                             <td>
@@ -2160,20 +2160,20 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                 borderRadius: '6px',
                                 fontSize: '11px',
                                 fontWeight: 700,
-                                background: tenant.plan === 'Scale' ? '#EFF6FF' : tenant.plan === 'Growth' ? '#F5F3FF' : '#F3F4F6',
+                                background: tenant.plan === 'Scale' ? 'rgba(56, 189, 248, 0.15)' : tenant.plan === 'Growth' ? 'rgba(192, 132, 252, 0.15)' : '#F3F4F6',
                                 color: tenant.plan === 'Scale' ? '#1D4ED8' : tenant.plan === 'Growth' ? '#6D28D9' : '#374151'
                               }}>
                                 {tenant.plan || 'Starter'}
                               </span>
                             </td>
                             <td>
-                              <span style={{ fontWeight: 700, color: '#111827', fontSize: '13.5px' }}>
+                              <span style={{ fontWeight: 700, color: '#F8FAFC', fontSize: '13.5px' }}>
                                 {tenant.totalProducts} {tenant.totalProducts === 1 ? 'Product' : 'Products'}
                               </span>
                             </td>
                             <td>
                               <div style={{ display: 'flex', gap: '6px', fontSize: '11.5px', flexWrap: 'wrap' }}>
-                                <span style={{ color: '#059669', background: '#ECFDF5', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                <span style={{ color: '#059669', background: 'rgba(34, 197, 94, 0.15)', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
                                   {tenant.inStockCount} In Stock
                                 </span>
                                 {tenant.lowStockCount > 0 && (
@@ -2182,7 +2182,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                   </span>
                                 )}
                                 {tenant.outOfStockCount > 0 && (
-                                  <span style={{ color: '#DC2626', background: '#FEF2F2', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                  <span style={{ color: '#DC2626', background: 'rgba(239, 68, 68, 0.15)', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
                                     {tenant.outOfStockCount} Out
                                   </span>
                                 )}
@@ -2199,7 +2199,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                   type="button"
                                   onClick={() => handleInspectTenantProducts(tenant.businessId)}
                                   className="mac-action-btn"
-                                  style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB' }}
+                                  style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#CBD5E1', border: '1px solid rgba(255, 255, 255, 0.12)' }}
                                   title="Inspect product inventory details"
                                 >
                                   <Eye size={13} />
@@ -2209,7 +2209,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                   type="button"
                                   onClick={() => handleEnterCustomerDashboard(tenant.businessId)}
                                   className="mac-action-btn"
-                                  style={{ background: '#481577', color: '#FFFFFF', border: 'none' }}
+                                  style={{ background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)', color: '#FFFFFF', border: 'none' }}
                                   title="Route directly into this customer's workspace dashboard"
                                 >
                                   <LogIn size={13} />
@@ -2264,9 +2264,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <div className="mac-metric-card">
                   <div className="mac-metric-top">
                     <span className="mac-metric-title">COMPLETED SESSIONS</span>
-                    <ShieldCheck size={16} className="mac-metric-icon" style={{ color: '#481577' }} />
+                    <ShieldCheck size={16} className="mac-metric-icon" style={{ color: '#C084FC' }} />
                   </div>
-                  <div className="mac-metric-value" style={{ color: '#481577' }}>{scheduleData.completedCount}</div>
+                  <div className="mac-metric-value" style={{ color: '#C084FC' }}>{scheduleData.completedCount}</div>
                   <div className="mac-metric-sub">Consultations finalized</div>
                 </div>
               </div>
@@ -2319,23 +2319,23 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                           <tr key={booking.id}>
                             <td>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <strong style={{ color: '#111827', fontSize: '13.5px' }}>{booking.clientName}</strong>
-                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{booking.companyName}</span>
+                                <strong style={{ color: '#F8FAFC', fontSize: '13.5px' }}>{booking.clientName}</strong>
+                                <span style={{ color: '#94A3B8', fontSize: '12px' }}>{booking.companyName}</span>
                               </div>
                             </td>
                             <td>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span style={{ color: '#111827' }}>{booking.email}</span>
-                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{booking.phone}</span>
+                                <span style={{ color: '#F8FAFC' }}>{booking.email}</span>
+                                <span style={{ color: '#94A3B8', fontSize: '12px' }}>{booking.phone}</span>
                               </div>
                             </td>
                             <td>
-                              <span style={{ fontSize: '12.5px', color: '#374151' }}>{booking.channel}</span>
+                              <span style={{ fontSize: '12.5px', color: '#CBD5E1' }}>{booking.channel}</span>
                             </td>
                             <td>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <strong style={{ fontSize: '12.5px', color: '#111827' }}>{booking.preferredDate}</strong>
-                                <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{booking.preferredTime}</span>
+                                <strong style={{ fontSize: '12.5px', color: '#F8FAFC' }}>{booking.preferredDate}</strong>
+                                <span style={{ fontSize: '11.5px', color: '#94A3B8' }}>{booking.preferredTime}</span>
                               </div>
                             </td>
                             <td>
@@ -2344,7 +2344,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                 borderRadius: '6px',
                                 fontSize: '11px',
                                 fontWeight: 700,
-                                background: booking.type === 'FOUNDER' ? '#FEF3C7' : '#EFF6FF',
+                                background: booking.type === 'FOUNDER' ? '#FEF3C7' : 'rgba(56, 189, 248, 0.15)',
                                 color: booking.type === 'FOUNDER' ? '#B45309' : '#1D4ED8'
                               }}>
                                 {booking.type === 'FOUNDER' ? 'Founder Call' : 'Live Demo'}
@@ -2356,7 +2356,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                 borderRadius: '6px',
                                 fontSize: '11px',
                                 fontWeight: 700,
-                                background: booking.status === 'CONFIRMED' ? '#ECFDF5' : booking.status === 'COMPLETED' ? '#F3F4F6' : '#FFFBEB',
+                                background: booking.status === 'CONFIRMED' ? 'rgba(34, 197, 94, 0.15)' : booking.status === 'COMPLETED' ? '#F3F4F6' : '#FFFBEB',
                                 color: booking.status === 'CONFIRMED' ? '#059669' : booking.status === 'COMPLETED' ? '#4B5563' : '#D97706'
                               }}>
                                 {booking.status}
@@ -2380,7 +2380,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="mac-action-btn"
-                                  style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', textDecoration: 'none' }}
+                                  style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#1D4ED8', border: '1px solid #BFDBFE', textDecoration: 'none' }}
                                 >
                                   <ExternalLink size={12} />
                                   <span>Meet Link</span>
@@ -2390,7 +2390,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                     type="button"
                                     onClick={() => handleUpdateScheduleStatus(booking.type, booking.id, 'COMPLETED')}
                                     className="mac-action-btn"
-                                    style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB' }}
+                                    style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#CBD5E1', border: '1px solid rgba(255, 255, 255, 0.12)' }}
                                   >
                                     <span>Complete</span>
                                   </button>
@@ -2487,20 +2487,20 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                       {signupsData.signups.map((signup) => (
                         <tr key={signup.id}>
                           <td>
-                            <strong style={{ color: '#111827', fontSize: '13.5px' }}>{signup.name}</strong>
+                            <strong style={{ color: '#F8FAFC', fontSize: '13.5px' }}>{signup.name}</strong>
                           </td>
                           <td>
-                            <span style={{ color: '#481577', fontWeight: 600 }}>{signup.businessName}</span>
+                            <span style={{ color: '#C084FC', fontWeight: 600 }}>{signup.businessName}</span>
                           </td>
                           <td>
-                            <span style={{ color: '#4B5563', fontFamily: 'monospace', fontSize: '12px' }}>{signup.email}</span>
+                            <span style={{ color: '#94A3B8', fontFamily: 'monospace', fontSize: '12px' }}>{signup.email}</span>
                           </td>
                           <td>
                             <span style={{
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '6px',
-                              background: '#F3F4F6',
+                              background: 'rgba(255, 255, 255, 0.08)',
                               padding: '2px 8px',
                               borderRadius: '6px',
                               fontSize: '12px',
@@ -2512,7 +2512,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                             </span>
                           </td>
                           <td>
-                            <span style={{ color: '#6B7280', fontSize: '12px' }}>{formatDateTime(signup.createdAt)}</span>
+                            <span style={{ color: '#94A3B8', fontSize: '12px' }}>{formatDateTime(signup.createdAt)}</span>
                           </td>
                           <td>
                             <span style={{
@@ -2520,7 +2520,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                               borderRadius: '6px',
                               fontSize: '11px',
                               fontWeight: 700,
-                              background: '#F5F3FF',
+                              background: 'rgba(192, 132, 252, 0.15)',
                               color: '#6D28D9'
                             }}>
                               {signup.plan}
@@ -2532,7 +2532,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                               borderRadius: '6px',
                               fontSize: '11px',
                               fontWeight: 700,
-                              background: signup.emailVerified ? '#ECFDF5' : '#FEF2F2',
+                              background: signup.emailVerified ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                               color: signup.emailVerified ? '#059669' : '#DC2626'
                             }}>
                               {signup.emailVerified ? 'Verified' : 'Pending'}
@@ -2543,7 +2543,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                               type="button"
                               onClick={() => handleEnterCustomerDashboard(signup.businessId || signup.id)}
                               className="mac-action-btn"
-                              style={{ background: '#481577', color: '#FFFFFF', border: 'none' }}
+                              style={{ background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)', color: '#FFFFFF', border: 'none' }}
                             >
                               <LogIn size={12} />
                               <span>Enter Dashboard</span>
@@ -2623,8 +2623,8 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                           <tr key={sess.id}>
                             <td>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <strong style={{ color: '#111827', fontSize: '13.5px' }}>{sess.user_name || sess.email}</strong>
-                                <span style={{ color: '#6B7280', fontSize: '12px' }}>{sess.business_name} ({sess.email})</span>
+                                <strong style={{ color: '#F8FAFC', fontSize: '13.5px' }}>{sess.user_name || sess.email}</strong>
+                                <span style={{ color: '#94A3B8', fontSize: '12px' }}>{sess.business_name} ({sess.email})</span>
                               </div>
                             </td>
                             <td>
@@ -2635,7 +2635,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                 padding: '3px 8px',
                                 borderRadius: '6px',
                                 fontSize: '12px',
-                                background: '#F3F4F6',
+                                background: 'rgba(255, 255, 255, 0.08)',
                                 fontWeight: 600
                               }}>
                                 <Laptop size={13} />
@@ -2643,16 +2643,16 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                               </span>
                             </td>
                             <td>
-                              <span style={{ fontSize: '12.5px', color: '#374151' }}>{sess.browser}</span>
+                              <span style={{ fontSize: '12.5px', color: '#CBD5E1' }}>{sess.browser}</span>
                             </td>
                             <td>
-                              <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#4B5563' }}>{sess.ip_address}</span>
+                              <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#94A3B8' }}>{sess.ip_address}</span>
                             </td>
                             <td>
-                              <span style={{ fontSize: '12.5px', color: '#111827', fontWeight: 500 }}>{sess.country}</span>
+                              <span style={{ fontSize: '12.5px', color: '#F8FAFC', fontWeight: 500 }}>{sess.country}</span>
                             </td>
                             <td>
-                              <span style={{ color: '#6B7280', fontSize: '12px' }}>{formatDateTime(sess.created_at)}</span>
+                              <span style={{ color: '#94A3B8', fontSize: '12px' }}>{formatDateTime(sess.created_at)}</span>
                             </td>
                             <td>
                               <span style={{
@@ -2660,7 +2660,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                 borderRadius: '6px',
                                 fontSize: '11px',
                                 fontWeight: 700,
-                                background: sess.is_active ? '#ECFDF5' : '#F3F4F6',
+                                background: sess.is_active ? 'rgba(34, 197, 94, 0.15)' : '#F3F4F6',
                                 color: sess.is_active ? '#059669' : '#6B7280'
                               }}>
                                 {sess.is_active ? 'Active Session' : 'Expired'}
@@ -2735,26 +2735,26 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               }}>
                 <div className="mac-panel-card" style={{ padding: '20px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#374151' }}>STARTER TIER</span>
-                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#111827' }}>$49 / mo</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#CBD5E1' }}>STARTER TIER</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#F8FAFC' }}>$49 / mo</span>
                   </div>
-                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px 0' }}>
+                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px 0' }}>
                     1,000 automated conversations • 1 WhatsApp Business line • Real-time stock sync
                   </p>
-                  <span style={{ fontSize: '11px', color: '#059669', background: '#ECFDF5', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: '#059669', background: 'rgba(34, 197, 94, 0.15)', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
                     ~৳5,880 BDT / month
                   </span>
                 </div>
 
-                <div className="mac-panel-card" style={{ padding: '20px', border: '1.5px solid #481577' }}>
+                <div className="mac-panel-card" style={{ padding: '20px', border: '1.5px solid #FF334B' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#481577' }}>GROWTH TIER (MOST POPULAR)</span>
-                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#481577' }}>$119 / mo</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#C084FC' }}>GROWTH TIER (MOST POPULAR)</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#C084FC' }}>$119 / mo</span>
                   </div>
-                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px 0' }}>
+                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px 0' }}>
                     5,000 automated conversations • WhatsApp + Instagram + Messenger • Automated checkout
                   </p>
-                  <span style={{ fontSize: '11px', color: '#481577', background: '#F5F3FF', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: '#C084FC', background: 'rgba(192, 132, 252, 0.15)', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
                     ~৳14,280 BDT / month
                   </span>
                 </div>
@@ -2762,12 +2762,12 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <div className="mac-panel-card" style={{ padding: '20px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: '#1D4ED8' }}>SCALE ENTERPRISE</span>
-                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#111827' }}>$299 / mo</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, color: '#F8FAFC' }}>$299 / mo</span>
                   </div>
-                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px 0' }}>
+                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px 0' }}>
                     25,000 automated conversations • Dedicated AI model training • Multi-agent handoff
                   </p>
-                  <span style={{ fontSize: '11px', color: '#1D4ED8', background: '#EFF6FF', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: '#1D4ED8', background: 'rgba(56, 189, 248, 0.15)', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
                     ~৳35,880 BDT / month
                   </span>
                 </div>
@@ -3055,10 +3055,10 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 marginBottom: '16px'
               }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '16px', color: '#111827' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', color: '#F8FAFC' }}>
                     {selectedTenantProducts.business?.name} Product Catalog
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                  <span style={{ fontSize: '12px', color: '#94A3B8' }}>
                     Managed by {selectedTenantProducts.business?.ownerName} ({selectedTenantProducts.business?.ownerEmail}) • Plan: {selectedTenantProducts.business?.plan}
                   </span>
                 </div>
@@ -3070,7 +3070,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     handleEnterCustomerDashboard(bId);
                   }}
                   className="mac-action-btn"
-                  style={{ background: '#481577', color: '#FFFFFF', border: 'none', padding: '6px 12px' }}
+                  style={{ background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)', color: '#FFFFFF', border: 'none', padding: '6px 12px' }}
                 >
                   <LogIn size={13} />
                   <span>Enter Dashboard to Edit</span>
@@ -3078,7 +3078,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
               </div>
 
               {selectedTenantProducts.products.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#6B7280', padding: '30px 0' }}>
+                <p style={{ textAlign: 'center', color: '#94A3B8', padding: '30px 0' }}>
                   No products cataloged in this customer store yet.
                 </p>
               ) : (
@@ -3101,18 +3101,18 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                             {p.imageUrl ? (
                               <img src={p.imageUrl} alt={p.name} style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
                             ) : (
-                              <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
+                              <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
                                 <Package size={16} />
                               </div>
                             )}
-                            <strong style={{ color: '#111827', fontSize: '13px' }}>{p.name}</strong>
+                            <strong style={{ color: '#F8FAFC', fontSize: '13px' }}>{p.name}</strong>
                           </div>
                         </td>
                         <td>
-                          <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#4B5563' }}>{p.sku}</span>
+                          <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#94A3B8' }}>{p.sku}</span>
                         </td>
                         <td>
-                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{p.category}</span>
+                          <span style={{ fontSize: '12px', color: '#94A3B8' }}>{p.category}</span>
                         </td>
                         <td>
                           <strong style={{ color: '#059669', fontSize: '13px' }}>${p.price.toFixed(2)}</strong>
@@ -3128,7 +3128,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                             borderRadius: '4px',
                             fontSize: '11px',
                             fontWeight: 700,
-                            background: p.stock > 0 ? '#ECFDF5' : '#FEF2F2',
+                            background: p.stock > 0 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                             color: p.stock > 0 ? '#059669' : '#DC2626'
                           }}>
                             {p.status}
