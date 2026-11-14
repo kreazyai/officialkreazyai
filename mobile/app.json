@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "KreazyAI",
+    "slug": "kreazyai",
+    "scheme": "kreazyai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kreazyai.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#06080D",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "package": "com.kreazyai.mobile",
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sharing",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
