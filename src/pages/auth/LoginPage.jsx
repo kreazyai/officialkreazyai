@@ -201,13 +201,14 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
       }}>
         {/* Header */}
         <div className="auth-header" style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div
+            <div
             className="brand-logo"
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', marginBottom: '1.25rem', cursor: 'pointer' }}
             onClick={() => onNavigate('home')}
             title="KreazyAI"
           >
-            <img src="/logo-white.svg" alt="KreazyAI" style={{ height: '32px', width: 'auto' }} />
+            <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="brand-logo-mark" style={{ height: '36px' }} />
+            <img src="/logo-white.svg" alt="KreazyAI" style={{ height: '26px', width: 'auto' }} />
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 1.85rem)', fontWeight: 800, letterSpacing: '-0.025em', color: '#FFFFFF', margin: '0 0 0.5rem 0' }}>
             Welcome back

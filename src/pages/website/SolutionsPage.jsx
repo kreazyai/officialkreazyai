@@ -393,9 +393,6 @@ export function SolutionsPage({ onNavigate }) {
       <div className="container">
         {/* Header */}
         <div className="section-header" style={{ textAlign: 'center', marginBottom: 'var(--space-10)' }}>
-          <span className="badge badge-mint" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
-            {t.eyebrow}
-          </span>
           <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.05, color: 'var(--text-primary)', marginBottom: '1rem' }}>
             {t.title}
           </h1>
@@ -437,10 +434,7 @@ export function SolutionsPage({ onNavigate }) {
           boxShadow: '0 8px 30px rgba(9, 42, 32, 0.05)',
           marginBottom: '3.5rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <span className="badge badge-mint" style={{ fontSize: '0.8rem', padding: '0.35rem 0.85rem' }}>
-              {currentSolution.badge}
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1.25rem' }}>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
               {t.readyBadge}
             </span>
@@ -519,9 +513,6 @@ export function SolutionsPage({ onNavigate }) {
 
         {/* 6 Architectural Pillars */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <span className="badge badge-mint" style={{ marginBottom: '0.5rem' }}>
-            {t.platformEyebrow}
-          </span>
           <h2 style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: 800, color: 'var(--text-primary)' }}>
             {t.platformTitle}
           </h2>

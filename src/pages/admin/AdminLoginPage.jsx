@@ -71,12 +71,25 @@ export function AdminLoginPage({ onLoginSuccess }) {
         <div className="mac-window-body">
           {/* Logo & Headline */}
           <div className="mac-login-header">
-            <img
-              src="/logo-white.svg"
-              alt="KREAZY AI"
-              className="mac-login-logo"
-            />
-            <h1 className="mac-login-title">Admin Portal</h1>
+            <div className="mac-login-brand-lockup">
+              <div className="mac-login-emblem-wrap">
+                <img
+                  src="/logo-mark.png"
+                  alt="Kreazy AI Emblem"
+                  className="mac-login-emblem"
+                />
+              </div>
+              <img
+                src="/logo-text-vibrant.png"
+                alt="KREAZY AI"
+                className="mac-login-brand-text"
+              />
+              <div className="mac-login-portal-subtitle">
+                <span className="mac-portal-line" aria-hidden="true" />
+                <span className="mac-portal-text">Admin Portal</span>
+                <span className="mac-portal-line" aria-hidden="true" />
+              </div>
+            </div>
           </div>
 
           {/* Error Alert */}

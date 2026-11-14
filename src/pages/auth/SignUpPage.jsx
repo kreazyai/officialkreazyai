@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { triggerGoogleNativeAuth } from '../../services/googleAuth';
-import { GoogleIcon } from '../../components/auth/GoogleVerificationModal';
+import { GoogleIcon, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
 
 const WORLDWIDE_COUNTRIES = [
   { code: 'US', name: 'United States', dial: '+1' },
@@ -141,6 +141,7 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
   // Status
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   // Selected plan calculation
   const currentPlan = PLAN_TIERS.find(p => p.id === selectedPlanId) || PLAN_TIERS[1];
@@ -387,31 +388,35 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
   };
 
   // -------------------------------------------------------------
-  // GOOGLE NATIVE AUTH (Real Google Account Chooser)
+  // GOOGLE AUTH (Native Google Chooser or Verified Hub)
   // -------------------------------------------------------------
+  const handleGoogleSuccess = async (googleProfile) => {
+    setIsGoogleModalOpen(false);
+    setLoading(true);
+    try {
+      const user = await loginWithGoogle({
+        ...googleProfile,
+        storeName: storeName.trim() || googleProfile.storeName
+      });
+      setEmail(googleProfile.email);
+      setStoreName(storeName.trim() || googleProfile.storeName || `${googleProfile.name}'s Store`);
+      if (onLoginSuccess) onLoginSuccess(user);
+      setStep(3); // Direct to plan selection
+    } catch (err) {
+      setError(err?.message || 'Google authentication failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGoogleAuth = () => {
     setError('');
     triggerGoogleNativeAuth({
       storeName: storeName.trim(),
-      onSuccess: async (googleProfile) => {
-        setLoading(true);
-        try {
-          const user = await loginWithGoogle({
-            ...googleProfile,
-            storeName: storeName.trim() || googleProfile.storeName
-          });
-          setEmail(googleProfile.email);
-          setStoreName(storeName.trim() || googleProfile.storeName || `${googleProfile.name}'s Store`);
-          if (onLoginSuccess) onLoginSuccess(user);
-          setStep(3); // Direct to plan selection
-        } catch (err) {
-          setError(err?.message || 'Google authentication failed.');
-        } finally {
-          setLoading(false);
-        }
-      },
+      onSuccess: handleGoogleSuccess,
       onError: (err) => {
-        setError(err?.message || 'Google account selection was cancelled or unavailable.');
+        console.warn('Google Native Auth fallback to modal:', err?.message);
+        setIsGoogleModalOpen(true);
       }
     });
   };
@@ -1431,6 +1436,15 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
           </p>
         </div>
       )}
+
+      {/* Google Verification Modal Fallback */}
+      <GoogleVerificationModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSuccess={handleGoogleSuccess}
+        mode="signup"
+        defaultEmail={email}
+      />
     </div>
   );
 }

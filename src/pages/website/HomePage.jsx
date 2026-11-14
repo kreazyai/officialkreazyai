@@ -32,7 +32,7 @@ import {
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { PricingTiersSection } from '../../components/website/PricingTiersSection';
-import { HeroMetricCard } from '../../components/website/HeroMetricCard';
+import { HeroPricingBoxes } from '../../components/website/HeroPricingBoxes';
 import { leadService } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -366,43 +366,6 @@ export function HomePage({ onNavigate, user }) {
           <div className="hero-split-grid">
             {/* Left Column: Headline, Value Proposition & Actions */}
             <div className="hero-col-left">
-              {/* AI Bootcamp Free Career Masterclass Pill */}
-              <div
-                onClick={() => onNavigate('aibootcampwithsadat')}
-                className="bootcamp-hero-pill"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  padding: '0.45rem 1.1rem 0.45rem 0.65rem',
-                  borderRadius: '999px',
-                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(255, 51, 75, 0.16) 100%)',
-                  border: '1px solid rgba(245, 158, 11, 0.35)',
-                  marginBottom: '1.25rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 20px rgba(245, 158, 11, 0.15)',
-                  transition: 'all 0.2s ease',
-                  alignSelf: 'flex-start'
-                }}
-              >
-                <span style={{
-                  background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)',
-                  color: '#FFFFFF',
-                  fontSize: '0.7rem',
-                  fontWeight: 800,
-                  padding: '2px 8px',
-                  borderRadius: '999px',
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase'
-                }}>
-                  FREE MASTERCLASS
-                </span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 650, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  AI Career Bootcamp with Sadat Sakib
-                  <ArrowRight size={14} color="#F59E0B" />
-                </span>
-              </div>
-
               {/* Main Headline */}
               <h1 className="hero-headline">
                 <span className="hero-headline-black">{t('hero.headlineBlack', 'Your Business')}</span>
@@ -502,9 +465,9 @@ export function HomePage({ onNavigate, user }) {
               </div>
             </div>
 
-            {/* Right Column: Floating Performance Metric Card (Apogee Style) */}
+            {/* Right Column: Hero Pricing Boxes */}
             <div className="hero-col-right">
-              <HeroMetricCard />
+              <HeroPricingBoxes onNavigate={onNavigate} />
             </div>
           </div>
         </div>
@@ -683,9 +646,6 @@ export function HomePage({ onNavigate, user }) {
       <section className="showcase-section">
         <div className="container">
           <div className="showcase-header">
-            <span className="badge badge-mint" style={{ marginBottom: '0.65rem' }}>
-              {t('showcase.overviewEyebrow', 'CENTRALIZED INTELLIGENCE')}
-            </span>
             <h2 className="showcase-title">{t('showcase.overviewTitle', 'Store Overview & Automation')}</h2>
           </div>
 
@@ -706,9 +666,6 @@ export function HomePage({ onNavigate, user }) {
       <section className="showcase-section showcase-section-alt">
         <div className="container">
           <div className="showcase-header">
-            <span className="badge badge-mint" style={{ marginBottom: '0.65rem' }}>
-              {t('showcase.omniEyebrow', 'CONVERSATIONAL COMMERCE')}
-            </span>
             <h2 className="showcase-title">{t('showcase.omniTitle', 'Seamless Omnichannel Conversations')}</h2>
           </div>
 
@@ -781,9 +738,6 @@ export function HomePage({ onNavigate, user }) {
       <section className="workflow-section" id="how-it-works-workflow">
         <div className="container">
           <div className="section-header-centered">
-            <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              {t('workflow.eyebrow', 'SEAMLESS CONVERSATION PIPELINE')}
-            </span>
             <h2 className="section-title">
               {t('workflow.title', 'From message to action. Automatically.')}
             </h2>
@@ -846,9 +800,6 @@ export function HomePage({ onNavigate, user }) {
                       </div>
                       <div>
                         <div className="channel-card-name">{chan.name}</div>
-                        <span className="badge badge-mint" style={{ fontSize: '0.7rem', padding: '1px 7px' }}>
-                          {chan.tag}
-                        </span>
                       </div>
                     </div>
                     <p className="channel-card-desc" style={{ marginBottom: 0 }}>{chan.desc}</p>
@@ -871,9 +822,6 @@ export function HomePage({ onNavigate, user }) {
       <section className="features-editorial-section">
         <div className="container">
           <div className="section-header-centered">
-            <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              {t('capabilities.eyebrow', 'CORE AUTOMATION CAPABILITIES')}
-            </span>
             <h2 className="section-title">
               {t('capabilities.title', 'Designed for High-Volume Commerce')}
             </h2>
@@ -899,8 +847,7 @@ export function HomePage({ onNavigate, user }) {
       <section className="proof-section">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <span className="badge badge-mint">{t('metrics.eyebrow', 'MEASURABLE BUSINESS IMPACT')}</span>
-            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', fontWeight: 850, color: 'var(--primary-dark)', marginTop: '0.5rem', letterSpacing: '-0.035em', lineHeight: 1.1 }}>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', fontWeight: 850, color: 'var(--primary-dark)', letterSpacing: '-0.035em', lineHeight: 1.1 }}>
               {t('metrics.title', 'Why Growing Merchants Trust KREAZY AI')}
             </h2>
           </div>
@@ -943,9 +890,6 @@ export function HomePage({ onNavigate, user }) {
       <section className="home-faq-section" style={{ padding: 'var(--space-20) 0' }}>
         <div className="container">
           <div className="section-header-centered">
-            <span className="badge badge-mint" style={{ marginBottom: '0.75rem' }}>
-              {t('faq.eyebrow', 'FREQUENTLY ASKED QUESTIONS')}
-            </span>
             <h2 className="section-title">
               {t('faq.title', 'Everything You Need to Know')}
             </h2>
@@ -994,9 +938,6 @@ export function HomePage({ onNavigate, user }) {
         <div className="container">
           <div className="founder-card">
             <div className="founder-info">
-              <span className="badge badge-mint" style={{ alignSelf: 'flex-start' }}>
-                {t('founderMeeting.eyebrow', 'DIRECT FOUNDER CONSULTATION')}
-              </span>
               <h2>{t('founderMeeting.title', 'Want a Custom Strategy for Your Store?')}</h2>
               <p>
                 {t('founderMeeting.subtitle', 'Talk directly with the KREAZY AI product engineering team about how to automate your specific product catalog, Meta ad funnels, and customer volume.')}

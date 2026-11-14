@@ -138,25 +138,6 @@ export function AIBootcampPage({ onNavigate }) {
           
           {/* ── LEFT COLUMN: HUMAN MENTORSHIP POSTER ── */}
           <div>
-            {/* Eyebrow Badge */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.4rem 0.95rem',
-              borderRadius: '999px',
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(255, 51, 75, 0.15) 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.35)',
-              color: '#FBBF24',
-              fontSize: '0.8rem',
-              fontWeight: 750,
-              letterSpacing: '0.03em',
-              marginBottom: '1.25rem'
-            }}>
-              <Flame size={15} color="#F59E0B" />
-              <span>LIVE CAREER MASTERCLASS WITH SADAT SAKIB</span>
-            </div>
-
             {/* Title */}
             <h1 style={{
               fontSize: 'clamp(2.1rem, 4.5vw, 3.2rem)',

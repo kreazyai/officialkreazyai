@@ -421,9 +421,6 @@ export function AiAgentsPage({ onNavigate }) {
       <div className="container">
         {/* Header */}
         <div className="section-header" style={{ textAlign: 'center', marginBottom: 'var(--space-10)' }}>
-          <span className="badge badge-mint" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
-            {ui.badge}
-          </span>
           <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.05, color: 'var(--text-primary)', marginBottom: '1rem' }}>
             {ui.title}
           </h1>
@@ -456,10 +453,7 @@ export function AiAgentsPage({ onNavigate }) {
                   position: 'relative'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <span className="badge badge-mint" style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem' }}>
-                    {agent.tag}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1rem' }}>
                   <span style={{ fontSize: '0.78rem', color: 'var(--primary-dark)', fontWeight: 700, background: 'rgba(15, 169, 104, 0.1)', padding: '3px 8px', borderRadius: '6px' }}>
                     {agent.speed}
                   </span>
@@ -504,9 +498,6 @@ export function AiAgentsPage({ onNavigate }) {
           marginBottom: '3.5rem'
         }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <span className="badge badge-mint" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>
-              {ui.simBadge}
-            </span>
             <h2 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.1rem)', fontWeight: 800, color: 'var(--text-primary)' }}>
               {ui.simTitlePrefix}{activeAgent.name}{ui.simTitleSuffix}
             </h2>

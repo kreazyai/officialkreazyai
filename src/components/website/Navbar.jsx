@@ -83,9 +83,14 @@ export function Navbar({
           <div
             className="brand-logo"
             onClick={() => handleLinkClick('home')}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.65rem' }}
             title="KREAZY AI"
           >
+            <img
+              src="/logo-mark.png"
+              alt="Kreazy AI"
+              className="brand-logo-mark nav-brand-mark"
+            />
             <img
               src="/logo-white.svg"
               alt="KREAZY AI"

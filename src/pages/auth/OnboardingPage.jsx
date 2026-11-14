@@ -143,11 +143,12 @@ export function OnboardingPage({ onNavigate, user }) {
           <div
             className="brand-logo"
             onClick={() => onNavigate('home')}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}
             title="KreazyAI"
           >
+            <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="brand-logo-mark" style={{ height: '26px' }} />
             <img src="/logo-white.svg" alt="KreazyAI" className="brand-logo-img" />
-            <span className="onboarding-label" style={{ marginLeft: '0.65rem' }}>Onboarding</span>
+            <span className="onboarding-label" style={{ marginLeft: '0.25rem' }}>Onboarding</span>
           </div>
 
           <button

@@ -142,7 +142,6 @@ export function ContactPage({ onNavigate }) {
     <div style={{ padding: 'var(--space-12) 0 var(--space-20) 0' }}>
       <div className="container">
         <div className="section-header">
-          <span className="eyebrow">{t.eyebrow}</span>
           <h1>{t.title}</h1>
           <p>{t.subtitle}</p>
         </div>

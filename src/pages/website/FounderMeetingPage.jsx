@@ -208,9 +208,6 @@ export function FounderMeetingPage({ onNavigate }) {
         {!submitted ? (
           <div>
             <div className="section-header" style={{ marginBottom: 'var(--space-8)' }}>
-              <span className="eyebrow">
-                <Sparkles size={14} /> {t.eyebrow}
-              </span>
               <h1>{t.title}</h1>
               <p>{t.subtitle}</p>
             </div>

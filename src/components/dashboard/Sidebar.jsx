@@ -110,9 +110,10 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
                 onSelectModule('home', '/');
               }
             }}
-            style={{ cursor: 'pointer', textDecoration: 'none' }}
+            style={{ cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}
             title="KreazyAI"
           >
+            <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="brand-logo-mark" style={{ height: '26px' }} />
             <img src="/logo-white.svg" alt="KREAZY AI" className="brand-logo-img" />
           </a>
 

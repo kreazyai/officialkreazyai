@@ -5,9 +5,24 @@
  * Automatically shows all Google accounts signed in on the user's phone or computer.
  */
 
-const DEFAULT_GOOGLE_CLIENT_ID = '104928402123-kreazyai.apps.googleusercontent.com';
-
 let gisScriptPromise = null;
+
+/**
+ * Validates if a given client ID is a genuine configured Google OAuth 2.0 Web Client ID.
+ */
+export function hasValidGoogleClientId(clientId) {
+  const id = (clientId || import.meta.env?.VITE_GOOGLE_CLIENT_ID || '').trim();
+  if (!id) return false;
+  // A genuine Google OAuth 2.0 Client ID ends in .apps.googleusercontent.com and is not a placeholder
+  if (
+    id.includes('kreazyai.apps.googleusercontent.com') ||
+    id.includes('your-google-client-id') ||
+    !id.endsWith('.apps.googleusercontent.com')
+  ) {
+    return false;
+  }
+  return true;
+}
 
 export function loadGoogleGisScript() {
   if (typeof window === 'undefined') return Promise.resolve(null);
@@ -43,15 +58,26 @@ export function loadGoogleGisScript() {
 
 /**
  * Triggers the official native Google Account Chooser popup or redirect.
- * Google itself presents all accounts signed into the device.
+ * If VITE_GOOGLE_CLIENT_ID is not configured with a valid Google Cloud Client ID,
+ * it immediately triggers onError so callers can present the in-app Google modal
+ * instead of popping up Google's "401: invalid_client / OAuth client was not found" error.
  */
 export async function triggerGoogleNativeAuth({
-  clientId = import.meta.env?.VITE_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID,
+  clientId = import.meta.env?.VITE_GOOGLE_CLIENT_ID,
   storeName = '',
   onSuccess,
   onError
 }) {
   try {
+    if (!hasValidGoogleClientId(clientId)) {
+      const err = new Error(
+        'VITE_GOOGLE_CLIENT_ID is not configured. Falling back to the in-app Google verification hub.'
+      );
+      err.code = 'OAUTH_CLIENT_NOT_CONFIGURED';
+      if (onError) onError(err);
+      return;
+    }
+
     const google = await loadGoogleGisScript();
 
     if (google?.accounts?.oauth2) {

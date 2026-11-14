@@ -283,7 +283,6 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-content">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <span className="step-number">{content.step1.number}</span>
-                <span className="badge badge-mint">{content.step1.badge}</span>
               </div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 850, letterSpacing: '-0.035em', lineHeight: 1.15, marginBottom: '0.85rem', color: 'var(--primary-dark)' }}>
                 {content.step1.title}
@@ -328,7 +327,6 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-content">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <span className="step-number">{content.step2.number}</span>
-                <span className="badge badge-mint">{content.step2.badge}</span>
               </div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 850, letterSpacing: '-0.035em', lineHeight: 1.15, marginBottom: '0.85rem', color: 'var(--primary-dark)' }}>
                 {content.step2.title}
@@ -374,7 +372,6 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-content">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <span className="step-number">{content.step3.number}</span>
-                <span className="badge badge-mint">{content.step3.badge}</span>
               </div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 850, letterSpacing: '-0.035em', lineHeight: 1.15, marginBottom: '0.85rem', color: 'var(--primary-dark)' }}>
                 {content.step3.title}
@@ -414,7 +411,6 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-content">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <span className="step-number">{content.step4.number}</span>
-                <span className="badge badge-mint">{content.step4.badge}</span>
               </div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 850, letterSpacing: '-0.035em', lineHeight: 1.15, marginBottom: '0.85rem', color: 'var(--primary-dark)' }}>
                 {content.step4.title}
@@ -467,7 +463,6 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-content">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <span className="step-number">{content.step5.number}</span>
-                <span className="badge badge-mint">{content.step5.badge}</span>
               </div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 850, letterSpacing: '-0.035em', lineHeight: 1.15, marginBottom: '0.85rem', color: 'var(--primary-dark)' }}>
                 {content.step5.title}

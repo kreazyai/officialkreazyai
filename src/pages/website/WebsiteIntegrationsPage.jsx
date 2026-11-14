@@ -440,9 +440,6 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
       <div className="container">
         {/* Header */}
         <div className="section-header" style={{ textAlign: 'center', marginBottom: 'var(--space-10)' }}>
-          <span className="badge badge-mint" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
-            {data.badge}
-          </span>
           <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.05, color: 'var(--text-primary)', marginBottom: '1rem' }}>
             {data.title}
           </h1>
@@ -498,10 +495,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
               }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span className="badge badge-mint" style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem' }}>
-                    {item.partnerTag}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.78rem', color: 'var(--primary-dark)', fontWeight: 700, background: 'rgba(15, 169, 104, 0.1)', padding: '3px 8px', borderRadius: '6px' }}>
                     {item.setupTime}
                   </span>

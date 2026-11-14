@@ -67,7 +67,6 @@ export function AboutPage({ onNavigate }) {
       <div className="container">
         {/* Header */}
         <div className="section-header">
-          <span className="eyebrow">{t.eyebrow}</span>
           <h1>{t.title}</h1>
           <p>{t.desc}</p>
         </div>
@@ -108,7 +107,6 @@ export function AboutPage({ onNavigate }) {
         {/* Why KreazyAI Deep Dive */}
         <div className="card" style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)', marginTop: 'var(--space-8)' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <span className="eyebrow" style={{ marginBottom: '1rem' }}>{t.deepEyebrow}</span>
             <h2 style={{ fontSize: 'clamp(1.85rem, 3.2vw, 2.5rem)', fontWeight: 850, letterSpacing: '-0.04em', lineHeight: 1.06, marginBottom: '1.25rem' }}>
               {t.deepTitle}
             </h2>

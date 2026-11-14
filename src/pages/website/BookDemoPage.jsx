@@ -244,24 +244,6 @@ export function BookDemoPage({ onNavigate }) {
             {/* ══ LEFT COLUMN: Value Proposition & Evidence ══ */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
               <div>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.4rem 0.95rem',
-                  borderRadius: '999px',
-                  background: 'rgba(255, 51, 75, 0.12)',
-                  border: '1px solid rgba(255, 51, 75, 0.3)',
-                  color: '#FF6B7E',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.04em',
-                  marginBottom: '1.25rem'
-                }}>
-                  <Sparkles size={14} />
-                  <span>{t.badge}</span>
-                </div>
-
                 <h1 style={{
                   fontSize: 'clamp(2rem, 4.2vw, 2.9rem)',
                   fontWeight: 850,
