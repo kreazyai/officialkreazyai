@@ -709,7 +709,14 @@
   .auth-page-container {
     padding: 1.25rem 1rem !important;
     justify-content: center !important;
+    overflow: hidden !important;
     overflow-x: hidden !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+
+  .auth-bg-deco-ring {
+    display: none !important;
   }
 
   .auth-top-bar {
