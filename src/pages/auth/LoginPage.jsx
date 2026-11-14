@@ -200,9 +200,9 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
           className="auth-brand-logo"
           onClick={() => onNavigate('home')}
           title="KreazyAI Home"
+          style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
         >
-          <img src="/logo-mark.png" alt="KreazyAI" className="auth-brand-mark" />
-          <img src="/logo-white.svg" alt="KreazyAI" className="auth-brand-text" />
+          <img src="/header-logo.png" alt="KREAZY AI — Conversational AI" style={{ height: '36px', width: 'auto', maxWidth: '170px', objectFit: 'contain' }} />
         </div>
         <button
           type="button"

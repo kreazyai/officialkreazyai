@@ -610,12 +610,9 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
       <aside className={`mac-admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         {/* Sidebar Brand Header */}
         <div className="mac-sidebar-header">
-          <div className="mac-brand-block">
-            <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="mac-sidebar-mark" style={{ height: '28px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(71, 237, 33, 0.35))' }} />
-            <div className="mac-brand-titles">
-              <img src="/logo-text-vibrant.png" alt="KREAZY AI" className="mac-sidebar-logo-text" style={{ height: '16px', width: 'auto', objectFit: 'contain' }} />
-              <span className="mac-brand-badge">ADMIN CONTROL</span>
-            </div>
+          <div className="mac-brand-block" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <img src="/header-logo.png" alt="Kreazy AI — Conversational AI" style={{ height: '30px', width: 'auto', maxWidth: '150px', objectFit: 'contain' }} />
+            <span className="mac-brand-badge" style={{ alignSelf: 'flex-start', marginLeft: '2px' }}>ADMIN CONTROL</span>
           </div>
           <button
             type="button"

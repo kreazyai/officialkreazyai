@@ -71,18 +71,11 @@ export function AdminLoginPage({ onLoginSuccess }) {
         <div className="mac-window-body">
           {/* Logo & Headline */}
           <div className="mac-login-header">
-            <div className="mac-login-brand-lockup">
-              <div className="mac-login-emblem-wrap">
-                <img
-                  src="/logo-mark.png"
-                  alt="Kreazy AI Emblem"
-                  className="mac-login-emblem"
-                />
-              </div>
+            <div className="mac-login-brand-lockup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
               <img
-                src="/logo-text-vibrant.png"
-                alt="KREAZY AI"
-                className="mac-login-brand-text"
+                src="/header-logo.png"
+                alt="KREAZY AI — Conversational AI"
+                style={{ height: '42px', width: 'auto', maxWidth: '210px', objectFit: 'contain' }}
               />
               <div className="mac-login-portal-subtitle">
                 <span className="mac-portal-line" aria-hidden="true" />

@@ -110,11 +110,10 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
                 onSelectModule('home', '/');
               }
             }}
-            style={{ cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}
+            style={{ cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
             title="KreazyAI"
           >
-            <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="brand-logo-mark" style={{ height: '26px' }} />
-            <img src="/logo-text-vibrant.png" alt="KREAZY AI" className="brand-logo-img" />
+            <img src="/header-logo.png" alt="KREAZY AI — Conversational AI" style={{ height: '32px', width: 'auto', maxWidth: '160px', objectFit: 'contain' }} />
           </a>
 
           {onCloseMobile && (

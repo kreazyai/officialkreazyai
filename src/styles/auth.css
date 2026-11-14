@@ -18,7 +18,7 @@
     radial-gradient(ellipse at 50% 15%, rgba(255, 51, 75, 0.12) 0%, rgba(6, 8, 13, 0) 65%),
     radial-gradient(circle at 85% 75%, rgba(56, 189, 248, 0.06) 0%, rgba(6, 8, 13, 0) 50%);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   box-sizing: border-box;
   font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
   color: #FFFFFF;
@@ -30,7 +30,7 @@
   box-sizing: border-box;
 }
 
-/* Atmospheric concentric arcs (contained safely inside overflow: hidden) */
+/* Atmospheric concentric arcs */
 .auth-bg-deco-ring {
   position: absolute;
   border-radius: 50%;
@@ -496,7 +496,7 @@
   flex-direction: column;
   gap: 0.35rem;
   width: 100%;
-  min-width: 0;
+  min-width: 0 !important;
   box-sizing: border-box;
 }
 
@@ -512,13 +512,13 @@
   display: flex;
   align-items: center;
   width: 100%;
-  min-width: 0;
+  min-width: 0 !important;
   box-sizing: border-box;
 }
 
 .auth-input {
-  width: 100%;
-  min-width: 0;
+  width: 100% !important;
+  min-width: 0 !important;
   height: 48px;
   background: rgba(9, 13, 22, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.13);
@@ -670,7 +670,7 @@
 .auth-social-btn {
   height: 46px;
   width: 100%;
-  min-width: 0;
+  min-width: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -707,7 +707,7 @@
 /* In mobile view (< 860px), hide the left showcase completely and show only right side */
 @media (max-width: 860px) {
   .auth-page-container {
-    padding: clamp(1rem, 4vw, 2rem) 1rem !important;
+    padding: 1.25rem 1rem !important;
     justify-content: center !important;
     overflow-x: hidden !important;
   }
@@ -715,7 +715,7 @@
   .auth-top-bar {
     max-width: 440px !important;
     width: 100% !important;
-    margin: 0 auto 1.25rem auto !important;
+    margin: 0 auto 1rem auto !important;
     padding: 0 4px !important;
   }
 
@@ -737,13 +737,13 @@
 
   .auth-form-panel {
     display: block !important;
-    padding: clamp(1.75rem, 5vw, 2.25rem) clamp(1.25rem, 4vw, 1.75rem) !important;
+    padding: 1.75rem 1.25rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
   .auth-form-header-title {
-    font-size: clamp(1.5rem, 4.5vw, 1.75rem) !important;
+    font-size: 1.65rem !important;
   }
 }
 
@@ -763,7 +763,7 @@
 
   .auth-top-bar {
     max-width: 100% !important;
-    margin-bottom: 0.85rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
   .auth-brand-mark {
@@ -784,7 +784,7 @@
   }
 
   .auth-form-panel {
-    padding: 1.5rem 1rem !important;
+    padding: 1.4rem 0.95rem !important;
   }
 
   .auth-name-grid {
@@ -799,5 +799,14 @@
     font-size: 0.82rem !important;
     gap: 0.45rem !important;
     height: 44px !important;
+  }
+
+  .auth-input {
+    padding: 0 0.75rem !important;
+    font-size: 0.88rem !important;
+  }
+
+  .auth-input-has-toggle {
+    padding-right: 2.5rem !important;
   }
 }
