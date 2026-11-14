@@ -56,7 +56,7 @@
 .kreazy-cb-launcher-btn {
   width: 58px;
   height: 58px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: linear-gradient(135deg, #481577 0%, #360E58 100%);
   border: none;
   outline: none;
@@ -104,7 +104,7 @@
   height: 640px;
   max-height: calc(100vh - 114px);
   background: #FFFFFF;
-  border-radius: 24px;
+  border-radius: 0px !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24), 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
@@ -166,7 +166,7 @@
   color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   padding: 6px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,7 +214,7 @@
 /* Home Action Cards */
 .kreazy-cb-card {
   background: #FFFFFF;
-  border-radius: 14px;
+  border-radius: 0px !important;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 15px 18px;
@@ -258,7 +258,7 @@
 /* Search card */
 .kreazy-cb-search-card {
   background: #FFFFFF;
-  border-radius: 14px;
+  border-radius: 0px !important;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 15px 18px;
@@ -275,7 +275,7 @@
   display: flex;
   align-items: center;
   background: #F3F4F6;
-  border-radius: 10px;
+  border-radius: 0px !important;
   padding: 3px 3px 3px 12px;
   border: 1px solid transparent;
   transition: border-color 0.15s;
@@ -303,7 +303,7 @@
 .kreazy-cb-search-submit {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 0px !important;
   background: #481577;
   border: none;
   color: #FFFFFF;
@@ -393,7 +393,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0px !important;
   transition: background 0.15s, color 0.15s;
 }
 
@@ -405,7 +405,7 @@
 .kreazy-cb-agent-avatar {
   width: 38px;
   height: 38px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: #111827;
   display: flex;
   align-items: center;
@@ -470,7 +470,7 @@
   color: #6B7280;
   cursor: pointer;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -512,7 +512,7 @@
   max-width: 88%;
   background: #F3F4F6;
   color: #111827;
-  border-radius: 18px 18px 18px 4px;
+  border-radius: 0px !important;
   padding: 12px 16px;
   font-size: 14px;
   line-height: 1.48;
@@ -524,7 +524,7 @@
   max-width: 85%;
   background: #481577;
   color: #FFFFFF;
-  border-radius: 18px 18px 4px 18px;
+  border-radius: 0px !important;
   padding: 12px 16px;
   font-size: 14px;
   line-height: 1.42;
@@ -561,7 +561,7 @@
   border: 1px solid #E5E7EB;
   color: #1F2937;
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 0px !important;
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
@@ -599,7 +599,7 @@
   background: #481577;
   color: #FFFFFF;
   border: none;
-  border-radius: 8px;
+  border-radius: 0px !important;
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 600;
@@ -618,7 +618,7 @@
   background: #FFFFFF;
   color: #481577;
   border: 1px solid #D1D5DB;
-  border-radius: 8px;
+  border-radius: 0px !important;
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 600;
@@ -638,7 +638,7 @@
   gap: 4px;
   padding: 10px 14px;
   background: #F3F4F6;
-  border-radius: 18px 18px 18px 4px;
+  border-radius: 0px !important;
   align-self: flex-start;
 }
 
@@ -747,7 +747,7 @@
   font-size: 10px;
   font-weight: 700;
   border: 1.5px solid #6B7280;
-  border-radius: 4px;
+  border-radius: 0px !important;
   padding: 0 3px;
   line-height: 13px;
   cursor: pointer;
@@ -763,7 +763,7 @@
 .kreazy-cb-send-btn {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: #E5E7EB;
   color: #9CA3AF;
   border: none;

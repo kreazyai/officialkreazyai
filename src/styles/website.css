@@ -138,7 +138,7 @@
   font-weight: 650;
   padding: 0.28rem 0.75rem;
   border: 1px solid #064E3B;
-  border-radius: 8px !important;
+  border-radius: 0px !important;
   cursor: pointer;
   white-space: nowrap;
   line-height: 1.25;
@@ -179,7 +179,7 @@
   height: 26px;
   background: transparent;
   border: none;
-  border-radius: 6px !important;
+  border-radius: 0px !important;
   color: #064E3B;
   opacity: 0.72;
   cursor: pointer;
@@ -420,7 +420,7 @@
   height: 32px;
   background-color: var(--mint);
   border: 1px solid var(--green-light);
-  border-radius: 8px;
+  border-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -448,7 +448,7 @@
   transition: all var(--transition-fast);
   cursor: pointer;
   padding: 0.48rem 0.95rem;
-  border-radius: var(--radius-capsule);
+  border-radius: 0px !important;
 }
 
 .nav-link:hover {
@@ -471,7 +471,7 @@
 .nav-btn-signin {
   height: 38px !important;
   padding: 0 1.1rem !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
@@ -489,7 +489,7 @@
 .nav-btn-signup {
   height: 38px !important;
   padding: 0 1.35rem !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   background: #FFFFFF !important;
   color: #06080D !important;
   font-size: 0.875rem !important;
@@ -513,7 +513,7 @@
   justify-content: center;
   background: var(--mint-soft);
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 0px !important;
   color: var(--primary-dark);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -714,7 +714,7 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.65rem 1.05rem;
-  border-radius: 14px;
+  border-radius: 0px !important;
   border: 1px solid transparent;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: default;
@@ -729,7 +729,7 @@
 .feature-pill-icon {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: 0px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -802,7 +802,7 @@
 .hero-btn-dark {
   height: 52px;
   padding: 0 2rem;
-  border-radius: 9999px;
+  border-radius: 0px !important;
   background: #08291F;
   color: #FFFFFF;
   font-size: 1rem;
@@ -834,7 +834,7 @@
 .hero-btn-outline {
   height: 52px;
   padding: 0 1.85rem;
-  border-radius: 9999px;
+  border-radius: 0px !important;
   background: #FFFFFF;
   color: #0F172A;
   font-size: 1rem;
@@ -868,7 +868,7 @@
 .hero-play-circle {
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   border: 1.5px solid currentColor;
   display: inline-flex;
   align-items: center;
@@ -920,7 +920,7 @@
 .hero-showcase-stage {
   position: relative;
   width: 100%;
-  border-radius: 24px;
+  border-radius: 0px !important;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -955,7 +955,7 @@
   width: 100%;
   max-width: 820px;
   background: #FFFFFF;
-  border-radius: 24px;
+  border-radius: 0px !important;
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -984,7 +984,7 @@
 .hero-modal-close-btn {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: #EDF2F7;
   border: none;
   color: #475569;
@@ -1015,7 +1015,7 @@
 
 .hero-demo-tab-btn {
   padding: 0.55rem 1.15rem;
-  border-radius: 999px;
+  border-radius: 0px !important;
   font-size: 0.9rem;
   font-weight: 650;
   color: #64748B;
@@ -1034,7 +1034,7 @@
 .hero-demo-card {
   background: #F8FAF9;
   border: 1px solid #E2E8F0;
-  border-radius: 18px;
+  border-radius: 0px !important;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -1256,7 +1256,7 @@
   .hero-feature-pill {
     padding: 0.55rem 0.65rem;
     gap: 0.45rem;
-    border-radius: 12px;
+    border-radius: 0px !important;
     justify-content: flex-start;
     min-width: 0;
   }
@@ -1264,7 +1264,7 @@
   .feature-pill-icon {
     width: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: 0px !important;
     flex-shrink: 0;
   }
 
@@ -1298,7 +1298,7 @@
     height: 50px;
     font-size: 0.98rem;
     justify-content: center;
-    border-radius: 9999px;
+    border-radius: 0px !important;
   }
 
   /* Social Channels Proof on Mobile */
@@ -1333,14 +1333,14 @@
     max-width: 100%;
     width: 100%;
     margin: 0 auto;
-    border-radius: 16px;
+    border-radius: 0px !important;
     overflow: hidden;
   }
 
   .hero-showcase-image {
     width: 100%;
     height: auto;
-    border-radius: 16px;
+    border-radius: 0px !important;
     display: block;
     filter: drop-shadow(0 15px 30px rgba(9, 42, 32, 0.08));
   }
@@ -1349,7 +1349,7 @@
   .hero-modal-box {
     width: 95%;
     max-height: 90vh;
-    border-radius: 20px;
+    border-radius: 0px !important;
   }
 
   .hero-modal-header {
@@ -1377,7 +1377,7 @@
 
   .hero-demo-card {
     padding: 1.15rem;
-    border-radius: 14px;
+    border-radius: 0px !important;
   }
 
   .hero-demo-card h3 {
@@ -1440,7 +1440,7 @@
     padding: 1.25rem 1rem !important;
     background: #F8FAF9;
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 0px !important;
     align-items: center;
     text-align: center;
   }
@@ -1601,7 +1601,7 @@
 .benefit-icon-box {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background-color: var(--mint-soft);
   border: 1px solid var(--border);
   display: flex;
@@ -1682,7 +1682,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px !important;
+  border-radius: 0px !important;
   padding: 1.5rem 1.25rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
   transition: all var(--transition-fast);
@@ -1749,7 +1749,7 @@
 .channel-card {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: 0px !important;
   padding: 1.75rem;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
@@ -1774,7 +1774,7 @@
 .channel-icon-wrap {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1791,7 +1791,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
 }
 
 .channel-card-desc {
@@ -1831,7 +1831,7 @@
 
 .editorial-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   padding: 2.25rem 1.85rem;
   display: flex;
   flex-direction: column;
@@ -1901,7 +1901,7 @@
 .final-cta-card {
   background: linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%) !important;
   border: 1px solid rgba(255, 51, 75, 0.32) !important;
-  border-radius: 28px !important;
+  border-radius: 0px !important;
   padding: var(--space-16) var(--space-8);
   text-align: center;
   position: relative;
@@ -2089,7 +2089,7 @@
   background: #FFFFFF;
   border: 1.5px solid var(--border);
   padding: 4px;
-  border-radius: 999px;
+  border-radius: 0px !important;
   box-shadow: 0 2px 10px rgba(9, 42, 32, 0.04);
 }
 
@@ -2097,7 +2097,7 @@
   background: transparent;
   color: var(--text-secondary);
   border: none;
-  border-radius: 999px;
+  border-radius: 0px !important;
   padding: 7px 18px;
   font-size: 0.85rem;
   font-weight: 750;
@@ -2124,7 +2124,7 @@
   background: transparent;
   color: var(--text-secondary);
   border: none;
-  border-radius: 999px;
+  border-radius: 0px !important;
   padding: 7px 18px;
   font-size: 0.85rem;
   font-weight: 750;
@@ -2149,7 +2149,7 @@
   font-size: 0.72rem;
   font-weight: 800;
   padding: 0.2rem 0.6rem;
-  border-radius: 999px;
+  border-radius: 0px !important;
   letter-spacing: 0.02em;
   border: 1px solid rgba(15, 169, 104, 0.28);
   transition: all 0.2s ease;
@@ -2171,7 +2171,7 @@
 .pricing-suite-card {
   background: #FFFFFF;
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   padding: 2.25rem 2rem;
   display: flex;
   flex-direction: column;
@@ -2199,7 +2199,7 @@
   font-size: 0.75rem;
   font-weight: 750;
   padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
   letter-spacing: 0.02em;
 }
 
@@ -2265,7 +2265,7 @@
   padding: 0.85rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 750;
-  border-radius: 12px;
+  border-radius: 0px !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -2281,7 +2281,7 @@
   padding: 0.85rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 700 !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -2402,7 +2402,7 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border-radius: 0px !important;
   padding: 1.5rem 1.75rem;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45),
               0 0 0 1px rgba(114, 176, 52, 0.12);
@@ -2427,7 +2427,7 @@
   align-items: center;
   gap: 0.9rem;
   padding: 0.85rem 1.1rem;
-  border-radius: 14px;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
@@ -2445,7 +2445,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 0px !important;
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -2523,7 +2523,7 @@
   align-items: center;
   gap: 0.3rem;
   padding: 2px 7px;
-  border-radius: 6px;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: var(--text-secondary, #CBD5E1);
@@ -2577,7 +2577,7 @@
 .faq-item {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: 0px !important;
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 16px rgba(9, 42, 32, 0.03);
@@ -2626,7 +2626,7 @@
 .faq-trigger-icon {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: var(--mint-soft);
   border: 1px solid var(--border);
   color: var(--green);
@@ -2691,7 +2691,7 @@
 .workflow-step-box {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   padding: clamp(2rem, 3.5vw, 3rem);
   box-shadow: 0 12px 36px rgba(9, 42, 32, 0.05);
   display: grid;
@@ -2737,7 +2737,7 @@
 .workflow-step-card-inner {
   background: var(--surface-secondary, #F8FAF9);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 0px !important;
   padding: 1.5rem;
   box-shadow: 0 4px 16px rgba(9, 42, 32, 0.03);
 }
@@ -2752,7 +2752,7 @@
 .step-number {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: var(--mint);
   border: 1px solid var(--green-light);
   color: var(--primary-dark);
@@ -2815,7 +2815,7 @@
 
   .workflow-step-box {
     padding: 1.5rem 1.25rem;
-    border-radius: var(--radius-lg);
+    border-radius: 0px !important;
     gap: 1.5rem;
   }
 
@@ -2842,7 +2842,7 @@
 
   .solution-showcase-box {
     padding: 1.25rem !important;
-    border-radius: 0 !important;
+    border-radius: 0px !important;
   }
 
   .solution-showcase-box .btn {
@@ -2870,7 +2870,7 @@
 .conv-demo-wrapper {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   box-shadow: 0 16px 40px rgba(9, 42, 32, 0.06), 0 2px 6px rgba(9, 42, 32, 0.02);
   overflow: hidden;
   max-width: 1060px;
@@ -2901,7 +2901,7 @@
   padding: 0.5rem 1rem;
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -2954,7 +2954,7 @@
   padding: 0.45rem 0.85rem;
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -3011,7 +3011,7 @@
 .conv-sender-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3055,7 +3055,7 @@
   padding: 0.25rem 0.65rem;
   background: var(--mint-soft);
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
 }
 
 .conv-messages-box {
@@ -3101,7 +3101,7 @@
 
 .conv-bubble {
   padding: 0.85rem 1.1rem;
-  border-radius: 18px;
+  border-radius: 0px !important;
   font-size: 0.885rem;
   line-height: 1.5;
   position: relative;
@@ -3131,7 +3131,7 @@
   margin-top: 0.75rem;
   background: #FFFFFF;
   border: 1px solid var(--green-light);
-  border-radius: 14px;
+  border-radius: 0px !important;
   padding: 1rem;
   text-align: left;
   box-shadow: 0 4px 12px rgba(15, 169, 104, 0.08);
@@ -3214,7 +3214,7 @@
   background: var(--mint-soft);
   border: 1px solid var(--green-light);
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 0px !important;
   font-size: 0.725rem;
   color: var(--primary);
   font-weight: 600;
@@ -3247,7 +3247,7 @@
 .conv-human-takeover-banner {
   background: #EFF6FF;
   border: 1px solid #BFDBFE;
-  border-radius: 12px;
+  border-radius: 0px !important;
   padding: 0.75rem 0.9rem;
   margin-top: 0.5rem;
 }
@@ -3269,7 +3269,7 @@
 .conv-step-btn {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   border: 1px solid var(--border);
   background: #FFFFFF;
   color: var(--text-secondary);
@@ -3335,7 +3335,7 @@
 .conv-flow-num {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: var(--mint-soft);
   border: 1px solid var(--green-light);
   color: var(--primary);
@@ -3446,7 +3446,7 @@
 .founder-card {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-panel);
+  border-radius: 0px !important;
   padding: clamp(2rem, 4vw, 3.5rem);
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -3475,7 +3475,7 @@
 .founder-booking-form {
   background: var(--mint-soft);
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   padding: 2rem;
 }
 
@@ -3503,7 +3503,7 @@
   display: inline-flex;
   background: var(--mint-soft);
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
   padding: 4px;
   gap: 4px;
   flex-wrap: wrap;
@@ -3513,7 +3513,7 @@
   border: none;
   background: transparent;
   padding: 0.45rem 1rem;
-  border-radius: var(--radius-full);
+  border-radius: 0px !important;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -3540,7 +3540,7 @@
 .feature-card {
   background: rgba(18, 24, 38, 0.72) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: var(--radius-xl);
+  border-radius: 0px !important;
   padding: 1.75rem;
   display: flex;
   color: #FFFFFF !important;
@@ -3559,7 +3559,7 @@
 .feature-icon-box {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 0px !important;
   background: var(--mint-soft);
   border: 1px solid var(--green-light);
   display: flex;
@@ -3571,7 +3571,7 @@
 .features-cta-card {
   background: linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%) !important;
   border: 1px solid rgba(255, 51, 75, 0.32) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   padding: clamp(2.5rem, 5vw, 4rem) 2rem !important;
   text-align: center;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12) !important;
@@ -3615,7 +3615,7 @@
 .demo-sidebar-card {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   padding: 2.25rem 2rem;
   display: flex;
   flex-direction: column;
@@ -3626,7 +3626,7 @@
 .demo-form-card {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: var(--radius-2xl);
+  border-radius: 0px !important;
   padding: 2.25rem 2rem;
   box-shadow: var(--shadow-sm);
 }
@@ -3687,7 +3687,7 @@
 
 .showcase-frame {
   position: relative;
-  border-radius: 24px;
+  border-radius: 0px !important;
   background: #FFFFFF;
   border: 1px solid var(--border);
   box-shadow: 0 20px 50px rgba(9, 42, 32, 0.07);
@@ -3721,7 +3721,7 @@
 .showcase-feature-card {
   background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 0px !important;
   padding: 1.35rem 1.25rem;
   transition: all 0.25s ease;
   display: flex;
@@ -3737,7 +3737,7 @@
 .showcase-feature-icon {
   width: 42px;
   height: 42px;
-  border-radius: 10px;
+  border-radius: 0px !important;
   background: var(--mint-soft);
   border: 1px solid var(--border);
   color: var(--green);
@@ -3773,7 +3773,7 @@
   }
 
   .showcase-frame {
-    border-radius: 18px;
+    border-radius: 0px !important;
   }
 }
 
@@ -3783,7 +3783,7 @@
   }
 
   .showcase-frame {
-    border-radius: 14px;
+    border-radius: 0px !important;
     box-shadow: 0 10px 30px rgba(9, 42, 32, 0.06);
   }
 
@@ -3795,7 +3795,7 @@
 
   .showcase-feature-card {
     padding: 1rem;
-    border-radius: 12px;
+    border-radius: 0px !important;
   }
 
   .showcase-feature-icon {
@@ -3826,8 +3826,8 @@
 
 /* ---------------------------------------------------------------------
    UNIVERSAL BUTTON BOX OVERRIDE
-   Strictly enforces the exact rounded rectangular button boxes (12px radius)
-   shown in the reference video across the entire website.
+   Strictly enforces crisp geometric rectangle boxes (0px radius)
+   for all buttons across the entire website.
    --------------------------------------------------------------------- */
 .btn,
 .btn-primary,
@@ -3839,9 +3839,15 @@
 .nav-btn-signup,
 .nav-btn-signin,
 .discount-cta-button,
+.discount-close-button,
 .final-cta-btn-wrap .btn,
-.features-cta-actions .btn {
-  border-radius: 12px !important;
+.features-cta-actions .btn,
+.hero-card-btn,
+.pill-toggle-btn,
+.capsule-filter-btn,
+.pricing-suite-cta-btn,
+.social-squircle-btn {
+  border-radius: 0px !important;
 }
 
 /* ---------------------------------------------------------------------
@@ -3882,7 +3888,7 @@
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   padding: 0.3rem 0.5rem;
 }
 
@@ -3893,7 +3899,7 @@
   transition: all 0.2s ease;
   cursor: pointer;
   padding: 0.45rem 0.95rem;
-  border-radius: 8px !important;
+  border-radius: 0px !important;
 }
 
 .nav-link:hover {
@@ -3916,7 +3922,7 @@
 .nav-btn-signin {
   height: 38px !important;
   padding: 0 1.15rem !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
   color: #E2E8F0 !important;
   font-size: 0.875rem !important;
   font-weight: 550 !important;
@@ -3933,7 +3939,7 @@
 .nav-btn-signup {
   height: 38px !important;
   padding: 0 1.35rem !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
   background: #FFFFFF !important;
   color: #0B0F19 !important;
   font-size: 0.875rem !important;
@@ -3958,7 +3964,7 @@
   justify-content: center;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -4061,7 +4067,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.95rem 1.15rem !important;
-  border-radius: 14px !important;
+  border-radius: 0px !important;
   font-size: 1.05rem !important;
   font-weight: 550 !important;
   color: #CBD5E1 !important;
@@ -4211,7 +4217,7 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.6rem 1.05rem;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   background: rgba(18, 24, 38, 0.65) !important;
   backdrop-filter: blur(14px) !important;
@@ -4232,7 +4238,7 @@
 .feature-pill-icon {
   width: 30px;
   height: 30px;
-  border-radius: 8px !important;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.1) !important;
   color: #FFFFFF !important;
   display: inline-flex;
@@ -4247,7 +4253,7 @@
   color: #F8FAFC !important;
 }
 
-/* Action Buttons — EXACT Video Button Boxes */
+/* Action Buttons — Geometric Rectangle Architecture */
 .hero-action-buttons {
   display: flex;
   align-items: center;
@@ -4259,7 +4265,7 @@
 .hero-btn-dark {
   height: 50px;
   padding: 0 2rem;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   background: #FFFFFF !important;
   color: #0B0F19 !important;
   font-size: 1rem;
@@ -4292,7 +4298,7 @@
 .hero-btn-outline {
   height: 50px;
   padding: 0 1.85rem;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
@@ -4340,7 +4346,7 @@
   background: rgba(18, 24, 38, 0.65);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px !important;
+  border-radius: 0px !important;
   padding: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -4370,7 +4376,7 @@
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 28px !important;
+  border-radius: 0px !important;
   padding: 2.25rem 2rem 1.75rem 2rem;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
@@ -4443,7 +4449,7 @@
 
 .hero-card-pill-badge {
   background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px !important;
+  border-radius: 0px !important;
   padding: 0.2rem 0.65rem;
   font-weight: 600;
   font-size: 0.8rem;
@@ -4473,7 +4479,7 @@
 .eq-bar {
   flex: 1;
   background: rgba(255, 255, 255, 0.85);
-  border-radius: 2px !important;
+  border-radius: 0px !important;
   min-height: 4px;
   animation: eqPulse 2s ease-in-out infinite alternate;
 }
@@ -4555,13 +4561,13 @@
   background: #FFFFFF;
   width: 100%;
   margin-bottom: 2px;
-  border-radius: 1px !important;
+  border-radius: 0px !important;
 }
 
 .stepped-bar-body {
   flex: 1;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px !important;
+  border-radius: 0px !important;
 }
 
 .stepped-bar-body.solid-white {
@@ -4618,14 +4624,14 @@
 .showcase-frame {
   background: rgba(18, 24, 38, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
 }
 
 .showcase-feature-card {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
 }
 
@@ -4647,7 +4653,7 @@
   background: rgba(255, 51, 75, 0.12) !important;
   border: 1px solid rgba(255, 51, 75, 0.25) !important;
   color: #FF6B7E !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
 }
 
 /* Benefits Section */
@@ -4660,7 +4666,7 @@
 .benefit-col {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
+  border-radius: 0px !important;
   padding: 2.25rem 2rem;
   color: #FFFFFF !important;
 }
@@ -4684,7 +4690,7 @@
   background: rgba(255, 51, 75, 0.12) !important;
   border: 1px solid rgba(255, 51, 75, 0.25) !important;
   color: #FF6B7E !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
 }
 
 /* Workflow Section */
@@ -4697,7 +4703,7 @@
 .flow-step-card {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
+  border-radius: 0px !important;
   padding: 2rem 1.75rem;
   color: #FFFFFF !important;
 }
@@ -4736,7 +4742,7 @@
 .channel-card {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
+  border-radius: 0px !important;
   padding: 2rem !important;
   color: #FFFFFF !important;
 }
@@ -4764,7 +4770,7 @@
 .editorial-feature-card {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
+  border-radius: 0px !important;
   padding: 2.25rem 2rem !important;
   color: #FFFFFF !important;
 }
@@ -4784,7 +4790,7 @@
 .proof-metric-item {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
+  border-radius: 0px !important;
   padding: 2rem !important;
 }
 
@@ -4807,7 +4813,7 @@
 .home-faq-item {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 14px !important;
+  border-radius: 0px !important;
   overflow: hidden;
   margin-bottom: 0.75rem;
 }
@@ -4842,7 +4848,7 @@
 .founder-card {
   background: rgba(18, 24, 38, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 28px !important;
+  border-radius: 0px !important;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
   padding: clamp(2rem, 4vw, 3.5rem) !important;
 }
@@ -4851,7 +4857,7 @@
 .form-textarea {
   background: rgba(11, 15, 25, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   padding: 0.75rem 1rem !important;
 }
@@ -4877,7 +4883,7 @@
 .final-cta-card {
   background: linear-gradient(135deg, rgba(32, 14, 22, 0.9) 0%, rgba(18, 24, 38, 0.9) 100%) !important;
   border: 1px solid rgba(255, 51, 75, 0.3) !important;
-  border-radius: 28px !important;
+  border-radius: 0px !important;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(255, 51, 75, 0.12) !important;
   padding: clamp(3rem, 5vw, 4.5rem) 2rem !important;
   text-align: center;
@@ -4950,7 +4956,7 @@
 .pricing-suite-card {
   background: rgba(18, 24, 38, 0.7) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
@@ -4977,7 +4983,7 @@
   background: rgba(255, 51, 75, 0.15) !important;
   border: 1px solid rgba(255, 51, 75, 0.4) !important;
   color: #FF6B7E !important;
-  border-radius: 8px !important;
+  border-radius: 0px !important;
   font-weight: 650;
 }
 
@@ -5006,13 +5012,13 @@
 .pricing-mode-selector {
   background: rgba(18, 24, 38, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
 }
 
 .pricing-currency-btn,
 .pricing-mode-btn {
   color: #94A3B8 !important;
-  border-radius: 8px !important;
+  border-radius: 0px !important;
   font-weight: 550;
 }
 
@@ -5032,11 +5038,11 @@
 .pricing-save-badge {
   background: rgba(255, 51, 75, 0.2) !important;
   color: #FF6B7E !important;
-  border-radius: 6px !important;
+  border-radius: 0px !important;
 }
 
 .pricing-suite-card .btn {
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   width: 100%;
 }
 
@@ -5044,7 +5050,7 @@
 .demo-form-card {
   background: rgba(18, 24, 38, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
 }
@@ -5059,7 +5065,7 @@
 .demo-form-card .form-textarea {
   background: rgba(11, 15, 25, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
 }
 
@@ -5067,7 +5073,7 @@
 .about-pillars-grid > div {
   background: rgba(18, 24, 38, 0.65) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   padding: 2rem !important;
 }
@@ -5075,14 +5081,14 @@
 .contact-page-grid > div {
   background: rgba(18, 24, 38, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   padding: 2.25rem 2rem !important;
 }
 
 /* Explicit overrides for pricing cta buttons and mobile scroll */
 .pricing-suite-cta-btn {
-  border-radius: 12px !important;
+  border-radius: 0px !important;
 }
 
 .pricing-suite-cta-btn.secondary {
@@ -5142,7 +5148,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #94A3B8 !important;
   font-weight: 600 !important;
-  border-radius: 999px !important;
+  border-radius: 0px !important;
   transition: all 0.2s ease !important;
   white-space: nowrap !important;
 }
@@ -5219,7 +5225,7 @@
   /* Solutions showcase card on mobile */
   .solution-showcase-box {
     padding: 1.5rem 1.25rem !important;
-    border-radius: 18px !important;
+    border-radius: 0px !important;
   }
 
   /* Hero badge pills on mobile */
@@ -5243,7 +5249,7 @@
 
   .proof-metric-item {
     padding: 1.15rem 0.65rem !important;
-    border-radius: 14px !important;
+    border-radius: 0px !important;
     min-width: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -5277,7 +5283,7 @@
 .faq-item {
   background: rgba(18, 24, 38, 0.78) !important;
   border: 1px solid rgba(255, 255, 255, 0.09) !important;
-  border-radius: 16px !important;
+  border-radius: 0px !important;
   margin-bottom: 0.95rem !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
@@ -5323,7 +5329,7 @@
 .faq-trigger-icon {
   width: 34px !important;
   height: 34px !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #FF6B7E !important;
@@ -5364,7 +5370,7 @@
   padding: 0.35rem !important;
   background: rgba(14, 19, 31, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 999px !important;
+  border-radius: 0px !important;
   width: fit-content !important;
   max-width: 100% !important;
 }
@@ -5378,7 +5384,7 @@
     max-width: 100% !important;
     width: 100% !important;
     justify-content: flex-start !important;
-    border-radius: 14px !important;
+    border-radius: 0px !important;
     padding: 6px !important;
     scrollbar-width: none !important;
     box-sizing: border-box !important;
@@ -5397,7 +5403,7 @@
 
 .capsule-filter-btn {
   padding: 0.5rem 1.15rem !important;
-  border-radius: 999px !important;
+  border-radius: 0px !important;
   font-size: 0.88rem !important;
   font-weight: 600 !important;
   background: transparent !important;
@@ -5425,7 +5431,7 @@
 .legal-page-card {
   background: rgba(18, 24, 38, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.09) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   padding: clamp(1.5rem, 4vw, 2.75rem) !important;
   color: #CBD5E1 !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
@@ -5484,13 +5490,13 @@
   .demo-form-card,
   .contact-form-card {
     padding: 1.5rem 1.25rem !important;
-    border-radius: 18px !important;
+    border-radius: 0px !important;
   }
 
   .capsule-filter-group {
     overflow-x: auto !important;
     white-space: nowrap !important;
-    border-radius: 16px !important;
+    border-radius: 0px !important;
     width: 100% !important;
     scrollbar-width: none !important;
   }
@@ -5536,7 +5542,7 @@
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 26px !important;
+  border-radius: 0px !important;
   padding: 1.25rem 1.25rem 1.15rem 1.25rem;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
@@ -5596,7 +5602,7 @@
   display: inline-flex;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  border-radius: 0px !important;
   padding: 2px;
 }
 
@@ -5607,7 +5613,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: 0px !important;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
@@ -5627,7 +5633,7 @@
   background: #FF334B;
   color: #FFFFFF;
   padding: 1px 5px;
-  border-radius: 999px;
+  border-radius: 0px !important;
   letter-spacing: 0.02em;
 }
 
@@ -5642,7 +5648,7 @@
 .hero-pricing-card {
   background: rgba(18, 24, 38, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 18px;
+  border-radius: 0px !important;
   padding: 1.1rem 0.85rem 0.95rem 0.85rem;
   display: flex;
   flex-direction: column;
@@ -5693,7 +5699,7 @@
   font-weight: 850;
   letter-spacing: 0.04em;
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: 0px !important;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -5815,7 +5821,7 @@
 /* Card CTA Button */
 .hero-card-btn {
   width: 100%;
-  border-radius: 10px;
+  border-radius: 0px !important;
   padding: 6px 8px;
   font-size: 0.74rem;
   font-weight: 750;
@@ -6018,7 +6024,7 @@
   .hero-feature-pill {
     padding: 0.55rem 0.65rem !important;
     gap: 0.45rem !important;
-    border-radius: 12px !important;
+    border-radius: 0px !important;
     justify-content: flex-start !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
@@ -6101,7 +6107,7 @@
     min-width: 0 !important;
     margin: 0 auto !important;
     padding: 1.15rem 0.85rem !important;
-    border-radius: 20px !important;
+    border-radius: 0px !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
   }

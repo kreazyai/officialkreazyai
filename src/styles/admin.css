@@ -48,7 +48,7 @@
   background: rgba(14, 19, 31, 0.94);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border-radius: 20px;
+  border-radius: 0px !important;
   border: 1px solid var(--mac-border-strong);
   box-shadow: 
     0 24px 70px -15px rgba(0, 0, 0, 0.8),
@@ -161,7 +161,7 @@
   position: absolute;
   width: 90px;
   height: 90px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: radial-gradient(circle, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0.06) 50%, transparent 70%);
   filter: blur(14px);
   pointer-events: none;
@@ -221,7 +221,7 @@
 .mac-login-avatar-ring {
   width: 64px;
   height: 64px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: linear-gradient(135deg, rgba(255, 51, 75, 0.2) 0%, rgba(217, 29, 52, 0.1) 100%);
   border: 1px solid rgba(255, 51, 75, 0.4);
   display: flex;
@@ -254,7 +254,7 @@
   padding: 10px 14px;
   background-color: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.35);
-  border-radius: 10px;
+  border-radius: 0px !important;
   color: #FCA5A5;
   font-size: 12.5px;
   line-height: 1.4;
@@ -305,7 +305,7 @@
   color: var(--mac-text-primary);
   background-color: var(--mac-bg-input);
   border: 1px solid var(--mac-border-strong);
-  border-radius: 10px;
+  border-radius: 0px !important;
   outline: none;
   transition: all 0.18s ease;
   box-sizing: border-box;
@@ -332,7 +332,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0px !important;
   transition: color 0.15s ease;
 }
 
@@ -370,7 +370,7 @@
   background: var(--mac-brand-gradient);
   color: #FFFFFF;
   border: 1px solid rgba(255, 51, 75, 0.5);
-  border-radius: 10px;
+  border-radius: 0px !important;
   font-size: 14px;
   font-weight: 700;
   display: inline-flex;
@@ -444,7 +444,7 @@
   border: 1px solid var(--mac-border-strong);
   color: var(--mac-text-primary);
   padding: 10px 18px;
-  border-radius: 12px;
+  border-radius: 0px !important;
   font-size: 13.5px;
   font-weight: 550;
   display: inline-flex;
@@ -540,7 +540,7 @@
 }
 .mac-sidebar-nav::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
+  border-radius: 0px !important;
 }
 
 .mac-nav-item {
@@ -549,7 +549,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 9px 12px;
-  border-radius: 10px;
+  border-radius: 0px !important;
   border: 1px solid transparent;
   background: transparent;
   color: var(--mac-text-muted);
@@ -603,7 +603,7 @@
   padding: 2px 7px;
   font-size: 11px;
   font-weight: 750;
-  border-radius: 9999px;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.08);
   color: var(--mac-text-secondary);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -629,7 +629,7 @@
   align-items: center;
   gap: 10px;
   padding: 6px 8px;
-  border-radius: 10px;
+  border-radius: 0px !important;
   background-color: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -637,7 +637,7 @@
 .mac-admin-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: var(--mac-brand-gradient);
   color: #FFFFFF;
   font-size: 13px;
@@ -680,7 +680,7 @@
   padding: 8px 10px;
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 8px;
+  border-radius: 0px !important;
   color: #F87171;
   font-size: 12.5px;
   font-weight: 650;
@@ -731,7 +731,7 @@
   display: none;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
+  border-radius: 0px !important;
   padding: 7px;
   color: #FFFFFF;
   cursor: pointer;
@@ -761,7 +761,7 @@
   align-items: center;
   gap: 7px;
   padding: 5px 12px;
-  border-radius: 9999px;
+  border-radius: 0px !important;
   background-color: rgba(34, 197, 94, 0.12);
   border: 1px solid rgba(34, 197, 94, 0.32);
   color: #4ADE80;
@@ -784,7 +784,7 @@
   padding: 6px 14px;
   background-color: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--mac-border-strong);
-  border-radius: 8px;
+  border-radius: 0px !important;
   font-size: 12.5px;
   font-weight: 650;
   color: #E2E8F0;
@@ -807,7 +807,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border-radius: 8px;
+  border-radius: 0px !important;
   font-size: 12px;
   font-weight: 700;
   background: rgba(34, 197, 94, 0.14) !important;
@@ -850,7 +850,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px;
+  border-radius: 0px !important;
   padding: 20px 22px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
   display: flex;
@@ -924,7 +924,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--mac-border-subtle);
-  border-radius: 18px;
+  border-radius: 0px !important;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   position: relative;
@@ -1042,7 +1042,7 @@
 .mac-table-avatar {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 0px !important;
   background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
@@ -1072,7 +1072,7 @@
 
 .mac-btn-xs {
   padding: 5px 12px;
-  border-radius: 7px;
+  border-radius: 0px !important;
   font-size: 12px;
   font-weight: 650;
   background: var(--mac-brand-gradient);
@@ -1156,7 +1156,7 @@
   padding: 3px 8px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  border-radius: 0px !important;
   font-size: 12px;
   font-weight: 550;
   color: #F1F5F9;
@@ -1167,7 +1167,7 @@
   padding: 3px 9px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
+  border-radius: 0px !important;
   font-size: 11.5px;
   font-weight: 700;
   color: #CBD5E1;
@@ -1229,7 +1229,7 @@
   background: var(--mac-bg-input) !important;
   border: 1px solid var(--mac-border-strong) !important;
   color: #FFFFFF !important;
-  border-radius: 9px;
+  border-radius: 0px !important;
   padding: 6px 28px 6px 30px;
   font-size: 12.5px;
   outline: none;
@@ -1267,7 +1267,7 @@
   background: var(--mac-bg-input) !important;
   border: 1px solid var(--mac-border-strong) !important;
   color: #FFFFFF !important;
-  border-radius: 9px;
+  border-radius: 0px !important;
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -1284,7 +1284,7 @@
 .mac-icon-btn {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid var(--mac-border-strong) !important;
   color: #CBD5E1 !important;
@@ -1350,7 +1350,7 @@
   padding: 5px 12px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--mac-border-strong);
-  border-radius: 7px;
+  border-radius: 0px !important;
   font-size: 12px;
   font-weight: 600;
   color: var(--mac-text-secondary);
@@ -1374,7 +1374,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 8px;
@@ -1416,7 +1416,7 @@
   background: var(--mac-bg-card);
   backdrop-filter: blur(16px);
   border: 1px solid var(--mac-border-subtle);
-  border-radius: 14px;
+  border-radius: 0px !important;
   padding: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
@@ -1436,7 +1436,7 @@
 
 .mac-mini-window-card {
   background: var(--mac-bg-card);
-  border-radius: 14px;
+  border-radius: 0px !important;
   border: 1px solid var(--mac-border-subtle);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   overflow: hidden;
@@ -1497,7 +1497,7 @@
   padding: 20px;
   background: rgba(8, 12, 20, 0.7);
   border: 1px dashed var(--mac-border-strong);
-  border-radius: 14px;
+  border-radius: 0px !important;
   overflow-x: auto;
   gap: 12px;
   -webkit-overflow-scrolling: touch;
@@ -1515,7 +1515,7 @@
   flex-shrink: 0;
   background: var(--mac-bg-card);
   border: 1px solid var(--mac-border-strong);
-  border-radius: 12px;
+  border-radius: 0px !important;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
@@ -1585,7 +1585,7 @@
   max-width: 640px;
   max-height: 88vh;
   background: rgba(14, 20, 32, 0.98);
-  border-radius: 18px;
+  border-radius: 0px !important;
   border: 1px solid var(--mac-border-strong);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9);
   display: flex;
@@ -1621,7 +1621,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0px !important;
   transition: all 0.15s ease;
 }
 
@@ -1684,7 +1684,7 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: 0px !important;
     background: rgba(255, 255, 255, 0.08);
     border: none;
     color: #F8FAFC;
@@ -1728,7 +1728,7 @@
 
   .mac-modal-window {
     max-width: 95vw;
-    border-radius: 14px;
+    border-radius: 0px !important;
   }
 }
 
@@ -1762,7 +1762,7 @@
 
   .mac-metric-card {
     padding: 12px 14px;
-    border-radius: 12px;
+    border-radius: 0px !important;
   }
 
   .mac-metric-title {
@@ -1949,7 +1949,7 @@
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  border-radius: 7px;
+  border-radius: 0px !important;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--mac-border-strong);
   color: var(--mac-text-secondary);
@@ -2001,7 +2001,7 @@
     font-size: 10px;
     font-weight: 600;
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: 0px !important;
     cursor: pointer;
     position: relative;
     flex: 1;
@@ -2029,7 +2029,7 @@
     font-size: 9px;
     font-weight: 800;
     padding: 0 4px;
-    border-radius: 999px;
+    border-radius: 0px !important;
     min-width: 14px;
     height: 14px;
     display: flex;

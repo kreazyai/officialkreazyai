@@ -16,7 +16,7 @@
   gap: var(--space-2);
   font-family: var(--font-sans);
   font-weight: 600;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
   border: 1px solid transparent;
   transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap;
@@ -35,24 +35,24 @@
 .btn-sm {
   padding: 0.42rem 0.95rem;
   font-size: 0.825rem;
-  border-radius: var(--radius-sm, 8px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-md {
   padding: 0.62rem 1.45rem;
   font-size: 0.925rem;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-lg {
   padding: 0.82rem 2rem;
   font-size: 1rem;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-icon {
   padding: 0.55rem;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -64,7 +64,7 @@
   color: #0B0F19 !important;
   font-weight: 600 !important;
   border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
@@ -84,7 +84,7 @@
   color: #FFFFFF !important;
   font-weight: 550 !important;
   border: 1.5px solid rgba(255, 255, 255, 0.7) !important;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -101,7 +101,7 @@
   background-color: rgba(255, 255, 255, 0.06);
   color: #FFFFFF;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-subtle:hover {
@@ -114,7 +114,7 @@
 .btn-ghost {
   background-color: transparent;
   color: var(--text-secondary);
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-ghost:hover {
@@ -126,7 +126,7 @@
   background-color: rgba(239, 68, 68, 0.15);
   color: #F87171;
   border: 1px solid rgba(239, 68, 68, 0.35);
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-danger:hover {
@@ -139,7 +139,7 @@
   background-color: #FFFFFF !important;
   color: #0B0F19 !important;
   border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  border-radius: var(--radius-btn, 12px) !important;
+  border-radius: 0px !important;
 }
 
 .btn-dark:hover {
@@ -582,7 +582,7 @@
 .modal-content {
   background-color: #0E131F !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
   max-width: 580px;
   width: 100%;
@@ -813,7 +813,7 @@
   inset: 0;
   background-color: var(--bg-card);
   transition: 0.2s;
-  border-radius: 24px;
+  border-radius: 0px;
   border: 1px solid var(--border-medium);
 }
 
@@ -874,7 +874,7 @@ input:checked+.slider:before {
   backdrop-filter: blur(28px) !important;
   -webkit-backdrop-filter: blur(28px) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   padding: clamp(1.5rem, 4vw, 2.5rem);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 0, 0, 0.5) !important;
   position: relative;
@@ -913,7 +913,7 @@ input:checked+.slider:before {
   gap: 0.75rem;
   background-color: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   padding: 0.85rem 1rem !important;
   font-family: inherit;
   font-size: 0.95rem;
@@ -1065,7 +1065,7 @@ input:checked+.slider:before {
   width: 100%;
   max-width: 440px;
   background-color: #0E131F !important;
-  border-radius: 24px !important;
+  border-radius: 0px !important;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8) !important;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -1481,7 +1481,7 @@ input:checked+.slider:before {
   cursor: pointer;
   inset: 0;
   background: var(--border-medium, #D9E9E1);
-  border-radius: 100px;
+  border-radius: 0px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid var(--border-subtle, #E6F0EB);
 }
@@ -1692,7 +1692,7 @@ input:checked+.slider:before {
   background: rgba(143, 166, 83, 0.13);
   border: 1px solid rgba(143, 166, 83, 0.25);
   padding: 0.22rem 0.7rem;
-  border-radius: 99px;
+  border-radius: 0px;
   margin-bottom: 0.8rem;
 }
 
@@ -1771,7 +1771,7 @@ input:checked+.slider:before {
   background: rgba(11, 15, 25, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   color: #FFFFFF !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
 }
 
 .form-input:focus, 
@@ -1789,13 +1789,13 @@ input:checked+.slider:before {
 .password-requirements-box {
   background-color: rgba(18, 24, 38, 0.6) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
 }
 
 .google-account-item {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 12px !important;
+  border-radius: 0px !important;
   color: #FFFFFF !important;
 }
 
