@@ -29,7 +29,7 @@ export function ForgotPasswordPage({ onNavigate }) {
                 onClick={() => onNavigate('home')}
                 title="KreazyAI"
               >
-                <img src="/header-logo.png" alt="Kreazy AI — Conversational AI" style={{ height: '38px', width: 'auto', maxWidth: '180px', objectFit: 'contain' }} />
+                <img src="/brand-logo-dark.png?v=20261115" alt="Kreazy AI — Conversational AI" style={{ height: '38px', width: 'auto', maxWidth: '180px', objectFit: 'contain' }} />
               </div>
               <h1>Reset your password</h1>
               <p>Enter the email associated with your KreazyAI account and we'll send you a secure recovery link.</p>

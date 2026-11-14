@@ -146,7 +146,7 @@ export function OnboardingPage({ onNavigate, user }) {
             style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}
             title="KreazyAI"
           >
-            <img src="/header-logo.png" alt="Kreazy AI — Conversational AI" style={{ height: '32px', width: 'auto', maxWidth: '160px', objectFit: 'contain' }} />
+            <img src="/brand-logo-dark.png?v=20261115" alt="Kreazy AI — Conversational AI" style={{ height: '32px', width: 'auto', maxWidth: '160px', objectFit: 'contain' }} />
             <span className="onboarding-label" style={{ marginLeft: '0.25rem' }}>Onboarding</span>
           </div>
 

@@ -611,7 +611,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
         {/* Sidebar Brand Header */}
         <div className="mac-sidebar-header">
           <div className="mac-brand-block" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <img src="/header-logo.png" alt="Kreazy AI — Conversational AI" style={{ height: '30px', width: 'auto', maxWidth: '150px', objectFit: 'contain' }} />
+            <img src="/brand-logo-dark.png?v=20261115" alt="Kreazy AI — Conversational AI" style={{ height: '30px', width: 'auto', maxWidth: '150px', objectFit: 'contain' }} />
             <span className="mac-brand-badge" style={{ alignSelf: 'flex-start', marginLeft: '2px' }}>ADMIN CONTROL</span>
           </div>
           <button

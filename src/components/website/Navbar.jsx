@@ -87,7 +87,7 @@ export function Navbar({
             title="KREAZY AI — Conversational AI"
           >
             <img
-              src="/header-logo.png"
+              src="/brand-logo-dark.png?v=20261115"
               alt="KREAZY AI — Conversational AI"
               className="brand-header-logo-img"
             />

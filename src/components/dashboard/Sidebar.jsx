@@ -113,7 +113,7 @@ export function Sidebar({ currentModule, onSelectModule, onLogout, isMobileOpen,
             style={{ cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
             title="KreazyAI"
           >
-            <img src="/header-logo.png" alt="KREAZY AI — Conversational AI" style={{ height: '32px', width: 'auto', maxWidth: '160px', objectFit: 'contain' }} />
+            <img src="/brand-logo-dark.png?v=20261115" alt="KREAZY AI — Conversational AI" style={{ height: '32px', width: 'auto', maxWidth: '160px', objectFit: 'contain' }} />
           </a>
 
           {onCloseMobile && (

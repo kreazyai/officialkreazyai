@@ -202,7 +202,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
           title="KreazyAI Home"
           style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
         >
-          <img src="/header-logo.png" alt="KREAZY AI — Conversational AI" style={{ height: '36px', width: 'auto', maxWidth: '170px', objectFit: 'contain' }} />
+          <img src="/brand-logo-dark.png?v=20261115" alt="KREAZY AI — Conversational AI" style={{ height: '36px', width: 'auto', maxWidth: '170px', objectFit: 'contain' }} />
         </div>
         <button
           type="button"

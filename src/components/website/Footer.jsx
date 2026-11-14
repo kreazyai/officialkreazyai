@@ -17,7 +17,7 @@ export function Footer({ onNavigate }) {
           {/* Brand Col */}
           <div className="footer-brand-col">
             <div className="brand-logo" style={{ marginBottom: '1rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }} onClick={() => handleNav('home')} title="KreazyAI">
-              <img src="/header-logo.png" alt="Kreazy AI — Conversational AI" className="brand-header-logo-img" style={{ height: '36px', width: 'auto' }} />
+              <img src="/brand-logo-dark.png?v=20261115" alt="Kreazy AI — Conversational AI" className="brand-header-logo-img" style={{ height: '36px', width: 'auto' }} />
             </div>
             <p className="footer-brand-desc">
               {t('footer.brandDesc')}

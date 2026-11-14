@@ -73,7 +73,7 @@ export function AdminLoginPage({ onLoginSuccess }) {
           <div className="mac-login-header">
             <div className="mac-login-brand-lockup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
               <img
-                src="/header-logo.png"
+                src="/brand-logo-dark.png?v=20261115"
                 alt="KREAZY AI — Conversational AI"
                 style={{ height: '42px', width: 'auto', maxWidth: '210px', objectFit: 'contain' }}
               />
