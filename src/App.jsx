@@ -102,8 +102,8 @@ function getRouteStateFromUrl() {
     return { page: 'home', dashboardModule: 'overview', rawPath: '/' };
   }
 
-  const isDedicatedAdminPort = window.location.port === '5174' || window.location.pathname.startsWith('/admin');
-  if (isDedicatedAdminPort) {
+  const isAdminRoute = window.location.pathname.startsWith('/admin');
+  if (isAdminRoute) {
     return { page: 'admin', dashboardModule: null, rawPath: window.location.pathname };
   }
 
@@ -288,8 +288,8 @@ function DashboardNotFound({ invalidModule, onNavigateOverview }) {
 function AppContent() {
   const { user, authStatus, isAuthenticated, isLoading, logout } = useAuth();
 
-  // Check if running on dedicated admin port 5174 or /admin pathname
-  const isDedicatedAdminPort = typeof window !== 'undefined' && (window.location.port === '5174' || window.location.pathname.startsWith('/admin'));
+  // Check if running on /admin pathname
+  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
 
   // Route state initialized directly from URL (Single source of truth)
   const [routeState, setRouteState] = useState(() => getRouteStateFromUrl());
@@ -394,8 +394,8 @@ function AppContent() {
     navigateTo('/');
   };
 
-  // If on Admin Port (5174) or /admin route, serve the isolated Admin Portal
-  if (routeState.page === 'admin' || isDedicatedAdminPort) {
+  // If on /admin route, serve the isolated Admin Portal
+  if (routeState.page === 'admin' || isAdminRoute) {
     return (
       <Suspense fallback={<PageLoader />}>
         <AdminPortal onNavigate={handleNavigate} />
