@@ -460,7 +460,6 @@ export function ConversationOrderDemo({ onNavigate }) {
         {/* Right Column: Key Commercial Benefits Callout */}
         <div className="conv-breakdown-col">
           <div className="conv-breakdown-header">
-            <span className="eyebrow" style={{ color: 'var(--bright-olive)' }}>THE 5-SECOND STORY</span>
             <h3 className="conv-breakdown-title">
               How Every Message Becomes an Order
             </h3>

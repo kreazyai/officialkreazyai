@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Sparkles, ShieldCheck, Zap, Smartphone } from 'lucide-react';
+import { CheckCircle2, Smartphone } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { TrustGuaranteeSection } from './TrustGuaranteeSection';
 
 export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
   const { t } = useLanguage();
@@ -104,11 +105,6 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
       <div className="container">
         {/* Section Header */}
         <div className="section-header-centered" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          {eyebrow && (
-            <span className="eyebrow" style={{ display: 'inline-block', marginBottom: '0.75rem' }}>
-              {eyebrow}
-            </span>
-          )}
           <h1 style={{ fontSize: 'clamp(2.2rem, 3.8vw, 3rem)', fontWeight: 850, color: 'var(--text-primary)', marginBottom: '0.85rem', letterSpacing: '-0.04em', lineHeight: 1.04 }}>
             {title || t('pricing.title', "Simple pricing that pays for itself in captured sales")}
           </h1>
@@ -247,20 +243,9 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
           })}
         </div>
 
-        {/* Trust & Guarantee Strip */}
+        {/* Dedicated Trust & Verification Section */}
         <div className="pricing-suite-trust-strip">
-          <div className="pricing-suite-trust-item">
-            <ShieldCheck size={18} color="var(--bright-olive)" />
-            <span>{t('pricing.metaVerified', 'Official Meta Cloud API Verified')}</span>
-          </div>
-          <div className="pricing-suite-trust-item">
-            <Zap size={18} color="var(--bright-olive)" />
-            <span>{t('pricing.instantSetup', 'Instant Setup in under 5 minutes')}</span>
-          </div>
-          <div className="pricing-suite-trust-item">
-            <Sparkles size={18} color="var(--bright-olive)" />
-            <span>{t('pricing.bkashSupported', 'bKash & Nagad 01643792804 supported')}</span>
-          </div>
+          <TrustGuaranteeSection variant="card" container={false} />
         </div>
       </div>
     </section>

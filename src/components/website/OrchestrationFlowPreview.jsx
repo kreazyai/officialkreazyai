@@ -19,9 +19,6 @@ export function OrchestrationFlowPreview() {
   return (
     <div className="orchestration-section-wrap">
       <div className="section-header-centered">
-        <div className="section-eyebrow-pill">
-          <span>THE PLATFORM</span>
-        </div>
         <h2 className="section-title-large">
           Connected AI orchestration platform
         </h2>

@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, KeyRound, CheckCircle2, Sparkles, ShieldAlert } from 'lucide-react';
-import { Input } from '../../components/common/Input';
-import { Button } from '../../components/common/Button';
+import {
+  Lock,
+  Mail,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  CheckCircle2,
+  KeyRound
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { GoogleAuthButton, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
+import { GoogleIcon, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
+import { AppleIcon } from '../../components/auth/AppleIcon';
+import { AuthShowcaseCard } from '../../components/auth/AuthShowcaseCard';
 import { triggerGoogleNativeAuth } from '../../services/googleAuth';
 import { authService } from '../../services/api';
 
@@ -19,13 +28,13 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
   const [successMsg, setSuccessMsg] = useState('');
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
-  // OTP state
+  // OTP Verification state
   const [otpSent, setOtpSent] = useState(false);
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [activeOtpCode, setActiveOtpCode] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
 
-  // If already authenticated, redirect to dashboard immediately
+  // If already authenticated, navigate to dashboard immediately
   useEffect(() => {
     if (isAuthenticated) {
       onNavigate('dashboard');
@@ -58,6 +67,10 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
     });
   };
 
+  const handleAppleClick = () => {
+    setError('Apple Sign-In is currently reserved for the iOS mobile application. Please continue with Google or your Work Email.');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -71,7 +84,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
 
       setLoading(true);
       try {
-        const user = await login(email, password, false);
+        const user = await login(email.trim().toLowerCase(), password, false);
         if (onLoginSuccess) {
           onLoginSuccess(user);
         }
@@ -97,13 +110,12 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
 
       setLoading(true);
       try {
-        const verifyRes = await authService.verifyOtp(email, fullOtp);
+        const verifyRes = await authService.verifyOtp(email.trim().toLowerCase(), fullOtp);
         const isVerified = verifyRes?.verified || verifyRes?.data?.verified || verifyRes?.success;
         if (!isVerified) {
           throw new Error(verifyRes?.error || 'Invalid or expired OTP code.');
         }
 
-        // Auto-login user with verified session
         const cleanEmail = email.trim().toLowerCase();
         const user = await loginWithGoogle({
           email: cleanEmail,
@@ -130,15 +142,13 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
     setSuccessMsg('');
     setOtpLoading(true);
     try {
-      const res = await authService.sendOtp(email.trim());
+      const res = await authService.sendOtp(email.trim().toLowerCase());
       setOtpSent(true);
       const activeCode = res?.otp || res?.data?.otp || res?.devCode;
       if (activeCode) {
         setActiveOtpCode(activeCode);
-        setSuccessMsg(`A 6-digit login code has been sent to ${email}`);
-      } else {
-        setSuccessMsg(`A 6-digit login code has been sent to ${email}`);
       }
+      setSuccessMsg(`A 6-digit login code has been sent to ${email}`);
     } catch (err) {
       setError(err?.message || 'Failed to dispatch verification code. Please try again.');
     } finally {
@@ -176,301 +186,170 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
   const isAdminError = error && (error.includes('/admin') || error.includes('Admin Portal') || error.includes('Administrative'));
 
   return (
-    <div className="auth-wrapper" style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem 1rem',
-      background: 'radial-gradient(ellipse at 50% 15%, rgba(255, 51, 75, 0.08) 0%, rgba(6, 8, 13, 0) 70%), #06080D',
-      position: 'relative',
-      color: '#FFFFFF'
-    }}>
-      <div className="auth-card" style={{
-        width: '100%',
-        maxWidth: '460px',
-        background: 'rgba(14, 19, 31, 0.9)',
-        backdropFilter: 'blur(28px)',
-        WebkitBackdropFilter: 'blur(28px)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderRadius: '24px',
-        padding: 'clamp(2rem, 4vw, 2.75rem)',
-        boxShadow: '0 24px 70px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 51, 75, 0.06)',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        {/* Header */}
-        <div className="auth-header" style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-            <div
-            className="brand-logo"
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', marginBottom: '1.25rem', cursor: 'pointer' }}
-            onClick={() => onNavigate('home')}
-            title="KreazyAI"
-          >
-            <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="brand-logo-mark" style={{ height: '36px' }} />
-            <img src="/logo-white.svg" alt="KreazyAI" style={{ height: '26px', width: 'auto' }} />
-          </div>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 1.85rem)', fontWeight: 800, letterSpacing: '-0.025em', color: '#FFFFFF', margin: '0 0 0.5rem 0' }}>
-            Welcome back
-          </h1>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: '#94A3B8', lineHeight: 1.5 }}>
-            Sign in to your merchant workspace to manage conversations, sales, and AI agents.
-          </p>
-        </div>
+    <div className="auth-page-container">
+      {/* Subtle Atmospheric Decorative Rings and Dots */}
+      <div className="auth-bg-deco-ring auth-bg-deco-ring-1" aria-hidden="true" />
+      <div className="auth-bg-deco-ring auth-bg-deco-ring-2" aria-hidden="true" />
+      <div className="auth-bg-dot auth-bg-dot-1" aria-hidden="true" />
+      <div className="auth-bg-dot auth-bg-dot-2" aria-hidden="true" />
+      <div className="auth-bg-dot auth-bg-dot-3" aria-hidden="true" />
 
-        {/* Notifications */}
-        {error && (
-          <div style={{
-            padding: '0.85rem 1rem',
-            background: 'rgba(239, 68, 68, 0.12)',
-            border: '1px solid rgba(239, 68, 68, 0.35)',
-            borderRadius: '12px',
-            color: '#F87171',
-            fontSize: '0.86rem',
-            marginBottom: '1.25rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldAlert size={16} style={{ flexShrink: 0 }} />
-              <span>{error}</span>
-            </div>
-            {isAdminError && (
+      {/* Top Bar with Brand Link */}
+      <div className="auth-top-bar">
+        <div
+          className="auth-brand-logo"
+          onClick={() => onNavigate('home')}
+          title="KreazyAI Home"
+        >
+          <img src="/logo-mark.png" alt="KreazyAI" className="auth-brand-mark" />
+          <img src="/logo-white.svg" alt="KreazyAI" className="auth-brand-text" />
+        </div>
+        <button
+          type="button"
+          onClick={() => onNavigate('home')}
+          className="auth-top-link"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <span className="auth-back-text-full">Back to website</span>
+          <span className="auth-back-text-short">Back</span>
+          <ArrowRight size={14} />
+        </button>
+      </div>
+
+      {/* Main Split Auth Card */}
+      <div className="auth-card-frame">
+        {/* Left Side: Showcase Panel (Visible on Desktop, hidden automatically on Mobile < 860px) */}
+        <AuthShowcaseCard onNavigate={onNavigate} />
+
+        {/* Right Side: Form Panel (Always visible, full-width on mobile) */}
+        <div className="auth-form-panel">
+          {/* Header */}
+          <div className="auth-form-header">
+            <h1 className="auth-form-header-title">Welcome back</h1>
+            <p className="auth-form-header-subtitle">
+              Don't have an account?{' '}
               <button
                 type="button"
-                onClick={() => { window.location.href = '/admin'; }}
-                style={{
-                  alignSelf: 'flex-start',
-                  background: '#FF334B',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '5px 12px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  marginTop: '4px'
-                }}
+                className="auth-form-link"
+                onClick={() => onNavigate('signup')}
+                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit' }}
               >
-                <span>Open Admin Portal (/admin)</span>
-                <ArrowRight size={14} />
+                Sign up
               </button>
-            )}
-          </div>
-        )}
-
-        {successMsg && (
-          <div style={{
-            padding: '0.85rem 1rem',
-            background: 'rgba(15, 169, 104, 0.12)',
-            border: '1px solid rgba(15, 169, 104, 0.35)',
-            borderRadius: '12px',
-            color: '#34D399',
-            fontSize: '0.86rem',
-            marginBottom: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
-            <span>{successMsg}</span>
-          </div>
-        )}
-
-        {/* Clean Google Authentication Button */}
-        <GoogleAuthButton
-          text="Continue with Google"
-          onClick={handleGoogleClick}
-        />
-
-        {/* Clear Divider */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          margin: '1.5rem 0',
-          color: '#64748B',
-          fontSize: '0.8rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
-          <span>or sign in with</span>
-          <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
-        </div>
-
-        {/* Method Switcher Tabs */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '6px',
-          background: 'rgba(255, 255, 255, 0.05)',
-          padding: '4px',
-          borderRadius: '12px',
-          marginBottom: '1.25rem',
-          border: '1px solid rgba(255, 255, 255, 0.08)'
-        }}>
-          <button
-            type="button"
-            onClick={() => { setAuthMethod('password'); setError(''); setSuccessMsg(''); }}
-            style={{
-              padding: '8px 12px',
-              fontSize: '0.84rem',
-              fontWeight: 700,
-              borderRadius: '9px',
-              border: 'none',
-              background: authMethod === 'password' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
-              color: authMethod === 'password' ? '#FFFFFF' : '#94A3B8',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px'
-            }}
-          >
-            <Lock size={14} />
-            <span>Password</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setAuthMethod('otp'); setError(''); setSuccessMsg(''); }}
-            style={{
-              padding: '8px 12px',
-              fontSize: '0.84rem',
-              fontWeight: 700,
-              borderRadius: '9px',
-              border: 'none',
-              background: authMethod === 'otp' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
-              color: authMethod === 'otp' ? '#FFFFFF' : '#94A3B8',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px'
-            }}
-          >
-            <KeyRound size={14} />
-            <span>6-Digit Code</span>
-          </button>
-        </div>
-
-        {/* Auth Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1', marginBottom: '0.4rem' }}>
-              Work Email <span style={{ color: '#FF334B' }}>*</span>
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="merchant@yourbrand.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                style={{
-                  width: '100%',
-                  height: '46px',
-                  background: 'rgba(9, 13, 22, 0.85)',
-                  border: '1px solid rgba(255, 255, 255, 0.14)',
-                  borderRadius: '12px',
-                  padding: '0 1rem',
-                  color: '#FFFFFF',
-                  fontSize: '0.9rem',
-                  boxSizing: 'border-box',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease'
-                }}
-                onFocus={(e) => { e.target.style.borderColor = '#FF334B'; }}
-                onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
-              />
-            </div>
+            </p>
           </div>
 
-          {authMethod === 'password' ? (
-            <>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1', marginBottom: '0.4rem' }}>
-                  Password <span style={{ color: '#FF334B' }}>*</span>
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    required
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                    style={{
-                      width: '100%',
-                      height: '46px',
-                      background: 'rgba(9, 13, 22, 0.85)',
-                      border: '1px solid rgba(255, 255, 255, 0.14)',
-                      borderRadius: '12px',
-                      padding: '0 2.5rem 0 1rem',
-                      color: '#FFFFFF',
-                      fontSize: '0.9rem',
-                      boxSizing: 'border-box',
-                      outline: 'none',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                    onFocus={(e) => { e.target.style.borderColor = '#FF334B'; }}
-                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
-                  />
+          {/* Feedback alerts */}
+          {error && (
+            <div className="auth-alert auth-alert-error">
+              <ShieldAlert size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ flex: 1 }}>
+                <div>{error}</div>
+                {isAdminError && (
                   <button
                     type="button"
-                    onClick={() => setShowPassword(p => !p)}
+                    onClick={() => { window.location.href = '/admin'; }}
                     style={{
-                      position: 'absolute',
-                      right: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
+                      marginTop: '8px',
+                      background: '#FF334B',
+                      color: '#FFFFFF',
                       border: 'none',
-                      color: '#94A3B8',
+                      borderRadius: '8px',
+                      padding: '5px 12px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      padding: 0
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
                     }}
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    <span>Open Admin Portal (/admin)</span>
+                    <ArrowRight size={13} />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="auth-alert auth-alert-success">
+              <CheckCircle2 size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>{successMsg}</div>
+            </div>
+          )}
+
+          {/* Main Auth Form */}
+          <form onSubmit={handleSubmit} className="auth-form">
+            {/* Email Field */}
+            <div className="auth-input-group">
+              <label className="auth-input-label">Email</label>
+              <div className="auth-input-wrapper">
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="merchant@yourbrand.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  className="auth-input"
+                />
+              </div>
+            </div>
+
+            {/* Password vs OTP verification */}
+            {authMethod === 'password' ? (
+              <>
+                <div className="auth-input-group">
+                  <label className="auth-input-label">Password</label>
+                  <div className="auth-input-wrapper">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      required
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      className="auth-input auth-input-has-toggle"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(p => !p)}
+                      className="auth-password-toggle-btn"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Options Row */}
+                <div className="auth-options-row">
+                  <label className="auth-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <span>Remember me</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('forgot-password')}
+                    className="auth-form-link"
+                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.82rem' }}
+                  >
+                    Forgot password?
                   </button>
                 </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#94A3B8' }}>
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    style={{ accentColor: '#FF334B' }}
-                  />
-                  <span>Remember this device</span>
-                </label>
-                <span
-                  style={{ color: '#FF334B', cursor: 'pointer', fontWeight: 650 }}
-                  onClick={() => onNavigate('forgot-password')}
-                >
-                  Forgot password?
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* OTP Code Entry Section */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <label style={{ fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1' }}>
-                    Enter 6-Digit Verification Code
-                  </label>
+              </>
+            ) : (
+              /* OTP 6-Digit Code Mode */
+              <div className="auth-input-group">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <label className="auth-input-label">6-Digit Login Code</label>
                   {!otpSent ? (
                     <button
                       type="button"
@@ -498,7 +377,6 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                         border: 'none',
                         color: '#94A3B8',
                         fontSize: '0.78rem',
-                        fontWeight: 600,
                         cursor: 'pointer',
                         padding: 0
                       }}
@@ -508,8 +386,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                   )}
                 </div>
 
-                {/* 6 Box Inputs */}
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '0.5rem 0' }}>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', margin: '0.4rem 0' }}>
                   {otpDigits.map((digit, i) => (
                     <input
                       key={i}
@@ -522,7 +399,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
                       style={{
                         width: '46px',
-                        height: '52px',
+                        height: '50px',
                         textAlign: 'center',
                         fontSize: '1.25rem',
                         fontWeight: 800,
@@ -531,25 +408,23 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                         border: digit ? '1.5px solid #FF334B' : '1px solid rgba(255, 255, 255, 0.16)',
                         borderRadius: '12px',
                         outline: 'none',
-                        boxShadow: digit ? '0 0 12px rgba(255, 51, 75, 0.25)' : 'none',
-                        transition: 'all 0.15s ease'
+                        boxShadow: digit ? '0 0 12px rgba(255, 51, 75, 0.25)' : 'none'
                       }}
                     />
                   ))}
                 </div>
 
-                {/* Active OTP helper badge with 1-click Auto-fill */}
                 {activeOtpCode && (
                   <div style={{
-                    marginTop: '0.75rem',
-                    padding: '8px 12px',
-                    borderRadius: '10px',
+                    marginTop: '0.5rem',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
                     background: 'rgba(255, 51, 75, 0.08)',
                     border: '1px solid rgba(255, 51, 75, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    fontSize: '0.8rem'
+                    fontSize: '0.78rem'
                   }}>
                     <span style={{ color: '#FF8A98' }}>Active code: <strong>{activeOtpCode}</strong></span>
                     <button
@@ -560,7 +435,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                         color: '#FFFFFF',
                         border: 'none',
                         borderRadius: '6px',
-                        padding: '3px 8px',
+                        padding: '2px 8px',
                         fontSize: '0.74rem',
                         fontWeight: 700,
                         cursor: 'pointer'
@@ -571,99 +446,95 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                   </div>
                 )}
               </div>
-            </>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              height: '48px',
-              borderRadius: '12px',
-              fontSize: '0.95rem',
-              fontWeight: 700,
-              background: '#FF334B',
-              color: '#FFFFFF',
-              border: '1px solid rgba(255, 51, 75, 0.5)',
-              boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
-              cursor: loading ? 'wait' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginTop: '0.5rem',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-            }}
-            onMouseEnter={(e) => { if (!loading) { e.currentTarget.style.background = '#FF4D61'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
-            onMouseLeave={(e) => { if (!loading) { e.currentTarget.style.background = '#FF334B'; e.currentTarget.style.transform = 'translateY(0)'; } }}
-          >
-            {loading ? (
-              <span>Authenticating…</span>
-            ) : (
-              <>
-                <span>{authMethod === 'password' ? 'Sign In to Workspace' : 'Verify & Sign In'}</span>
-                <ArrowRight size={17} />
-              </>
             )}
-          </button>
 
-          {/* Create Account Link Button */}
-          <button
-            type="button"
-            onClick={() => onNavigate('signup')}
-            style={{
-              width: '100%',
-              height: '46px',
-              borderRadius: '12px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              background: 'rgba(255, 255, 255, 0.06)',
-              color: '#FFFFFF',
-              border: '1px solid rgba(255, 255, 255, 0.16)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              backdropFilter: 'blur(10px)',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'; }}
-          >
-            <span>Create New Account / Sign Up</span>
-            <ArrowRight size={15} />
-          </button>
-        </form>
+            {/* Primary Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="auth-submit-btn"
+            >
+              {loading ? (
+                <span>Authenticating…</span>
+              ) : (
+                <>
+                  <span>{authMethod === 'password' ? 'Sign In' : 'Verify & Sign In'}</span>
+                  <ArrowRight size={17} />
+                </>
+              )}
+            </button>
 
-        {/* Footer */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: '1.5rem',
-          paddingTop: '1.25rem',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          fontSize: '0.86rem',
-          color: '#94A3B8'
-        }}>
-          Don't have an account yet?{' '}
-          <button
-            type="button"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#FF334B',
-              fontWeight: 700,
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              padding: 0,
-              fontSize: 'inherit'
-            }}
-            onClick={() => onNavigate('signup')}
-          >
-            Sign up for free
-          </button>
+            {/* Subtle method toggle */}
+            <div style={{ textAlign: 'center', marginTop: '2px' }}>
+              {authMethod === 'password' ? (
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('otp'); setError(''); setSuccessMsg(''); }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#94A3B8',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    padding: '4px'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+                >
+                  <KeyRound size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
+                  Sign in with 6-digit email code instead
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('password'); setError(''); setSuccessMsg(''); }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#94A3B8',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    padding: '4px'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+                >
+                  <Lock size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
+                  Sign in with password instead
+                </button>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="auth-form-divider">
+              <span>or sign in with</span>
+            </div>
+
+            {/* Social Logins: Google & Apple (2 columns) */}
+            <div className="auth-social-grid">
+              <button
+                type="button"
+                onClick={handleGoogleClick}
+                disabled={loading}
+                className="auth-social-btn"
+                title="Sign in with Google"
+              >
+                <GoogleIcon size={18} />
+                <span>Google</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleAppleClick}
+                disabled={loading}
+                className="auth-social-btn"
+                title="Sign in with Apple"
+              >
+                <AppleIcon size={18} />
+                <span>Apple</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

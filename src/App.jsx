@@ -64,7 +64,10 @@ function PageLoader() {
       color: 'var(--primary-accent)',
       fontFamily: 'var(--font-sans, system-ui)'
     }}>
-      <img src="/logo-white.svg" alt="KreazyAI" style={{ height: '22px', width: 'auto', opacity: 0.9, marginBottom: '4px' }} />
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+        <img src="/logo-mark.png" alt="KreazyAI" style={{ height: '28px', width: 'auto' }} />
+        <img src="/logo-text-vibrant.png" alt="KreazyAI" style={{ height: '20px', width: 'auto', opacity: 0.95 }} />
+      </div>
       <div style={{
         width: '36px',
         height: '36px',

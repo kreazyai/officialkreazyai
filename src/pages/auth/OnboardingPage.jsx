@@ -147,7 +147,7 @@ export function OnboardingPage({ onNavigate, user }) {
             title="KreazyAI"
           >
             <img src="/logo-mark.png" alt="Kreazy AI Emblem" className="brand-logo-mark" style={{ height: '26px' }} />
-            <img src="/logo-white.svg" alt="KreazyAI" className="brand-logo-img" />
+            <img src="/logo-text-vibrant.png" alt="KreazyAI" className="brand-logo-img" />
             <span className="onboarding-label" style={{ marginLeft: '0.25rem' }}>Onboarding</span>
           </div>
 
@@ -200,7 +200,7 @@ export function OnboardingPage({ onNavigate, user }) {
           {/* STEP 1 — BUSINESS INFO */}
           {currentStep === 1 && (
             <div>
-              <span className="eyebrow">Step 1 of 7</span>
+              <span className="onboarding-step-badge">Step 1 of 7</span>
               <h2 className="onboarding-h2">Tell us about your business</h2>
               <p className="onboarding-p">
                 This information establishes your brand identity for customer conversations and invoices.
@@ -237,7 +237,7 @@ export function OnboardingPage({ onNavigate, user }) {
           {/* STEP 2 — VERTICAL */}
           {currentStep === 2 && (
             <div>
-              <span className="eyebrow">Step 2 of 7</span>
+              <span className="onboarding-step-badge">Step 2 of 7</span>
               <h2 className="onboarding-h2">Select your retail category</h2>
               <p className="onboarding-p">
                 KreazyAI tailors its conversation tone and sizing logic based on your industry.
@@ -266,7 +266,7 @@ export function OnboardingPage({ onNavigate, user }) {
           {/* STEP 3 — CATALOG */}
           {currentStep === 3 && (
             <div>
-              <span className="eyebrow">Step 3 of 7</span>
+              <span className="onboarding-step-badge">Step 3 of 7</span>
               <h2 className="onboarding-h2">Seed your catalog <span style={{ opacity: 0.55, fontSize: '1.1rem' }}>(Optional)</span></h2>
               <p className="onboarding-p">
                 Enter your flagship item or leave empty to import from Shopify or CSV in your workspace.
@@ -303,7 +303,7 @@ export function OnboardingPage({ onNavigate, user }) {
           {/* STEP 4 — CHANNELS */}
           {currentStep === 4 && (
             <div>
-              <span className="eyebrow">Step 4 of 7</span>
+              <span className="onboarding-step-badge">Step 4 of 7</span>
               <h2 className="onboarding-h2">Connect your Meta channels</h2>
               <p className="onboarding-p">
                 Toggle which official channels you want KreazyAI to monitor.
@@ -337,7 +337,7 @@ export function OnboardingPage({ onNavigate, user }) {
           {/* STEP 5 — AI CONFIG */}
           {currentStep === 5 && (
             <div>
-              <span className="eyebrow">Step 5 of 7</span>
+              <span className="onboarding-step-badge">Step 5 of 7</span>
               <h2 className="onboarding-h2">Name &amp; configure your AI Copilot</h2>
               <p className="onboarding-p">
                 Personalize how the assistant introduces itself to your shoppers.
@@ -371,7 +371,7 @@ export function OnboardingPage({ onNavigate, user }) {
           {/* STEP 6 — REVIEW */}
           {currentStep === 6 && (
             <div>
-              <span className="eyebrow">Step 6 of 7</span>
+              <span className="onboarding-step-badge">Step 6 of 7</span>
               <h2 className="onboarding-h2">Review your configuration</h2>
               <p className="onboarding-p">
                 Ensure your store parameters are accurate before activating the AI engine.

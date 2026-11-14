@@ -28,9 +28,6 @@ export function DarkEnterpriseSection({ onExplore }) {
     <section className="dark-enterprise-showcase">
       <div className="container">
         <div className="dark-section-header">
-          <div className="dark-eyebrow-pill">
-            <span>AI + AUTOMATION</span>
-          </div>
           <h2 className="dark-section-title">
             Enterprise-ready automation in seconds
           </h2>

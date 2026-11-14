@@ -217,6 +217,9 @@ export const translations = {
       metaVerified: 'Official Meta Cloud API Verified',
       instantSetup: 'Instant Setup in under 5 minutes',
       bkashSupported: 'bKash & Nagad 01643792804 supported',
+      metaSub: 'Direct Meta Graph API • Zero account risk',
+      speedSub: '1-Click QR Pairing • Automated Webhooks',
+      mfsSub: 'Direct Merchant Send Money • Instant Verification',
       starter: {
         name: 'Starter Plan',
         desc: 'Ideal for emerging merchants automating their first WhatsApp store channel.',
@@ -573,6 +576,9 @@ export const translations = {
       metaVerified: 'অফিসিয়াল মেটা ক্লাউড এপিআই ভেরিফাইড',
       instantSetup: '৫ মিনিটের মধ্যে ইনস্ট্যান্ট সেটআপ',
       bkashSupported: 'বিকাশ ও নগদ 01643792804 সাপোর্টেড',
+      metaSub: 'সরাসরি মেটা গ্রাফ এপিআই • অ্যাকাউন্ট ব্লকের কোনো ঝুঁকি নেই',
+      speedSub: '১-ক্লিক কিউআর পেয়ারিং • স্বয়ংক্রিয় ওয়েবহুক ইন্টিগ্রেশন',
+      mfsSub: 'অফিসিয়াল মার্চেন্ট সেন্ড মানি • ইনস্ট্যান্ট স্ক্রিনশট ভেরিফিকেশন',
       starter: {
         name: 'স্টার্টার প্ল্যান (Starter)',
         desc: 'ছোট ও মাঝারি ব্যবসার প্রথম হোয়াটসঅ্যাপ স্টোর অটোমেশনের জন্য সেরা।',
@@ -929,6 +935,9 @@ export const translations = {
       metaVerified: 'API Oficial de Meta Cloud Verificada',
       instantSetup: 'Configuración en menos de 5 minutos',
       bkashSupported: 'Soporte bKash y Nagad 01643792804',
+      metaSub: 'Conexión directa Meta Graph • Cero riesgo de bloqueos',
+      speedSub: 'Vinculación QR en 1 clic • Webhooks automatizados',
+      mfsSub: 'Envío de dinero directo • Verificación instantánea',
       starter: {
         name: 'Plan Starter',
         desc: 'Ideal para pequeños negocios que automatizan su primer canal de ventas en WhatsApp.',

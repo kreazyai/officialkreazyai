@@ -117,10 +117,6 @@ export function ToolkitChatbotPreview() {
 
       {/* RIGHT: Feature Tabs & Narrative */}
       <div className="toolkit-content-side">
-        <div className="section-eyebrow-pill">
-          <span>TOOLKIT</span>
-        </div>
-
         <h2 className="toolkit-heading">
           Complete toolkit for AI automation
         </h2>

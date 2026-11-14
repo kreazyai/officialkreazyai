@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Sparkles, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
+import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export function HeroPricingBoxes({ onNavigate }) {
@@ -86,7 +86,6 @@ export function HeroPricingBoxes({ onNavigate }) {
       {/* Top Header & Switchers Bar */}
       <div className="hero-pricing-top-bar">
         <div className="hero-pricing-status">
-          <span className="live-pulse-dot" aria-hidden="true" />
           <span className="hero-pricing-status-text">Official Meta AI Automation</span>
         </div>
 
@@ -155,7 +154,6 @@ export function HeroPricingBoxes({ onNavigate }) {
               <div className="hero-pricing-card-header">
                 <div className="hero-card-title-row">
                   <h3 className="hero-card-name">{p.name}</h3>
-                  {p.isPopular && <Zap size={14} className="hero-card-bolt-icon" />}
                 </div>
                 <p className="hero-card-desc">{p.desc}</p>
               </div>
@@ -203,7 +201,6 @@ export function HeroPricingBoxes({ onNavigate }) {
       {/* Micro Trust & Feature Footnote */}
       <div className="hero-pricing-footer">
         <div className="hero-pricing-guarantee">
-          <ShieldCheck size={14} color="#0FA968" />
           <span>14-day free trial • Cancel anytime • Zero credit card required</span>
         </div>
         <button

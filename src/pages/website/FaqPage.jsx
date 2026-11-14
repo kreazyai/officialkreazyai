@@ -334,9 +334,6 @@ export function FaqPage({ onNavigate }) {
                   {isOpen && (
                     <div className="faq-answer">
                       <p>{faq.a}</p>
-                      <div style={{ marginTop: '0.85rem' }}>
-                        <Badge variant="mint">{faq.category}</Badge>
-                      </div>
                     </div>
                   )}
                 </div>

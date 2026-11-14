@@ -104,7 +104,7 @@ export function LegalPage({ initialTab = 'privacy' }) {
         <div className="card" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-10)', lineHeight: 1.7 }}>
           {activeTab === 'privacy' ? (
             <div>
-              <span className="eyebrow" style={{ marginBottom: '1rem' }}>{t.lastUpdated}</span>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', fontWeight: 600 }}>{t.lastUpdated}</div>
               <h1 style={{ fontSize: 'clamp(2rem, 3.8vw, 2.75rem)', fontWeight: 900, letterSpacing: '-0.045em', lineHeight: 0.96, marginBottom: '1.5rem' }}>
                 {t.privacyTitle}
               </h1>
@@ -123,7 +123,7 @@ export function LegalPage({ initialTab = 'privacy' }) {
             </div>
           ) : (
             <div>
-              <span className="eyebrow" style={{ marginBottom: '1rem' }}>{t.lastUpdated}</span>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', fontWeight: 600 }}>{t.lastUpdated}</div>
               <h1 style={{ fontSize: 'clamp(2rem, 3.8vw, 2.75rem)', fontWeight: 900, letterSpacing: '-0.045em', lineHeight: 0.96, marginBottom: '1.5rem' }}>
                 {t.termsTitle}
               </h1>
