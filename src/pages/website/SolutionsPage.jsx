@@ -412,7 +412,7 @@ export function SolutionsPage({ onNavigate }) {
                 className={`capsule-filter-btn ${activeTab === sol.id ? 'active' : ''}`}
                 style={{
                   padding: '8px 18px',
-                  borderRadius: '999px',
+                  borderRadius: 0,
                   fontSize: '0.875rem',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -429,7 +429,7 @@ export function SolutionsPage({ onNavigate }) {
         <div className="solution-showcase-box" style={{
           background: 'rgba(18, 24, 38, 0.72)',
           border: '1.5px solid var(--border)',
-          borderRadius: '24px',
+          borderRadius: 0,
           padding: 'clamp(1.5rem, 4vw, 3rem)',
           boxShadow: '0 8px 30px rgba(9, 42, 32, 0.05)',
           marginBottom: '3.5rem'
@@ -456,7 +456,7 @@ export function SolutionsPage({ onNavigate }) {
             marginBottom: '2.5rem',
             padding: '1.5rem',
             background: 'var(--mint-soft)',
-            borderRadius: '16px',
+            borderRadius: 0,
             border: '1px solid rgba(15, 169, 104, 0.2)'
           }}>
             {currentSolution.stats.map((st, idx) => (
@@ -488,7 +488,7 @@ export function SolutionsPage({ onNavigate }) {
                 gap: '0.75rem',
                 background: 'rgba(18, 24, 38, 0.72)',
                 border: '1px solid var(--border)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '1rem'
               }}>
                 <CheckCircle2 size={18} color="var(--green)" style={{ flexShrink: 0, marginTop: '2px' }} />
@@ -501,11 +501,11 @@ export function SolutionsPage({ onNavigate }) {
 
           {/* Bottom Actions */}
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Button variant="primary" size="lg" onClick={() => onNavigate('book-demo')} style={{ borderRadius: '999px' }}>
+            <Button variant="primary" size="lg" onClick={() => onNavigate('book-demo')} style={{ borderRadius: 0 }}>
               <span>{t.bookBtn}</span>
               <ArrowRight size={17} />
             </Button>
-            <Button variant="secondary" size="lg" onClick={() => onNavigate('signup')} style={{ borderRadius: '999px' }}>
+            <Button variant="secondary" size="lg" onClick={() => onNavigate('signup')} style={{ borderRadius: 0 }}>
               <span>{t.trialBtn}</span>
             </Button>
           </div>
@@ -530,7 +530,7 @@ export function SolutionsPage({ onNavigate }) {
               <div key={idx} style={{
                 background: 'rgba(18, 24, 38, 0.72)',
                 border: '1.5px solid var(--border)',
-                borderRadius: '18px',
+                borderRadius: 0,
                 padding: '1.75rem',
                 boxShadow: '0 4px 16px rgba(9, 42, 32, 0.04)',
                 transition: 'transform 0.2s ease, border-color 0.2s ease'
@@ -538,7 +538,7 @@ export function SolutionsPage({ onNavigate }) {
                 <div style={{
                   width: '42px',
                   height: '42px',
-                  borderRadius: '12px',
+                  borderRadius: 0,
                   background: 'var(--mint-soft)',
                   border: '1px solid rgba(15, 169, 104, 0.25)',
                   display: 'flex',
@@ -564,7 +564,7 @@ export function SolutionsPage({ onNavigate }) {
         <div className="final-cta-card" style={{
           background: 'linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%)',
           border: '1px solid rgba(255, 51, 75, 0.32)',
-          borderRadius: '24px',
+          borderRadius: 0,
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12)',
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
@@ -587,7 +587,7 @@ export function SolutionsPage({ onNavigate }) {
                 background: '#FF334B',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 51, 75, 0.5)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 700,
@@ -611,7 +611,7 @@ export function SolutionsPage({ onNavigate }) {
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 600,

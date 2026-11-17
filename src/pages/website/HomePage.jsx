@@ -982,29 +982,35 @@ export function HomePage({ onNavigate, user }) {
                   </div>
 
                   {founderError && (
-                    <div style={{ padding: '0.5rem 0.75rem', backgroundColor: '#FEE2E2', color: '#B91C1C', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', border: '1px solid #FCA5A5' }}>
+                    <div style={{ padding: '0.5rem 0.75rem', backgroundColor: '#FEE2E2', color: '#B91C1C', borderRadius: 0, fontSize: '0.8rem', border: '1px solid #FCA5A5' }}>
                       {founderError}
                     </div>
                   )}
 
                   <div className="founder-form-row-2">
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.fullName', 'Your Name *')}</label>
+                      <label htmlFor="founder-name" className="form-label">{t('founderMeeting.fullName', 'Full Name *')}</label>
                       <input
+                        id="founder-name"
+                        name="name"
                         type="text"
                         required
-                        placeholder={t('founderMeeting.fullNamePlaceholder', 'Sakib Ahmed')}
+                        autoComplete="name"
+                        placeholder={t('founderMeeting.fullNamePlaceholder', 'Alex Morgan')}
                         className="form-input"
                         value={founderForm.name}
                         onChange={(e) => setFounderForm({ ...founderForm, name: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.email', 'Work Email *')}</label>
+                      <label htmlFor="founder-email" className="form-label">{t('founderMeeting.email', 'Work Email *')}</label>
                       <input
+                        id="founder-email"
+                        name="email"
                         type="email"
                         required
-                        placeholder={t('founderMeeting.emailPlaceholder', 'sakib@brand.com')}
+                        autoComplete="email"
+                        placeholder={t('founderMeeting.emailPlaceholder', 'alex@company.com')}
                         className="form-input"
                         value={founderForm.email}
                         onChange={(e) => setFounderForm({ ...founderForm, email: e.target.value })}
@@ -1014,9 +1020,12 @@ export function HomePage({ onNavigate, user }) {
 
                   <div className="founder-form-row-2">
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.phone', 'Phone / WhatsApp')}</label>
+                      <label htmlFor="founder-phone" className="form-label">{t('founderMeeting.phone', 'Phone / WhatsApp')}</label>
                       <input
+                        id="founder-phone"
+                        name="phone"
                         type="tel"
+                        autoComplete="tel"
                         placeholder={t('founderMeeting.phonePlaceholder', '+880 1700-000000')}
                         className="form-input"
                         value={founderForm.phone}
@@ -1024,10 +1033,13 @@ export function HomePage({ onNavigate, user }) {
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.company', 'Company / Page Name *')}</label>
+                      <label htmlFor="founder-company" className="form-label">{t('founderMeeting.company', 'Company / Page Name *')}</label>
                       <input
+                        id="founder-company"
+                        name="company"
                         type="text"
                         required
+                        autoComplete="organization"
                         placeholder={t('founderMeeting.companyPlaceholder', 'Artisan Wear')}
                         className="form-input"
                         value={founderForm.company}
@@ -1037,8 +1049,10 @@ export function HomePage({ onNavigate, user }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.775rem' }}>{t('founderMeeting.message', 'Current Automation Bottlenecks')}</label>
+                    <label htmlFor="founder-message" className="form-label">{t('founderMeeting.message', 'Current Automation Bottlenecks')}</label>
                     <textarea
+                      id="founder-message"
+                      name="message"
                       rows={2}
                       className="form-textarea"
                       placeholder={t('founderMeeting.messagePlaceholder', 'What is your biggest pain point with customer inquiries right now?')}
@@ -1054,7 +1068,7 @@ export function HomePage({ onNavigate, user }) {
                     loading={founderLoading}
                     style={{ width: '100%', justifyContent: 'center', marginTop: '0.25rem' }}
                   >
-                    {founderLoading ? t('founderMeeting.submittingBtn', 'Booking Session...') : t('founderMeeting.submitBtn', 'Confirm Founder Strategy Call')}
+                    {founderLoading ? t('founderMeeting.submittingBtn', 'Confirming Online Meeting...') : t('founderMeeting.submitBtn', 'Confirm Online Meeting')}
                   </Button>
                 </form>
               )}

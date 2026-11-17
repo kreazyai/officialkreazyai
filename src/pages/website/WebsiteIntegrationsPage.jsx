@@ -459,7 +459,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 className={`capsule-filter-btn ${selectedCategory === cat.id ? 'active' : ''}`}
                 style={{
                   padding: '8px 18px',
-                  borderRadius: '999px',
+                  borderRadius: 0,
                   fontSize: '0.875rem',
                   fontWeight: 750,
                   cursor: 'pointer',
@@ -485,7 +485,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
               style={{
                 background: 'rgba(18, 24, 38, 0.72)',
                 border: '1.5px solid var(--border)',
-                borderRadius: '20px',
+                borderRadius: 0,
                 padding: '1.75rem',
                 boxShadow: '0 4px 16px rgba(9, 42, 32, 0.04)',
                 display: 'flex',
@@ -496,7 +496,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--primary-dark)', fontWeight: 700, background: 'rgba(15, 169, 104, 0.1)', padding: '3px 8px', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--primary-dark)', fontWeight: 700, background: 'rgba(15, 169, 104, 0.1)', padding: '3px 8px', borderRadius: 0 }}>
                     {item.setupTime}
                   </span>
                 </div>
@@ -528,7 +528,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
         <div style={{
           background: 'var(--mint-soft)',
           border: '1.5px solid rgba(15, 169, 104, 0.25)',
-          borderRadius: '20px',
+          borderRadius: 0,
           padding: '2rem',
           marginBottom: '3.5rem'
         }}>
@@ -546,7 +546,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '1.25rem'
           }}>
-            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: 0, border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {data.sec1Title}
               </div>
@@ -554,7 +554,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 {data.sec1Desc}
               </p>
             </div>
-            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: 0, border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {data.sec2Title}
               </div>
@@ -562,7 +562,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 {data.sec2Desc}
               </p>
             </div>
-            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: 0, border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {data.sec3Title}
               </div>
@@ -577,7 +577,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
         <div className="final-cta-card" style={{
           background: 'linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%)',
           border: '1px solid rgba(255, 51, 75, 0.32)',
-          borderRadius: '24px',
+          borderRadius: 0,
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12)',
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
@@ -600,7 +600,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 background: '#FF334B',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 51, 75, 0.5)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 700,
@@ -624,7 +624,7 @@ export function WebsiteIntegrationsPage({ onNavigate }) {
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 600,

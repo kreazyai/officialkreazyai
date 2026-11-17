@@ -46,8 +46,8 @@ const FOUNDER_TEXT = {
     lblTime: 'Preferred Time Window (BST / EST)',
     lblChallenges: 'Current Challenges or Questions (Optional)',
     challengesPlaceholder: 'Tell us about your channels, team bottlenecks, or specific automation goals...',
-    btnSubmit: 'Confirm Founder Strategy Session',
-    btnSubmitting: 'Confirming Reservation...',
+    btnSubmit: 'Confirm Online Meeting',
+    btnSubmitting: 'Confirming Online Meeting...',
     errValidation: 'Please provide your name, business email, and company name.',
     errSubmission: 'Unable to reserve founder meeting. Please try again or email founder@kreazyai.com.',
     successTitle: 'Founder Session Confirmed!',
@@ -91,8 +91,8 @@ const FOUNDER_TEXT = {
     lblTime: 'পছন্দের সময়সূচী (BST / EST)',
     lblChallenges: 'বর্তমান চ্যালেঞ্জ বা জিজ্ঞাসা (ঐচ্ছিক)',
     challengesPlaceholder: 'আপনার চ্যানেল, দলের সীমাবদ্ধতা বা নির্দিষ্ট অটোমেশন লক্ষ্য সম্পর্কে লিখুন...',
-    btnSubmit: 'ফাউন্ডার সেশন নিশ্চিত করুন',
-    btnSubmitting: 'সংরক্ষণ করা হচ্ছে...',
+    btnSubmit: 'অনলাইন মিটিং নিশ্চিত করুন',
+    btnSubmitting: 'মিটিং নিশ্চিত হচ্ছে...',
     errValidation: 'অনুগ্রহ করে আপনার নাম, ব্যবসায়িক ইমেইল এবং কোম্পানির নাম লিখুন।',
     errSubmission: 'ফাউন্ডার মিটিং বুক করা সম্ভব হয়নি। পুনরায় চেষ্টা করুন অথবা founder@kreazyai.com এ লিখুন।',
     successTitle: 'ফাউন্ডার সেশন নিশ্চিত হয়েছে!',
@@ -136,8 +136,8 @@ const FOUNDER_TEXT = {
     lblTime: 'Franja Horaria Preferida (BST / EST)',
     lblChallenges: 'Retos Actuales o Preguntas (Opcional)',
     challengesPlaceholder: 'Descríbanos sus canales, cuellos de botella del equipo o metas de automatización...',
-    btnSubmit: 'Confirmar Sesión con Fundador',
-    btnSubmitting: 'Confirmando Reserva...',
+    btnSubmit: 'Confirmar Reunión en Línea',
+    btnSubmitting: 'Confirmando Reunión...',
     errValidation: 'Por favor ingrese su nombre, correo empresarial y empresa.',
     errSubmission: 'No se pudo reservar la reunión. Inténtelo nuevamente o escriba a founder@kreazyai.com.',
     successTitle: '¡Sesión con Fundador Confirmada!',
@@ -256,7 +256,7 @@ export function FounderMeetingPage({ onNavigate }) {
                   </div>
                 </div>
 
-                <div style={{ padding: '1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', marginTop: 'auto' }}>
+                <div style={{ padding: '1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 0, border: '1px solid var(--border-medium)', marginTop: 'auto' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                     <Video size={16} color="var(--olive-700)" />
                     <strong style={{ fontSize: '0.85rem' }}>{t.meetTitle}</strong>
@@ -278,7 +278,7 @@ export function FounderMeetingPage({ onNavigate }) {
                   </p>
 
                   {error && (
-                    <div style={{ padding: '0.75rem', backgroundColor: 'var(--status-error-bg)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', border: '1px solid var(--status-error-border)' }}>
+                    <div style={{ padding: '0.75rem', backgroundColor: 'var(--status-error-bg)', color: 'var(--status-error-text)', borderRadius: 0, fontSize: '0.85rem', border: '1px solid var(--status-error-border)' }}>
                       {error}
                     </div>
                   )}
@@ -400,7 +400,7 @@ export function FounderMeetingPage({ onNavigate }) {
               {t.successDesc(formData.name, formData.company)}
             </p>
 
-            <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', textAlign: 'left', marginBottom: '2rem', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '1.25rem', borderRadius: 0, textAlign: 'left', marginBottom: '2rem', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div><strong>{t.lblRef}</strong> <code>{meetingDetails?.id || 'KZ-FOUNDER-991'}</code></div>
               <div><strong>{t.lblPref}</strong> {formData.preferredTime} {formData.preferredDate ? `on ${formData.preferredDate}` : ''}</div>
               <div><strong>{t.lblVideo}</strong> {t.videoVal(formData.email)}</div>

@@ -118,7 +118,7 @@ export function BlogPage({ onNavigate }) {
             gap: '8px', 
             background: 'rgba(255, 51, 75, 0.12)', 
             border: '1px solid rgba(255, 51, 75, 0.3)', 
-            borderRadius: '12px', 
+            borderRadius: 0, 
             padding: '6px 14px', 
             fontSize: '0.85rem', 
             color: '#FF6B7E', 
@@ -159,7 +159,7 @@ export function BlogPage({ onNavigate }) {
               background: 'rgba(18, 24, 38, 0.72)', 
               backdropFilter: 'blur(20px)', 
               border: '1px solid rgba(255, 255, 255, 0.12)', 
-              borderRadius: '24px', 
+              borderRadius: 0, 
               padding: 'clamp(1.75rem, 3.5vw, 2.75rem)', 
               marginBottom: '3rem', 
               boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(255, 51, 75, 0.1)', 
@@ -188,7 +188,7 @@ export function BlogPage({ onNavigate }) {
                   fontSize: '0.75rem', 
                   fontWeight: 750, 
                   padding: '3px 10px', 
-                  borderRadius: '8px', 
+                  borderRadius: 0, 
                   textTransform: 'uppercase' 
                 }}>
                   {featuredArticle.tag}
@@ -256,7 +256,7 @@ export function BlogPage({ onNavigate }) {
             <div style={{ 
               background: 'linear-gradient(135deg, rgba(28, 38, 58, 0.8) 0%, rgba(14, 19, 31, 0.95) 100%)', 
               border: '1px solid rgba(255, 255, 255, 0.08)', 
-              borderRadius: '20px', 
+              borderRadius: 0, 
               padding: '2rem', 
               display: 'flex', 
               flexDirection: 'column', 
@@ -295,7 +295,7 @@ export function BlogPage({ onNavigate }) {
                 background: selectedCategory === cat ? '#FFFFFF' : 'rgba(255, 255, 255, 0.06)',
                 color: selectedCategory === cat ? '#06080D' : '#94A3B8',
                 border: selectedCategory === cat ? '1px solid #FFFFFF' : '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '8px 18px',
                 fontSize: '0.875rem',
                 fontWeight: selectedCategory === cat ? 750 : 600,
@@ -324,7 +324,7 @@ export function BlogPage({ onNavigate }) {
                 background: 'rgba(18, 24, 38, 0.72)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '20px',
+                borderRadius: 0,
                 padding: '1.75rem',
                 display: 'flex',
                 flexDirection: 'column',
@@ -349,7 +349,7 @@ export function BlogPage({ onNavigate }) {
                   <span style={{ 
                     background: 'rgba(255, 255, 255, 0.06)', 
                     border: '1px solid rgba(255, 255, 255, 0.12)', 
-                    borderRadius: '8px', 
+                    borderRadius: 0, 
                     padding: '3px 9px', 
                     fontSize: '0.72rem', 
                     fontWeight: 700, 
@@ -410,7 +410,7 @@ export function BlogPage({ onNavigate }) {
         <div style={{
           background: 'linear-gradient(135deg, rgba(28, 38, 58, 0.9) 0%, rgba(14, 19, 31, 0.95) 100%)',
           border: '1px solid rgba(255, 51, 75, 0.35)',
-          borderRadius: '24px',
+          borderRadius: 0,
           padding: 'clamp(2rem, 4vw, 3.5rem) 2rem',
           textAlign: 'center',
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 51, 75, 0.12)'
@@ -431,7 +431,7 @@ export function BlogPage({ onNavigate }) {
                 fontWeight: 750,
                 fontSize: '0.95rem',
                 padding: '0.85rem 1.75rem',
-                borderRadius: '12px',
+                borderRadius: 0,
                 border: 'none',
                 cursor: 'pointer',
                 display: 'inline-flex',
@@ -452,7 +452,7 @@ export function BlogPage({ onNavigate }) {
                 fontWeight: 650,
                 fontSize: '0.95rem',
                 padding: '0.85rem 1.75rem',
-                borderRadius: '12px',
+                borderRadius: 0,
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer'
               }}

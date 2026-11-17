@@ -445,7 +445,7 @@ export function AiAgentsPage({ onNavigate }) {
                 style={{
                   background: 'rgba(18, 24, 38, 0.72)',
                   border: isSelected ? '2px solid var(--green)' : '1.5px solid var(--border)',
-                  borderRadius: '20px',
+                  borderRadius: 0,
                   padding: '1.75rem',
                   boxShadow: isSelected ? '0 12px 32px rgba(15, 169, 104, 0.14)' : '0 4px 16px rgba(9, 42, 32, 0.04)',
                   cursor: 'pointer',
@@ -454,7 +454,7 @@ export function AiAgentsPage({ onNavigate }) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--primary-dark)', fontWeight: 700, background: 'rgba(15, 169, 104, 0.1)', padding: '3px 8px', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--primary-dark)', fontWeight: 700, background: 'rgba(15, 169, 104, 0.1)', padding: '3px 8px', borderRadius: 0 }}>
                     {agent.speed}
                   </span>
                 </div>
@@ -492,7 +492,7 @@ export function AiAgentsPage({ onNavigate }) {
         <div style={{
           background: 'rgba(18, 24, 38, 0.72)',
           border: '1.5px solid var(--border)',
-          borderRadius: '24px',
+          borderRadius: 0,
           padding: 'clamp(1.5rem, 4vw, 3rem)',
           boxShadow: '0 12px 40px rgba(9, 42, 32, 0.06)',
           marginBottom: '3.5rem'
@@ -512,7 +512,7 @@ export function AiAgentsPage({ onNavigate }) {
             margin: '0 auto',
             background: 'var(--mint-soft)',
             border: '1.5px solid rgba(15, 169, 104, 0.25)',
-            borderRadius: '20px',
+            borderRadius: 0,
             overflow: 'hidden',
             boxShadow: '0 8px 24px rgba(9, 42, 32, 0.08)'
           }}>
@@ -535,7 +535,7 @@ export function AiAgentsPage({ onNavigate }) {
                   <div style={{ fontSize: '0.72rem', color: '#AEEBCB' }}>{ui.onlineStatus}</div>
                 </div>
               </div>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(255, 255, 255, 0.15)', padding: '3px 8px', borderRadius: '6px' }}>
+              <span style={{ fontSize: '0.75rem', background: 'rgba(255, 255, 255, 0.15)', padding: '3px 8px', borderRadius: 0 }}>
                 {ui.channelTag}
               </span>
             </div>
@@ -543,7 +543,7 @@ export function AiAgentsPage({ onNavigate }) {
             {/* Chat Body */}
             <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Message 1: Customer */}
-              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: 'rgba(18, 24, 38, 0.72)', padding: '0.85rem 1rem', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: 'rgba(18, 24, 38, 0.72)', padding: '0.85rem 1rem', borderRadius: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>
                   {ui.sampleCust1}
                 </div>
@@ -553,7 +553,7 @@ export function AiAgentsPage({ onNavigate }) {
               </div>
 
               {/* Message 2: AI Agent */}
-              <div style={{ alignSelf: 'flex-end', maxWidth: '85%', background: '#E3F8ED', border: '1px solid rgba(15, 169, 104, 0.3)', padding: '0.85rem 1rem', borderRadius: '14px 14px 4px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ alignSelf: 'flex-end', maxWidth: '85%', background: '#E3F8ED', border: '1px solid rgba(15, 169, 104, 0.3)', padding: '0.85rem 1rem', borderRadius: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--primary-dark)', lineHeight: 1.45 }}>
                   {ui.sampleBot1}
                 </div>
@@ -563,7 +563,7 @@ export function AiAgentsPage({ onNavigate }) {
               </div>
 
               {/* Message 3: Customer */}
-              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: 'rgba(18, 24, 38, 0.72)', padding: '0.85rem 1rem', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ alignSelf: 'flex-start', maxWidth: '82%', background: 'rgba(18, 24, 38, 0.72)', padding: '0.85rem 1rem', borderRadius: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>
                   {ui.sampleCust2}
                 </div>
@@ -573,7 +573,7 @@ export function AiAgentsPage({ onNavigate }) {
               </div>
 
               {/* Message 4: AI Agent Confirmed Order Card */}
-              <div style={{ alignSelf: 'flex-end', maxWidth: '88%', background: 'rgba(18, 24, 38, 0.72)', border: '1.5px solid var(--green)', padding: '1rem', borderRadius: '14px 14px 4px 14px', boxShadow: '0 4px 12px rgba(15, 169, 104, 0.15)' }}>
+              <div style={{ alignSelf: 'flex-end', maxWidth: '88%', background: 'rgba(18, 24, 38, 0.72)', border: '1.5px solid var(--green)', padding: '1rem', borderRadius: 0, boxShadow: '0 4px 12px rgba(15, 169, 104, 0.15)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <CheckCircle2 size={16} color="var(--green)" />
                   <span style={{ fontSize: '0.825rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{ui.orderConfirmedTag}</span>
@@ -583,7 +583,7 @@ export function AiAgentsPage({ onNavigate }) {
                   <strong>Delivery:</strong> {ui.orderDelivery}<br />
                   <strong>Total:</strong> {ui.orderTotal}
                 </div>
-                <div style={{ fontSize: '0.75rem', background: 'var(--mint-soft)', padding: '6px 10px', borderRadius: '6px', color: 'var(--primary-dark)', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.75rem', background: 'var(--mint-soft)', padding: '6px 10px', borderRadius: 0, color: 'var(--primary-dark)', fontWeight: 600 }}>
                   {ui.orderSynced}
                 </div>
               </div>
@@ -595,7 +595,7 @@ export function AiAgentsPage({ onNavigate }) {
         <div style={{
           background: 'var(--mint-soft)',
           border: '1.5px solid rgba(15, 169, 104, 0.25)',
-          borderRadius: '20px',
+          borderRadius: 0,
           padding: '2rem',
           marginBottom: '3.5rem'
         }}>
@@ -613,7 +613,7 @@ export function AiAgentsPage({ onNavigate }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '1.25rem'
           }}>
-            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: 0, border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {ui.g1Title}
               </div>
@@ -621,7 +621,7 @@ export function AiAgentsPage({ onNavigate }) {
                 {ui.g1Desc}
               </p>
             </div>
-            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: 0, border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {ui.g2Title}
               </div>
@@ -629,7 +629,7 @@ export function AiAgentsPage({ onNavigate }) {
                 {ui.g2Desc}
               </p>
             </div>
-            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ background: 'rgba(18, 24, 38, 0.72)', padding: '1.25rem', borderRadius: 0, border: '1px solid var(--border)' }}>
               <div style={{ fontWeight: 750, fontSize: '0.95rem', color: 'var(--primary-dark)', marginBottom: '0.25rem' }}>
                 {ui.g3Title}
               </div>
@@ -644,7 +644,7 @@ export function AiAgentsPage({ onNavigate }) {
         <div className="final-cta-card" style={{
           background: 'linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%)',
           border: '1px solid rgba(255, 51, 75, 0.32)',
-          borderRadius: '24px',
+          borderRadius: 0,
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12)',
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
@@ -667,7 +667,7 @@ export function AiAgentsPage({ onNavigate }) {
                 background: '#FF334B',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 51, 75, 0.5)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 700,
@@ -691,7 +691,7 @@ export function AiAgentsPage({ onNavigate }) {
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 600,

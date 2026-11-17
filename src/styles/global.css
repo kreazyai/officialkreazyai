@@ -515,50 +515,49 @@ input:focus, select:focus, textarea:focus, .form-input:focus, .form-select:focus
   box-shadow: 0 0 0 3px rgba(15, 169, 104, 0.15);
 }
 
-/* Button and Card Box Architecture — Rounded Rectangles Matching Apogee Reference */
-.btn,
 /* =====================================================================
-   UNIVERSAL RECTANGLE ARCHITECTURE
-   Enforces crisp geometric rectangular boxes (border-radius: 0px !important)
-   for all cards, buttons, boxes, pills, badges, inputs, and modals across
-   the entire website, landing page, sub-pages, and admin portal.
+   DESKTOP RECTANGLE ARCHITECTURE
+   Enforces crisp geometric rectangular styling on desktop while allowing
+   responsive rounded touch interfaces on mobile devices.
    ===================================================================== */
-button,
-input,
-select,
-textarea,
-.btn,
-.pricing-suite-cta-btn,
-.google-auth-btn,
-.card,
-.glass-panel,
-.pricing-suite-card,
-.auth-card,
-.modal-content,
-.macos-card,
-.mac-admin-window,
-.mac-panel-card,
-.mac-metric-card,
-.mac-modal-window,
-.mac-input,
-.mac-signin-btn,
-.hero-pricing-widget,
-.hero-pricing-card,
-.hero-feature-pill,
-.hero-btn-dark,
-.hero-btn-outline,
-.nav-btn-signin,
-.nav-btn-signup,
-.nav-link,
-.benefit-col,
-.channel-card,
-.editorial-card,
-.final-cta-card,
-.faq-item,
-.founder-card,
-.form-input,
-.form-textarea {
-  border-radius: 0px !important;
+@media (min-width: 769px) {
+  button,
+  input,
+  select,
+  textarea,
+  .btn,
+  .pricing-suite-cta-btn,
+  .google-auth-btn,
+  .card,
+  .glass-panel,
+  .pricing-suite-card,
+  .auth-card,
+  .modal-content,
+  .macos-card,
+  .mac-admin-window,
+  .mac-panel-card,
+  .mac-metric-card,
+  .mac-modal-window,
+  .mac-input,
+  .mac-signin-btn,
+  .hero-pricing-widget,
+  .hero-pricing-card,
+  .hero-feature-pill,
+  .hero-btn-dark,
+  .hero-btn-outline,
+  .nav-btn-signin,
+  .nav-btn-signup,
+  .nav-link,
+  .benefit-col,
+  .channel-card,
+  .editorial-card,
+  .final-cta-card,
+  .faq-item,
+  .founder-card,
+  .form-input,
+  .form-textarea {
+    border-radius: 0px !important;
+  }
 }
 
 /* Exception: Pure status indicator LED lights and spinners remain circular */

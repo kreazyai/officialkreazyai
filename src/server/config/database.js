@@ -955,6 +955,10 @@ export function runMigrations(db) {
     if (!waCols.includes('last_api_check')) {
       db.exec("ALTER TABLE whatsapp_connections ADD COLUMN last_api_check TEXT;");
     }
+    const founderCols = db.prepare("PRAGMA table_info(founder_meetings);").all().map(c => c.name);
+    if (!founderCols.includes('phone')) {
+      db.exec("ALTER TABLE founder_meetings ADD COLUMN phone TEXT;");
+    }
   } catch (alterErr) {
     logger.warn('Non-critical schema extension warning:', alterErr.message);
   }

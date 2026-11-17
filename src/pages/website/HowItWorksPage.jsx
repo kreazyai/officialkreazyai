@@ -305,15 +305,15 @@ export function HowItWorksPage({ onNavigate }) {
             <div className="workflow-step-visual">
               <div className="workflow-step-card-inner">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: 0 }}>
                     <span style={{ fontWeight: 650, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step1.waTitle}</span>
                     <Badge variant="whatsapp">{content.step1.statusConnected}</Badge>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: 0 }}>
                     <span style={{ fontWeight: 650, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step1.igTitle}</span>
                     <Badge variant="instagram">{content.step1.statusConnected}</Badge>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: 0 }}>
                     <span style={{ fontWeight: 650, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step1.fbTitle}</span>
                     <Badge variant="facebook">{content.step1.statusConnected}</Badge>
                   </div>
@@ -353,13 +353,13 @@ export function HowItWorksPage({ onNavigate }) {
                   <Badge variant="success">{content.step2.autoSync}</Badge>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
+                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: 0, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
                     {content.step2.item1}
                   </div>
-                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
+                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: 0, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
                     {content.step2.item2}
                   </div>
-                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
+                  <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: 0, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-dark)', fontWeight: 550 }}>
                     {content.step2.item3}
                   </div>
                 </div>
@@ -396,7 +396,7 @@ export function HowItWorksPage({ onNavigate }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--green)', fontWeight: 700, fontSize: '0.9rem' }}>
                   <ShieldCheck size={18} /> {content.step3.boxTitle}
                 </div>
-                <div style={{ backgroundColor: '#092A20', border: '1px solid #144636', padding: '1.15rem', borderRadius: '10px', fontSize: '0.825rem', lineHeight: 1.7, color: '#E8F5EE', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ backgroundColor: '#092A20', border: '1px solid #144636', padding: '1.15rem', borderRadius: 0, fontSize: '0.825rem', lineHeight: 1.7, color: '#E8F5EE', fontFamily: 'var(--font-mono)' }}>
                   <span style={{ color: '#A5F052' }}>IF</span> customer_intent == <span style={{ color: '#DDF7E9' }}>"request_discount"</span> <span style={{ color: '#A5F052' }}>AND</span> hesitating:<br />
                   &nbsp;&nbsp;<span style={{ color: '#6EE7B7' }}>OFFER</span> max_discount(10%)<br />
                   <span style={{ color: '#A5F052' }}>ELSE IF</span> sentiment == <span style={{ color: '#DDF7E9' }}>"frustrated"</span>:<br />
@@ -436,7 +436,7 @@ export function HowItWorksPage({ onNavigate }) {
                   <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step4.receiptTitle}</span>
                   <Badge variant="success">{content.step4.orderNum}</Badge>
                 </div>
-                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: 0, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                     <span>{content.step4.lblCustomer}</span>
                     <strong style={{ color: 'var(--primary-dark)' }}>Sadat Sakib</strong>
@@ -486,9 +486,9 @@ export function HowItWorksPage({ onNavigate }) {
               <div className="workflow-step-card-inner">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                   <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-dark)' }}>{content.step5.consoleTitle}</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', background: 'var(--mint-soft)', padding: '2px 8px', borderRadius: '4px' }}>{content.step5.liveSync}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', background: 'var(--mint-soft)', padding: '2px 8px', borderRadius: 0 }}>{content.step5.liveSync}</span>
                 </div>
-                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border)', borderRadius: 0, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{content.step5.channelsLabel}</span>
                     <strong style={{ color: 'var(--primary-dark)' }}>{content.step5.channelsVal}</strong>
@@ -511,7 +511,7 @@ export function HowItWorksPage({ onNavigate }) {
         {/* CTA Box */}
         <div style={{
           background: 'linear-gradient(135deg, #092A20 0%, #103B2E 100%)',
-          borderRadius: 'var(--radius-2xl)',
+          borderRadius: 0,
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
           color: '#FFFFFF',

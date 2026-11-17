@@ -114,7 +114,7 @@ export function AIBootcampPage({ onNavigate }) {
           fontSize: '0.7rem',
           fontWeight: 800,
           padding: '2px 8px',
-          borderRadius: '999px',
+          borderRadius: 0,
           textTransform: 'uppercase',
           letterSpacing: '0.04em'
         }}>
@@ -164,7 +164,7 @@ export function AIBootcampPage({ onNavigate }) {
             <div style={{
               background: 'linear-gradient(135deg, rgba(26, 20, 16, 0.95) 0%, rgba(18, 24, 38, 0.98) 100%)',
               border: '1px solid rgba(245, 158, 11, 0.3)',
-              borderRadius: '24px',
+              borderRadius: 0,
               padding: 'clamp(1.75rem, 3vw, 2.25rem)',
               boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(245, 158, 11, 0.08)',
               position: 'relative',
@@ -188,7 +188,7 @@ export function AIBootcampPage({ onNavigate }) {
                 <div style={{
                   width: '68px',
                   height: '68px',
-                  borderRadius: '18px',
+                  borderRadius: 0,
                   background: 'linear-gradient(135deg, #F59E0B 0%, #FF334B 100%)',
                   padding: '3px',
                   flexShrink: 0
@@ -196,7 +196,7 @@ export function AIBootcampPage({ onNavigate }) {
                   <div style={{
                     width: '100%',
                     height: '100%',
-                    borderRadius: '15px',
+                    borderRadius: 0,
                     background: '#0B0F17',
                     display: 'flex',
                     alignItems: 'center',
@@ -220,7 +220,7 @@ export function AIBootcampPage({ onNavigate }) {
                       fontSize: '0.7rem',
                       fontWeight: 750,
                       padding: '2px 7px',
-                      borderRadius: '6px'
+                      borderRadius: 0
                     }}>
                       VERIFIED MENTOR
                     </span>
@@ -238,7 +238,7 @@ export function AIBootcampPage({ onNavigate }) {
               <blockquote style={{
                 margin: '0 0 1.5rem 0',
                 padding: '1rem 1.25rem',
-                borderRadius: '14px',
+                borderRadius: 0,
                 background: 'rgba(255, 255, 255, 0.04)',
                 borderLeft: '3px solid #F59E0B',
                 fontSize: '0.92rem',
@@ -307,7 +307,7 @@ export function AIBootcampPage({ onNavigate }) {
               backdropFilter: 'blur(28px)',
               WebkitBackdropFilter: 'blur(28px)',
               border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '24px',
+              borderRadius: 0,
               padding: 'clamp(2rem, 4vw, 2.75rem) clamp(1.5rem, 3vw, 2.25rem)',
               boxShadow: '0 24px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(245, 158, 11, 0.08)',
               position: 'relative'
@@ -349,7 +349,7 @@ export function AIBootcampPage({ onNavigate }) {
                       padding: '0.85rem 1rem',
                       background: 'rgba(239, 68, 68, 0.12)',
                       border: '1px solid rgba(239, 68, 68, 0.35)',
-                      borderRadius: '12px',
+                      borderRadius: 0,
                       color: '#F87171',
                       fontSize: '0.86rem',
                       marginBottom: '1.25rem'
@@ -376,7 +376,7 @@ export function AIBootcampPage({ onNavigate }) {
                           height: '46px',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.9rem',
@@ -406,7 +406,7 @@ export function AIBootcampPage({ onNavigate }) {
                           height: '46px',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.9rem',
@@ -437,7 +437,7 @@ export function AIBootcampPage({ onNavigate }) {
                           height: '46px',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.9rem',
@@ -464,7 +464,7 @@ export function AIBootcampPage({ onNavigate }) {
                           height: '46px',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.88rem',
@@ -496,7 +496,7 @@ export function AIBootcampPage({ onNavigate }) {
                           height: '46px',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.88rem',
@@ -527,7 +527,7 @@ export function AIBootcampPage({ onNavigate }) {
                           height: '46px',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.88rem',
@@ -560,7 +560,7 @@ export function AIBootcampPage({ onNavigate }) {
                           width: '100%',
                           background: 'rgba(9, 13, 22, 0.85)',
                           border: '1px solid rgba(255, 255, 255, 0.14)',
-                          borderRadius: '12px',
+                          borderRadius: 0,
                           padding: '0.65rem 1rem',
                           color: '#FFFFFF',
                           fontSize: '0.86rem',
@@ -578,7 +578,7 @@ export function AIBootcampPage({ onNavigate }) {
                       style={{
                         width: '100%',
                         height: '52px',
-                        borderRadius: '14px',
+                        borderRadius: 0,
                         fontSize: '1rem',
                         fontWeight: 800,
                         background: isFormValid 
@@ -646,7 +646,7 @@ export function AIBootcampPage({ onNavigate }) {
                     fontSize: '0.78rem',
                     fontWeight: 800,
                     padding: '4px 10px',
-                    borderRadius: '999px',
+                    borderRadius: 0,
                     display: 'inline-block',
                     marginBottom: '0.75rem'
                   }}>
@@ -664,7 +664,7 @@ export function AIBootcampPage({ onNavigate }) {
                   <div style={{
                     background: 'rgba(255, 255, 255, 0.05)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '14px',
+                    borderRadius: 0,
                     padding: '1rem',
                     marginBottom: '1.5rem',
                     textAlign: 'left'
@@ -690,7 +690,7 @@ export function AIBootcampPage({ onNavigate }) {
                       gap: '0.5rem',
                       width: '100%',
                       height: '50px',
-                      borderRadius: '12px',
+                      borderRadius: 0,
                       background: '#25D366',
                       color: '#06080D',
                       fontWeight: 750,
@@ -786,7 +786,7 @@ export function AIBootcampPage({ onNavigate }) {
                 <div key={idx} style={{
                   background: 'rgba(18, 24, 38, 0.7)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '20px',
+                  borderRadius: 0,
                   padding: '1.75rem',
                   display: 'flex',
                   flexDirection: 'column',
@@ -802,7 +802,7 @@ export function AIBootcampPage({ onNavigate }) {
                     <div style={{
                       width: '42px',
                       height: '42px',
-                      borderRadius: '12px',
+                      borderRadius: 0,
                       background: 'rgba(255, 255, 255, 0.06)',
                       border: `1px solid ${mod.color}40`,
                       display: 'flex',
@@ -836,7 +836,7 @@ export function AIBootcampPage({ onNavigate }) {
         <div style={{
           background: 'linear-gradient(135deg, rgba(26, 20, 16, 0.8) 0%, rgba(14, 19, 31, 0.95) 100%)',
           border: '1px solid rgba(245, 158, 11, 0.2)',
-          borderRadius: '24px',
+          borderRadius: 0,
           padding: 'clamp(2rem, 4vw, 3.5rem)',
           marginBottom: '5rem'
         }}>
@@ -854,7 +854,7 @@ export function AIBootcampPage({ onNavigate }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '1.5rem'
           }}>
-            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#FBBF24', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 Students & Graduates
               </div>
@@ -863,7 +863,7 @@ export function AIBootcampPage({ onNavigate }) {
               </p>
             </div>
 
-            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#38BDF8', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 Software Engineers
               </div>
@@ -872,7 +872,7 @@ export function AIBootcampPage({ onNavigate }) {
               </p>
             </div>
 
-            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#34D399', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 Freelancers & Agencies
               </div>
@@ -881,7 +881,7 @@ export function AIBootcampPage({ onNavigate }) {
               </p>
             </div>
 
-            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <div style={{ fontWeight: 750, color: '#FF6B7E', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 E-Commerce Store Owners
               </div>
@@ -898,7 +898,7 @@ export function AIBootcampPage({ onNavigate }) {
         <div style={{
           background: 'linear-gradient(135deg, rgba(32, 20, 14, 0.95) 0%, rgba(18, 24, 38, 0.98) 100%)',
           border: '1px solid rgba(245, 158, 11, 0.35)',
-          borderRadius: '24px',
+          borderRadius: 0,
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(245, 158, 11, 0.1)'
@@ -909,7 +909,7 @@ export function AIBootcampPage({ onNavigate }) {
             fontSize: '0.75rem',
             fontWeight: 800,
             padding: '3px 10px',
-            borderRadius: '999px',
+            borderRadius: 0,
             textTransform: 'uppercase',
             letterSpacing: '0.04em',
             display: 'inline-block',
@@ -936,7 +936,7 @@ export function AIBootcampPage({ onNavigate }) {
                 background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 51, 75, 0.5)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.85rem',
                 fontSize: '0.95rem',
                 fontWeight: 750,
@@ -958,7 +958,7 @@ export function AIBootcampPage({ onNavigate }) {
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#FFFFFF',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
+                borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 600,

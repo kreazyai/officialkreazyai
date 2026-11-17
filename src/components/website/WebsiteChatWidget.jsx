@@ -696,7 +696,7 @@ export function WebsiteChatWidget({ onNavigate }) {
                         right: 0,
                         marginTop: '6px',
                         background: '#FFFFFF',
-                        borderRadius: '10px',
+                        borderRadius: 0,
                         boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
                         border: '1px solid #E5E7EB',
                         padding: '6px',
@@ -717,7 +717,7 @@ export function WebsiteChatWidget({ onNavigate }) {
                             fontSize: '13px',
                             color: '#374151',
                             cursor: 'pointer',
-                            borderRadius: '6px'
+                            borderRadius: 0
                           }}
                         >
                           <RotateCcw size={14} />
@@ -900,11 +900,9 @@ export function WebsiteChatWidget({ onNavigate }) {
         title={isOpen ? 'Close chat' : 'Chat with Kreazy AI'}
       >
         {isOpen ? (
-          <ChevronDown size={28} strokeWidth={2.4} />
+          <ChevronDown size={28} strokeWidth={2.4} color="#FFFFFF" />
         ) : (
-          <span className="kreazy-cb-launcher-hand" role="img" aria-label="Waving hand">
-            
-          </span>
+          <MessageSquare size={24} color="#FFFFFF" />
         )}
       </button>
     </div>

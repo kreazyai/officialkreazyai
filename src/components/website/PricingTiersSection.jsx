@@ -1,12 +1,54 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Smartphone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Check, Smartphone, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { TrustGuaranteeSection } from './TrustGuaranteeSection';
 
 export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
   const { t } = useLanguage();
-  const [currency, setCurrency] = useState('USD'); // Default 'USD' to match screenshot ($49, $119, $299 with ৳ BDT underneath)
+  const [currency, setCurrency] = useState('USD');
   const [isAnnual, setIsAnnual] = useState(false);
+  const [promoCode, setPromoCode] = useState('KREAZY10');
+  const [promoDiscount, setPromoDiscount] = useState(10);
+  const [isPromoActive, setIsPromoActive] = useState(false);
+
+  // Initialize and listen for promotional events (e.g. from header discount banner)
+  useEffect(() => {
+    // Check initial state from sessionStorage or URL query
+    try {
+      const storedPromo = sessionStorage.getItem('kreazy_active_promo');
+      const storedPct = sessionStorage.getItem('kreazy_discount_percent');
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const urlPromo = urlParams?.get('promo');
+
+      if (storedPromo || urlPromo) {
+        setPromoCode(urlPromo || storedPromo || 'KREAZY10');
+        setPromoDiscount(Number(storedPct) || 10);
+        setIsPromoActive(true);
+      }
+    } catch {}
+
+    const handleDiscountApplied = (e) => {
+      const code = e.detail?.promoCode || 'KREAZY10';
+      const percent = Number(e.detail?.discountPercent) || 10;
+      setPromoCode(code);
+      setPromoDiscount(percent);
+      setIsPromoActive(true);
+    };
+
+    window.addEventListener('kreazy:apply-discount', handleDiscountApplied);
+    return () => {
+      window.removeEventListener('kreazy:apply-discount', handleDiscountApplied);
+    };
+  }, []);
+
+  const handleRemovePromo = (e) => {
+    if (e) e.stopPropagation();
+    setIsPromoActive(false);
+    try {
+      sessionStorage.removeItem('kreazy_active_promo');
+      sessionStorage.removeItem('kreazy_discount_percent');
+    } catch {}
+  };
 
   const starterFeatures = [
     '1,000 autonomous AI conversations / mo',
@@ -87,7 +129,8 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
 
   const handlePlanAction = (planId) => {
     if (onNavigate) {
-      onNavigate('signup');
+      const target = isPromoActive ? `signup?promo=${promoCode}` : 'signup';
+      onNavigate(target);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -95,22 +138,64 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
   const handleDirectSignUp = (e) => {
     e.stopPropagation();
     if (onNavigate) {
-      onNavigate('signup');
+      const target = isPromoActive ? `signup?promo=${promoCode}` : 'signup';
+      onNavigate(target);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  // Helper to compute discount
+  const applyDiscount = (val) => {
+    if (!isPromoActive) return val;
+    return Math.round(val * (1 - promoDiscount / 100));
   };
 
   return (
     <section className="pricing-suite-section" id="pricing">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header-centered" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <h1 style={{ fontSize: 'clamp(2.2rem, 3.8vw, 3rem)', fontWeight: 850, color: 'var(--text-primary)', marginBottom: '0.85rem', letterSpacing: '-0.04em', lineHeight: 1.04 }}>
+        <div className="section-header-centered" style={{ textAlign: 'center' }}>
+          <div className="pricing-eyebrow-pill">
+            <span className="pricing-eyebrow-dot" />
+            <span>{eyebrow || 'TRANSPARENT VALUE • NO HIDDEN FEES'}</span>
+          </div>
+
+          <h1 className="pricing-main-title">
             {title || t('pricing.title', "Simple pricing that pays for itself in captured sales")}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 1.75rem auto', lineHeight: 1.6 }}>
+
+          <p className="pricing-sub-desc">
             {subtitle || t('pricing.subtitle', "Choose the plan that fits your growth. Upgrade or adjust anytime as your message volume and team scale.")}
           </p>
+
+          {/* Claimed Promo Notification Banner (Apple-style frosted pill banner) */}
+          {isPromoActive && (
+            <div className="pricing-claimed-banner" role="status" aria-live="polite">
+              <div className="pricing-claimed-left">
+                <div className="pricing-claimed-icon-wrap">
+                  <Sparkles size={18} />
+                </div>
+                <div>
+                  <div className="pricing-claimed-title">
+                    <span>{promoDiscount}% Limited-Time Offer Applied!</span>
+                    <span className="pricing-discount-pill-tag">CODE: {promoCode}</span>
+                  </div>
+                  <div className="pricing-claimed-sub">
+                    {promoDiscount}% discount is active across all plans. Stacks with 20% annual savings for maximum value!
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="pricing-claimed-remove-btn"
+                onClick={handleRemovePromo}
+                title="Remove applied discount"
+                aria-label="Remove promo code"
+              >
+                Remove Offer
+              </button>
+            </div>
+          )}
 
           {/* Currency & Billing Cycle Toggles Row */}
           <div className="pricing-controls-row">
@@ -149,26 +234,38 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
           </div>
         </div>
 
-        {/* Pricing Cards Grid (3 Columns) */}
-        <div className="pricing-suite-grid">
+        {/* Pricing Cards Grid (3 Columns Desktop, 1 Column Stack Mobile) */}
+        <div className="pricing-suite-grid" id="pricing-cards">
           {plans.map((p) => {
-            let primaryPrice = '';
+            const rawBdt = isAnnual ? p.bdtAnnual : p.bdtMonthly;
+            const rawUsd = isAnnual ? p.usdAnnual : p.usdMonthly;
+            const rawEur = isAnnual ? p.eurAnnual : p.eurMonthly;
+
+            const finalBdt = applyDiscount(rawBdt);
+            const finalUsd = applyDiscount(rawUsd);
+            const finalEur = applyDiscount(rawEur);
+
+            let primaryDisplay = '';
+            let originalDisplay = null;
             let secondaryConverted = '';
-            const bdtVal = isAnnual ? p.bdtAnnual : p.bdtMonthly;
-            const usdVal = isAnnual ? p.usdAnnual : p.usdMonthly;
-            const eurVal = isAnnual ? p.eurAnnual : p.eurMonthly;
 
             if (currency === 'BDT') {
-              primaryPrice = `৳${bdtVal.toLocaleString()}`;
-              secondaryConverted = `$${usdVal} USD ${t('pricing.perMonth', '/ month')}`;
+              primaryDisplay = `৳${finalBdt.toLocaleString()}`;
+              if (isPromoActive) originalDisplay = `৳${rawBdt.toLocaleString()}`;
+              secondaryConverted = `$${finalUsd} USD ${t('pricing.perMonth', '/ month')}`;
             } else if (currency === 'EUR') {
-              primaryPrice = `€${eurVal}`;
-              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
+              primaryDisplay = `€${finalEur}`;
+              if (isPromoActive) originalDisplay = `€${rawEur}`;
+              secondaryConverted = `৳${finalBdt.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
             } else {
-              primaryPrice = `$${usdVal}`;
-              secondaryConverted = `৳${bdtVal.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
+              primaryDisplay = `$${finalUsd}`;
+              if (isPromoActive) originalDisplay = `$${rawUsd}`;
+              secondaryConverted = `৳${finalBdt.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
             }
-            const periodLabel = isAnnual ? t('pricing.perMonthAnnual', '/ month (billed annually)') : t('pricing.perMonth', '/ month');
+
+            const periodLabel = isAnnual
+              ? t('pricing.perMonthAnnual', '/ month (billed annually)')
+              : t('pricing.perMonth', '/ month');
 
             return (
               <div
@@ -188,19 +285,24 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                     {p.teamText}
                   </div>
 
+                  {/* Price Row */}
                   <div className="pricing-suite-price-row">
-                    <span className="pricing-suite-price-val">{primaryPrice}</span>
+                    {originalDisplay && (
+                      <span className="pricing-strike-original">{originalDisplay}</span>
+                    )}
+                    <span className="pricing-suite-price-val">{primaryDisplay}</span>
                     <span className="pricing-suite-price-period">{periodLabel}</span>
+                    {isPromoActive && (
+                      <span className="pricing-discount-pill-tag">-{promoDiscount}% OFF</span>
+                    )}
                   </div>
 
-                  {/* Converted BDT / USD price matching the dashboard screenshot */}
-                  <div style={{
-                    fontSize: '0.88rem', fontWeight: 750, color: 'var(--primary, #087A4A)',
-                    marginTop: '2px', marginBottom: '1.25rem'
-                  }}>
-                    {secondaryConverted}
+                  {/* Converted Currency Row */}
+                  <div className="pricing-converted-row">
+                    <span>{secondaryConverted}</span>
                   </div>
 
+                  {/* CTA Actions */}
                   <div className="pricing-suite-cta-wrap">
                     <button
                       type="button"
@@ -208,9 +310,11 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                       onClick={() => handlePlanAction(p.id)}
                     >
                       <Smartphone size={16} />
-                      {p.ctaText}
+                      {isPromoActive
+                        ? `Claim ${promoDiscount}% OFF • Subscribe`
+                        : p.ctaText}
                     </button>
-                    <span 
+                    <span
                       className="pricing-suite-secondary-action"
                       onClick={handleDirectSignUp}
                       title="Create an account directly"
@@ -220,19 +324,18 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
                   </div>
                 </div>
 
-                {/* Features Divider & Section */}
+                {/* Features Section */}
                 <div className="pricing-suite-features-block">
-                  <div className="pricing-suite-features-heading" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <div className="pricing-suite-features-heading">
                     {t('pricing.whatsIncluded', "WHAT'S INCLUDED:")}
                   </div>
 
                   <ul className="pricing-suite-features-list">
                     {p.features.map((feat, idx) => (
                       <li key={idx} className="pricing-suite-feature-item">
-                        <CheckCircle2
-                          size={18}
-                          className="pricing-suite-check-icon"
-                        />
+                        <div className="pricing-check-icon-wrap" aria-hidden="true">
+                          <Check size={12} strokeWidth={3} />
+                        </div>
                         <span>{feat}</span>
                       </li>
                     ))}

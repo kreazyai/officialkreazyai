@@ -81,6 +81,7 @@ export const publicLeadController = {
       const fullName = req.body.fullName || req.body.name || req.body.full_name;
       const email = req.body.email || req.body.workEmail;
       const company = req.body.company || req.body.businessName || req.body.companyName || req.body.business_name;
+      const phone = req.body.phone || req.body.whatsapp || '';
       const role = req.body.role || '';
       const stage = req.body.stage || '';
       const monthlyRevenue = req.body.monthlyRevenue || req.body.monthly_revenue || '';
@@ -101,12 +102,13 @@ export const publicLeadController = {
       const now = new Date().toISOString();
 
       db.prepare(`
-        INSERT INTO founder_meetings (id, full_name, email, company, role, stage, monthly_revenue, automation_need, preferred_slot, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO founder_meetings (id, full_name, email, phone, company, role, stage, monthly_revenue, automation_need, preferred_slot, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         id,
         String(fullName).trim(),
         String(email).trim().toLowerCase(),
+        String(phone).trim(),
         String(company).trim(),
         String(role).trim(),
         String(stage).trim(),
@@ -117,7 +119,7 @@ export const publicLeadController = {
         now
       );
 
-      logger.info(`Founder Strategy Call booked in DB: ${fullName} (${company})`);
+      logger.info(`Online Founder Strategy Call booked in DB: ${fullName} (${company})`);
 
       return successResponse(res, {
         id,
@@ -125,8 +127,9 @@ export const publicLeadController = {
         fullName,
         company,
         email,
+        phone,
         created_at: now,
-        message: 'Your strategy session with our founding team has been reserved.'
+        message: 'Your online meeting with our founding team has been reserved.'
       }, HTTP_STATUS.CREATED);
     } catch (err) {
       next(err);

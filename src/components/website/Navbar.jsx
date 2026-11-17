@@ -38,15 +38,18 @@ export function Navbar({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile drawer is open
+  // Lock body scroll and tag body when mobile drawer is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('mobile-nav-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('mobile-nav-open');
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.classList.remove('mobile-nav-open');
     };
   }, [mobileMenuOpen]);
 
@@ -110,7 +113,7 @@ export function Navbar({
                     background: 'linear-gradient(135deg, #FF334B 0%, #F59E0B 100%)',
                     color: '#FFFFFF',
                     padding: '1px 6px',
-                    borderRadius: '999px',
+                    borderRadius: 0,
                     letterSpacing: '0.04em'
                   }}>
                     {item.badge}
@@ -210,7 +213,7 @@ export function Navbar({
                 onClick={() => handleLinkClick(item.id)}
                 style={{
                   padding: '0.85rem 1rem',
-                  borderRadius: '12px',
+                  borderRadius: '0px',
                   fontWeight: isActive ? 700 : 500,
                   backgroundColor: isActive ? 'var(--bg-card)' : 'transparent',
                   color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',

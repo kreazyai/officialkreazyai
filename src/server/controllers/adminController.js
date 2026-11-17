@@ -1253,7 +1253,7 @@ export const adminController = {
       `).all()) || [];
 
       const founderCalls = (await db.prepare(`
-        SELECT id, full_name, email as work_email, '' as phone, company as company_name, role as company_size, automation_need as primary_use_case, '' as preferred_date, preferred_slot as preferred_time, status, created_at
+        SELECT id, full_name, email as work_email, COALESCE(phone, '') as phone, company as company_name, role as company_size, automation_need as primary_use_case, '' as preferred_date, preferred_slot as preferred_time, status, created_at
         FROM founder_meetings
         ORDER BY created_at DESC
       `).all()) || [];

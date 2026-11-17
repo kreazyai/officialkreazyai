@@ -169,8 +169,8 @@ function getRouteStateFromUrl() {
   if (root === 'book-demo') return { page: 'book-demo', dashboardModule: null, rawPath: pathname };
   if (root === 'founder-meeting') return { page: 'founder-meeting', dashboardModule: null, rawPath: pathname };
   if (root === 'faq' || root === 'resources') return { page: 'faq', dashboardModule: null, rawPath: pathname };
-  if (root === 'legal-privacy' || root === 'privacy') return { page: 'legal-privacy', dashboardModule: null, rawPath: pathname };
-  if (root === 'legal-terms' || root === 'terms') return { page: 'legal-terms', dashboardModule: null, rawPath: pathname };
+  if (root === 'legal-privacy' || root === 'privacy' || root === 'privacypolicy' || root === 'privacy-policy') return { page: 'legal-privacy', dashboardModule: null, rawPath: pathname };
+  if (root === 'legal-terms' || root === 'terms' || root === 'terms-of-service' || root === 'termsofservice') return { page: 'legal-terms', dashboardModule: null, rawPath: pathname };
 
   return { page: 'not-found', dashboardModule: null, rawPath: pathname };
 }
@@ -191,7 +191,7 @@ function PublicNotFound({ onNavigate }) {
         padding: '3rem 2rem',
         backgroundColor: 'var(--bg-card, #131722)',
         border: '1px solid var(--border-medium, rgba(255,255,255,0.08))',
-        borderRadius: '16px',
+        borderRadius: '0px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
       }}>
         <div style={{
@@ -225,7 +225,7 @@ function PublicNotFound({ onNavigate }) {
             backgroundColor: 'var(--primary-accent, #bdd394)',
             color: '#0f172a',
             padding: '12px 28px',
-            borderRadius: '8px',
+            borderRadius: '0px',
             fontWeight: 600,
             fontSize: '14px',
             border: 'none',
@@ -250,13 +250,13 @@ function DashboardNotFound({ invalidModule, onNavigateOverview }) {
         padding: '2.5rem 2rem',
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-medium)',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: '0px',
         boxShadow: 'var(--shadow-md)'
       }}>
         <div style={{
           width: '56px',
           height: '56px',
-          borderRadius: '50%',
+          borderRadius: '0px',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           display: 'flex',
           alignItems: 'center',
@@ -276,7 +276,7 @@ function DashboardNotFound({ invalidModule, onNavigateOverview }) {
           size="md"
           onClick={onNavigateOverview}
           icon={LayoutDashboard}
-          style={{ margin: '0 auto' }}
+          style={{ margin: '0 auto', borderRadius: '0px' }}
         >
           Return to Dashboard Overview
         </Button>

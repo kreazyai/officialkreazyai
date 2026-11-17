@@ -2471,7 +2471,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                 background: booking.type === 'FOUNDER' ? '#FEF3C7' : 'rgba(56, 189, 248, 0.15)',
                                 color: booking.type === 'FOUNDER' ? '#B45309' : '#1D4ED8'
                               }}>
-                                {booking.type === 'FOUNDER' ? 'Founder Call' : 'Live Demo'}
+                                {booking.type === 'FOUNDER' ? 'Online Meeting' : 'Live Demo'}
                               </span>
                             </td>
                             <td>
