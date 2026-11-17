@@ -408,7 +408,7 @@ export function GoogleVerificationModal({
               }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#E2E8F0', marginBottom: '0.35rem' }}>
-                    Your Real Google Email <span style={{ color: '#FF4D61' }}>*</span>
+                    Google Email <span style={{ color: '#FF4D61' }}>*</span>
                   </label>
                   <div style={{ position: 'relative' }}>
                     <input
@@ -507,38 +507,6 @@ export function GoogleVerificationModal({
               </div>
             )}
 
-            {/* Official Google OAuth 2.0 Authorization Scopes */}
-            <div style={{
-              background: 'rgba(18, 25, 40, 0.65)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '14px',
-              padding: '0.85rem 1rem',
-              marginBottom: '1.25rem'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.78rem', fontWeight: 700, color: '#CBD5E1', marginBottom: '0.5rem' }}>
-                <KeyRound size={13} style={{ color: '#4285F4' }} />
-                <span>Google OAuth 2.0 Scopes Authorized:</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.75rem', color: '#94A3B8' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <CheckCircle2 size={13} style={{ color: '#10B981', flexShrink: 0 }} />
-                  <span><strong>openid</strong> — Cryptographic identity authentication</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <CheckCircle2 size={13} style={{ color: '#10B981', flexShrink: 0 }} />
-                  <span><strong>userinfo.email</strong> — Primary verified Google address</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <CheckCircle2 size={13} style={{ color: '#10B981', flexShrink: 0 }} />
-                  <span><strong>userinfo.profile</strong> — Display name & workspace setup</span>
-                </div>
-              </div>
-              <div style={{ marginTop: '0.65rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.7rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Lock size={11} />
-                <span>No access to Gmail inbox, Google Drive, or personal files.</span>
-              </div>
-            </div>
-
             {/* Action Buttons */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
               <button
@@ -579,7 +547,7 @@ export function GoogleVerificationModal({
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <GoogleIcon size={16} />
-                <span>Authorize & Connect to Dashboard</span>
+                <span>Connect with Google</span>
                 <ArrowRight size={14} />
               </button>
             </div>
