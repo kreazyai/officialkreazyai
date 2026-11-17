@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -7,6 +7,49 @@ export function HeroPricingBoxes({ onNavigate }) {
   const [isAnnual, setIsAnnual] = useState(false);
   const [currency, setCurrency] = useState('USD'); // 'USD' | 'BDT'
   const [animatingPrice, setAnimatingPrice] = useState(false);
+  const [isPromoActive, setIsPromoActive] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState(10);
+
+  // Sync with promotional offer events
+  useEffect(() => {
+    try {
+      const isClaimed = sessionStorage.getItem('kreazy_offer_claimed') === 'true';
+      const storedPct = sessionStorage.getItem('kreazy_discount_percent');
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const urlClaim = urlParams?.get('claim') === 'true';
+      const urlPromo = urlParams?.get('promo');
+
+      if (isClaimed || urlClaim || (urlPromo && urlPromo.toLowerCase() !== 'false')) {
+        setIsPromoActive(true);
+        if (storedPct) setPromoDiscount(Number(storedPct));
+      } else {
+        setIsPromoActive(false);
+      }
+    } catch {
+      setIsPromoActive(false);
+    }
+
+    const handleDiscountApplied = (e) => {
+      const pct = Number(e.detail?.discountPercent) || 10;
+      setPromoDiscount(pct);
+      setAnimatingPrice(true);
+      setIsPromoActive(true);
+      setTimeout(() => setAnimatingPrice(false), 380);
+    };
+
+    const handleDiscountRemoved = () => {
+      setAnimatingPrice(true);
+      setIsPromoActive(false);
+      setTimeout(() => setAnimatingPrice(false), 380);
+    };
+
+    window.addEventListener('kreazy:apply-discount', handleDiscountApplied);
+    window.addEventListener('kreazy:remove-discount', handleDiscountRemoved);
+    return () => {
+      window.removeEventListener('kreazy:apply-discount', handleDiscountApplied);
+      window.removeEventListener('kreazy:remove-discount', handleDiscountRemoved);
+    };
+  }, []);
 
   const toggleBilling = (annual) => {
     if (annual !== isAnnual) {
@@ -24,14 +67,19 @@ export function HeroPricingBoxes({ onNavigate }) {
     }
   };
 
+  const applyDiscount = (val) => {
+    if (!isPromoActive) return val;
+    return Math.round(val * (1 - promoDiscount / 100));
+  };
+
   const plans = [
     {
       id: 'starter',
       name: 'Starter',
       badge: null,
       desc: 'Solo & emerging stores',
-      usdPrice: isAnnual ? 39 : 49,
-      bdtPrice: isAnnual ? '4,700' : '5,880',
+      rawUsd: isAnnual ? 39 : 49,
+      rawBdt: isAnnual ? 4700 : 5880,
       features: [
         '1,000 automated chats/mo',
         '1 WhatsApp Business line',
@@ -46,8 +94,8 @@ export function HeroPricingBoxes({ onNavigate }) {
       name: 'Growth',
       badge: 'MOST POPULAR',
       desc: 'Scaling retail brands',
-      usdPrice: isAnnual ? 95 : 119,
-      bdtPrice: isAnnual ? '11,420' : '14,280',
+      rawUsd: isAnnual ? 95 : 119,
+      rawBdt: isAnnual ? 11420 : 14280,
       features: [
         '5,000 automated chats/mo',
         'WhatsApp + IG + Messenger',
@@ -62,8 +110,8 @@ export function HeroPricingBoxes({ onNavigate }) {
       name: 'Scale',
       badge: null,
       desc: 'Enterprise multi-store',
-      usdPrice: isAnnual ? 239 : 299,
-      bdtPrice: isAnnual ? '28,700' : '35,880',
+      rawUsd: isAnnual ? 239 : 299,
+      rawBdt: isAnnual ? 28700 : 35880,
       features: [
         '25,000 automated chats/mo',
         'Unlimited social channels',
@@ -77,7 +125,7 @@ export function HeroPricingBoxes({ onNavigate }) {
 
   const handleSelectPlan = (planId) => {
     if (onNavigate) {
-      onNavigate('signup');
+      onNavigate(isPromoActive ? 'signup?promo=KREAZY10' : 'signup');
     }
   };
 
@@ -85,8 +133,23 @@ export function HeroPricingBoxes({ onNavigate }) {
     <div className="hero-pricing-widget" role="region" aria-label="Hero Pricing Plans">
       {/* Top Header & Switchers Bar */}
       <div className="hero-pricing-top-bar">
-        <div className="hero-pricing-status">
+        <div className="hero-pricing-status" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span className="hero-pricing-status-text">Official Meta AI Automation</span>
+          {isPromoActive && (
+            <span style={{
+              background: 'rgba(15, 169, 104, 0.16)',
+              border: '1px solid rgba(15, 169, 104, 0.4)',
+              color: '#34D399',
+              fontSize: '0.66rem',
+              fontWeight: 800,
+              padding: '1px 6px',
+              borderRadius: '2px',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase'
+            }}>
+              {promoDiscount}% OFF CLAIMED
+            </span>
+          )}
         </div>
 
         {/* Currency & Billing Controls */}
@@ -133,7 +196,8 @@ export function HeroPricingBoxes({ onNavigate }) {
       {/* 3 Little Boxes Grid */}
       <div className="hero-pricing-boxes-grid">
         {plans.map((p) => {
-          const displayPrice = currency === 'USD' ? `$${p.usdPrice}` : `৳${p.bdtPrice}`;
+          const finalUsd = applyDiscount(p.rawUsd);
+          const finalBdt = applyDiscount(p.rawBdt);
           const periodSuffix = '/mo';
 
           return (
@@ -158,16 +222,60 @@ export function HeroPricingBoxes({ onNavigate }) {
                 <p className="hero-card-desc">{p.desc}</p>
               </div>
 
-              {/* Animated Price Amount */}
+              {/* Animated Price Amount (Shows original strikethrough only when offer claimed) */}
               <div className="hero-card-price-wrap">
                 <div className={`hero-card-price ${animatingPrice ? 'price-pop-anim' : ''}`}>
-                  <span className="price-val">{displayPrice}</span>
+                  {isPromoActive && (
+                    <span style={{
+                      fontSize: '0.82rem',
+                      fontWeight: 650,
+                      color: '#64748B',
+                      textDecoration: 'line-through',
+                      marginRight: '3px',
+                      alignSelf: 'baseline'
+                    }}>
+                      {currency === 'USD' ? `$${p.rawUsd}` : `৳${p.rawBdt.toLocaleString()}`}
+                    </span>
+                  )}
+                  <span className="price-val">
+                    {currency === 'USD' ? `$${finalUsd}` : `৳${finalBdt.toLocaleString()}`}
+                  </span>
                   <span className="price-cycle">{periodSuffix}</span>
+                  {isPromoActive && (
+                    <span style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      color: '#34D399',
+                      background: 'rgba(15, 169, 104, 0.16)',
+                      border: '1px solid rgba(15, 169, 104, 0.35)',
+                      padding: '1px 5px',
+                      borderRadius: '2px',
+                      marginLeft: '4px',
+                      alignSelf: 'center',
+                      letterSpacing: '0.02em'
+                    }}>
+                      -{promoDiscount}%
+                    </span>
+                  )}
                 </div>
                 {currency === 'USD' ? (
-                  <span className="price-sub-equiv">~৳{p.bdtPrice} BDT</span>
+                  <span className="price-sub-equiv">
+                    {isPromoActive && (
+                      <span style={{ textDecoration: 'line-through', opacity: 0.65, marginRight: '4px' }}>
+                        ~৳{p.rawBdt.toLocaleString()}
+                      </span>
+                    )}
+                    ~৳{finalBdt.toLocaleString()} BDT
+                  </span>
                 ) : (
-                  <span className="price-sub-equiv">${p.usdPrice} USD</span>
+                  <span className="price-sub-equiv">
+                    {isPromoActive && (
+                      <span style={{ textDecoration: 'line-through', opacity: 0.65, marginRight: '4px' }}>
+                        ${p.rawUsd}
+                      </span>
+                    )}
+                    ${finalUsd} USD
+                  </span>
                 )}
               </div>
 
@@ -190,7 +298,7 @@ export function HeroPricingBoxes({ onNavigate }) {
                   handleSelectPlan(p.id);
                 }}
               >
-                <span>{p.ctaText}</span>
+                <span>{isPromoActive ? `Claim -${promoDiscount}% • ${p.name}` : p.ctaText}</span>
                 <ArrowRight size={13} className="card-btn-arrow" />
               </button>
             </div>

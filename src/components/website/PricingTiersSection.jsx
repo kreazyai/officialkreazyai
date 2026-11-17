@@ -13,19 +13,25 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "",
 
   // Initialize and listen for promotional events (e.g. from header discount banner)
   useEffect(() => {
-    // Check initial state from sessionStorage or URL query
+    // Only activate discount if the user EXPLICITLY clicked the Claim Offer button or has ?promo= / ?claim=true
     try {
+      const isClaimed = sessionStorage.getItem('kreazy_offer_claimed') === 'true';
       const storedPromo = sessionStorage.getItem('kreazy_active_promo');
       const storedPct = sessionStorage.getItem('kreazy_discount_percent');
       const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       const urlPromo = urlParams?.get('promo');
+      const urlClaim = urlParams?.get('claim') === 'true';
 
-      if (storedPromo || urlPromo) {
+      if ((isClaimed && storedPromo) || urlClaim || (urlPromo && urlPromo.toLowerCase() !== 'false')) {
         setPromoCode(urlPromo || storedPromo || 'KREAZY10');
         setPromoDiscount(Number(storedPct) || 10);
         setIsPromoActive(true);
+      } else {
+        setIsPromoActive(false);
       }
-    } catch {}
+    } catch {
+      setIsPromoActive(false);
+    }
 
     const handleDiscountApplied = (e) => {
       const code = e.detail?.promoCode || 'KREAZY10';
@@ -35,9 +41,15 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "",
       setIsPromoActive(true);
     };
 
+    const handleDiscountRemoved = () => {
+      setIsPromoActive(false);
+    };
+
     window.addEventListener('kreazy:apply-discount', handleDiscountApplied);
+    window.addEventListener('kreazy:remove-discount', handleDiscountRemoved);
     return () => {
       window.removeEventListener('kreazy:apply-discount', handleDiscountApplied);
+      window.removeEventListener('kreazy:remove-discount', handleDiscountRemoved);
     };
   }, []);
 
@@ -45,9 +57,13 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "",
     if (e) e.stopPropagation();
     setIsPromoActive(false);
     try {
+      sessionStorage.removeItem('kreazy_offer_claimed');
       sessionStorage.removeItem('kreazy_active_promo');
       sessionStorage.removeItem('kreazy_discount_percent');
     } catch {}
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('kreazy:remove-discount'));
+    }
   };
 
   const starterFeatures = [

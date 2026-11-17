@@ -3,6 +3,7 @@ import { X, ArrowRight, Check } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export function TopDiscountBanner({
+  currentPage,
   onNavigate,
   discountPercent = 10,
   promoPrefix,
@@ -39,8 +40,9 @@ export function TopDiscountBanner({
       e.stopPropagation();
     }
 
-    // Persist claimed promo state in sessionStorage
+    // Persist claimed promo state in sessionStorage ONLY upon explicit user click
     try {
+      sessionStorage.setItem('kreazy_offer_claimed', 'true');
       sessionStorage.setItem('kreazy_active_promo', 'KREAZY10');
       sessionStorage.setItem('kreazy_discount_percent', String(discountPercent || 10));
     } catch {
@@ -51,7 +53,7 @@ export function TopDiscountBanner({
     setClaimed(true);
     setTimeout(() => setClaimed(false), 3000);
 
-    // Global custom event for the pricing page to reactively update prices & show toast
+    // Global custom event for all pricing sections (hero and suite) to reactively update prices & show discount
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
         new CustomEvent('kreazy:apply-discount', {
@@ -59,14 +61,15 @@ export function TopDiscountBanner({
             promoCode: 'KREAZY10',
             discountPercent: discountPercent || 10,
             source: 'header-banner',
+            claimed: true,
             timestamp: Date.now()
           }
         })
       );
     }
 
-    // Navigate to pricing page if not already there
-    if (onNavigate) {
+    // If on a different page (e.g. blog, solutions), navigate to pricing page
+    if (onNavigate && currentPage !== 'home' && currentPage !== 'pricing') {
       onNavigate('pricing');
     }
 
@@ -75,6 +78,7 @@ export function TopDiscountBanner({
       const pricingSection =
         document.getElementById('pricing') ||
         document.querySelector('.pricing-suite-section') ||
+        document.querySelector('.hero-pricing-widget') ||
         document.querySelector('.pricing-controls-row');
       if (pricingSection) {
         const headerEl = document.querySelector('.site-nav');

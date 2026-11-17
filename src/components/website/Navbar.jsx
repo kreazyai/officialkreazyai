@@ -71,6 +71,7 @@ export function Navbar({
       <header className={`site-nav ${scrolled ? 'scrolled' : ''} ${isBannerVisible ? 'has-discount-banner' : ''}`}>
         {isBannerVisible && (
           <TopDiscountBanner
+            currentPage={currentPage}
             onNavigate={onNavigate}
             discountPercent={discountPercent}
             promoPrefix={promoPrefix}
