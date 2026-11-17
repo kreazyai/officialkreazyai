@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ShieldCheck, 
   CheckCircle2, 
   AlertCircle, 
   Loader2, 
   ArrowRight, 
   X, 
-  ExternalLink, 
-  Lock, 
-  Mail, 
-  User, 
-  Building2, 
-  Sparkles,
-  KeyRound
+  ExternalLink 
 } from 'lucide-react';
 
 /**
@@ -52,7 +45,7 @@ export function GoogleIcon({ size = 20, className = '' }) {
  * Reusable Google Sign-In / Sign-Up Button
  */
 export function GoogleAuthButton({
-  text = 'Continue with Google',
+  text = 'Connect with Google',
   onClick,
   disabled = false,
   loading = false,
@@ -262,7 +255,7 @@ export function GoogleVerificationModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <GoogleIcon size={24} />
             <span id="google-modal-title" style={{ fontSize: '1.1rem', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-              Sign in with Google
+              Connect with Google
             </span>
           </div>
           <button
@@ -289,39 +282,12 @@ export function GoogleVerificationModal({
           </button>
         </div>
 
-        {/* Verified Application Badge */}
-        <div style={{
-          padding: '0.65rem 1.5rem',
-          background: 'rgba(18, 24, 38, 0.7)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          fontSize: '0.78rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#CBD5E1' }}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
-            <strong style={{ color: '#FFFFFF' }}>KreazyAI Platform</strong>
-            <span style={{ color: '#64748B', fontFamily: 'monospace', fontSize: '0.74rem' }}>app.kreazy.ai</span>
-          </div>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            color: '#34D399',
-            fontWeight: 700,
-            fontSize: '0.72rem'
-          }}>
-            <ShieldCheck size={13} /> Verified OAuth 2.0 App
-          </span>
-        </div>
-
         {step === 'authorize' && (
           <div style={{ padding: '1.25rem 1.5rem' }}>
             <p style={{ fontSize: '0.88rem', color: '#94A3B8', margin: '0 0 1.15rem 0', lineHeight: 1.45 }}>
               {mode === 'signup' 
-                ? 'Authorize your real Google Account to create and connect your merchant workspace:' 
-                : 'Choose or enter your real Google Account to authenticate into your dashboard:'}
+                ? 'Authorize your Google Account to create and connect your merchant workspace:' 
+                : 'Choose or enter your Google Account to authenticate into your dashboard:'}
             </p>
 
             {/* If user previously authenticated on this browser, give them 1-click option */}
