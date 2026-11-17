@@ -511,10 +511,10 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                 onClick={handleGoogleClick}
                 disabled={loading}
                 className="auth-social-btn"
-                title="Sign in with Google"
+                title="Connect with Google"
               >
                 <GoogleIcon size={18} />
-                <span>Google</span>
+                <span>Connect with Google</span>
               </button>
 
               <button
