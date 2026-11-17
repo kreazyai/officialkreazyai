@@ -308,7 +308,7 @@ export function TopHeader({ user, onToggleMobileSidebar, onNavigateModule, onLog
                 width: '30px',
                 height: '30px',
                 borderRadius: '8px',
-                background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)',
+                background: 'linear-gradient(135deg, #475569 0%, #334155 100%)',
                 color: '#FFFFFF',
                 display: 'flex',
                 alignItems: 'center',

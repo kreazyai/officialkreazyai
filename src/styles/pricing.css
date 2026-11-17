@@ -1,6 +1,6 @@
 /* =====================================================================
    APPLE-GRADE PRICING SUITE & HEADER DISCOUNT BANNER DESIGN SYSTEM
-   Cinematic Obsidian Theme (#06080D) + Kreazy Crimson (#FF334B)
+   Cinematic Obsidian Theme (#06080D) + Precision Gray (#475569)
    Precision Squircle Geometry • Fluid Responsive Typography • Specular Glass
    ===================================================================== */
 
@@ -26,7 +26,7 @@
   left: 0;
   right: 0;
   height: 1.5px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 51, 75, 0.7) 35%, rgba(255, 107, 126, 0.9) 50%, rgba(255, 51, 75, 0.7) 65%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.4) 35%, rgba(203, 213, 225, 0.6) 50%, rgba(148, 163, 184, 0.4) 65%, transparent 100%);
   opacity: 0.85;
 }
 
@@ -62,9 +62,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background: rgba(255, 51, 75, 0.15) !important;
-  border: 1px solid rgba(255, 51, 75, 0.4) !important;
-  color: #FF6B7E !important;
+  background: rgba(148, 163, 184, 0.14) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  color: #E2E8F0 !important;
   padding: 0.2rem 0.65rem;
   border-radius: 0px !important;
   font-size: 0.72rem;
@@ -77,8 +77,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50% !important;
-  background: #FF334B;
-  box-shadow: 0 0 8px #FF334B;
+  background: #94A3B8;
+  box-shadow: 0 0 8px #94A3B8;
   animation: pulseAppleDot 2s infinite ease-in-out;
 }
 
@@ -113,24 +113,24 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background: linear-gradient(135deg, #FF334B 0%, #D91A32 100%) !important;
+  background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
   color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   border-radius: 0px !important;
   padding: 0.35rem 0.95rem !important;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(255, 51, 75, 0.4) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 
 .discount-cta-button.apple-discount-cta:hover {
-  background: linear-gradient(135deg, #FF475E 0%, #E61E37 100%) !important;
+  background: linear-gradient(135deg, #64748B 0%, #475569 100%) !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(255, 51, 75, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
 }
 
 .discount-cta-button.apple-discount-cta.claimed {
@@ -181,7 +181,7 @@
   transform: translate(-50%, -50%);
   width: 750px;
   height: 450px;
-  background: radial-gradient(circle, rgba(255, 51, 75, 0.08) 0%, rgba(16, 185, 129, 0.03) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0.02) 45%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -213,8 +213,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50% !important;
-  background: #10B981;
-  box-shadow: 0 0 8px #10B981;
+  background: #94A3B8;
+  box-shadow: 0 0 8px #94A3B8;
 }
 
 /* Fluid responsive headline */
@@ -246,8 +246,8 @@
 .pricing-claimed-banner {
   max-width: 680px;
   margin: 0 auto 2rem auto;
-  background: linear-gradient(135deg, rgba(255, 51, 75, 0.16) 0%, rgba(18, 24, 38, 0.9) 100%) !important;
-  border: 1.5px solid rgba(255, 51, 75, 0.5) !important;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.14) 0%, rgba(18, 24, 38, 0.9) 100%) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.45) !important;
   border-radius: 0px !important;
   padding: 0.85rem 1.25rem;
   display: flex;
@@ -255,7 +255,7 @@
   justify-content: space-between;
   gap: 1rem;
   backdrop-filter: blur(20px) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(255, 51, 75, 0.18) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(148, 163, 184, 0.15) !important;
   animation: appleSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -275,12 +275,12 @@
   width: 36px;
   height: 36px;
   border-radius: 0px !important;
-  background: rgba(255, 51, 75, 0.2);
-  border: 1px solid rgba(255, 51, 75, 0.4);
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FF6B7E;
+  color: #E2E8F0;
   flex-shrink: 0;
 }
 
@@ -362,8 +362,9 @@
 }
 
 .pricing-currency-btn.active {
-  background: #FFFFFF !important;
-  color: #06080D !important;
+  background: #475569 !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
   font-weight: 800 !important;
 }
@@ -389,28 +390,29 @@
 }
 
 .pricing-mode-btn.active {
-  background: #FFFFFF !important;
-  color: #06080D !important;
+  background: #475569 !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
   font-weight: 800 !important;
 }
 
 .pricing-save-badge {
-  background: rgba(16, 185, 129, 0.16) !important;
-  color: #10B981 !important;
+  background: rgba(148, 163, 184, 0.18) !important;
+  color: #FFFFFF !important;
   font-size: 0.72rem !important;
   font-weight: 800 !important;
   padding: 0.2rem 0.55rem !important;
   border-radius: 0px !important;
-  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
   letter-spacing: 0.02em !important;
   transition: all 0.2s ease;
 }
 
 .pricing-mode-btn.active .pricing-save-badge {
-  background: #10B981 !important;
+  background: #475569 !important;
   color: #FFFFFF !important;
-  border-color: #10B981 !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -449,14 +451,14 @@
 /* Growth Plan: Recommended Apple Highlight */
 .pricing-suite-card.popular {
   background: linear-gradient(180deg, rgba(22, 28, 44, 0.92) 0%, rgba(13, 18, 30, 0.96) 100%) !important;
-  border: 1.5px solid rgba(255, 51, 75, 0.5) !important;
-  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.65), 0 0 35px rgba(255, 51, 75, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.45) !important;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.65), 0 0 35px rgba(148, 163, 184, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 .pricing-suite-card.popular:hover {
   transform: translateY(-7px) !important;
-  border-color: rgba(255, 51, 75, 0.8) !important;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.75), 0 0 45px rgba(255, 51, 75, 0.26) !important;
+  border-color: rgba(148, 163, 184, 0.75) !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.75), 0 0 45px rgba(148, 163, 184, 0.22) !important;
 }
 
 /* Top Name & Badge */
@@ -476,16 +478,16 @@
 }
 
 .pricing-suite-popular-badge {
-  background: rgba(255, 51, 75, 0.18) !important;
-  border: 1px solid rgba(255, 51, 75, 0.45) !important;
-  color: #FF6B7E !important;
+  background: rgba(148, 163, 184, 0.16) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  color: #E2E8F0 !important;
   font-size: 0.72rem !important;
   font-weight: 750 !important;
   padding: 0.25rem 0.75rem !important;
   border-radius: 0px !important;
   letter-spacing: 0.04em !important;
   text-transform: uppercase !important;
-  box-shadow: 0 2px 8px rgba(255, 51, 75, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .pricing-suite-team-desc {
@@ -531,9 +533,9 @@
 .pricing-discount-pill-tag {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 51, 75, 0.18);
-  border: 1px solid rgba(255, 51, 75, 0.45);
-  color: #FF6B7E;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #E2E8F0;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 0.15rem 0.5rem;
@@ -545,7 +547,7 @@
 .pricing-converted-row {
   font-size: 0.86rem !important;
   font-weight: 700 !important;
-  color: #34D399 !important;
+  color: #38BDF8 !important;
   margin-top: 4px !important;
   margin-bottom: 1.45rem !important;
   display: flex;
@@ -579,16 +581,16 @@
 }
 
 .pricing-suite-cta-btn.primary {
-  background: linear-gradient(135deg, #FF334B 0%, #D91A32 100%) !important;
+  background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
   color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 4px 18px rgba(255, 51, 75, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45) !important;
 }
 
 .pricing-suite-cta-btn.primary:hover {
-  background: linear-gradient(135deg, #FF475E 0%, #E61E37 100%) !important;
+  background: linear-gradient(135deg, #64748B 0%, #475569 100%) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 24px rgba(255, 51, 75, 0.6) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
 }
 
 .pricing-suite-cta-btn.secondary {

@@ -1,24 +1,13 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
   ArrowRight, 
   CheckCircle2, 
   Calendar, 
-  Clock, 
-  Users, 
-  Award, 
-  BookOpen, 
   MessageCircle, 
   Laptop, 
   Briefcase, 
   TrendingUp, 
-  ShieldCheck, 
-  Zap, 
-  Globe, 
-  Star, 
-  Flame,
-  Check,
-  ChevronDown
+  Globe 
 } from 'lucide-react';
 import { bootcampService } from '../../services/api';
 
@@ -87,21 +76,21 @@ export function AIBootcampPage({ onNavigate }) {
   return (
     <div className="bootcamp-page-wrapper" style={{
       minHeight: '100vh',
-      background: 'radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.08) 0%, rgba(255, 51, 75, 0.05) 35%, rgba(6, 8, 13, 0) 70%), #06080D',
+      background: 'radial-gradient(ellipse at 50% 0%, rgba(148, 163, 184, 0.12) 0%, rgba(71, 85, 105, 0.06) 40%, rgba(6, 8, 13, 0) 75%), #06080D',
       color: '#FFFFFF',
       paddingBottom: '5rem'
     }}>
       {/* ═══════════════════════════════════════════════════════════════
-          1. TOP VIP BANNER & TRUST TICKER
+          1. TOP VIP BANNER & TRUST TICKER (EXECUTIVE GRAY THEME)
           ═══════════════════════════════════════════════════════════════ */}
       <div style={{
-        background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(255, 51, 75, 0.15) 100%)',
-        borderBottom: '1px solid rgba(245, 158, 11, 0.25)',
+        background: 'rgba(30, 41, 59, 0.55)',
+        borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
         padding: '0.65rem 1rem',
         textAlign: 'center',
         fontSize: '0.84rem',
         fontWeight: 650,
-        color: '#FDE68A',
+        color: '#E2E8F0',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -109,7 +98,7 @@ export function AIBootcampPage({ onNavigate }) {
         flexWrap: 'wrap'
       }}>
         <span style={{
-          background: '#FF334B',
+          background: '#475569',
           color: '#FFFFFF',
           fontSize: '0.7rem',
           fontWeight: 800,
@@ -126,7 +115,7 @@ export function AIBootcampPage({ onNavigate }) {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(2rem, 4vw, 3.5rem) 1.25rem 0 1.25rem' }}>
         
         {/* ═══════════════════════════════════════════════════════════════
-            2. HERO SECTION & HUMAN POSTER CARD
+            2. HERO SECTION & FOUNDER MENTORSHIP CARD
             ═══════════════════════════════════════════════════════════════ */}
         <div style={{
           display: 'grid',
@@ -157,21 +146,21 @@ export function AIBootcampPage({ onNavigate }) {
               color: '#94A3B8',
               margin: '0 0 2rem 0'
             }}>
-              Join Sadat Sakib (Founder of Kreazy AI) for a 90-minute live, interactive bootcamp. Learn the exact blueprints to build autonomous AI sales agents, transition into remote AI roles, and close global clients in 2026.
+              Join Sadat Sakib Prodhan (Founder of Kreazy AI) for a 60-minute live, interactive bootcamp. Learn the exact blueprints to build autonomous AI sales agents, transition into remote AI roles, and close global clients in 2026.
             </p>
 
-            {/* ══ HUMAN MASTERCLASS POSTER CARD ══ */}
+            {/* ══ HUMAN MASTERCLASS POSTER CARD (GRAY THEME) ══ */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(26, 20, 16, 0.95) 0%, rgba(18, 24, 38, 0.98) 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              background: 'linear-gradient(135deg, rgba(24, 30, 42, 0.95) 0%, rgba(15, 20, 30, 0.98) 100%)',
+              border: '1px solid rgba(148, 163, 184, 0.28)',
               borderRadius: 0,
               padding: 'clamp(1.75rem, 3vw, 2.25rem)',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(245, 158, 11, 0.08)',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(148, 163, 184, 0.06)',
               position: 'relative',
               overflow: 'hidden',
               marginBottom: '2rem'
             }}>
-              {/* Warm Ambient Glow Corner */}
+              {/* Subtle Ambient Gray Glow Corner */}
               <div style={{
                 position: 'absolute',
                 top: '-40px',
@@ -179,53 +168,44 @@ export function AIBootcampPage({ onNavigate }) {
                 width: '140px',
                 height: '140px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(148, 163, 184, 0.18) 0%, transparent 70%)',
                 pointerEvents: 'none'
               }} />
 
-              {/* Mentor Header Profile */}
+              {/* Mentor Header Profile with Founder Photo in Small Circle */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
-                <div style={{
-                  width: '68px',
-                  height: '68px',
-                  borderRadius: 0,
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #FF334B 100%)',
-                  padding: '3px',
-                  flexShrink: 0
-                }}>
-                  <div style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 0,
-                    background: '#0B0F17',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.75rem',
-                    fontWeight: 900,
-                    color: '#FBBF24'
-                  }}>
-                    S
-                  </div>
-                </div>
+                <img 
+                  src="/sadat-sakib.jpg" 
+                  alt="Sadat Sakib Prodhan"
+                  style={{
+                    width: '76px',
+                    height: '76px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '2px solid rgba(148, 163, 184, 0.45)',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
+                    flexShrink: 0
+                  }}
+                />
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
                     <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF' }}>
-                      Sadat Sakib
+                      Sadat Sakib Prodhan
                     </h3>
                     <span style={{
-                      background: 'rgba(15, 169, 104, 0.15)',
-                      border: '1px solid rgba(15, 169, 104, 0.35)',
-                      color: '#34D399',
+                      background: 'rgba(148, 163, 184, 0.15)',
+                      border: '1px solid rgba(148, 163, 184, 0.35)',
+                      color: '#E2E8F0',
                       fontSize: '0.7rem',
                       fontWeight: 750,
-                      padding: '2px 7px',
-                      borderRadius: 0
+                      padding: '2px 8px',
+                      borderRadius: 0,
+                      letterSpacing: '0.04em'
                     }}>
                       VERIFIED MENTOR
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: '#FBBF24', fontWeight: 600 }}>
+                  <div style={{ fontSize: '0.85rem', color: '#CBD5E1', fontWeight: 600 }}>
                     Founder & Lead Architect @ Kreazy AI
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '2px' }}>
@@ -236,11 +216,11 @@ export function AIBootcampPage({ onNavigate }) {
 
               {/* Personal Human Quote */}
               <blockquote style={{
-                margin: '0 0 1.5rem 0',
+                margin: 0,
                 padding: '1rem 1.25rem',
                 borderRadius: 0,
                 background: 'rgba(255, 255, 255, 0.04)',
-                borderLeft: '3px solid #F59E0B',
+                borderLeft: '3px solid #94A3B8',
                 fontSize: '0.92rem',
                 lineHeight: 1.55,
                 color: '#CBD5E1',
@@ -248,88 +228,25 @@ export function AIBootcampPage({ onNavigate }) {
               }}>
                 "You do not need a computer science degree or millions in funding to build life-changing income in AI. You need practical workflows, production architecture, and client acquisition systems. In this live session, I am sharing the exact playbook we built Kreazy AI with."
               </blockquote>
-
-              {/* Quick Session Details Grid */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                gap: '0.85rem',
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                paddingTop: '1.25rem'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <Calendar size={18} color="#F59E0B" />
-                  <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B', textTransform: 'uppercase' }}>Live Date</div>
-                    <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#FFFFFF' }}>Next Saturday</div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <Clock size={18} color="#F59E0B" />
-                  <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B', textTransform: 'uppercase' }}>Duration</div>
-                    <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#FFFFFF' }}>90 Min + Q&A</div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <Award size={18} color="#F59E0B" />
-                  <div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748B', textTransform: 'uppercase' }}>Access</div>
-                    <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#34D399' }}>100% Free</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3 Key Guarantees */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem', color: '#CBD5E1' }}>
-                <CheckCircle2 size={18} color="#0FA968" style={{ flexShrink: 0 }} />
-                <span><strong>No robotic theory:</strong> Real production systems and live screen builds only</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem', color: '#CBD5E1' }}>
-                <CheckCircle2 size={18} color="#0FA968" style={{ flexShrink: 0 }} />
-                <span><strong>Open mic Q&A:</strong> Ask Sadat your specific questions directly during the live call</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem', color: '#CBD5E1' }}>
-                <CheckCircle2 size={18} color="#0FA968" style={{ flexShrink: 0 }} />
-                <span><strong>Free Starter Toolkit:</strong> Templates, prompt swipe files & community invite included</span>
-              </div>
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN: PREMIUM REGISTRATION FORM CARD ── */}
+          {/* ── RIGHT COLUMN: REGISTRATION FORM CARD (CLEAN WITHOUT MARKUPS) ── */}
           <div>
             <div style={{
               background: 'rgba(14, 19, 31, 0.92)',
               backdropFilter: 'blur(28px)',
               WebkitBackdropFilter: 'blur(28px)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              border: '1px solid rgba(148, 163, 184, 0.22)',
               borderRadius: 0,
               padding: 'clamp(2rem, 4vw, 2.75rem) clamp(1.5rem, 3vw, 2.25rem)',
-              boxShadow: '0 24px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(245, 158, 11, 0.08)',
+              boxShadow: '0 24px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(148, 163, 184, 0.06)',
               position: 'relative'
             }}>
               
               {!submitted ? (
                 <>
                   <div style={{ marginBottom: '1.75rem' }}>
-                    <div style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      color: '#F59E0B',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.04em',
-                      marginBottom: '0.5rem'
-                    }}>
-                      <Sparkles size={13} />
-                      <span>RESERVE YOUR PASS (LIMITED CAPACITY)</span>
-                    </div>
                     <h2 style={{
                       fontSize: 'clamp(1.5rem, 2.5vw, 1.85rem)',
                       fontWeight: 800,
@@ -362,7 +279,7 @@ export function AIBootcampPage({ onNavigate }) {
                     {/* Full Name */}
                     <div>
                       <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1', marginBottom: '0.4rem' }}>
-                        Your Full Name <span style={{ color: '#FF334B' }}>*</span>
+                        Your Full Name
                       </label>
                       <input
                         type="text"
@@ -384,7 +301,7 @@ export function AIBootcampPage({ onNavigate }) {
                           outline: 'none',
                           transition: 'border-color 0.2s ease'
                         }}
-                        onFocus={(e) => { e.target.style.borderColor = '#F59E0B'; }}
+                        onFocus={(e) => { e.target.style.borderColor = '#94A3B8'; }}
                         onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                       />
                     </div>
@@ -392,7 +309,7 @@ export function AIBootcampPage({ onNavigate }) {
                     {/* Email Address */}
                     <div>
                       <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1', marginBottom: '0.4rem' }}>
-                        Work / Personal Email <span style={{ color: '#FF334B' }}>*</span>
+                        Work / Personal Email
                       </label>
                       <input
                         type="email"
@@ -414,7 +331,7 @@ export function AIBootcampPage({ onNavigate }) {
                           outline: 'none',
                           transition: 'border-color 0.2s ease'
                         }}
-                        onFocus={(e) => { e.target.style.borderColor = '#F59E0B'; }}
+                        onFocus={(e) => { e.target.style.borderColor = '#94A3B8'; }}
                         onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                       />
                     </div>
@@ -422,7 +339,7 @@ export function AIBootcampPage({ onNavigate }) {
                     {/* WhatsApp / Phone Number */}
                     <div>
                       <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1', marginBottom: '0.4rem' }}>
-                        WhatsApp Number <span style={{ color: '#FF334B' }}>*</span>
+                        WhatsApp Number
                         <span style={{ fontSize: '0.75rem', color: '#64748B', marginLeft: '6px' }}>(For Zoom link & calendar reminder)</span>
                       </label>
                       <input
@@ -445,7 +362,7 @@ export function AIBootcampPage({ onNavigate }) {
                           outline: 'none',
                           transition: 'border-color 0.2s ease'
                         }}
-                        onFocus={(e) => { e.target.style.borderColor = '#F59E0B'; }}
+                        onFocus={(e) => { e.target.style.borderColor = '#94A3B8'; }}
                         onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                       />
                     </div>
@@ -545,10 +462,10 @@ export function AIBootcampPage({ onNavigate }) {
                       </select>
                     </div>
 
-                    {/* Optional: Question for Sadat */}
+                    {/* Optional: Question for Sadat Sakib Prodhan */}
                     <div>
                       <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 650, color: '#CBD5E1', marginBottom: '0.4rem' }}>
-                        Any specific question for Sadat Sakib? <span style={{ fontSize: '0.75rem', color: '#64748B' }}>(Optional)</span>
+                        Any specific question for Sadat Sakib Prodhan? <span style={{ fontSize: '0.75rem', color: '#64748B' }}>(Optional)</span>
                       </label>
                       <textarea
                         name="questions"
@@ -566,8 +483,11 @@ export function AIBootcampPage({ onNavigate }) {
                           fontSize: '0.86rem',
                           boxSizing: 'border-box',
                           outline: 'none',
-                          resize: 'vertical'
+                          resize: 'vertical',
+                          transition: 'border-color 0.2s ease'
                         }}
+                        onFocus={(e) => { e.target.style.borderColor = '#94A3B8'; }}
+                        onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                       />
                     </div>
 
@@ -582,11 +502,11 @@ export function AIBootcampPage({ onNavigate }) {
                         fontSize: '1rem',
                         fontWeight: 800,
                         background: isFormValid 
-                          ? 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)' 
+                          ? 'linear-gradient(135deg, #475569 0%, #334155 100%)' 
                           : 'rgba(255, 255, 255, 0.1)',
                         color: isFormValid ? '#FFFFFF' : '#64748B',
-                        border: isFormValid ? '1px solid rgba(255, 51, 75, 0.5)' : '1px solid rgba(255, 255, 255, 0.08)',
-                        boxShadow: isFormValid ? '0 6px 24px rgba(255, 51, 75, 0.35)' : 'none',
+                        border: isFormValid ? '1px solid rgba(255, 255, 255, 0.22)' : '1px solid rgba(255, 255, 255, 0.08)',
+                        boxShadow: isFormValid ? '0 6px 24px rgba(0, 0, 0, 0.4)' : 'none',
                         cursor: (loading || !isFormValid) ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -605,20 +525,6 @@ export function AIBootcampPage({ onNavigate }) {
                         </>
                       )}
                     </button>
-
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      fontSize: '0.78rem',
-                      color: '#64748B',
-                      textAlign: 'center',
-                      marginTop: '0.25rem'
-                    }}>
-                      <ShieldCheck size={14} color="#0FA968" />
-                      <span>Zero Spam • 100% Free Educational Masterclass • Instant WhatsApp Invite</span>
-                    </div>
                   </form>
                 </>
               ) : (
@@ -640,9 +546,9 @@ export function AIBootcampPage({ onNavigate }) {
                   </div>
 
                   <span style={{
-                    background: 'rgba(245, 158, 11, 0.15)',
-                    border: '1px solid rgba(245, 158, 11, 0.3)',
-                    color: '#FBBF24',
+                    background: 'rgba(148, 163, 184, 0.18)',
+                    border: '1px solid rgba(148, 163, 184, 0.35)',
+                    color: '#E2E8F0',
                     fontSize: '0.78rem',
                     fontWeight: 800,
                     padding: '4px 10px',
@@ -658,7 +564,7 @@ export function AIBootcampPage({ onNavigate }) {
                   </h3>
 
                   <p style={{ fontSize: '0.92rem', color: '#94A3B8', lineHeight: 1.55, maxWidth: '380px', margin: '0 auto 1.5rem auto' }}>
-                    Your free seat for <strong>AI Bootcamp with Sadat Sakib</strong> has been reserved for:
+                    Your free seat for <strong>AI Bootcamp with Sadat Sakib Prodhan</strong> has been reserved for:
                   </p>
 
                   <div style={{
@@ -669,7 +575,7 @@ export function AIBootcampPage({ onNavigate }) {
                     marginBottom: '1.5rem',
                     textAlign: 'left'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#FBBF24', fontWeight: 700, marginBottom: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#CBD5E1', fontWeight: 700, marginBottom: '0.35rem' }}>
                       <Calendar size={16} />
                       <span>{confirmedData?.slot}</span>
                     </div>
@@ -726,14 +632,14 @@ export function AIBootcampPage({ onNavigate }) {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
-            3. WHAT YOU WILL MASTER (CURRICULUM MODULES)
+            3. WHAT YOU WILL MASTER (CURRICULUM MODULES - GRAY ACCENTS)
             ═══════════════════════════════════════════════════════════════ */}
         <div style={{ marginBottom: '5rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <span style={{
               fontSize: '0.78rem',
               fontWeight: 800,
-              color: '#F59E0B',
+              color: '#94A3B8',
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
               display: 'block',
@@ -742,7 +648,7 @@ export function AIBootcampPage({ onNavigate }) {
               CURRICULUM BREAKDOWN
             </span>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3.2vw, 2.5rem)', fontWeight: 850, color: '#FFFFFF', margin: 0 }}>
-              What You Will Learn in 90 Minutes
+              What You Will Learn in 60 Minutes
             </h2>
           </div>
 
@@ -753,32 +659,28 @@ export function AIBootcampPage({ onNavigate }) {
           }}>
             {[
               {
-                num: '01',
                 title: 'The Real 2026 AI Economy',
                 desc: 'How non-coders and engineers alike are replacing tedious manual work with autonomous AI workflows and landing high-paying global contracts.',
                 icon: TrendingUp,
-                color: '#F59E0B'
+                color: '#CBD5E1'
               },
               {
-                num: '02',
                 title: 'Live Build: Autonomous Sales Agent',
-                desc: 'Watch Sadat build a real Meta-verified WhatsApp & Instagram commerce bot live that syncs stock, calculates sizes, and confirms checkout.',
+                desc: 'Watch Sadat Sakib Prodhan build a real Meta-verified WhatsApp & Instagram commerce bot live that syncs stock, calculates sizes, and confirms checkout.',
                 icon: Laptop,
-                color: '#FF334B'
+                color: '#94A3B8'
               },
               {
-                num: '03',
                 title: 'Landing Global High-Ticket Clients',
                 desc: 'The exact proposal templates, client onboarding checklists, and pricing strategies to charge $1,500 – $5,000 per automation build.',
                 icon: Globe,
-                color: '#0FA968'
+                color: '#64748B'
               },
               {
-                num: '04',
                 title: 'Personal Career Transition Plan',
                 desc: 'Step-by-step roadmap to position your portfolio, leverage LinkedIn, and stand out as an elite AI practitioner over traditional workers.',
                 icon: Briefcase,
-                color: '#38BDF8'
+                color: '#CBD5E1'
               }
             ].map((mod, idx) => {
               const Icon = mod.icon;
@@ -796,7 +698,6 @@ export function AIBootcampPage({ onNavigate }) {
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
                     marginBottom: '1.25rem'
                   }}>
                     <div style={{
@@ -804,7 +705,7 @@ export function AIBootcampPage({ onNavigate }) {
                       height: '42px',
                       borderRadius: 0,
                       background: 'rgba(255, 255, 255, 0.06)',
-                      border: `1px solid ${mod.color}40`,
+                      border: `1px solid rgba(148, 163, 184, 0.3)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -812,9 +713,6 @@ export function AIBootcampPage({ onNavigate }) {
                     }}>
                       <Icon size={20} />
                     </div>
-                    <span style={{ fontSize: '1.4rem', fontWeight: 900, color: 'rgba(255, 255, 255, 0.15)', fontFamily: 'monospace' }}>
-                      {mod.num}
-                    </span>
                   </div>
 
                   <h3 style={{ fontSize: '1.15rem', fontWeight: 750, color: '#FFFFFF', marginBottom: '0.6rem' }}>
@@ -831,17 +729,17 @@ export function AIBootcampPage({ onNavigate }) {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
-            4. WHO SHOULD ATTEND (CAREER PATHS)
+            4. WHO SHOULD ATTEND (CAREER PATHS - GRAY THEME)
             ═══════════════════════════════════════════════════════════════ */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(26, 20, 16, 0.8) 0%, rgba(14, 19, 31, 0.95) 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.2)',
+          background: 'linear-gradient(135deg, rgba(22, 28, 40, 0.8) 0%, rgba(14, 19, 31, 0.95) 100%)',
+          border: '1px solid rgba(148, 163, 184, 0.2)',
           borderRadius: 0,
           padding: 'clamp(2rem, 4vw, 3.5rem)',
           marginBottom: '5rem'
         }}>
           <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 2.5rem auto' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               DESIGNED FOR HIGH-IMPACT TRANSITIONS
             </span>
             <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 850, color: '#FFFFFF', marginTop: '0.35rem' }}>
@@ -855,7 +753,7 @@ export function AIBootcampPage({ onNavigate }) {
             gap: '1.5rem'
           }}>
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{ fontWeight: 750, color: '#FBBF24', fontSize: '1rem', marginBottom: '0.4rem' }}>
+              <div style={{ fontWeight: 750, color: '#E2E8F0', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 Students & Graduates
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
@@ -864,7 +762,7 @@ export function AIBootcampPage({ onNavigate }) {
             </div>
 
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{ fontWeight: 750, color: '#38BDF8', fontSize: '1rem', marginBottom: '0.4rem' }}>
+              <div style={{ fontWeight: 750, color: '#CBD5E1', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 Software Engineers
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
@@ -873,7 +771,7 @@ export function AIBootcampPage({ onNavigate }) {
             </div>
 
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{ fontWeight: 750, color: '#34D399', fontSize: '1rem', marginBottom: '0.4rem' }}>
+              <div style={{ fontWeight: 750, color: '#CBD5E1', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 Freelancers & Agencies
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
@@ -882,7 +780,7 @@ export function AIBootcampPage({ onNavigate }) {
             </div>
 
             <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1.25rem', borderRadius: 0, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{ fontWeight: 750, color: '#FF6B7E', fontSize: '1rem', marginBottom: '0.4rem' }}>
+              <div style={{ fontWeight: 750, color: '#E2E8F0', fontSize: '1rem', marginBottom: '0.4rem' }}>
                 E-Commerce Store Owners
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
@@ -893,18 +791,18 @@ export function AIBootcampPage({ onNavigate }) {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
-            5. FINAL CALL TO ACTION (WARM HUMAN BANNER)
+            5. FINAL CALL TO ACTION (GRAY & CHARCOAL DESIGN)
             ═══════════════════════════════════════════════════════════════ */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(32, 20, 14, 0.95) 0%, rgba(18, 24, 38, 0.98) 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.35)',
+          background: 'linear-gradient(135deg, rgba(24, 30, 42, 0.95) 0%, rgba(15, 20, 30, 0.98) 100%)',
+          border: '1px solid rgba(148, 163, 184, 0.28)',
           borderRadius: 0,
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
-          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(245, 158, 11, 0.1)'
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(148, 163, 184, 0.06)'
         }}>
           <span style={{
-            background: '#FF334B',
+            background: '#475569',
             color: '#FFFFFF',
             fontSize: '0.75rem',
             fontWeight: 800,
@@ -915,10 +813,10 @@ export function AIBootcampPage({ onNavigate }) {
             display: 'inline-block',
             marginBottom: '1rem'
           }}>
-            FREE 90-MINUTE MASTERCLASS
+            FREE 60-MINUTE MASTERCLASS
           </span>
           <h2 style={{ fontSize: 'clamp(1.75rem, 3.2vw, 2.35rem)', fontWeight: 850, color: '#FFFFFF', margin: '0 0 0.85rem 0' }}>
-            Ready to Build Real AI Systems with Sadat Sakib?
+            Ready to Build Real AI Systems with Sadat Sakib Prodhan?
           </h2>
           <p style={{ maxWidth: '600px', margin: '0 auto 2rem auto', color: '#94A3B8', fontSize: '1rem', lineHeight: 1.6 }}>
             No catch. No robot fluff. Just real code, real architecture, and direct career guidance from someone building at scale.
@@ -933,15 +831,15 @@ export function AIBootcampPage({ onNavigate }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)',
+                background: 'linear-gradient(135deg, #475569 0%, #334155 100%)',
                 color: '#FFFFFF',
-                border: '1px solid rgba(255, 51, 75, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.22)',
                 borderRadius: 0,
                 padding: '0.85rem 1.85rem',
                 fontSize: '0.95rem',
                 fontWeight: 750,
                 cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
                 transition: 'all 0.2s ease'
               }}
             >

@@ -161,7 +161,15 @@ function getRouteStateFromUrl() {
   if (root === 'ai-agents' || root === 'agents') return { page: 'ai-agents', dashboardModule: null, rawPath: pathname };
   if (root === 'integrations') return { page: 'integrations', dashboardModule: null, rawPath: pathname };
   if (root === 'pricing') return { page: 'pricing', dashboardModule: null, rawPath: pathname };
-  if (root === 'blog' || root === 'articles') return { page: 'blog', dashboardModule: null, rawPath: pathname };
+  if (root === 'blog' || root === 'articles' || root === 'article') {
+    const articleSlug = segments[1] ? segments[1].toLowerCase() : null;
+    return {
+      page: root === 'article' ? 'article' : 'blog',
+      articleSlug,
+      dashboardModule: null,
+      rawPath: pathname
+    };
+  }
   if (root === 'about') return { page: 'about', dashboardModule: null, rawPath: pathname };
   if (root === 'contact') return { page: 'contact', dashboardModule: null, rawPath: pathname };
   if (root === 'how-it-works') return { page: 'how-it-works', dashboardModule: null, rawPath: pathname };
@@ -353,6 +361,9 @@ function AppContent() {
       integrations: '/integrations',
       'how-it-works': '/how-it-works',
       pricing: '/pricing',
+      blog: '/blog',
+      articles: '/blog',
+      article: '/article',
       about: '/about',
       contact: '/contact',
       aibootcampwithsadat: '/aibootcampwithsadat',
@@ -579,8 +590,11 @@ function AppContent() {
                 <PricingPage onNavigate={handleNavigate} />
               )}
 
-              {routeState.page === 'blog' && (
-                <BlogPage onNavigate={handleNavigate} />
+              {(routeState.page === 'blog' || routeState.page === 'article') && (
+                <BlogPage
+                  onNavigate={handleNavigate}
+                  articleSlug={routeState.articleSlug}
+                />
               )}
 
               {routeState.page === 'about' && (

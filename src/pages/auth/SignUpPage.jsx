@@ -168,10 +168,7 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
 
       {/* Main Split Auth Card */}
       <div className="auth-card-frame">
-        {/* Left Side: Showcase Panel (Visible on Desktop, hidden automatically on Mobile < 860px) */}
-        <AuthShowcaseCard onNavigate={onNavigate} />
-
-        {/* Right Side: Form Panel (Always visible, full-width on mobile) */}
+        {/* Left Side: Form Panel (Always visible, full-width on mobile) */}
         <div className="auth-form-panel">
           {/* Header */}
           <div className="auth-form-header">
@@ -201,7 +198,7 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
                     onClick={() => onNavigate('login')}
                     style={{
                       marginTop: '8px',
-                      background: '#FF334B',
+                      background: '#475569',
                       color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '8px',
@@ -374,6 +371,9 @@ export function SignUpPage({ onNavigate, onLoginSuccess }) {
             </div>
           </form>
         </div>
+
+        {/* Right Side: Showcase Panel (Visible on Desktop, flush to right edge with 0 empty space, hidden on Mobile) */}
+        <AuthShowcaseCard type="signup" onNavigate={onNavigate} />
       </div>
 
       {/* Google Verification Modal Fallback */}

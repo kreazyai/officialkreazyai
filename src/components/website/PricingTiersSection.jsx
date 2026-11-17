@@ -3,7 +3,7 @@ import { Check, Smartphone, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { TrustGuaranteeSection } from './TrustGuaranteeSection';
 
-export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" }) {
+export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "", hideHeader = false }) {
   const { t } = useLanguage();
   const [currency, setCurrency] = useState('USD');
   const [isAnnual, setIsAnnual] = useState(false);
@@ -155,18 +155,21 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
       <div className="container">
         {/* Section Header */}
         <div className="section-header-centered" style={{ textAlign: 'center' }}>
-          <div className="pricing-eyebrow-pill">
-            <span className="pricing-eyebrow-dot" />
-            <span>{eyebrow || 'TRANSPARENT VALUE • NO HIDDEN FEES'}</span>
-          </div>
+          {!hideHeader && (
+            <>
+              {title !== null && (
+                <h1 className="pricing-main-title">
+                  {title || t('pricing.title', "Simple pricing that pays for itself in captured sales")}
+                </h1>
+              )}
 
-          <h1 className="pricing-main-title">
-            {title || t('pricing.title', "Simple pricing that pays for itself in captured sales")}
-          </h1>
-
-          <p className="pricing-sub-desc">
-            {subtitle || t('pricing.subtitle', "Choose the plan that fits your growth. Upgrade or adjust anytime as your message volume and team scale.")}
-          </p>
+              {subtitle !== null && (
+                <p className="pricing-sub-desc">
+                  {subtitle || t('pricing.subtitle', "Choose the plan that fits your growth. Upgrade or adjust anytime as your message volume and team scale.")}
+                </p>
+              )}
+            </>
+          )}
 
           {/* Claimed Promo Notification Banner (Apple-style frosted pill banner) */}
           {isPromoActive && (
@@ -252,15 +255,15 @@ export function PricingTiersSection({ onNavigate, title, subtitle, eyebrow = "" 
             if (currency === 'BDT') {
               primaryDisplay = `৳${finalBdt.toLocaleString()}`;
               if (isPromoActive) originalDisplay = `৳${rawBdt.toLocaleString()}`;
-              secondaryConverted = `$${finalUsd} USD ${t('pricing.perMonth', '/ month')}`;
+              secondaryConverted = `~$${finalUsd} USD ${t('pricing.perMonth', '/ month')}`;
             } else if (currency === 'EUR') {
               primaryDisplay = `€${finalEur}`;
               if (isPromoActive) originalDisplay = `€${rawEur}`;
-              secondaryConverted = `৳${finalBdt.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
+              secondaryConverted = `~৳${finalBdt.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
             } else {
               primaryDisplay = `$${finalUsd}`;
               if (isPromoActive) originalDisplay = `$${rawUsd}`;
-              secondaryConverted = `৳${finalBdt.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
+              secondaryConverted = `~৳${finalBdt.toLocaleString()} BDT ${t('pricing.perMonth', '/ month')}`;
             }
 
             const periodLabel = isAnnual

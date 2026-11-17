@@ -15,7 +15,7 @@
   padding: clamp(1.25rem, 3vw, 2.5rem) clamp(0.75rem, 2.5vw, 1.5rem);
   background-color: #06080D;
   background-image: 
-    radial-gradient(ellipse at 50% 15%, rgba(255, 51, 75, 0.12) 0%, rgba(6, 8, 13, 0) 65%),
+    radial-gradient(ellipse at 50% 15%, rgba(148, 163, 184, 0.12) 0%, rgba(6, 8, 13, 0) 65%),
     radial-gradient(circle at 85% 75%, rgba(56, 189, 248, 0.06) 0%, rgba(6, 8, 13, 0) 50%);
   position: relative;
   overflow-x: hidden;
@@ -72,10 +72,10 @@
 .auth-bg-dot-2 {
   width: 10px;
   height: 10px;
-  background: rgba(255, 51, 75, 0.35);
+  background: rgba(148, 163, 184, 0.35);
   bottom: 22%;
   right: 15%;
-  box-shadow: 0 0 16px rgba(255, 51, 75, 0.5);
+  box-shadow: 0 0 16px rgba(148, 163, 184, 0.4);
 }
 
 .auth-bg-dot-3 {
@@ -148,7 +148,7 @@
 /* ─── Main Auth Card Frame ────────────────────────────────────────────── */
 .auth-card-frame {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1020px;
   min-height: 580px;
   background: rgba(14, 19, 31, 0.92);
   backdrop-filter: blur(28px);
@@ -157,88 +157,156 @@
   border-radius: 0px !important;
   box-shadow: 
     0 24px 80px rgba(0, 0, 0, 0.85),
-    0 0 50px rgba(255, 51, 75, 0.06),
+    0 0 50px rgba(148, 163, 184, 0.06),
     inset 0 1px 1px rgba(255, 255, 255, 0.1);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  padding: 14px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
   position: relative;
   z-index: 10;
   box-sizing: border-box;
   min-width: 0;
+  overflow: hidden;
 }
 
-/* ─── Left Side: Showcase Card Panel (Desktop) ────────────────────────── */
+/* ─── Right Side: Showcase Card Panel (Desktop Photorealistic Hero) ───── */
 .auth-showcase-panel {
   display: flex;
   flex-direction: column;
   position: relative;
   border-radius: 0px !important;
   overflow: hidden;
-  background: linear-gradient(165deg, #131826 0%, #0B0E17 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #06080D;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
-  min-height: 520px;
+  min-height: 580px;
+  height: 100%;
   min-width: 0;
+  width: 100%;
 }
 
-.auth-showcase-canvas {
+.auth-showcase-image-stage {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+}
+
+.auth-showcase-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-showcase-photo-signup {
+  object-fit: contain !important;
+  object-position: center !important;
+  padding: 0.5rem !important;
+  box-sizing: border-box !important;
+}
+
+.auth-showcase-panel:hover .auth-showcase-photo {
+  transform: scale(1.02);
+}
+
+.auth-showcase-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 8, 13, 0.15) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(6, 8, 13, 0.25) 100%
+  );
   pointer-events: none;
 }
 
-/* Atmospheric glow inside showcase */
-.auth-showcase-glow-crimson {
-  position: absolute;
-  top: -10%;
-  right: -10%;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 51, 75, 0.28) 0%, transparent 70%);
-  filter: blur(40px);
-}
-
-.auth-showcase-glow-ocean {
-  position: absolute;
-  bottom: 10%;
-  left: -15%;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, transparent 70%);
-  filter: blur(40px);
-}
-
-.auth-showcase-stars {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 70px 120px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1.5px 1.5px at 160px 80px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1px 1px at 240px 190px, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.5px 1.5px at 320px 140px, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 120px 280px, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1.5px 1.5px at 280px 330px, rgba(255,255,255,0.6), transparent);
-  background-size: 380px 380px;
-  opacity: 0.6;
-}
-
-/* Showcase Inner Content */
-.auth-showcase-content {
+.auth-showcase-top-bar {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  height: 100%;
-  padding: clamp(1.75rem, 3vw, 2.25rem);
-  box-sizing: border-box;
-  min-width: 0;
+  padding: 1.35rem 1.35rem 0.5rem 1.35rem;
+}
+
+.auth-showcase-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.auth-showcase-brand-link:hover {
+  opacity: 0.85;
+}
+
+.auth-brand-logo-mark {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.auth-brand-logo-text {
+  height: 19px;
+  width: auto;
+  object-fit: contain;
+}
+
+.auth-showcase-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(14, 19, 31, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #E2E8F0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.auth-showcase-bottom-caption {
+  position: relative;
+  z-index: 3;
+  margin-top: auto;
+  padding: 1.35rem;
+}
+
+.auth-caption-glass-card {
+  background: rgba(14, 19, 31, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 0.95rem 1.15rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+.auth-caption-title {
+  color: #FFFFFF;
+  font-size: 0.96rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.auth-caption-sub {
+  color: #94A3B8;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin: 0;
 }
 
 .auth-showcase-badge {
@@ -286,7 +354,7 @@
 }
 
 .auth-showcase-mockup:hover {
-  border-color: rgba(255, 51, 75, 0.3);
+  border-color: rgba(148, 163, 184, 0.3);
   transform: translateY(-2px);
 }
 
@@ -328,8 +396,8 @@
 }
 
 .auth-mockup-bubble-ai {
-  background: linear-gradient(135deg, rgba(255, 51, 75, 0.12) 0%, rgba(14, 19, 31, 0.9) 100%);
-  border: 1px solid rgba(255, 51, 75, 0.25);
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12) 0%, rgba(14, 19, 31, 0.9) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 0px !important;
   padding: 0.75rem 0.85rem;
   font-size: 0.82rem;
@@ -345,12 +413,12 @@
   gap: 0.35rem;
   margin-top: 0.5rem;
   padding: 0.3rem 0.65rem;
-  background: #FF334B;
+  background: #475569;
   color: #FFFFFF;
   border-radius: 0px !important;
   font-size: 0.74rem;
   font-weight: 700;
-  box-shadow: 0 2px 10px rgba(255, 51, 75, 0.4);
+  box-shadow: 0 2px 10px rgba(148, 163, 184, 0.4);
 }
 
 /* Showcase Text */
@@ -399,13 +467,13 @@
 
 .auth-carousel-dot-active {
   width: 34px;
-  background: #FF334B;
-  box-shadow: 0 0 12px rgba(255, 51, 75, 0.7);
+  background: #475569;
+  box-shadow: 0 0 12px rgba(148, 163, 184, 0.5);
 }
 
-/* ─── Right Side: Auth Form Panel ─────────────────────────────────────── */
+/* ─── Left Side: Auth Form Panel ──────────────────────────────────────── */
 .auth-form-panel {
-  padding: clamp(2rem, 3.5vw, 2.75rem) clamp(1.5rem, 3vw, 2.5rem);
+  padding: clamp(2.25rem, 3.8vw, 3.25rem) clamp(2rem, 3.8vw, 3.25rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -437,7 +505,7 @@
 }
 
 .auth-form-link {
-  color: #FF334B;
+  color: #475569;
   font-weight: 650;
   text-decoration: none;
   cursor: pointer;
@@ -538,8 +606,8 @@
 }
 
 .auth-input:focus {
-  border-color: #FF334B;
-  box-shadow: 0 0 0 3px rgba(255, 51, 75, 0.2);
+  border-color: #475569;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
   background: rgba(12, 17, 28, 0.95);
 }
 
@@ -580,7 +648,7 @@
 }
 
 .auth-checkbox-row input[type="checkbox"] {
-  accent-color: #FF334B;
+  accent-color: #475569;
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -607,9 +675,9 @@
   font-weight: 700;
   letter-spacing: -0.01em;
   color: #FFFFFF;
-  background: linear-gradient(135deg, #FF334B 0%, #E11D48 100%);
-  border: 1px solid rgba(255, 51, 75, 0.6);
-  box-shadow: 0 4px 20px rgba(255, 51, 75, 0.35);
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 4px 20px rgba(148, 163, 184, 0.35);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -624,7 +692,7 @@
 .auth-submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   background: linear-gradient(135deg, #FF455D 0%, #E81744 100%);
-  box-shadow: 0 6px 26px rgba(255, 51, 75, 0.5);
+  box-shadow: 0 6px 26px rgba(148, 163, 184, 0.4);
 }
 
 .auth-submit-btn:active:not(:disabled) {
@@ -732,19 +800,20 @@
     max-width: 440px !important;
     min-height: auto !important;
     padding: 0 !important;
-    border-radius: 0px !important;
+    border-radius: 16px !important;
     margin: 0 auto !important;
+    overflow: hidden !important;
     box-sizing: border-box !important;
   }
 
-  /* Left showcase completely hidden in mobile as requested */
+  /* Right showcase photo is shown in web view (>= 860px) flush to edge with 0 empty space, and hidden in mobile view so mobile users see the sign-in form immediately */
   .auth-showcase-panel {
     display: none !important;
   }
 
   .auth-form-panel {
     display: block !important;
-    padding: 1.75rem 1.25rem !important;
+    padding: 1.5rem 1.15rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
@@ -786,7 +855,8 @@
   }
 
   .auth-card-frame {
-    border-radius: 0px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
     max-width: 100% !important;
   }
 

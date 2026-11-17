@@ -1904,7 +1904,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     width: '42px',
                     height: '42px',
                     borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #F59E0B 0%, #FF334B 100%)',
+                    background: 'linear-gradient(135deg, #64748B 0%, #334155 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1991,7 +1991,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                 <div className="mac-metric-card">
                   <div className="mac-metric-top">
                     <span className="mac-metric-label">Lead Mentor</span>
-                    <div className="mac-metric-icon-wrap" style={{ background: 'rgba(255, 51, 75, 0.15)', color: '#FF334B' }}>
+                    <div className="mac-metric-icon-wrap" style={{ background: 'rgba(148, 163, 184, 0.15)', color: '#475569' }}>
                       <GraduationCap size={16} />
                     </div>
                   </div>
@@ -2333,7 +2333,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                                   type="button"
                                   onClick={() => handleEnterCustomerDashboard(tenant.businessId)}
                                   className="mac-action-btn"
-                                  style={{ background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)', color: '#FFFFFF', border: 'none' }}
+                                  style={{ background: 'linear-gradient(135deg, #475569 0%, #334155 100%)', color: '#FFFFFF', border: 'none' }}
                                   title="Route directly into this customer's workspace dashboard"
                                 >
                                   <LogIn size={13} />
@@ -2667,7 +2667,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                               type="button"
                               onClick={() => handleEnterCustomerDashboard(signup.businessId || signup.id)}
                               className="mac-action-btn"
-                              style={{ background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)', color: '#FFFFFF', border: 'none' }}
+                              style={{ background: 'linear-gradient(135deg, #475569 0%, #334155 100%)', color: '#FFFFFF', border: 'none' }}
                             >
                               <LogIn size={12} />
                               <span>Enter Dashboard</span>
@@ -2870,7 +2870,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                   </span>
                 </div>
 
-                <div className="mac-panel-card" style={{ padding: '20px', border: '1.5px solid #FF334B' }}>
+                <div className="mac-panel-card" style={{ padding: '20px', border: '1.5px solid #475569' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: '#C084FC' }}>GROWTH TIER (MOST POPULAR)</span>
                     <span style={{ fontSize: '18px', fontWeight: 800, color: '#C084FC' }}>$119 / mo</span>
@@ -3194,7 +3194,7 @@ export function AdminDashboard({ user, onNavigate, onLogout }) {
                     handleEnterCustomerDashboard(bId);
                   }}
                   className="mac-action-btn"
-                  style={{ background: 'linear-gradient(135deg, #FF334B 0%, #D91D34 100%)', color: '#FFFFFF', border: 'none', padding: '6px 12px' }}
+                  style={{ background: 'linear-gradient(135deg, #475569 0%, #334155 100%)', color: '#FFFFFF', border: 'none', padding: '6px 12px' }}
                 >
                   <LogIn size={13} />
                   <span>Enter Dashboard to Edit</span>

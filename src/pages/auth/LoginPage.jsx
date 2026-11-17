@@ -6,8 +6,7 @@ import {
   Eye,
   EyeOff,
   ShieldAlert,
-  CheckCircle2,
-  KeyRound
+  CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleIcon, GoogleVerificationModal } from '../../components/auth/GoogleVerificationModal';
@@ -218,10 +217,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
 
       {/* Main Split Auth Card */}
       <div className="auth-card-frame">
-        {/* Left Side: Showcase Panel (Visible on Desktop, hidden automatically on Mobile < 860px) */}
-        <AuthShowcaseCard onNavigate={onNavigate} />
-
-        {/* Right Side: Form Panel (Always visible, full-width on mobile) */}
+        {/* Left Side: Form Panel (Always visible, full-width on mobile) */}
         <div className="auth-form-panel">
           {/* Header */}
           <div className="auth-form-header">
@@ -251,7 +247,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                     onClick={() => { window.location.href = '/admin'; }}
                     style={{
                       marginTop: '8px',
-                      background: '#FF334B',
+                      background: '#475569',
                       color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '8px',
@@ -358,7 +354,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: '#FF334B',
+                        color: '#475569',
                         fontSize: '0.8rem',
                         fontWeight: 700,
                         cursor: (otpLoading || !email) ? 'not-allowed' : 'pointer',
@@ -405,10 +401,10 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                         fontWeight: 800,
                         color: '#FFFFFF',
                         background: 'rgba(9, 13, 22, 0.95)',
-                        border: digit ? '1.5px solid #FF334B' : '1px solid rgba(255, 255, 255, 0.16)',
+                        border: digit ? '1.5px solid #475569' : '1px solid rgba(255, 255, 255, 0.16)',
                         borderRadius: '12px',
                         outline: 'none',
-                        boxShadow: digit ? '0 0 12px rgba(255, 51, 75, 0.25)' : 'none'
+                        boxShadow: digit ? '0 0 12px rgba(148, 163, 184, 0.25)' : 'none'
                       }}
                     />
                   ))}
@@ -419,8 +415,8 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                     marginTop: '0.5rem',
                     padding: '6px 10px',
                     borderRadius: '8px',
-                    background: 'rgba(255, 51, 75, 0.08)',
-                    border: '1px solid rgba(255, 51, 75, 0.25)',
+                    background: 'rgba(148, 163, 184, 0.08)',
+                    border: '1px solid rgba(148, 163, 184, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -431,7 +427,7 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                       type="button"
                       onClick={autoFillOtp}
                       style={{
-                        background: '#FF334B',
+                        background: '#475569',
                         color: '#FFFFFF',
                         border: 'none',
                         borderRadius: '6px',
@@ -481,7 +477,6 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
                 >
-                  <KeyRound size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
                   Sign in with 6-digit email code instead
                 </button>
               ) : (
@@ -499,7 +494,6 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
                 >
-                  <Lock size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
                   Sign in with password instead
                 </button>
               )}
@@ -536,6 +530,9 @@ export function LoginPage({ onNavigate, onLoginSuccess }) {
             </div>
           </form>
         </div>
+
+        {/* Right Side: Showcase Panel (Visible on Desktop, flush to right edge with 0 empty space, hidden on Mobile) */}
+        <AuthShowcaseCard onNavigate={onNavigate} />
       </div>
 
       {/* Google Verification Modal Fallback */}

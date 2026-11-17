@@ -19,7 +19,7 @@ function Toast({ message, type = 'success', onClose }) {
   const colors = {
     success: { border: '#10B981', color: '#10B981', icon: <CheckCircle2 size={16} /> },
     error: { border: '#EF4444', color: '#EF4444', icon: <AlertCircle size={16} /> },
-    info: { border: '#FF334B', color: '#FF334B', icon: <Sparkles size={16} /> },
+    info: { border: '#475569', color: '#475569', icon: <Sparkles size={16} /> },
   };
   const c = colors[type] || colors.info;
 
@@ -510,7 +510,7 @@ export function BillingPage({ user: propUser }) {
                 padding: '5px 14px',
                 borderRadius: '999px',
                 border: 'none',
-                background: currency === 'BDT' ? '#FF334B' : 'transparent',
+                background: currency === 'BDT' ? '#475569' : 'transparent',
                 color: currency === 'BDT' ? '#FFFFFF' : '#94A3B8',
                 fontWeight: 700,
                 fontSize: '0.8rem',
@@ -527,7 +527,7 @@ export function BillingPage({ user: propUser }) {
                 padding: '5px 14px',
                 borderRadius: '999px',
                 border: 'none',
-                background: currency === 'USD' ? '#FF334B' : 'transparent',
+                background: currency === 'USD' ? '#475569' : 'transparent',
                 color: currency === 'USD' ? '#FFFFFF' : '#94A3B8',
                 fontWeight: 700,
                 fontSize: '0.8rem',
@@ -543,7 +543,7 @@ export function BillingPage({ user: propUser }) {
 
       {loading ? (
         <div style={{ padding: '4rem 0', textAlign: 'center', color: '#94A3B8' }}>
-          <Loader2 size={36} className="spinner-rotate" style={{ margin: '0 auto 1rem auto', color: '#FF334B' }} />
+          <Loader2 size={36} className="spinner-rotate" style={{ margin: '0 auto 1rem auto', color: '#475569' }} />
           <p style={{ margin: 0, fontSize: '0.9rem' }}>Loading subscription details for {user?.email}...</p>
         </div>
       ) : (
@@ -610,7 +610,7 @@ export function BillingPage({ user: propUser }) {
                     style={{
                       padding: '0.65rem 1.25rem',
                       borderRadius: '10px',
-                      background: '#FF334B',
+                      background: '#475569',
                       border: 'none',
                       color: '#FFFFFF',
                       fontSize: '0.85rem',
@@ -650,7 +650,7 @@ export function BillingPage({ user: propUser }) {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF' }}>Monthly AI Conversations</h3>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#FF6B7E' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#E2E8F0' }}>
                     {billingData.conversations.remaining.toLocaleString()} conversations left
                   </span>
                 </div>
@@ -669,7 +669,7 @@ export function BillingPage({ user: propUser }) {
                   <div style={{
                     width: `${Math.min(100, (billingData.conversations.used / Math.max(1, billingData.conversations.limit)) * 100)}%`,
                     height: '100%',
-                    background: 'linear-gradient(90deg, #10B981 0%, #FF334B 100%)',
+                    background: 'linear-gradient(90deg, #10B981 0%, #64748B 100%)',
                     borderRadius: '999px'
                   }} />
                 </div>
@@ -703,12 +703,12 @@ export function BillingPage({ user: propUser }) {
                         width: '38px',
                         height: '38px',
                         borderRadius: '10px',
-                        background: 'rgba(255, 51, 75, 0.12)',
-                        border: '1px solid rgba(255, 51, 75, 0.3)',
+                        background: 'rgba(148, 163, 184, 0.12)',
+                        border: '1px solid rgba(148, 163, 184, 0.3)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#FF6B7E'
+                        color: '#E2E8F0'
                       }}>
                         <Smartphone size={20} />
                       </div>
@@ -823,7 +823,7 @@ export function BillingPage({ user: propUser }) {
                                   gap: '4px',
                                   padding: '5px 10px',
                                   borderRadius: '8px',
-                                  background: '#FF334B',
+                                  background: '#475569',
                                   color: '#FFFFFF',
                                   border: 'none',
                                   fontSize: '0.78rem',
@@ -853,8 +853,8 @@ export function BillingPage({ user: propUser }) {
             <div>
               {/* Activation Banner */}
               <div style={{
-                background: 'linear-gradient(135deg, rgba(255, 51, 75, 0.08) 0%, rgba(14, 20, 34, 0.95) 100%)',
-                border: '1px solid rgba(255, 51, 75, 0.25)',
+                background: 'linear-gradient(135deg, rgba(148, 163, 184, 0.08) 0%, rgba(14, 20, 34, 0.95) 100%)',
+                border: '1px solid rgba(148, 163, 184, 0.25)',
                 borderRadius: '24px',
                 padding: 'clamp(1.5rem, 3.5vw, 2.25rem)',
                 marginBottom: '2.5rem',
@@ -866,9 +866,9 @@ export function BillingPage({ user: propUser }) {
                   gap: '6px',
                   padding: '4px 12px',
                   borderRadius: '999px',
-                  background: 'rgba(255, 51, 75, 0.14)',
-                  border: '1px solid rgba(255, 51, 75, 0.35)',
-                  color: '#FF6B7E',
+                  background: 'rgba(148, 163, 184, 0.14)',
+                  border: '1px solid rgba(148, 163, 184, 0.35)',
+                  color: '#E2E8F0',
                   fontSize: '0.75rem',
                   fontWeight: 700,
                   letterSpacing: '0.04em',
@@ -918,14 +918,14 @@ export function BillingPage({ user: propUser }) {
                         background: isPopular 
                           ? 'linear-gradient(180deg, rgba(26, 35, 58, 0.9) 0%, rgba(12, 17, 30, 0.95) 100%)' 
                           : 'rgba(14, 20, 34, 0.85)',
-                        border: isPopular ? '2px solid #FF334B' : '1px solid rgba(255, 255, 255, 0.1)',
+                        border: isPopular ? '2px solid #475569' : '1px solid rgba(255, 255, 255, 0.1)',
                         borderRadius: '24px',
                         padding: '2rem 1.75rem',
                         display: 'flex',
                         flexDirection: 'column',
                         position: 'relative',
                         boxShadow: isPopular 
-                          ? '0 20px 50px rgba(0,0,0,0.7), 0 0 40px rgba(255, 51, 75, 0.18)' 
+                          ? '0 20px 50px rgba(0,0,0,0.7), 0 0 40px rgba(148, 163, 184, 0.18)' 
                           : '0 16px 40px rgba(0,0,0,0.4)',
                         transition: 'transform 0.2s ease'
                       }}
@@ -937,14 +937,14 @@ export function BillingPage({ user: propUser }) {
                           top: '-13px',
                           left: '50%',
                           transform: 'translateX(-50%)',
-                          background: 'linear-gradient(135deg, #FF334B 0%, #D81830 100%)',
+                          background: 'linear-gradient(135deg, #475569 0%, #334155 100%)',
                           color: '#FFFFFF',
                           fontSize: '0.7rem',
                           fontWeight: 800,
                           padding: '3px 12px',
                           borderRadius: '999px',
                           letterSpacing: '0.05em',
-                          boxShadow: '0 4px 14px rgba(255, 51, 75, 0.4)',
+                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
                           whiteSpace: 'nowrap'
                         }}>
                           {plan.badgeText}
@@ -982,7 +982,7 @@ export function BillingPage({ user: propUser }) {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                           {plan.advancedFeatures.map((feat, fIdx) => (
                             <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', fontSize: '0.85rem', lineHeight: 1.45, color: '#E2E8F0' }}>
-                              <CheckCircle2 size={16} style={{ color: isPopular ? '#FF334B' : '#10B981', flexShrink: 0, marginTop: '2px' }} />
+                              <CheckCircle2 size={16} style={{ color: isPopular ? '#475569' : '#10B981', flexShrink: 0, marginTop: '2px' }} />
                               <span>{feat}</span>
                             </div>
                           ))}
@@ -997,7 +997,7 @@ export function BillingPage({ user: propUser }) {
                           width: '100%',
                           padding: '0.85rem 1rem',
                           borderRadius: '12px',
-                          background: isPopular ? '#FF334B' : '#FFFFFF',
+                          background: isPopular ? '#475569' : '#FFFFFF',
                           color: isPopular ? '#FFFFFF' : '#0F172A',
                           border: 'none',
                           fontWeight: 800,
@@ -1007,7 +1007,7 @@ export function BillingPage({ user: propUser }) {
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '0.5rem',
-                          boxShadow: isPopular ? '0 8px 25px rgba(255, 51, 75, 0.4)' : '0 4px 15px rgba(255, 255, 255, 0.15)',
+                          boxShadow: isPopular ? '0 8px 25px rgba(0, 0, 0, 0.4)' : '0 4px 15px rgba(255, 255, 255, 0.15)',
                           transition: 'all 0.15s ease'
                         }}
                       >
@@ -1048,7 +1048,7 @@ export function BillingPage({ user: propUser }) {
               background: '#0B0F19',
               borderRadius: '24px',
               border: '1px solid rgba(255, 255, 255, 0.14)',
-              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.85), 0 0 45px rgba(255, 51, 75, 0.15)',
+              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.85), 0 0 45px rgba(148, 163, 184, 0.15)',
               overflow: 'hidden',
               color: '#FFFFFF'
             }}
@@ -1130,8 +1130,8 @@ export function BillingPage({ user: propUser }) {
                     style={{
                       padding: '0.65rem',
                       borderRadius: '12px',
-                      border: `1.5px solid ${checkoutMethod === 'BKASH' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
-                      background: checkoutMethod === 'BKASH' ? 'rgba(255, 51, 75, 0.12)' : 'rgba(18, 24, 38, 0.6)',
+                      border: `1.5px solid ${checkoutMethod === 'BKASH' ? '#475569' : 'rgba(255, 255, 255, 0.12)'}`,
+                      background: checkoutMethod === 'BKASH' ? 'rgba(148, 163, 184, 0.12)' : 'rgba(18, 24, 38, 0.6)',
                       color: '#FFFFFF',
                       fontWeight: 700,
                       fontSize: '0.82rem',
@@ -1146,8 +1146,8 @@ export function BillingPage({ user: propUser }) {
                     style={{
                       padding: '0.65rem',
                       borderRadius: '12px',
-                      border: `1.5px solid ${checkoutMethod === 'NAGAD' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
-                      background: checkoutMethod === 'NAGAD' ? 'rgba(255, 51, 75, 0.12)' : 'rgba(18, 24, 38, 0.6)',
+                      border: `1.5px solid ${checkoutMethod === 'NAGAD' ? '#475569' : 'rgba(255, 255, 255, 0.12)'}`,
+                      background: checkoutMethod === 'NAGAD' ? 'rgba(148, 163, 184, 0.12)' : 'rgba(18, 24, 38, 0.6)',
                       color: '#FFFFFF',
                       fontWeight: 700,
                       fontSize: '0.82rem',
@@ -1162,8 +1162,8 @@ export function BillingPage({ user: propUser }) {
                     style={{
                       padding: '0.65rem',
                       borderRadius: '12px',
-                      border: `1.5px solid ${checkoutMethod === 'CARD' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
-                      background: checkoutMethod === 'CARD' ? 'rgba(255, 51, 75, 0.12)' : 'rgba(18, 24, 38, 0.6)',
+                      border: `1.5px solid ${checkoutMethod === 'CARD' ? '#475569' : 'rgba(255, 255, 255, 0.12)'}`,
+                      background: checkoutMethod === 'CARD' ? 'rgba(148, 163, 184, 0.12)' : 'rgba(18, 24, 38, 0.6)',
                       color: '#FFFFFF',
                       fontWeight: 700,
                       fontSize: '0.82rem',
@@ -1194,7 +1194,7 @@ export function BillingPage({ user: propUser }) {
                       style={{
                         background: 'transparent',
                         border: 'none',
-                        color: copiedNumber ? '#10B981' : '#FF6B7E',
+                        color: copiedNumber ? '#10B981' : '#E2E8F0',
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -1277,7 +1277,7 @@ export function BillingPage({ user: propUser }) {
                   marginBottom: '1.25rem',
                   textAlign: 'center'
                 }}>
-                  <CreditCard size={28} style={{ color: '#FF334B', margin: '0 auto 0.5rem auto' }} />
+                  <CreditCard size={28} style={{ color: '#475569', margin: '0 auto 0.5rem auto' }} />
                   <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '4px' }}>
                     Instant Card Simulation
                   </div>
@@ -1314,7 +1314,7 @@ export function BillingPage({ user: propUser }) {
                   width: '100%',
                   padding: '0.85rem',
                   borderRadius: '12px',
-                  background: '#FF334B',
+                  background: '#475569',
                   color: '#FFFFFF',
                   border: 'none',
                   fontWeight: 800,
@@ -1324,7 +1324,7 @@ export function BillingPage({ user: propUser }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  boxShadow: '0 8px 25px rgba(255, 51, 75, 0.4)'
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.4)'
                 }}
               >
                 {submittingPayment ? (
@@ -1410,8 +1410,8 @@ export function BillingPage({ user: propUser }) {
                 <div
                   key={plan.id}
                   style={{
-                    background: plan.popular ? 'rgba(255, 51, 75, 0.06)' : 'rgba(18, 24, 38, 0.65)',
-                    border: plan.popular ? '2px solid #FF334B' : '1px solid rgba(255, 255, 255, 0.1)',
+                    background: plan.popular ? 'rgba(148, 163, 184, 0.06)' : 'rgba(18, 24, 38, 0.65)',
+                    border: plan.popular ? '2px solid #475569' : '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '20px',
                     padding: '1.5rem',
                     display: 'flex',
@@ -1441,7 +1441,7 @@ export function BillingPage({ user: propUser }) {
                       width: '100%',
                       padding: '0.75rem',
                       borderRadius: '10px',
-                      background: plan.popular ? '#FF334B' : '#FFFFFF',
+                      background: plan.popular ? '#475569' : '#FFFFFF',
                       color: plan.popular ? '#FFFFFF' : '#0F172A',
                       border: 'none',
                       fontWeight: 800,
@@ -1651,7 +1651,7 @@ export function BillingPage({ user: propUser }) {
                     flex: 1,
                     padding: '0.75rem',
                     borderRadius: '10px',
-                    background: '#FF334B',
+                    background: '#475569',
                     color: '#FFFFFF',
                     border: 'none',
                     fontWeight: 700,

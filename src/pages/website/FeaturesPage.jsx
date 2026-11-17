@@ -480,19 +480,19 @@ export function FeaturesPage({ onNavigate }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: '#FF334B',
+                background: '#475569',
                 color: '#FFFFFF',
-                border: '1px solid rgba(255, 51, 75, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.22)',
                 borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#FF4D61'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#FF334B'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#475569'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <span>{data.ctaBtnDemo}</span>
             </button>

@@ -643,9 +643,9 @@ export function AiAgentsPage({ onNavigate }) {
         {/* Bottom CTA */}
         <div className="final-cta-card" style={{
           background: 'linear-gradient(135deg, rgba(32, 14, 22, 0.94) 0%, rgba(18, 24, 38, 0.98) 100%)',
-          border: '1px solid rgba(255, 51, 75, 0.32)',
+          border: '1px solid rgba(148, 163, 184, 0.32)',
           borderRadius: 0,
-          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 51, 75, 0.12)',
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(148, 163, 184, 0.12)',
           padding: 'clamp(2.5rem, 5vw, 4rem) 2rem',
           textAlign: 'center',
           color: '#FFFFFF'
@@ -664,19 +664,19 @@ export function AiAgentsPage({ onNavigate }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: '#FF334B',
+                background: '#475569',
                 color: '#FFFFFF',
-                border: '1px solid rgba(255, 51, 75, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.22)',
                 borderRadius: 0,
                 padding: '0.85rem 1.75rem',
                 fontSize: '0.95rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#FF4D61'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#FF334B'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#475569'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <span>{ui.btnDemo}</span>
               <ArrowRight size={17} />

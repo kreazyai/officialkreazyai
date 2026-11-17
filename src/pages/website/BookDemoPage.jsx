@@ -60,8 +60,8 @@ const BOOK_DEMO_TEXT = {
     optVol2: 'Scaling (1,000 - 5,000 / month)',
     optVol3: 'High Growth (5,000 - 25,000 / month)',
     optVol4: 'Enterprise (25,000+ / month)',
-    btnSubmit: 'Request Demo Walkthrough',
-    btnSubmitting: 'Submitting Request…',
+    btnSubmit: 'REQUEST ONLINE MEETING',
+    btnSubmitting: 'REQUESTING ONLINE MEETING…',
     footnote: 'Enterprise-grade Meta API • 15-Min Focused Session • Zero Obligation',
     successTitle: 'Your demo request is confirmed!',
     successSubtitle: 'An automation architect will reach out to you via WhatsApp and email within 2 business hours to confirm your preferred session time.',
@@ -108,8 +108,8 @@ const BOOK_DEMO_TEXT = {
     optVol2: 'গ্রোথ পর্যায় (১,০০০ - ৫,০০০ / মাস)',
     optVol3: 'হাই ভলিউম (৫,০০০ - ২৫,০০০ / মাস)',
     optVol4: 'এন্টারপ্রাইজ (২৫,০০০+ / মাস)',
-    btnSubmit: 'ডেমো ওয়াকথ্রু অনুরোধ করুন',
-    btnSubmitting: 'জমা দেওয়া হচ্ছে…',
+    btnSubmit: 'REQUEST ONLINE MEETING',
+    btnSubmitting: 'অনুরোধ পাঠানো হচ্ছে…',
     footnote: 'মেটা অনুমোদিত ক্লাউড এপিআই • ১৫ মিনিটের ফোকাসড সেশন • সম্পূর্ণ ফ্রি',
     successTitle: 'আপনার ডেমো অনুরোধ গৃহীত হয়েছে!',
     successSubtitle: 'আমাদের অটোমেশন বিশেষজ্ঞ ২ ব্যবসায়িক ঘণ্টার মধ্যে হোয়াটসঅ্যাপ ও ইমেইলে আপনার সাথে সময় নির্ধারণ করতে যোগাযোগ করবেন।',
@@ -156,7 +156,7 @@ const BOOK_DEMO_TEXT = {
     optVol2: 'En Crecimiento (1,000 - 5,000 / mes)',
     optVol3: 'Alto Volumen (5,000 - 25,000 / mes)',
     optVol4: 'Empresarial (25,000+ / mes)',
-    btnSubmit: 'Solicitar Demostración',
+    btnSubmit: 'REQUEST ONLINE MEETING',
     btnSubmitting: 'Enviando Solicitud…',
     footnote: 'API Oficial de Meta • Sesión Focalizada de 15 Minutos • Sin Compromiso',
     successTitle: '¡Su solicitud de demostración ha sido confirmada!',
@@ -224,7 +224,7 @@ export function BookDemoPage({ onNavigate }) {
   return (
     <div className="book-demo-page-wrapper" style={{
       minHeight: 'calc(100vh - 80px)',
-      background: 'radial-gradient(ellipse at 50% 10%, rgba(255, 51, 75, 0.08) 0%, rgba(6, 8, 13, 0) 70%), #06080D',
+      background: 'radial-gradient(ellipse at 50% 10%, rgba(148, 163, 184, 0.08) 0%, rgba(6, 8, 13, 0) 70%), #06080D',
       padding: 'clamp(2.5rem, 5vw, 4.5rem) 1.25rem clamp(4rem, 6vw, 6rem) 1.25rem',
       position: 'relative',
       color: '#FFFFFF'
@@ -241,121 +241,88 @@ export function BookDemoPage({ onNavigate }) {
             gap: 'clamp(2rem, 4vw, 3.5rem)',
             alignItems: 'center'
           }}>
-            {/* ══ LEFT COLUMN: Value Proposition & Evidence ══ */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-              <div>
-                <h1 style={{
-                  fontSize: 'clamp(2rem, 4.2vw, 2.9rem)',
-                  fontWeight: 850,
-                  letterSpacing: '-0.035em',
-                  lineHeight: 1.15,
-                  color: '#FFFFFF',
-                  margin: '0 0 1rem 0'
-                }}>
-                  {t.title}
-                </h1>
-
-                <p style={{
-                  fontSize: 'clamp(0.95rem, 1.8vw, 1.1rem)',
-                  lineHeight: 1.6,
-                  color: '#94A3B8',
-                  margin: 0
-                }}>
-                  {t.subtitle}
-                </p>
-              </div>
-
-              {/* 3 Pillars */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-                {t.benefits.map((b, idx) => {
-                  const Icon = b.icon;
-                  return (
-                    <div key={idx} style={{
-                      display: 'flex',
-                      gap: '1rem',
-                      alignItems: 'flex-start',
-                      padding: '1.1rem 1.25rem',
-                      background: 'rgba(18, 24, 38, 0.55)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: 0,
-                      backdropFilter: 'blur(12px)',
-                      transition: 'all 0.2s ease'
-                    }}>
-                      <div style={{
-                        width: '38px',
-                        height: '38px',
-                        borderRadius: 0,
-                        background: 'rgba(255, 51, 75, 0.14)',
-                        border: '1px solid rgba(255, 51, 75, 0.25)',
-                        color: '#FF6B7E',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        marginTop: '2px'
-                      }}>
-                        <Icon size={18} />
-                      </div>
-                      <div>
-                        <h2 style={{
-                          margin: '0 0 0.25rem 0',
-                          fontSize: '1rem',
-                          fontWeight: 700,
-                          color: '#FFFFFF'
-                        }}>
-                          {b.title}
-                        </h2>
-                        <p style={{
-                          margin: 0,
-                          fontSize: '0.88rem',
-                          lineHeight: 1.45,
-                          color: '#94A3B8'
-                        }}>
-                          {b.desc}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Social Proof Testimonial */}
+            {/* ══ LEFT COLUMN: Realistic Business Owner Photo Showcase ══ */}
+            <div className="book-demo-visual-col" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              height: '100%'
+            }}>
               <div style={{
-                padding: '1.25rem 1.35rem',
-                borderRadius: 0,
-                background: 'linear-gradient(135deg, rgba(22, 28, 44, 0.7) 0%, rgba(14, 19, 31, 0.9) 100%)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem'
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                minHeight: 'clamp(320px, 45vw, 560px)',
+                maxHeight: '660px',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(15, 169, 104, 0.1)',
+                background: 'rgba(14, 19, 31, 0.85)'
               }}>
-                <div style={{ display: 'flex', gap: '3px', color: '#FBBF24' }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} fill="#FBBF24" />
-                  ))}
-                </div>
-                <p style={{ margin: 0, fontSize: '0.92rem', fontStyle: 'italic', color: '#CBD5E1', lineHeight: 1.5 }}>
-                  {t.quote}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <div style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%',
-                    background: '#FF334B',
-                    color: '#FFFFFF',
+                <img
+                  src="/images/realistic-founder-mobile-dashboard.jpg"
+                  alt="Real business founder handling customer orders on smartphone with KreazyAI mobile chat dashboard"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    minHeight: 'clamp(320px, 45vw, 560px)',
+                    maxHeight: '660px',
+                    objectFit: 'cover',
+                    display: 'block'
+                  }}
+                  loading="eager"
+                />
+                {/* Subtle dark gradient overlay at top and bottom to seamlessly integrate with dark theme */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  pointerEvents: 'none',
+                  background: 'linear-gradient(180deg, rgba(6, 8, 13, 0.15) 0%, rgba(6, 8, 13, 0) 45%, rgba(6, 8, 13, 0.5) 100%)',
+                  boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.08)'
+                }} />
+                {/* Real-time business status pill */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '18px',
+                  left: '18px',
+                  right: '18px',
+                  background: 'rgba(11, 15, 25, 0.92)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '12px',
+                  padding: '11px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.6)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                    <div style={{
+                      width: '9px',
+                      height: '9px',
+                      borderRadius: '50%',
+                      background: '#0FA968',
+                      boxShadow: '0 0 10px #0FA968'
+                    }} />
+                    <span style={{ fontSize: '0.84rem', fontWeight: 650, color: '#FFFFFF', letterSpacing: '0.01em' }}>
+                      Kreazy AI • Live Order Stream
+                    </span>
+                  </div>
+                  <span style={{
+                    fontSize: '0.75rem',
                     fontWeight: 700,
-                    fontSize: '0.8rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    color: '#34D399',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    padding: '3px 10px',
+                    borderRadius: '6px'
                   }}>
-                    E
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#FFFFFF' }}>{t.quoteAuthor}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{t.quoteRole}</div>
-                  </div>
+                    Automated
+                  </span>
                 </div>
               </div>
             </div>
@@ -368,7 +335,7 @@ export function BookDemoPage({ onNavigate }) {
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: 0,
               padding: 'clamp(2rem, 4vw, 2.75rem) clamp(1.5rem, 3.5vw, 2.5rem)',
-              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 51, 75, 0.08)',
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(148, 163, 184, 0.08)',
               position: 'relative'
             }}>
               <div style={{ marginBottom: '1.75rem' }}>
@@ -435,7 +402,7 @@ export function BookDemoPage({ onNavigate }) {
                           outline: 'none',
                           transition: 'border-color 0.2s ease'
                         }}
-                        onFocus={(e) => { e.target.style.borderColor = '#FF334B'; }}
+                        onFocus={(e) => { e.target.style.borderColor = '#475569'; }}
                         onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                       />
                     </div>
@@ -466,7 +433,7 @@ export function BookDemoPage({ onNavigate }) {
                         outline: 'none',
                         transition: 'border-color 0.2s ease'
                       }}
-                      onFocus={(e) => { e.target.style.borderColor = '#FF334B'; }}
+                      onFocus={(e) => { e.target.style.borderColor = '#475569'; }}
                       onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                     />
                   </div>
@@ -498,7 +465,7 @@ export function BookDemoPage({ onNavigate }) {
                         outline: 'none',
                         transition: 'border-color 0.2s ease'
                       }}
-                      onFocus={(e) => { e.target.style.borderColor = '#FF334B'; }}
+                      onFocus={(e) => { e.target.style.borderColor = '#475569'; }}
                       onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                     />
                   </div>
@@ -528,7 +495,7 @@ export function BookDemoPage({ onNavigate }) {
                         outline: 'none',
                         transition: 'border-color 0.2s ease'
                       }}
-                      onFocus={(e) => { e.target.style.borderColor = '#FF334B'; }}
+                      onFocus={(e) => { e.target.style.borderColor = '#475569'; }}
                       onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.14)'; }}
                     />
                   </div>
@@ -603,12 +570,13 @@ export function BookDemoPage({ onNavigate }) {
                       width: '100%',
                       height: '52px',
                       borderRadius: 0,
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      background: '#FF334B',
+                      fontSize: '0.96rem',
+                      fontWeight: 750,
+                      letterSpacing: '0.03em',
+                      background: 'linear-gradient(180deg, #4B5563 0%, #374151 100%)',
                       color: '#FFFFFF',
-                      border: '1px solid rgba(255, 51, 75, 0.5)',
-                      boxShadow: '0 4px 20px rgba(255, 51, 75, 0.35)',
+                      border: '1px solid #6B7280',
+                      boxShadow: '0 4px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
                       cursor: loading ? 'wait' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -618,16 +586,18 @@ export function BookDemoPage({ onNavigate }) {
                     }}
                     onMouseEnter={(e) => {
                       if (!loading) {
-                        e.currentTarget.style.background = '#FF4D61';
+                        e.currentTarget.style.background = 'linear-gradient(180deg, #5B6677 0%, #444E5E 100%)';
+                        e.currentTarget.style.borderColor = '#9CA3AF';
                         e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 6px 24px rgba(255, 51, 75, 0.45)';
+                        e.currentTarget.style.boxShadow = '0 6px 24px rgba(0, 0, 0, 0.55)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!loading) {
-                        e.currentTarget.style.background = '#FF334B';
+                        e.currentTarget.style.background = 'linear-gradient(180deg, #4B5563 0%, #374151 100%)';
+                        e.currentTarget.style.borderColor = '#6B7280';
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 51, 75, 0.35)';
+                        e.currentTarget.style.boxShadow = '0 4px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
                       }
                     }}
                   >
@@ -635,7 +605,7 @@ export function BookDemoPage({ onNavigate }) {
                       <span>{t.btnSubmitting}</span>
                     ) : (
                       <>
-                        <span>{t.btnSubmit}</span>
+                        <span>REQUEST ONLINE MEETING</span>
                         <ArrowRight size={18} />
                       </>
                     )}

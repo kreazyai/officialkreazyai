@@ -242,8 +242,8 @@
 
 .topbar-search-wrap input:focus {
   background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 51, 75, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(255, 51, 75, 0.15) !important;
+  border-color: rgba(148, 163, 184, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15) !important;
 }
 
 .search-shortcut-kbd {
@@ -2549,10 +2549,10 @@
 }
 
 .revenue-toggle-btn.active {
-  background: #FF334B !important;
+  background: #475569 !important;
   color: #FFFFFF !important;
   font-weight: 750;
-  box-shadow: 0 2px 8px rgba(255, 51, 75, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* ── Hero Summary Cards ──────────────────────────────────────────────── */

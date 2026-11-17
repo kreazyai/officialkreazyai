@@ -335,8 +335,8 @@ export function GoogleVerificationModal({
                     gap: '0.85rem',
                     padding: '0.85rem 1rem',
                     borderRadius: '14px',
-                    border: `1.5px solid ${selectedMode === 'saved' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
-                    backgroundColor: selectedMode === 'saved' ? 'rgba(255, 51, 75, 0.08)' : 'rgba(18, 24, 38, 0.6)',
+                    border: `1.5px solid ${selectedMode === 'saved' ? '#475569' : 'rgba(255, 255, 255, 0.12)'}`,
+                    backgroundColor: selectedMode === 'saved' ? 'rgba(148, 163, 184, 0.08)' : 'rgba(18, 24, 38, 0.6)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
@@ -380,7 +380,7 @@ export function GoogleVerificationModal({
                     name="accountOption"
                     checked={selectedMode === 'saved'}
                     onChange={() => setSelectedMode('saved')}
-                    style={{ accentColor: '#FF334B', cursor: 'pointer' }}
+                    style={{ accentColor: '#475569', cursor: 'pointer' }}
                   />
                 </div>
 
@@ -392,8 +392,8 @@ export function GoogleVerificationModal({
                     gap: '0.85rem',
                     padding: '0.75rem 1rem',
                     borderRadius: '14px',
-                    border: `1.5px solid ${selectedMode === 'new' ? '#FF334B' : 'rgba(255, 255, 255, 0.12)'}`,
-                    backgroundColor: selectedMode === 'new' ? 'rgba(255, 51, 75, 0.08)' : 'rgba(18, 24, 38, 0.6)',
+                    border: `1.5px solid ${selectedMode === 'new' ? '#475569' : 'rgba(255, 255, 255, 0.12)'}`,
+                    backgroundColor: selectedMode === 'new' ? 'rgba(148, 163, 184, 0.08)' : 'rgba(18, 24, 38, 0.6)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
@@ -422,7 +422,7 @@ export function GoogleVerificationModal({
                     name="accountOption"
                     checked={selectedMode === 'new'}
                     onChange={() => setSelectedMode('new')}
-                    style={{ accentColor: '#FF334B', cursor: 'pointer' }}
+                    style={{ accentColor: '#475569', cursor: 'pointer' }}
                   />
                 </div>
               </div>
@@ -745,7 +745,7 @@ export function GoogleVerificationModal({
                 style={{
                   padding: '0.6rem 1.25rem',
                   borderRadius: '10px',
-                  background: '#FF334B',
+                  background: '#475569',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 700,

@@ -33,6 +33,7 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { PricingTiersSection } from '../../components/website/PricingTiersSection';
 import { HeroPricingBoxes } from '../../components/website/HeroPricingBoxes';
+import { HeroMetricCard } from '../../components/website/HeroMetricCard';
 import { leadService } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -382,37 +383,6 @@ export function HomePage({ onNavigate, user }) {
                 </div>
               </div>
 
-              {/* 4 Benefit / Feature Pills */}
-              <div className="hero-feature-pills">
-                <div className="hero-feature-pill pill-support">
-                  <span className="feature-pill-icon">
-                    <MessageSquare size={17} />
-                  </span>
-                  <span className="feature-pill-label">{t('hero.pillSupport', 'Customer Support')}</span>
-                </div>
-
-                <div className="hero-feature-pill pill-leads">
-                  <span className="feature-pill-icon">
-                    <Users size={17} />
-                  </span>
-                  <span className="feature-pill-label">{t('hero.pillLeads', 'More Leads')}</span>
-                </div>
-
-                <div className="hero-feature-pill pill-sales">
-                  <span className="feature-pill-icon">
-                    <BarChart3 size={17} />
-                  </span>
-                  <span className="feature-pill-label">{t('hero.pillSales', 'Higher Sales')}</span>
-                </div>
-
-                <div className="hero-feature-pill pill-time">
-                  <span className="feature-pill-icon">
-                    <Clock size={17} />
-                  </span>
-                  <span className="feature-pill-label">{t('hero.pillTime', 'Save Time')}</span>
-                </div>
-              </div>
-
               {/* CTA Action Buttons */}
               <div className="hero-action-buttons">
                 <button
@@ -638,6 +608,27 @@ export function HomePage({ onNavigate, user }) {
             </div>
           </div>
         )}
+      </section>
+
+      {/* =============================================================
+          LIVE TRENDING PERFORMANCE TELEMETRY SECTION
+          Centered in middle line directly after the Hero section
+          ============================================================= */}
+      <section className="hero-trending-telemetry-section" id="live-performance">
+        <div className="container">
+          <div className="hero-trending-header">
+            <h2 className="hero-trending-title">
+              {t('heroTelemetry.title', 'Real-Time Store Growth & Order Stream')}
+            </h2>
+            <p className="hero-trending-sub">
+              {t('heroTelemetry.sub', 'Track automated customer conversations, live order conversions, and store revenue streaming in real time across Meta channels.')}
+            </p>
+          </div>
+
+          <div className="hero-trending-telemetry-wrap">
+            <HeroMetricCard onNavigate={onNavigate} />
+          </div>
+        </div>
       </section>
 
       {/* =============================================================

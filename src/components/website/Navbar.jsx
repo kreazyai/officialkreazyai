@@ -12,7 +12,6 @@ export function Navbar({
   onLogout,
   showDiscountBanner = true,
   discountPercent = 10,
-  badgeText,
   promoPrefix,
   promoMessage,
   ctaText,
@@ -74,7 +73,6 @@ export function Navbar({
           <TopDiscountBanner
             onNavigate={onNavigate}
             discountPercent={discountPercent}
-            badgeText={badgeText}
             promoPrefix={promoPrefix}
             promoMessage={promoMessage}
             ctaText={ctaText}
@@ -110,7 +108,8 @@ export function Navbar({
                   <span style={{
                     fontSize: '0.65rem',
                     fontWeight: 800,
-                    background: 'linear-gradient(135deg, #FF334B 0%, #F59E0B 100%)',
+                    background: 'linear-gradient(135deg, #475569 0%, #334155 100%)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     color: '#FFFFFF',
                     padding: '1px 6px',
                     borderRadius: 0,
@@ -248,7 +247,7 @@ export function Navbar({
                   setMobileMenuOpen(false);
                   if (onLogout) onLogout();
                 }}
-                style={{ width: '100%', justifyContent: 'center', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                style={{ width: '100%', justifyContent: 'center', color: '#94A3B8', border: '1px solid rgba(255, 255, 255, 0.15)' }}
               >
                 {t('nav.signOut')}
               </Button>

@@ -5,7 +5,6 @@ import { useLanguage } from '../../context/LanguageContext';
 export function TopDiscountBanner({
   onNavigate,
   discountPercent = 10,
-  badgeText,
   promoPrefix,
   promoMessage,
   ctaText,
@@ -30,7 +29,6 @@ export function TopDiscountBanner({
     return null;
   }
 
-  const effectiveBadge = badgeText || t('banner.badge', 'Limited Time Offer');
   const effectivePrefix = promoPrefix || t('banner.prefix', 'Get');
   const effectiveMessage = promoMessage || t('banner.suffix', 'on Kreazy AI');
   const effectiveCta = ctaText || t('banner.cta', 'Claim Offer');
@@ -122,11 +120,6 @@ export function TopDiscountBanner({
           className="discount-banner-content apple-discount-content"
           onClick={handleClaimOffer}
         >
-          <span className="discount-banner-badge apple-discount-badge">
-            <span className="apple-discount-dot" aria-hidden="true" />
-            <span className="discount-badge-label">{effectiveBadge}</span>
-          </span>
-
           <span className="discount-banner-text apple-discount-text">
             {effectivePrefix}{' '}
             <strong className="discount-highlight apple-discount-highlight">{discountPercent}% OFF</strong>{' '}
