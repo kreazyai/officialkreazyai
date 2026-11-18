@@ -383,6 +383,37 @@ export function HomePage({ onNavigate, user }) {
                 </div>
               </div>
 
+              {/* 4 Benefit / Feature Pills */}
+              <div className="hero-feature-pills">
+                <div className="hero-feature-pill pill-support">
+                  <span className="feature-pill-icon">
+                    <MessageSquare size={17} />
+                  </span>
+                  <span className="feature-pill-label">{t('hero.pillSupport', 'Customer Support')}</span>
+                </div>
+
+                <div className="hero-feature-pill pill-leads">
+                  <span className="feature-pill-icon">
+                    <Users size={17} />
+                  </span>
+                  <span className="feature-pill-label">{t('hero.pillLeads', 'More Leads')}</span>
+                </div>
+
+                <div className="hero-feature-pill pill-sales">
+                  <span className="feature-pill-icon">
+                    <BarChart3 size={17} />
+                  </span>
+                  <span className="feature-pill-label">{t('hero.pillSales', 'Higher Sales')}</span>
+                </div>
+
+                <div className="hero-feature-pill pill-time">
+                  <span className="feature-pill-icon">
+                    <Clock size={17} />
+                  </span>
+                  <span className="feature-pill-label">{t('hero.pillTime', 'Save Time')}</span>
+                </div>
+              </div>
+
               {/* CTA Action Buttons */}
               <div className="hero-action-buttons">
                 <button

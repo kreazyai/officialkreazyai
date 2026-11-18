@@ -102,6 +102,17 @@ function getRouteStateFromUrl() {
     return { page: 'home', dashboardModule: 'overview', rawPath: '/' };
   }
 
+  // Handle SPA fallback redirect from static CDN / CloudFront 404 handler
+  try {
+    const spaRedirect = sessionStorage.getItem('spa_redirect');
+    if (spaRedirect) {
+      sessionStorage.removeItem('spa_redirect');
+      window.history.replaceState(null, '', spaRedirect);
+    }
+  } catch {
+    // sessionStorage unavailable
+  }
+
   const isAdminRoute = window.location.pathname.startsWith('/admin');
   if (isAdminRoute) {
     return { page: 'admin', dashboardModule: null, rawPath: window.location.pathname };
